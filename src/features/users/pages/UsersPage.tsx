@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, Shield, Mail, Clock } from 'lucide-react';
+import { UserPlus, Clock } from 'lucide-react';
 import { Card, CardHeader, Table, Badge, Button, Modal, Input, PermissionTooltip } from '@/shared/ui';
 import { mockOrganizationUsers } from '@/services/mock';
 import { useAuthStore } from '@/store';
@@ -49,7 +49,7 @@ export function UsersPage() {
       id: `user-${Date.now()}`,
       ...newUser,
       estado: 'activo',
-      ultimoAcceso: null,
+      ultimoAcceso: new Date().toISOString(),
     };
     
     setUsers(prev => [...prev, created]);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Wifi, WifiOff, Link2, Link2Off, Settings } from 'lucide-react';
-import { Card, CardHeader, Table, Badge, Button, Modal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal } from '@/shared/ui';
 import { mockDevices, mockVehicles } from '@/services/mock';
 
 interface Device {
@@ -47,7 +47,7 @@ export function DevicesPage() {
     }
   };
 
-  const handleAssign = async (vehicleId: string) => {
+  const handleAssign = async (_vehicleId: string) => {
     setIsLoading(true);
     // Simular operación
     await new Promise(r => setTimeout(r, 1000));
@@ -56,7 +56,7 @@ export function DevicesPage() {
     alert('Dispositivo asignado correctamente (mock)');
   };
 
-  const handleUnassign = async (device: Device) => {
+  const handleUnassign = async (_device: Device) => {
     if (!confirm('¿Desea desasignar este dispositivo del vehículo?')) return;
     setIsLoading(true);
     await new Promise(r => setTimeout(r, 1000));

@@ -1,11 +1,10 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Car, 
   Cpu, 
   Bell, 
-  Users, 
-  Settings,
+  Users,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';

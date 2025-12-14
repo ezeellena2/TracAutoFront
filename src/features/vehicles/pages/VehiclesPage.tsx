@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Filter, Eye, MapPin } from 'lucide-react';
-import { Card, CardHeader, Table, Badge, Button, Input, Modal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Input, Modal } from '@/shared/ui';
 import { mockVehicles } from '@/services/mock';
 
 interface Vehicle {

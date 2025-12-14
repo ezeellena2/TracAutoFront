@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Car, Cpu, Bell, Wifi, TrendingUp, AlertTriangle, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Car, Cpu, Bell, Wifi, AlertTriangle, Clock } from 'lucide-react';
 import { KPICard, Card, CardHeader, Badge } from '@/shared/ui';
 import { mockDashboardKPIs, mockRecentActivity } from '@/services/mock';
 

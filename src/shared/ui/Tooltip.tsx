@@ -1,5 +1,5 @@
 import React from 'react';
-import { LucideIcon, Info } from 'lucide-react';
+
 
 interface TooltipProps {
   content: string;

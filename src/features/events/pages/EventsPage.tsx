@@ -1,20 +1,10 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle, Clock, Filter, Search } from 'lucide-react';
-import { Card, CardHeader, Badge, Button, Input } from '@/shared/ui';
+import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Card, Badge, Button } from '@/shared/ui';
 import { mockEvents } from '@/services/mock';
 import { useAuthStore } from '@/store';
 
-interface Event {
-  id: string;
-  tipo: string;
-  vehicleId: string;
-  patente: string;
-  descripcion: string;
-  severidad: string;
-  estado: string;
-  fecha: string;
-  ubicacion: string;
-}
+// Event type is inferred from mockEvents
 
 export function EventsPage() {
   const [events, setEvents] = useState(mockEvents);

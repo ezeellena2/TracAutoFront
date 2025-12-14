@@ -85,16 +85,16 @@ export const mockHandlers = {
     return success(mockDevices);
   },
 
-  async assignDevice(deviceId: string, vehicleId: string) {
+  async assignDevice(_deviceId: string, _vehicleId: string) {
     await delay(700);
-    const device = mockDevices.find(d => d.id === deviceId);
+    const device = mockDevices.find(d => d.id === _deviceId);
     if (!device) return error('Dispositivo no encontrado', 404);
     
     // En modo mock solo retornamos éxito
     return success({ message: 'Dispositivo asignado correctamente' });
   },
 
-  async unassignDevice(deviceId: string) {
+  async unassignDevice(_deviceId: string) {
     await delay(700);
     return success({ message: 'Dispositivo desasignado correctamente' });
   },
