@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Search, Filter, Eye, MapPin } from 'lucide-react';
-import { Card, Table, Badge, Button, Input, Modal } from '@/shared/ui';
+import { Search, Filter, Eye, MapPin, Plus } from 'lucide-react';
+import { Card, Table, Badge, Button, Input, Modal, PermissionGate } from '@/shared/ui';
 import { mockVehicles } from '@/services/mock';
+import { usePermissions } from '@/hooks';
 
 interface Vehicle {
   id: string;
@@ -20,6 +21,11 @@ export function VehiclesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { can } = usePermissions();
+
+  // Permisos
+  const canEdit = can('vehiculos:editar');
+  const canDelete = can('vehiculos:eliminar');
 
   const filteredVehicles = vehicles.filter(v => 
     v.patente.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,16 +87,29 @@ export function VehiclesPage() {
       key: 'actions',
       header: 'Acciones',
       render: (v: Vehicle) => (
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleViewDetails(v);
-          }}
-        >
-          <Eye size={16} />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails(v);
+            }}
+          >
+            <Eye size={16} />
+          </Button>
+          {/* Botones adicionales solo visibles con permisos */}
+          {canEdit && (
+            <Button variant="ghost" size="sm" title="Editar">
+              ✏️
+            </Button>
+          )}
+          {canDelete && (
+            <Button variant="ghost" size="sm" title="Eliminar" className="text-red-500">
+              🗑️
+            </Button>
+          )}
+        </div>
       )
     },
   ];
@@ -103,6 +122,12 @@ export function VehiclesPage() {
           <h1 className="text-2xl font-bold text-text">Vehículos</h1>
           <p className="text-text-muted mt-1">Gestión de vehículos asegurados</p>
         </div>
+        <PermissionGate permission="vehiculos:crear">
+          <Button>
+            <Plus size={18} className="mr-2" />
+            Agregar Vehículo
+          </Button>
+        </PermissionGate>
       </div>
 
       {/* Filters */}

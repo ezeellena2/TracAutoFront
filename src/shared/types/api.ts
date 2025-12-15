@@ -134,3 +134,60 @@ export interface ProblemDetails {
   code?: string;
   [key: string]: unknown;
 }
+
+// ==================== Usuarios de Organización DTOs ====================
+
+export interface UsuarioOrganizacionDto {
+  usuarioId: string;
+  email: string;
+  nombreCompleto: string;
+  rol: 'Admin' | 'Operador' | 'Analista';
+  esDuenio: boolean;
+  activo: boolean;
+  fechaAsignacion: string;
+}
+
+// ==================== Invitaciones DTOs ====================
+
+export type EstadoInvitacion = 'Pendiente' | 'Aceptada' | 'Expirada' | 'Cancelada';
+
+export interface InvitacionDto {
+  id: string;
+  email: string;
+  organizacionId: string;
+  nombreOrganizacion: string;
+  rolAsignado: 'Admin' | 'Operador' | 'Analista';
+  estado: EstadoInvitacion;
+  fechaExpiracion: string;
+  fechaCreacion: string;
+  fechaAceptacion: string | null;
+}
+
+// --- Invitaciones Requests ---
+
+export interface CreateInvitacionRequest {
+  email: string;
+  rolAsignado: 'Admin' | 'Operador' | 'Analista';
+}
+
+export interface AceptarInvitacionRequest {
+  nombreCompleto: string;
+  password: string;
+  telefono?: string;
+}
+
+// --- Invitaciones Responses ---
+
+export interface AceptarInvitacionResponse {
+  usuarioId: string;
+  organizacionId: string;
+  nombreOrganizacion: string;
+  rol: string;
+  mensaje: string;
+}
+
+// --- Cambiar Rol Request ---
+
+export interface CambiarRolRequest {
+  nuevoRol: 'Admin' | 'Operador' | 'Analista';
+}

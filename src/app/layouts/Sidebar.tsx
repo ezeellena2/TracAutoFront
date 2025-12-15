@@ -8,13 +8,17 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTenantStore } from '@/store';
+import { usePermissions } from '@/hooks';
+import { Permission } from '@/config/permissions';
 
 interface NavItem {
   path: string;
   label: string;
   icon: React.ElementType;
+  /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
+  requiredPermission?: Permission;
 }
 
 const navItems: NavItem[] = [
@@ -22,12 +26,21 @@ const navItems: NavItem[] = [
   { path: '/vehiculos', label: 'Vehículos', icon: Car },
   { path: '/dispositivos', label: 'Dispositivos', icon: Cpu },
   { path: '/eventos', label: 'Eventos', icon: Bell },
-  { path: '/usuarios', label: 'Usuarios', icon: Users },
+  { path: '/usuarios', label: 'Usuarios', icon: Users, requiredPermission: 'usuarios:ver' },
 ];
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { currentOrganization } = useTenantStore();
+  const { can } = usePermissions();
+
+  // Filtrar items según permisos del usuario
+  const visibleNavItems = useMemo(() => 
+    navItems.filter(item => 
+      !item.requiredPermission || can(item.requiredPermission)
+    ),
+    [can]
+  );
 
   return (
     <aside 
@@ -55,7 +68,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="p-4 space-y-2">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

@@ -9,6 +9,7 @@ import { VehiclesPage } from '@/features/vehicles';
 import { DevicesPage } from '@/features/devices';
 import { EventsPage } from '@/features/events';
 import { UsersPage } from '@/features/users';
+import { AcceptInvitationPage } from '@/features/invitations/pages/AcceptInvitationPage';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: '/registro',
     element: <RegistroPage />,
+  },
+  {
+    path: '/invitacion/:token',
+    element: <AcceptInvitationPage />,
   },
   {
     path: '/',

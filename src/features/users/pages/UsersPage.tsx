@@ -1,32 +1,74 @@
-import { useState } from 'react';
-import { UserPlus, Clock } from 'lucide-react';
-import { Card, CardHeader, Table, Badge, Button, Modal, Input, PermissionTooltip } from '@/shared/ui';
-import { mockOrganizationUsers } from '@/services/mock';
-import { useAuthStore } from '@/store';
-import { UserRole } from '@/shared/types';
+import { useState, useEffect, useCallback } from 'react';
+import { Trash2, UserPlus, Clock, UserCog } from 'lucide-react';
+import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, ConfirmationModal } from '@/shared/ui';
+import { organizacionesApi } from '@/services/endpoints';
+import { usePermissions } from '@/hooks';
+import { UsuarioOrganizacionDto } from '@/shared/types/api';
+import { InviteUserModal } from '../components/InviteUserModal';
+import { PendingInvitationsTable } from '../components/PendingInvitationsTable';
 
-interface OrganizationUser {
-  id: string;
-  nombre: string;
-  email: string;
-  rol: string;
-  estado: string;
-  ultimoAcceso: string | null;
-}
+type RolType = 'Admin' | 'Operador' | 'Analista';
 
 export function UsersPage() {
-  const [users, setUsers] = useState(mockOrganizationUsers);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { user: currentUser } = useAuthStore();
+  const [users, setUsers] = useState<UsuarioOrganizacionDto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
+  const [refreshInvites, setRefreshInvites] = useState(0);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { can } = usePermissions();
 
-  const [newUser, setNewUser] = useState({
-    nombre: '',
-    email: '',
-    rol: 'Analista' as UserRole,
-  });
+  // Permisos específicos para acciones de usuarios
+  const canEdit = can('usuarios:editar');
+  const canDelete = can('usuarios:eliminar');
 
-  const isAdmin = currentUser?.rol === 'Admin';
+  const loadUsers = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await organizacionesApi.getUsuariosOrganizacion();
+      setUsers(data);
+    } catch (err) {
+      console.error('Error loading users:', err);
+      setError('Error al cargar usuarios');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  const handleChangeRole = async (userId: string, nuevoRol: RolType) => {
+    try {
+      await organizacionesApi.cambiarRolUsuario(userId, nuevoRol);
+      await loadUsers();
+      setActionMenuOpen(null);
+    } catch (err) {
+      console.error('Error changing role:', err);
+    }
+  };
+
+  const confirmDeleteUser = (userId: string) => {
+    setUserToDelete(userId);
+    setActionMenuOpen(null);
+  };
+
+  const handleRemoveUser = async (userId: string) => {
+    try {
+      setIsDeleting(true);
+      await organizacionesApi.removerUsuario(userId);
+      await loadUsers();
+      setUserToDelete(null);
+    } catch (err) {
+      console.error('Error removing user:', err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return 'Nunca';
@@ -38,37 +80,24 @@ export function UsersPage() {
     });
   };
 
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAdmin) return;
-    
-    setIsLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    
-    const created = {
-      id: `user-${Date.now()}`,
-      ...newUser,
-      estado: 'activo',
-      ultimoAcceso: new Date().toISOString(),
-    };
-    
-    setUsers(prev => [...prev, created]);
-    setIsLoading(false);
-    setIsCreateModalOpen(false);
-    setNewUser({ nombre: '', email: '', rol: 'Analista' });
-  };
-
   const columns = [
     { 
-      key: 'nombre', 
+      key: 'nombreCompleto', 
       header: 'Usuario',
-      render: (u: OrganizationUser) => (
+      render: (u: UsuarioOrganizacionDto) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-            {u.nombre.charAt(0)}
+            {u.nombreCompleto.charAt(0)}
           </div>
           <div>
-            <p className="font-medium text-text">{u.nombre}</p>
+            <p className="font-medium text-text">
+              {u.nombreCompleto}
+              {u.esDuenio && (
+                <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                  Dueño
+                </span>
+              )}
+            </p>
             <p className="text-sm text-text-muted">{u.email}</p>
           </div>
         </div>
@@ -77,35 +106,122 @@ export function UsersPage() {
     {
       key: 'rol',
       header: 'Rol',
-      render: (u: OrganizationUser) => {
+      render: (u: UsuarioOrganizacionDto) => {
         const colors: Record<string, 'info' | 'warning' | 'success'> = {
           Admin: 'info',
           Operador: 'warning',
           Analista: 'success',
         };
-        return <Badge variant={colors[u.rol] || 'default'}>{u.rol}</Badge>;
+        return (
+          <div className="flex gap-2">
+            <Badge variant={colors[u.rol] || 'default'}>{u.rol}</Badge>
+            {!u.activo && <Badge variant="error" size="sm">Inhabilitado</Badge>}
+          </div>
+        );
       }
     },
     {
-      key: 'estado',
-      header: 'Estado',
-      render: (u: OrganizationUser) => (
-        <Badge variant={u.estado === 'activo' ? 'success' : 'warning'}>
-          {u.estado}
-        </Badge>
-      )
-    },
-    {
-      key: 'ultimoAcceso',
-      header: 'Último Acceso',
-      render: (u: OrganizationUser) => (
-        <div className="flex items-center gap-1 text-text-muted">
+      key: 'fechaAsignacion',
+      header: 'Miembro desde',
+      render: (u: UsuarioOrganizacionDto) => (
+        <div className={`flex items-center gap-1 text-text-muted ${!u.activo ? 'opacity-50' : ''}`}>
           <Clock size={14} />
-          {formatDate(u.ultimoAcceso)}
+          {formatDate(u.fechaAsignacion)}
         </div>
       )
     },
+    {
+      key: 'actions',
+      header: '',
+      render: (u: UsuarioOrganizacionDto) => {
+        // Solo Admin puede ver acciones, y no se puede modificar al dueño
+        if (!canEdit && !canDelete) return null;
+        if (u.esDuenio) return null;
+        
+        const isOpen = actionMenuOpen === u.usuarioId;
+
+        return (
+          <ActionMenu
+            isOpen={isOpen}
+            onToggle={() => setActionMenuOpen(isOpen ? null : u.usuarioId)}
+            onClose={() => setActionMenuOpen(null)}
+          >
+            <div className="flex flex-col">
+              <div className="px-3 py-2 text-xs font-medium text-text-muted border-b border-border">
+                Cambiar rol
+              </div>
+              {(['Admin', 'Operador', 'Analista'] as RolType[]).map((rol) => (
+                <button
+                  key={rol}
+                  onClick={() => {
+                    setActionMenuOpen(null);
+                    handleChangeRole(u.usuarioId, rol);
+                  }}
+                  disabled={u.rol === rol}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 ${
+                    u.rol === rol ? 'text-text-muted' : 'text-text'
+                  }`}
+                >
+                  <UserCog size={14} />
+                  {rol} {u.rol === rol && '(actual)'}
+                </button>
+              ))}
+              
+              <div className="border-t border-border my-1" />
+              
+              <button
+                className={`w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 ${
+                  u.activo ? 'text-warning' : 'text-success'
+                }`}
+                onClick={async () => {
+                   setActionMenuOpen(null);
+                   try {
+                     await organizacionesApi.cambiarEstadoUsuario(u.usuarioId, !u.activo);
+                     await loadUsers();
+                   } catch (error) {
+                     console.error(error);
+                   }
+                }}
+              >
+                {u.activo ? (
+                    <>
+                        <UserCog size={14} /> {/* Placeholder icon, consider Ban/EyeOff */}
+                        Inhabilitar
+                    </>
+                ) : (
+                    <>
+                        <UserPlus size={14} />
+                        Habilitar
+                    </>
+                )}
+              </button>
+
+              <div className="border-t border-border my-1" />
+              <button
+                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                onClick={() => {
+                  setActionMenuOpen(null);
+                  confirmDeleteUser(u.usuarioId);
+                }}
+              >
+                <Trash2 size={14} />
+                Eliminar definitivamente
+              </button>
+            </div>
+          </ActionMenu>
+        );
+      }
+    },
   ];
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-500">{error}</p>
+        <Button onClick={loadUsers} className="mt-4">Reintentar</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -116,15 +232,12 @@ export function UsersPage() {
           <p className="text-text-muted mt-1">Gestión de usuarios de la organización</p>
         </div>
         
-        <PermissionTooltip hasPermission={isAdmin} permissionName="Administrador">
-          <Button 
-            onClick={() => setIsCreateModalOpen(true)}
-            disabled={!isAdmin}
-          >
+        <PermissionGate permission="usuarios:invitar">
+          <Button onClick={() => setIsInviteModalOpen(true)}>
             <UserPlus size={18} className="mr-2" />
-            Nuevo Usuario
+            Invitar Usuario
           </Button>
-        </PermissionTooltip>
+        </PermissionGate>
       </div>
 
       {/* Permissions Matrix */}
@@ -163,13 +276,7 @@ export function UsersPage() {
                 <td className="px-4 py-3 text-center">❌</td>
               </tr>
               <tr>
-                <td className="px-4 py-3 text-text">Resolver Eventos</td>
-                <td className="px-4 py-3 text-center">✅</td>
-                <td className="px-4 py-3 text-center">✅</td>
-                <td className="px-4 py-3 text-center">❌</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 text-text">Crear Usuarios</td>
+                <td className="px-4 py-3 text-text">Gestionar Usuarios</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">❌</td>
                 <td className="px-4 py-3 text-center">❌</td>
@@ -180,66 +287,45 @@ export function UsersPage() {
       </Card>
 
       {/* Users Table */}
-      <Card padding="none">
-        <Table
-          columns={columns}
-          data={users}
-          keyExtractor={(u) => u.id}
-        />
+      <Card padding="none" className="overflow-visible">
+        {isLoading ? (
+          <div className="p-8 text-center text-text-muted">
+            Cargando usuarios...
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            data={users}
+            keyExtractor={(u) => u.usuarioId}
+            containerClassName="overflow-visible"
+          />
+        )}
       </Card>
 
-      {/* Create User Modal */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title="Crear Usuario"
-        size="md"
-      >
-        <form onSubmit={handleCreateUser} className="space-y-4">
-          <Input
-            label="Nombre completo"
-            value={newUser.nombre}
-            onChange={(e) => setNewUser(prev => ({ ...prev, nombre: e.target.value }))}
-            placeholder="Juan Pérez"
-            required
-          />
-          
-          <Input
-            label="Correo electrónico"
-            type="email"
-            value={newUser.email}
-            onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-            placeholder="juan@empresa.com"
-            required
-          />
-          
-          <div>
-            <label className="block text-sm font-medium text-text mb-1.5">Rol</label>
-            <select
-              value={newUser.rol}
-              onChange={(e) => setNewUser(prev => ({ ...prev, rol: e.target.value as UserRole }))}
-              className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="Admin">Administrador</option>
-              <option value="Operador">Operador</option>
-              <option value="Analista">Analista</option>
-            </select>
-          </div>
-          
-          <div className="flex justify-end gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="ghost"
-              onClick={() => setIsCreateModalOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" isLoading={isLoading}>
-              Crear Usuario
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      {/* Invite User Modal */}
+      <InviteUserModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onSuccess={() => {
+          loadUsers();
+          setRefreshInvites(prev => prev + 1);
+        }}
+      />
+      
+      <PendingInvitationsTable key={refreshInvites} />
+
+      <ConfirmationModal
+        isOpen={!!userToDelete}
+        onClose={() => setUserToDelete(null)}
+        onConfirm={() => {
+          if (userToDelete) handleRemoveUser(userToDelete);
+        }}
+        title="Eliminar Usuario"
+        description="¿Estás seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

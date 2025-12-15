@@ -23,8 +23,9 @@ export function Table<T>({
   keyExtractor, 
   onRowClick,
   isLoading = false,
-  emptyMessage = 'No hay datos para mostrar'
-}: TableProps<T>) {
+  emptyMessage = 'No hay datos para mostrar',
+  containerClassName = ''
+}: TableProps<T> & { containerClassName?: string }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -42,7 +43,7 @@ export function Table<T>({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className={`overflow-x-auto ${containerClassName}`}>
       <table className="w-full">
         <thead>
           <tr className="border-b border-border">

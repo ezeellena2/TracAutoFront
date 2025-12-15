@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Wifi, WifiOff, Link2, Link2Off, Settings } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal } from '@/shared/ui';
 import { mockDevices, mockVehicles } from '@/services/mock';
+import { usePermissions } from '@/hooks';
 
 interface Device {
   id: string;
@@ -19,6 +20,11 @@ export function DevicesPage() {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { can } = usePermissions();
+
+  // Permisos
+  const canAssign = can('dispositivos:asignar');
+  const canConfigure = can('dispositivos:configurar');
 
   const availableVehicles = mockVehicles.filter(v => !v.deviceId);
 
@@ -93,34 +99,47 @@ export function DevicesPage() {
     {
       key: 'actions',
       header: 'Acciones',
-      render: (d: Device) => (
-        <div className="flex items-center gap-2">
-          {d.vehicleId ? (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleUnassign(d);
-              }}
-            >
-              <Link2Off size={16} className="text-error" />
-            </Button>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedDevice(d);
-                setIsAssignModalOpen(true);
-              }}
-            >
-              <Link2 size={16} className="text-success" />
-            </Button>
-          )}
-        </div>
-      )
+      render: (d: Device) => {
+        // Sin permiso de asignar, no mostrar acciones
+        if (!canAssign) return null;
+        
+        return (
+          <div className="flex items-center gap-2">
+            {d.vehicleId ? (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                title="Desasignar"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUnassign(d);
+                }}
+              >
+                <Link2Off size={16} className="text-error" />
+              </Button>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                title="Asignar a vehículo"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedDevice(d);
+                  setIsAssignModalOpen(true);
+                }}
+              >
+                <Link2 size={16} className="text-success" />
+              </Button>
+            )}
+            {/* Botón configurar solo para Admin */}
+            {canConfigure && (
+              <Button variant="ghost" size="sm" title="Configurar">
+                <Settings size={16} />
+              </Button>
+            )}
+          </div>
+        );
+      }
     },
   ];
 

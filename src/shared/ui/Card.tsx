@@ -25,11 +25,12 @@ interface CardHeaderProps {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  className?: string; // Nuevo prop
 }
 
-export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
+export function CardHeader({ title, subtitle, action, className = '' }: CardHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-4">
+    <div className={`flex items-start justify-between mb-4 ${className}`}>
       <div>
         <h3 className="text-lg font-semibold text-text">{title}</h3>
         {subtitle && <p className="text-sm text-text-muted mt-0.5">{subtitle}</p>}

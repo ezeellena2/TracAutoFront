@@ -1,30 +1,33 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store';
+import { usePermissions } from '@/hooks';
+import { UserRole } from '@/shared/types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRoles?: string[];
+  /** Roles específicos requeridos (opcional, usa matriz de ROUTE_ACCESS si no se especifica) */
+  requiredRoles?: UserRole[];
 }
 
 /**
- * Componente que protege rutas que requieren autenticación
- * Redirige a /login si el usuario no está autenticado
+ * Componente que protege rutas que requieren autenticación y/o roles específicos
+ * - Redirige a /login si el usuario no está autenticado
+ * - Muestra "Acceso Denegado" si no tiene el rol requerido
  */
 export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, user, token } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
+  const { canAccessRoute, role } = usePermissions();
   const location = useLocation();
 
-  // Verificar autenticación
+  // 1. Verificar autenticación
   if (!isAuthenticated || !token) {
-    // Guardar la ubicación actual para redirigir después del login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Verificar roles si se especifican
-  if (requiredRoles && requiredRoles.length > 0 && user) {
-    const hasRequiredRole = requiredRoles.includes(user.rol);
+  // 2. Verificar roles específicos si se proporcionan
+  if (requiredRoles && requiredRoles.length > 0 && role) {
+    const hasRequiredRole = requiredRoles.includes(role);
     if (!hasRequiredRole) {
-      // Usuario no tiene el rol requerido
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center p-8">
@@ -41,5 +44,11 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
     }
   }
 
+  // 3. Verificar acceso a ruta según matriz ROUTE_ACCESS
+  if (!canAccessRoute(location.pathname)) {
+    return <Navigate to="/" replace state={{ from: location, unauthorized: true }} />;
+  }
+
   return <>{children}</>;
 }
+
