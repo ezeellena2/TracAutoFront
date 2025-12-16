@@ -343,16 +343,17 @@ export function BrandingPage() {
   const applyPresetToForm = (preset: ThemePreset) => {
     // Presets de EMPRESA: solo aplican tokens de branding (no background/surface/text).
     // Mantener comportamiento: preview inmediato, sin guardar.
+    const pickHex = (v: string | undefined) => (v && isHexColor(v) ? normalize(v) : undefined);
     setForm((s) => ({
       ...s,
-      primary: preset.colors.primary ?? s.primary,
-      secondary: preset.colors.secondary ?? s.secondary,
-      roleAdminBg: preset.colors.roleAdminBg ?? s.roleAdminBg,
-      roleAdminText: preset.colors.roleAdminText ?? s.roleAdminText,
-      roleOperadorBg: preset.colors.roleOperadorBg ?? s.roleOperadorBg,
-      roleOperadorText: preset.colors.roleOperadorText ?? s.roleOperadorText,
-      roleAnalistaBg: preset.colors.roleAnalistaBg ?? s.roleAnalistaBg,
-      roleAnalistaText: preset.colors.roleAnalistaText ?? s.roleAnalistaText,
+      primary: pickHex(preset.colors.primary) ?? s.primary,
+      secondary: pickHex(preset.colors.secondary) ?? s.secondary,
+      roleAdminBg: pickHex(preset.colors.roleAdminBg) ?? s.roleAdminBg,
+      roleAdminText: pickHex(preset.colors.roleAdminText) ?? s.roleAdminText,
+      roleOperadorBg: pickHex(preset.colors.roleOperadorBg) ?? s.roleOperadorBg,
+      roleOperadorText: pickHex(preset.colors.roleOperadorText) ?? s.roleOperadorText,
+      roleAnalistaBg: pickHex(preset.colors.roleAnalistaBg) ?? s.roleAnalistaBg,
+      roleAnalistaText: pickHex(preset.colors.roleAnalistaText) ?? s.roleAnalistaText,
     }));
     setActivePresetId(preset.id);
     toast.info(`Preset aplicado (preview): ${preset.name}. No se guardó.`);
