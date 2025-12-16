@@ -100,4 +100,5 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/dispositivos': ['Admin', 'Operador', 'Analista'],
   '/eventos': ['Admin', 'Operador', 'Analista'],
   '/dashboard': ['Admin', 'Operador', 'Analista'],
+  '/configuracion/empresa/apariencia': ['Admin'],
 };

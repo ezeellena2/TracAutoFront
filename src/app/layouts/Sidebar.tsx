@@ -5,6 +5,7 @@ import {
   Cpu, 
   Bell, 
   Users,
+  Palette,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -27,6 +28,7 @@ const navItems: NavItem[] = [
   { path: '/dispositivos', label: 'Dispositivos', icon: Cpu },
   { path: '/eventos', label: 'Eventos', icon: Bell },
   { path: '/usuarios', label: 'Usuarios', icon: Users, requiredPermission: 'usuarios:ver' },
+  { path: '/configuracion/empresa/apariencia', label: 'Empresa · Apariencia', icon: Palette, requiredPermission: 'organizacion:editar' },
 ];
 
 export function Sidebar() {

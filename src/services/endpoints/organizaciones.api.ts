@@ -11,7 +11,8 @@ import {
   ListaPaginada, 
   PaginacionParams,
   UsuarioOrganizacionDto,
-  CambiarRolRequest
+  CambiarRolRequest,
+  OrganizacionThemeDto
 } from '@/shared/types/api';
 
 const ORGANIZACIONES_BASE = 'organizaciones';
@@ -43,18 +44,15 @@ export async function getOrganizaciones(
           nombre: 'SegurosTech',
           razonSocial: 'SegurosTech S.A.',
           cuit: '30-12345678-9',
-          tipo: 1,
+          tipoOrganizacion: 2, // Aseguradora
           activa: true,
           fechaCreacion: new Date().toISOString(),
-          logoUrl: null,
         },
       ],
-      numeroPagina: 1,
+      paginaActual: 1,
       tamanoPagina: 10,
       totalPaginas: 1,
-      totalItems: 1,
-      tienePaginaAnterior: false,
-      tienePaginaSiguiente: false,
+      totalRegistros: 1,
     };
   }
 
@@ -138,6 +136,52 @@ export async function removerUsuario(userId: string): Promise<void> {
 }
 
 /**
+ * Obtiene una organización por su ID
+ * Incluye el theme si está disponible
+ */
+export async function getOrganizacionById(orgId: string): Promise<OrganizacionDto> {
+  if (shouldUseMocks()) {
+    // Mock fallback - retornar organización demo sin theme
+    return {
+      id: orgId,
+      nombre: 'SegurosTech',
+      razonSocial: 'SegurosTech S.A.',
+      cuit: '30-12345678-9',
+      tipoOrganizacion: 2, // Aseguradora
+      activa: true,
+      fechaCreacion: new Date().toISOString(),
+      // theme no incluido en mock - usar fallback
+    };
+  }
+
+  const response = await apiClient.get<OrganizacionDto>(
+    `${ORGANIZACIONES_BASE}/${orgId}`
+  );
+  return response.data;
+}
+
+/**
+ * Actualiza el theme/branding de una organización (patch parcial).
+ * Envía SOLO los campos modificados.
+ */
+export async function updateOrganizacionTheme(
+  orgId: string,
+  patch: Partial<Record<keyof OrganizacionThemeDto, string | null>>
+): Promise<OrganizacionThemeDto> {
+  if (shouldUseMocks()) {
+    await new Promise(r => setTimeout(r, 400));
+    // Mock simple: devolver el patch como "theme result"
+    return patch as OrganizacionThemeDto;
+  }
+
+  const response = await apiClient.put<OrganizacionThemeDto>(
+    `${ORGANIZACIONES_BASE}/${orgId}/theme`,
+    patch
+  );
+  return response.data;
+}
+
+/**
  * Cambia el estado (habilitar/deshabilitar) de un usuario
  */
 export async function cambiarEstadoUsuario(
@@ -159,8 +203,10 @@ export async function cambiarEstadoUsuario(
 
 export const organizacionesApi = {
   getOrganizaciones,
+  getOrganizacionById,
   getUsuariosOrganizacion,
   cambiarRolUsuario,
   removerUsuario,
   cambiarEstadoUsuario,
+  updateOrganizacionTheme,
 };
