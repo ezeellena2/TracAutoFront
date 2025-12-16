@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useTenantStore, useThemeStore } from '@/store';
 
 const queryClient = new QueryClient({
@@ -18,16 +18,18 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps) {
   const { currentOrganization } = useTenantStore();
-  const { applyThemeToCSSVariables, resetToDefault } = useThemeStore();
+  const { isDarkMode, setDarkMode, resetToDefault } = useThemeStore();
 
-  // Aplicar theme al cargar si hay una organización seleccionada
-  useEffect(() => {
+  // Aplicar theme cuando cambia la organización: tema base (según isDarkMode) + override
+  useLayoutEffect(() => {
     if (currentOrganization) {
-      applyThemeToCSSVariables(currentOrganization.theme);
+      // Usar tema base según isDarkMode + override de organización
+      setDarkMode(isDarkMode, currentOrganization.theme);
     } else {
       resetToDefault();
     }
-  }, [currentOrganization, applyThemeToCSSVariables, resetToDefault]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrganization]); // Solo cuando cambia la organización
 
   return (
     <QueryClientProvider client={queryClient}>

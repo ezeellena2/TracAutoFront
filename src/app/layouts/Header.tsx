@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ChevronDown, Building2, Shield } from 'lucide-react';
+import { LogOut, User, ChevronDown, Building2, Shield, Moon, Sun } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useAuthStore, useTenantStore } from '@/store';
+import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { authService } from '@/services/auth.service';
 
 export function Header() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { currentOrganization } = useTenantStore();
+  const { isDarkMode, setDarkMode } = useThemeStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,11 +28,16 @@ export function Header() {
     navigate('/login', { replace: true });
   };
 
-  // Mapeo de roles a colores
+  const handleToggleDarkMode = () => {
+    // Cambia el modo UI (baseTheme) y re-aplica el mismo override de organización (sin modificarlo).
+    setDarkMode(!isDarkMode, currentOrganization?.theme);
+  };
+
+  // Mapeo de roles a clases basadas en tokens del sistema
   const roleColors: Record<string, string> = {
-    Admin: 'bg-purple-100 text-purple-700',
-    Operador: 'bg-blue-100 text-blue-700',
-    Analista: 'bg-green-100 text-green-700',
+    Admin: 'bg-role-admin-bg text-role-admin-text',
+    Operador: 'bg-role-operador-bg text-role-operador-text',
+    Analista: 'bg-role-analista-bg text-role-analista-text',
   };
 
   return (
@@ -40,12 +46,24 @@ export function Header() {
       <div className="flex items-center gap-4">
         {currentOrganization && (
           <div className="flex items-center gap-3">
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-              style={{ backgroundColor: currentOrganization.theme?.primary || '#3B82F6' }}
-            >
-              {currentOrganization.name.charAt(0)}
-            </div>
+            {currentOrganization.logo ? (
+              <div className="w-8 h-8 rounded-lg bg-surface border border-border overflow-hidden flex items-center justify-center">
+                <img
+                  src={currentOrganization.logo}
+                  alt={`${currentOrganization.name} logo`}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            ) : (
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-primary"
+              >
+                {currentOrganization.name.charAt(0)}
+              </div>
+            )}
             <div>
               <span className="font-semibold text-text">{currentOrganization.name}</span>
             </div>
@@ -61,7 +79,7 @@ export function Header() {
         >
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium text-text">{user?.nombre || 'Usuario'}</p>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[user?.rol || ''] || 'bg-gray-100 text-gray-700'}`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[user?.rol || ''] || 'bg-role-default-bg text-role-default-text'}`}>
               {user?.rol || 'Usuario'}
             </span>
           </div>
@@ -98,6 +116,24 @@ export function Header() {
                 <span className="text-xs">{user?.rol}</span>
               </div>
             </div>
+
+            {/* Dark mode toggle */}
+            <button
+              onClick={handleToggleDarkMode}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-background transition-colors"
+            >
+              {isDarkMode ? (
+                <>
+                  <Sun size={16} />
+                  Modo claro
+                </>
+              ) : (
+                <>
+                  <Moon size={16} />
+                  Modo oscuro
+                </>
+              )}
+            </button>
 
             {/* Logout button */}
             <button
