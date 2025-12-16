@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { Building2, Palette, Save, Undo2, Sparkles } from 'lucide-react';
 import { Button, Card, Input } from '@/shared/ui';
 import { usePermissions } from '@/hooks';
-import { useTenantStore, useThemeStore } from '@/store';
+import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import { organizacionesApi } from '@/services/endpoints/organizaciones.api';
 import { ThemeColors } from '@/shared/types/organization';
@@ -16,14 +16,6 @@ type ThemeFormState = {
   primary: string;
   primaryDark: string;
   secondary: string;
-  background: string;
-  surface: string;
-  text: string;
-  textMuted: string;
-  border: string;
-  success: string;
-  warning: string;
-  error: string;
   roleAdminBg: string;
   roleAdminText: string;
   roleOperadorBg: string;
@@ -37,14 +29,6 @@ const EMPTY_FORM: ThemeFormState = {
   primary: '',
   primaryDark: '',
   secondary: '',
-  background: '',
-  surface: '',
-  text: '',
-  textMuted: '',
-  border: '',
-  success: '',
-  warning: '',
-  error: '',
   roleAdminBg: '',
   roleAdminText: '',
   roleOperadorBg: '',
@@ -53,11 +37,11 @@ const EMPTY_FORM: ThemeFormState = {
   roleAnalistaText: '',
 };
 
-function normalize(v: string): string {
-  return v.trim();
+function normalize(v: string | null | undefined): string {
+  return (v ?? '').trim();
 }
 
-function isHexColor(v: string): boolean {
+function isHexColor(v: string | null | undefined): boolean {
   const s = normalize(v);
   return /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.test(s);
 }
@@ -108,17 +92,10 @@ function ColorField({
 
 function mapThemeDtoToColorsOverride(theme?: OrganizacionThemeDto | null): Partial<ThemeColors> {
   return {
+    // Branding (solo marca; NO background/surface/text, etc.)
     ...(theme?.primary ? { primary: theme.primary } : {}),
     ...(theme?.primaryDark ? { primaryDark: theme.primaryDark } : {}),
     ...(theme?.secondary ? { secondary: theme.secondary } : {}),
-    ...(theme?.background ? { background: theme.background } : {}),
-    ...(theme?.surface ? { surface: theme.surface } : {}),
-    ...(theme?.text ? { text: theme.text } : {}),
-    ...(theme?.textMuted ? { textMuted: theme.textMuted } : {}),
-    ...(theme?.border ? { border: theme.border } : {}),
-    ...(theme?.success ? { success: theme.success } : {}),
-    ...(theme?.warning ? { warning: theme.warning } : {}),
-    ...(theme?.error ? { error: theme.error } : {}),
     ...(theme?.roleAdminBg ? { roleAdminBg: theme.roleAdminBg } : {}),
     ...(theme?.roleAdminText ? { roleAdminText: theme.roleAdminText } : {}),
     ...(theme?.roleOperadorBg ? { roleOperadorBg: theme.roleOperadorBg } : {}),
@@ -132,6 +109,7 @@ export function BrandingPage() {
   const { can } = usePermissions();
   const isAllowed = can('organizacion:editar');
 
+  const { organizationId } = useAuthStore();
   const { currentOrganization, setOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode } = useThemeStore();
 
@@ -151,6 +129,36 @@ export function BrandingPage() {
   // Guardar baseline para diff + para revertir preview al salir sin guardar
   const baselineRef = useRef<{ logoUrl: string; theme: Partial<ThemeColors> }>({ logoUrl: '', theme: {} });
 
+  // Hidratación simple (sin selector multi-org): si no hay org en tenant store, cargar por id desde auth store.
+  useEffect(() => {
+    if (currentOrganization) return;
+    if (!organizationId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const orgDto = await organizacionesApi.getOrganizacionById(organizationId);
+        if (cancelled) return;
+
+        const override = mapThemeDtoToColorsOverride(orgDto.theme);
+        const logoUrl = orgDto.theme?.logoUrl ?? '';
+
+        setOrganization({
+          id: orgDto.id,
+          name: orgDto.nombre,
+          logo: logoUrl,
+          theme: override,
+        });
+      } catch {
+        // noop: la UI seguirá mostrando "Cargando organización…"
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentOrganization, organizationId, setOrganization]);
+
   useEffect(() => {
     isDarkModeRef.current = isDarkMode;
   }, [isDarkMode]);
@@ -169,14 +177,6 @@ export function BrandingPage() {
       primary: currentOrganization.theme?.primary || '',
       primaryDark: currentOrganization.theme?.primaryDark || '',
       secondary: currentOrganization.theme?.secondary || '',
-      background: currentOrganization.theme?.background || '',
-      surface: currentOrganization.theme?.surface || '',
-      text: currentOrganization.theme?.text || '',
-      textMuted: currentOrganization.theme?.textMuted || '',
-      border: currentOrganization.theme?.border || '',
-      success: currentOrganization.theme?.success || '',
-      warning: currentOrganization.theme?.warning || '',
-      error: currentOrganization.theme?.error || '',
       roleAdminBg: currentOrganization.theme?.roleAdminBg || '',
       roleAdminText: currentOrganization.theme?.roleAdminText || '',
       roleOperadorBg: currentOrganization.theme?.roleOperadorBg || '',
@@ -196,14 +196,6 @@ export function BrandingPage() {
     put('primary', 'primary');
     put('primaryDark', 'primaryDark');
     put('secondary', 'secondary');
-    put('background', 'background');
-    put('surface', 'surface');
-    put('text', 'text');
-    put('textMuted', 'textMuted');
-    put('border', 'border');
-    put('success', 'success');
-    put('warning', 'warning');
-    put('error', 'error');
     put('roleAdminBg', 'roleAdminBg');
     put('roleAdminText', 'roleAdminText');
     put('roleOperadorBg', 'roleOperadorBg');
@@ -276,14 +268,6 @@ export function BrandingPage() {
     diffStr('primary', 'primary', baseline.theme.primary || '');
     diffStr('primaryDark', 'primaryDark', baseline.theme.primaryDark || '');
     diffStr('secondary', 'secondary', baseline.theme.secondary || '');
-    diffStr('background', 'background', baseline.theme.background || '');
-    diffStr('surface', 'surface', baseline.theme.surface || '');
-    diffStr('text', 'text', baseline.theme.text || '');
-    diffStr('textMuted', 'textMuted', baseline.theme.textMuted || '');
-    diffStr('border', 'border', baseline.theme.border || '');
-    diffStr('success', 'success', baseline.theme.success || '');
-    diffStr('warning', 'warning', baseline.theme.warning || '');
-    diffStr('error', 'error', baseline.theme.error || '');
     diffStr('roleAdminBg', 'roleAdminBg', baseline.theme.roleAdminBg || '');
     diffStr('roleAdminText', 'roleAdminText', baseline.theme.roleAdminText || '');
     diffStr('roleOperadorBg', 'roleOperadorBg', baseline.theme.roleOperadorBg || '');
@@ -320,14 +304,6 @@ export function BrandingPage() {
       primary: baseline.theme.primary || '',
       primaryDark: baseline.theme.primaryDark || '',
       secondary: baseline.theme.secondary || '',
-      background: baseline.theme.background || '',
-      surface: baseline.theme.surface || '',
-      text: baseline.theme.text || '',
-      textMuted: baseline.theme.textMuted || '',
-      border: baseline.theme.border || '',
-      success: baseline.theme.success || '',
-      warning: baseline.theme.warning || '',
-      error: baseline.theme.error || '',
       roleAdminBg: baseline.theme.roleAdminBg || '',
       roleAdminText: baseline.theme.roleAdminText || '',
       roleOperadorBg: baseline.theme.roleOperadorBg || '',
@@ -399,7 +375,7 @@ export function BrandingPage() {
   const logoPreview = normalize(form.logoUrl);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 space-y-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
           <Palette size={20} className="text-primary" />
@@ -407,7 +383,7 @@ export function BrandingPage() {
         <div className="flex-1">
           <h1 className="text-xl font-semibold text-text">Empresa · Apariencia / Branding</h1>
           <p className="text-sm text-text-muted">
-            Configura un override parcial del tema base para toda la organización. Preview inmediato (sin guardar).
+            Configura colores de marca de la empresa. Preview inmediato (sin guardar).
           </p>
         </div>
         <div className="flex gap-3">
@@ -422,13 +398,13 @@ export function BrandingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-9 space-y-6">
           <Card>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-text-muted" />
-                <h2 className="font-semibold text-text">Presets (opcionales)</h2>
+                <h2 className="font-semibold text-text">Presets (branding)</h2>
               </div>
               <p className="text-sm text-text-muted">
                 Son <strong>preview</strong> inmediato. No guardan automáticamente: puedes ajustar manualmente y luego guardar.
@@ -492,29 +468,7 @@ export function BrandingPage() {
             </div>
           </Card>
 
-          <Card>
-            <div className="p-6 space-y-6">
-              <h2 className="font-semibold text-text">Superficie / Texto / UI</h2>
-              <div className="space-y-4">
-                <ColorField label="Background" value={form.background} onChange={(v) => setForm((s) => ({ ...s, background: v }))} />
-                <ColorField label="Surface" value={form.surface} onChange={(v) => setForm((s) => ({ ...s, surface: v }))} />
-                <ColorField label="Text" value={form.text} onChange={(v) => setForm((s) => ({ ...s, text: v }))} />
-                <ColorField label="Text muted" value={form.textMuted} onChange={(v) => setForm((s) => ({ ...s, textMuted: v }))} />
-                <ColorField label="Border" value={form.border} onChange={(v) => setForm((s) => ({ ...s, border: v }))} />
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="p-6 space-y-6">
-              <h2 className="font-semibold text-text">Estados</h2>
-              <div className="space-y-4">
-                <ColorField label="Success" value={form.success} onChange={(v) => setForm((s) => ({ ...s, success: v }))} />
-                <ColorField label="Warning" value={form.warning} onChange={(v) => setForm((s) => ({ ...s, warning: v }))} />
-                <ColorField label="Error" value={form.error} onChange={(v) => setForm((s) => ({ ...s, error: v }))} />
-              </div>
-            </div>
-          </Card>
+          {/* Branding de empresa: NO incluye background/surface/text/estados (pertenecen al tema base light/dark) */}
 
           <Card>
             <div className="p-6 space-y-6">
@@ -540,7 +494,7 @@ export function BrandingPage() {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-3 lg:sticky lg:top-4 self-start">
           <Card>
             <div className="p-6 space-y-4">
               <h2 className="font-semibold text-text">Preview</h2>
@@ -577,13 +531,13 @@ export function BrandingPage() {
               <h2 className="font-semibold text-text">Notas</h2>
               <ul className="text-sm text-text-muted space-y-2">
                 <li>
-                  - Solo se editan tokens soportados por backend (no se inventan campos).
+                  - El modo claro/oscuro es preferencia del usuario (no se guarda por empresa).
                 </li>
                 <li>
-                  - El theme es por organización: no hay selector ni cambio de empresa.
+                  - El branding de empresa define colores de marca (primary/roles). El resto depende del tema base light/dark.
                 </li>
                 <li>
-                  - Los tokens no editables permanecen en defaults del tema base (light/dark).
+                  - Presets solo completan inputs; no guardan automáticamente.
                 </li>
               </ul>
             </div>

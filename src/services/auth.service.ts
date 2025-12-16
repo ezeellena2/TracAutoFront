@@ -7,6 +7,9 @@ import { authApi } from '@/services/endpoints';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { AuthUser } from '@/shared/types';
 import { OrganizationTheme } from '@/shared/types/organization';
+import { getUiModeStorageKey } from '@/store/theme.store';
+import { organizacionesApi } from '@/services/endpoints/organizaciones.api';
+import { ThemeColors } from '@/shared/types/organization';
 
 export interface LoginResult {
   success: boolean;
@@ -23,6 +26,46 @@ export async function login(email: string, password: string): Promise<LoginResul
     
     // Guardar en auth store
     useAuthStore.getState().login(user, token);
+
+    // Aplicar UI mode preferido por usuario+organización (si existe).
+    // Importante: NO forma parte del branding de empresa; es preferencia del usuario.
+    let preferredIsDark = useThemeStore.getState().isDarkMode;
+    try {
+      const raw = localStorage.getItem(getUiModeStorageKey(user.id, user.organizationId));
+      preferredIsDark = raw === 'dark' ? true : raw === 'light' ? false : preferredIsDark;
+    } catch {
+      // noop (SSR/no storage)
+    }
+
+    // Cargar branding de empresa (company-wide) y aplicarlo como override.
+    // Esto hace que Admin y Operador vean los mismos colores de marca en la misma organización.
+    // Best-effort: si falla, seguimos con el tema base y el usuario puede navegar igual.
+    try {
+      const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
+      const t = orgDto.theme;
+      const override: Partial<ThemeColors> = {
+        ...(t?.primary ? { primary: t.primary } : {}),
+        ...(t?.primaryDark ? { primaryDark: t.primaryDark } : {}),
+        ...(t?.secondary ? { secondary: t.secondary } : {}),
+        ...(t?.roleAdminBg ? { roleAdminBg: t.roleAdminBg } : {}),
+        ...(t?.roleAdminText ? { roleAdminText: t.roleAdminText } : {}),
+        ...(t?.roleOperadorBg ? { roleOperadorBg: t.roleOperadorBg } : {}),
+        ...(t?.roleOperadorText ? { roleOperadorText: t.roleOperadorText } : {}),
+        ...(t?.roleAnalistaBg ? { roleAnalistaBg: t.roleAnalistaBg } : {}),
+        ...(t?.roleAnalistaText ? { roleAnalistaText: t.roleAnalistaText } : {}),
+      };
+
+      useTenantStore.getState().setOrganization({
+        id: orgDto.id,
+        name: orgDto.nombre,
+        logo: t?.logoUrl ?? '',
+        theme: override,
+      });
+
+      useThemeStore.getState().setDarkMode(preferredIsDark, override);
+    } catch {
+      useThemeStore.getState().setDarkMode(preferredIsDark);
+    }
     
     return {
       success: true,
@@ -53,9 +96,16 @@ export async function loginWithOrganization(
     
     // Guardar organización y tema
     useTenantStore.getState().setOrganization(organization);
-    // organization.theme es un override parcial: aplicar sobre el tema base actual (light/dark)
+    // UI mode preferido (usuario+organización) + branding override (empresa)
     const themeState = useThemeStore.getState();
-    themeState.setDarkMode(themeState.isDarkMode, organization.theme);
+    let preferredIsDark = themeState.isDarkMode;
+    try {
+      const raw = localStorage.getItem(getUiModeStorageKey(user.id, user.organizationId));
+      preferredIsDark = raw === 'dark' ? true : raw === 'light' ? false : preferredIsDark;
+    } catch {
+      // noop
+    }
+    themeState.setDarkMode(preferredIsDark, organization.theme);
     
     return {
       success: true,
@@ -80,8 +130,8 @@ export function logout(): void {
   // Limpiar tenant store
   useTenantStore.getState().clearOrganization();
   
-  // Opcional: resetear tema a valores por defecto
-  // useThemeStore.getState().resetTheme();
+  // Resetear tema al base del sistema para que /login quede estándar (sin override de empresa ni modo del usuario anterior).
+  useThemeStore.getState().resetToDefault();
 }
 
 /**
