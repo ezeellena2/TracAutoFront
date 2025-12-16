@@ -10,6 +10,7 @@ import { DevicesPage } from '@/features/devices';
 import { EventsPage } from '@/features/events';
 import { UsersPage } from '@/features/users';
 import { AcceptInvitationPage } from '@/features/invitations/pages/AcceptInvitationPage';
+import { BrandingPage } from '@/features/organization';
 
 const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: 'usuarios',
         element: <UsersPage />,
+      },
+      {
+        path: 'configuracion/empresa/apariencia',
+        element: <BrandingPage />,
       },
     ],
   },

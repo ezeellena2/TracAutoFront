@@ -146,7 +146,6 @@ export function BrandingPage() {
    * - organizationThemeDraft: override actual en edición (preview, no persistido)
    * - organizationThemePersisted: override persistido (baseline backend)
    */
-  const uiMode = isDarkMode ? 'dark' : 'light';
   const [activePresetId, setActivePresetId] = useState<ThemePreset['id'] | null>(null);
 
   // Guardar baseline para diff + para revertir preview al salir sin guardar
@@ -216,7 +215,6 @@ export function BrandingPage() {
   }, [form]);
 
   const organizationThemeDraft = previewOverride;
-  const organizationThemePersisted = baselineRef.current.theme;
 
   // Preview inmediato: aplica el override del form sobre el tema base actual
   useLayoutEffect(() => {

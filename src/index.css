@@ -15,6 +15,19 @@
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
+  /* Tokens semánticos para roles */
+  --color-role-admin: #a855f7;
+  --color-role-admin-bg: rgba(168, 85, 247, 0.1);
+  --color-role-admin-text: #c4b5fd;
+  --color-role-operador: #3b82f6;
+  --color-role-operador-bg: rgba(59, 130, 246, 0.1);
+  --color-role-operador-text: #93c5fd;
+  --color-role-analista: #22c55e;
+  --color-role-analista-bg: rgba(34, 197, 94, 0.1);
+  --color-role-analista-text: #86efac;
+  --color-role-default: #94a3b8;
+  --color-role-default-bg: rgba(148, 163, 184, 0.1);
+  --color-role-default-text: #cbd5e1;
 }
 
 /* Base styles */

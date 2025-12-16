@@ -53,7 +53,9 @@ export async function loginWithOrganization(
     
     // Guardar organización y tema
     useTenantStore.getState().setOrganization(organization);
-    useThemeStore.getState().setTheme(organization.theme);
+    // organization.theme es un override parcial: aplicar sobre el tema base actual (light/dark)
+    const themeState = useThemeStore.getState();
+    themeState.setDarkMode(themeState.isDarkMode, organization.theme);
     
     return {
       success: true,

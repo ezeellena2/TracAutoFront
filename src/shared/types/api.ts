@@ -15,11 +15,11 @@ export enum CanalEnvio {
 
 /** Tipo de organización */
 export enum TipoOrganizacion {
-  Aseguradora = 1,
-  BrokerSeguros = 2,
-  FlotaPrivada = 3,
-  RentACar = 4,
-  Otro = 99,
+  FlotaPrivada = 1,
+  Aseguradora = 2,
+  TallerMecanico = 3,
+  ConcesionarioAutos = 4,
+  EmpresaRenting = 5,
 }
 
 // --- Requests ---
@@ -95,25 +95,65 @@ export interface GoogleAuthResponse {
 
 // ==================== Organizaciones DTOs ====================
 
+/**
+ * DTO de theme/branding de organización.
+ * Alineado con el backend: todos los campos son opcionales para overrides parciales.
+ */
+export interface OrganizacionThemeDto {
+  // Branding
+  logoUrl?: string | null;
+  faviconUrl?: string | null;
+
+  // Colores principales
+  primary?: string | null;
+  primaryDark?: string | null;
+  secondary?: string | null;
+
+  // Fondos y superficies
+  background?: string | null;
+  surface?: string | null;
+
+  // Texto
+  text?: string | null;
+  textMuted?: string | null;
+
+  // UI
+  border?: string | null;
+  success?: string | null;
+  warning?: string | null;
+  error?: string | null;
+
+  // Roles (solo bg/text en backend)
+  roleAdminBg?: string | null;
+  roleAdminText?: string | null;
+  roleOperadorBg?: string | null;
+  roleOperadorText?: string | null;
+  roleAnalistaBg?: string | null;
+  roleAnalistaText?: string | null;
+}
+
 export interface OrganizacionDto {
   id: string;
   nombre: string;
   razonSocial: string | null;
   cuit: string | null;
-  tipo: TipoOrganizacion;
+  tipoOrganizacion: TipoOrganizacion;
   activa: boolean;
   fechaCreacion: string;
-  logoUrl: string | null;
+  /**
+   * Override parcial del tema base (opcional)
+   * Solo se especifican los valores que la organización quiere personalizar
+   * Si no está presente, se usa el tema base según dark/light mode
+   */
+  theme?: OrganizacionThemeDto | null;
 }
 
 export interface ListaPaginada<T> {
   items: T[];
-  numeroPagina: number;
+  paginaActual: number;
   tamanoPagina: number;
   totalPaginas: number;
-  totalItems: number;
-  tienePaginaAnterior: boolean;
-  tienePaginaSiguiente: boolean;
+  totalRegistros: number;
 }
 
 export interface PaginacionParams {

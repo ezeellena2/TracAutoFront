@@ -14,18 +14,34 @@ export interface ThemeColors {
   success: string;
   warning: string;
   error: string;
+  // Tokens semánticos para roles
+  roleAdmin: string;
+  roleAdminBg: string;
+  roleAdminText: string;
+  roleOperador: string;
+  roleOperadorBg: string;
+  roleOperadorText: string;
+  roleAnalista: string;
+  roleAnalistaBg: string;
+  roleAnalistaText: string;
+  roleDefault: string;
+  roleDefaultBg: string;
+  roleDefaultText: string;
 }
 
 export interface OrganizationTheme {
   id: string;
   name: string;
   logo: string;
-  theme: ThemeColors;
+  /**
+   * Override parcial del tema base
+   * Solo se especifican los valores que la organización quiere personalizar
+   */
+  theme: Partial<ThemeColors>;
 }
 
 export interface Organization {
   id: string;
   nombre: string;
-  logoUrl?: string;
   activo: boolean;
 }
