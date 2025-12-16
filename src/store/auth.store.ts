@@ -11,6 +11,11 @@ interface AuthState {
   // Actions
   login: (user: AuthUser, token: string) => void;
   logout: () => void;
+  /**
+   * Actualiza solo el access token sin tocar el usuario/organización.
+   * Se usa para el refresh automático del interceptor.
+   */
+  setToken: (token: string | null) => void;
   setOrganizationId: (orgId: string) => void;
 }
 
@@ -35,6 +40,8 @@ export const useAuthStore = create<AuthState>()(
         token: null,
         organizationId: null,
       }),
+
+      setToken: (token) => set({ token }),
 
       setOrganizationId: (orgId) => set({ organizationId: orgId }),
     }),
