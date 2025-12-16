@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Building2, Palette, Save, Undo2, Sparkles } from 'lucide-react';
 import { Button, Card, Input } from '@/shared/ui';
@@ -219,7 +219,7 @@ export function BrandingPage() {
   const organizationThemePersisted = baselineRef.current.theme;
 
   // Preview inmediato: aplica el override del form sobre el tema base actual
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!currentOrganization) return;
     // themeFinal = merge(baseTheme(uiMode), organizationThemeOverride(draft))
     setDarkMode(isDarkMode, organizationThemeDraft);
