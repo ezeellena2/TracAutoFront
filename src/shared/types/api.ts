@@ -27,12 +27,26 @@ export enum TipoOrganizacion {
 export const RegistrarEmpresaRequestSchema = z.object({
   nombreEmpresa: z.string().min(2, "Nombre de empresa requerido"),
   razonSocial: z.string().optional(),
-  cuit: z.string().optional(),
+  cuit: z
+    .string()
+    .regex(/^[\d\-]+$/, "CUIT solo puede contener números y guiones")
+    .max(20, "CUIT no puede exceder 20 caracteres")
+    .optional(),
   tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
   email: z.string().email("Email inválido"),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .regex(/[A-Z]/, "La contraseña debe contener al menos una mayúscula")
+    .regex(/[a-z]/, "La contraseña debe contener al menos una minúscula")
+    .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+    .regex(/[^a-zA-Z0-9]/, "La contraseña debe contener al menos un carácter especial"),
   nombreCompleto: z.string().min(2, "Nombre completo requerido"),
-  telefono: z.string().optional(),
+  telefono: z
+    .string()
+    .regex(/^[\d\+\-\s\(\)]+$/, "Formato de teléfono inválido")
+    .max(20, "Teléfono no puede exceder 20 caracteres")
+    .optional(),
   googleToken: z.string().optional(),
 });
 export type RegistrarEmpresaRequest = z.infer<

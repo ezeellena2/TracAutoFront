@@ -130,16 +130,28 @@ export async function loginWithOrganization(
 
 /**
  * Cierra la sesión del usuario
+ * Intenta revocar el refresh token en el backend (best-effort)
  */
-export function logout(): void {
-  // Limpiar auth store
-  useAuthStore.getState().logout();
-  
-  // Limpiar tenant store
-  useTenantStore.getState().clearOrganization();
-  
-  // Resetear tema al base del sistema para que /login quede estándar (sin override de empresa ni modo del usuario anterior).
-  useThemeStore.getState().resetToDefault();
+export async function logout(): Promise<void> {
+  try {
+    // Intentar revocar refresh token en backend
+    // Si falla (red, timeout, etc.), continuamos igual con cleanup local
+    await authApi.logout();
+  } catch (error) {
+    // Best-effort: ignorar errores del backend
+    console.warn('Error al revocar token en backend (continuando con logout local):', error);
+  } finally {
+    // Siempre limpiar stores locales, independientemente del resultado del backend
+
+    // Limpiar auth store
+    useAuthStore.getState().logout();
+
+    // Limpiar tenant store
+    useTenantStore.getState().clearOrganization();
+
+    // Resetear tema al base del sistema para que /login quede estándar (sin override de empresa ni modo del usuario anterior).
+    useThemeStore.getState().resetToDefault();
+  }
 }
 
 /**

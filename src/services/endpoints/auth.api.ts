@@ -181,6 +181,21 @@ export async function loginConGoogle(data: LoginConGoogleRequest): Promise<Googl
   return response.data;
 }
 
+/**
+ * Logout - revoca el refresh token en el backend
+ * Best-effort: si falla, el frontend igual limpiará la sesión
+ */
+export async function logout(): Promise<void> {
+  if (shouldUseMocks()) {
+    await new Promise(r => setTimeout(r, 200));
+    return;
+  }
+
+  // Llamar al backend para revocar el refresh token (HttpOnly cookie)
+  // El backend lee el refresh token de la cookie automáticamente
+  await apiClient.post(`${AUTH_BASE}/logout`);
+}
+
 export const authApi = {
   login,
   loginTradicional,
@@ -188,4 +203,5 @@ export const authApi = {
   verificarCuenta,
   reenviarCodigo,
   loginConGoogle,
+  logout,
 };
