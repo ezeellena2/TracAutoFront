@@ -1,38 +1,39 @@
-import { useState } from 'react';
-import { Wifi, WifiOff, Link2, Link2Off, Settings } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal } from '@/shared/ui';
-import { mockDevices, mockVehicles } from '@/services/mock';
+import { useCallback, useEffect, useState } from 'react';
+import { Wifi, WifiOff, Settings, AlertCircle } from 'lucide-react';
+import { Card, Table, Badge, Button } from '@/shared/ui';
+import { dispositivosApi } from '@/services/endpoints';
 import { usePermissions } from '@/hooks';
-
-interface Device {
-  id: string;
-  modelo: string;
-  tipo: string;
-  imei: string;
-  estado: string;
-  vehicleId: string | null;
-  ultimoPing: string | null;
-  firmware: string;
-}
+import type { DispositivoDto } from '@/shared/types/api';
 
 export function DevicesPage() {
-  const [devices] = useState(mockDevices);
-  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [devices, setDevices] = useState<DispositivoDto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { can } = usePermissions();
+
+  const loadDevices = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await dispositivosApi.getDispositivos();
+      setDevices(data);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'No se pudo cargar la lista de dispositivos';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Cargar dispositivos al montar el componente
+  useEffect(() => {
+    void loadDevices();
+  }, [loadDevices]);
 
   // Permisos
   const canAssign = can('dispositivos:asignar');
   const canConfigure = can('dispositivos:configurar');
-
-  const availableVehicles = mockVehicles.filter(v => !v.deviceId);
-
-  const getVehiclePatente = (vehicleId: string | null) => {
-    if (!vehicleId) return null;
-    const vehicle = mockVehicles.find(v => v.id === vehicleId);
-    return vehicle?.patente;
-  };
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
@@ -44,104 +45,114 @@ export function DevicesPage() {
     });
   };
 
-  const getEstadoBadge = (estado: string) => {
+  const getEstadoBadge = (estado: string | null) => {
+    if (!estado) return <Badge variant="info">Desconocido</Badge>;
     switch (estado) {
       case 'online': return <Badge variant="success">Online</Badge>;
       case 'offline': return <Badge variant="error">Offline</Badge>;
-      case 'disponible': return <Badge variant="info">Disponible</Badge>;
-      default: return <Badge>{estado}</Badge>;
+      default: return <Badge variant="info">{estado}</Badge>;
     }
   };
 
-  const handleAssign = async (_vehicleId: string) => {
-    setIsLoading(true);
-    // Simular operación
-    await new Promise(r => setTimeout(r, 1000));
-    setIsLoading(false);
-    setIsAssignModalOpen(false);
-    alert('Dispositivo asignado correctamente (mock)');
-  };
-
-  const handleUnassign = async (_device: Device) => {
-    if (!confirm('¿Desea desasignar este dispositivo del vehículo?')) return;
-    setIsLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setIsLoading(false);
-    alert('Dispositivo desasignado correctamente (mock)');
-  };
-
   const columns = [
-    { key: 'modelo', header: 'Modelo', sortable: true },
-    { key: 'tipo', header: 'Tipo' },
-    { key: 'imei', header: 'IMEI' },
+    { key: 'nombre', header: 'Nombre', sortable: true },
     {
       key: 'estado',
       header: 'Estado',
-      render: (d: Device) => getEstadoBadge(d.estado)
+      render: (d: DispositivoDto) => getEstadoBadge(d.estado)
     },
     {
-      key: 'vehicleId',
-      header: 'Vehículo',
-      render: (d: Device) => {
-        const patente = getVehiclePatente(d.vehicleId);
-        return patente ? (
-          <Badge variant="info">{patente}</Badge>
-        ) : (
-          <span className="text-text-muted">-</span>
-        );
-      }
+      key: 'ultimaActualizacionUtc',
+      header: 'Última actualización',
+      render: (d: DispositivoDto) => formatDate(d.ultimaActualizacionUtc)
     },
     {
-      key: 'ultimoPing',
-      header: 'Último Ping',
-      render: (d: Device) => formatDate(d.ultimoPing)
+      key: 'activo',
+      header: 'Activo',
+      render: (d: DispositivoDto) => (
+        d.activo ? <Badge variant="success">Sí</Badge> : <Badge variant="error">No</Badge>
+      )
     },
     {
       key: 'actions',
       header: 'Acciones',
-      render: (d: Device) => {
+      render: (_d: DispositivoDto) => {
         // Sin permiso de asignar, no mostrar acciones
-        if (!canAssign) return null;
-        
-        return (
-          <div className="flex items-center gap-2">
-            {d.vehicleId ? (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                title="Desasignar"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUnassign(d);
-                }}
-              >
-                <Link2Off size={16} className="text-error" />
-              </Button>
-            ) : (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                title="Asignar a vehículo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedDevice(d);
-                  setIsAssignModalOpen(true);
-                }}
-              >
-                <Link2 size={16} className="text-success" />
-              </Button>
-            )}
-            {/* Botón configurar solo para Admin */}
-            {canConfigure && (
-              <Button variant="ghost" size="sm" title="Configurar">
-                <Settings size={16} />
-              </Button>
-            )}
-          </div>
-        );
+        if (!canAssign && !canConfigure) return null;
+
+        // Acciones no implementadas en esta fase (solo GET).
+        // Mantenemos la columna por consistencia visual, sin mocks ni side-effects.
+        return <span className="text-text-muted">-</span>;
       }
     },
   ];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
+            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+          </div>
+        </div>
+        <Card>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="text-text-muted mt-4">Cargando dispositivos...</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
+            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+          </div>
+        </div>
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <AlertCircle size={48} className="text-error mb-4" />
+            <h3 className="text-lg font-semibold text-text mb-2">Error al cargar dispositivos</h3>
+            <p className="text-text-muted mb-6 text-center max-w-md">{error}</p>
+            <Button onClick={loadDevices}>Reintentar</Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (devices.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
+            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+          </div>
+        </div>
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <Settings size={48} className="text-text-muted mb-4" />
+            <h3 className="text-lg font-semibold text-text mb-2">Sin dispositivos</h3>
+            <p className="text-text-muted text-center max-w-md">
+              No hay dispositivos registrados para tu organización.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -188,7 +199,7 @@ export function DevicesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {devices.filter(d => d.estado === 'disponible').length}
+                {devices.filter(d => d.estado !== 'online' && d.estado !== 'offline').length}
               </p>
               <p className="text-sm text-text-muted">Disponibles</p>
             </div>
@@ -205,44 +216,7 @@ export function DevicesPage() {
         />
       </Card>
 
-      {/* Assign Modal */}
-      <Modal
-        isOpen={isAssignModalOpen}
-        onClose={() => setIsAssignModalOpen(false)}
-        title="Asignar Dispositivo"
-        size="md"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-text-muted">
-            Seleccione un vehículo para asignar el dispositivo <strong>{selectedDevice?.modelo}</strong>
-          </p>
-          
-          {availableVehicles.length === 0 ? (
-            <p className="text-center text-text-muted py-4">
-              No hay vehículos disponibles
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {availableVehicles.map((vehicle) => (
-                <button
-                  key={vehicle.id}
-                  onClick={() => handleAssign(vehicle.id)}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all"
-                >
-                  <div>
-                    <p className="font-semibold text-text">{vehicle.patente}</p>
-                    <p className="text-sm text-text-muted">
-                      {vehicle.marca} {vehicle.modelo}
-                    </p>
-                  </div>
-                  <Link2 size={20} className="text-primary" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </Modal>
+      {/* Modal de asignación/configuración: fuera de alcance (solo GET). */}
     </div>
   );
 }

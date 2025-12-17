@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Building2, Palette, Save, Undo2, Sparkles } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { AlertCircle, Building2, Palette, RefreshCw, Save, Undo2, Sparkles } from 'lucide-react';
 import { Button, Card, Input } from '@/shared/ui';
 import { usePermissions } from '@/hooks';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
@@ -108,6 +108,7 @@ function mapThemeDtoToColorsOverride(theme?: OrganizacionThemeDto | null): Parti
 export function BrandingPage() {
   const { can } = usePermissions();
   const isAllowed = can('organizacion:editar');
+  const navigate = useNavigate();
 
   const { organizationId } = useAuthStore();
   const { currentOrganization, setOrganization } = useTenantStore();
@@ -115,6 +116,9 @@ export function BrandingPage() {
 
   const [form, setForm] = useState<ThemeFormState>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const isDarkModeRef = useRef(isDarkMode);
 
   /**
@@ -129,6 +133,46 @@ export function BrandingPage() {
   // Guardar baseline para diff + para revertir preview al salir sin guardar
   const baselineRef = useRef<{ logoUrl: string; theme: Partial<ThemeColors> }>({ logoUrl: '', theme: {} });
 
+  /**
+   * Fetch organization branding from backend and update stores
+   * Used by initial load and manual refresh
+   */
+  const fetchOrganizationBranding = async (orgId: string, options?: { updateTheme?: boolean; updateBaseline?: boolean }) => {
+    const { updateTheme = false, updateBaseline = false } = options || {};
+
+    setLoadError(null);
+
+    try {
+      const orgDto = await organizacionesApi.getOrganizacionById(orgId);
+      const override = mapThemeDtoToColorsOverride(orgDto.theme);
+      const logoUrl = orgDto.theme?.logoUrl ?? '';
+
+      // Update tenant store (cache)
+      setOrganization({
+        id: orgDto.id,
+        name: orgDto.nombre,
+        logo: logoUrl,
+        theme: override,
+      });
+
+      // Optionally update theme immediately (for manual refresh)
+      if (updateTheme) {
+        setDarkMode(isDarkMode, override);
+      }
+
+      // Optionally update baseline (for manual refresh, to reset "pending changes" state)
+      if (updateBaseline) {
+        baselineRef.current = { logoUrl, theme: override };
+      }
+
+      return { logoUrl, override };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'No se pudo cargar la organización';
+      setLoadError(msg);
+      throw e;
+    }
+  };
+
   // Hidratación simple (sin selector multi-org): si no hay org en tenant store, cargar por id desde auth store.
   useEffect(() => {
     if (currentOrganization) return;
@@ -136,28 +180,19 @@ export function BrandingPage() {
 
     let cancelled = false;
     (async () => {
+      setIsRetrying(false);
       try {
-        const orgDto = await organizacionesApi.getOrganizacionById(organizationId);
-        if (cancelled) return;
-
-        const override = mapThemeDtoToColorsOverride(orgDto.theme);
-        const logoUrl = orgDto.theme?.logoUrl ?? '';
-
-        setOrganization({
-          id: orgDto.id,
-          name: orgDto.nombre,
-          logo: logoUrl,
-          theme: override,
-        });
+        await fetchOrganizationBranding(organizationId);
       } catch {
-        // noop: la UI seguirá mostrando "Cargando organización…"
+        // Error already handled by fetchOrganizationBranding
       }
+      if (cancelled) return;
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [currentOrganization, organizationId, setOrganization]);
+  }, [currentOrganization, organizationId, setOrganization, isRetrying]);
 
   useEffect(() => {
     isDarkModeRef.current = isDarkMode;
@@ -284,12 +319,82 @@ export function BrandingPage() {
     return <Navigate to="/" replace />;
   }
 
+  const handleRetry = () => {
+    setIsRetrying(true);
+  };
+
+  const handleRefreshFromServer = async () => {
+    if (!currentOrganization) return;
+
+    // Advertir si hay cambios sin guardar
+    if (hasChanges) {
+      const confirmed = window.confirm(
+        'Tienes cambios sin guardar. Al actualizar desde el servidor se perderán.\n\n¿Deseas continuar?'
+      );
+      if (!confirmed) return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      const { logoUrl, override } = await fetchOrganizationBranding(currentOrganization.id, {
+        updateTheme: true,
+        updateBaseline: true,
+      });
+
+      // Reset form to new values from server
+      setForm({
+        ...EMPTY_FORM,
+        logoUrl: logoUrl,
+        primary: override.primary || '',
+        primaryDark: override.primaryDark || '',
+        secondary: override.secondary || '',
+        roleAdminBg: override.roleAdminBg || '',
+        roleAdminText: override.roleAdminText || '',
+        roleOperadorBg: override.roleOperadorBg || '',
+        roleOperadorText: override.roleOperadorText || '',
+        roleAnalistaBg: override.roleAnalistaBg || '',
+        roleAnalistaText: override.roleAnalistaText || '',
+      });
+
+      // Reset active preset (since we loaded from server)
+      setActivePresetId(null);
+
+      toast.success('Branding actualizado desde el servidor.');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'No se pudo actualizar desde el servidor';
+      toast.error(msg);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   if (!currentOrganization) {
     return (
       <div className="max-w-5xl mx-auto">
         <Card>
           <div className="p-6">
-            <p className="text-text-muted">Cargando organización…</p>
+            {loadError ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-error">
+                  <AlertCircle size={24} />
+                  <div>
+                    <h3 className="font-semibold">Error al cargar organización</h3>
+                    <p className="text-sm mt-1">{loadError}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button onClick={handleRetry} disabled={isRetrying}>
+                    <RefreshCw size={16} className="mr-2" />
+                    {isRetrying ? 'Reintentando…' : 'Reintentar'}
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate(-1)}>
+                    Volver
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-text-muted">Cargando organización…</p>
+            )}
           </div>
         </Card>
       </div>
@@ -343,6 +448,12 @@ export function BrandingPage() {
       return;
     }
 
+    // Detectar offline antes de intentar guardar
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      toast.error('Sin conexión a internet. Verifica tu red e intenta nuevamente.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const orgId = currentOrganization.id;
@@ -363,9 +474,19 @@ export function BrandingPage() {
 
       // Actualizar baseline para que la UI quede "sin cambios pendientes"
       baselineRef.current = { logoUrl: nextLogo, theme: nextColors };
-      toast.success('Branding guardado correctamente.');
+      toast.success('✓ Branding actualizado y aplicado correctamente.');
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo guardar el branding';
+      console.error('[BrandingPage] Error al guardar branding:', e);
+
+      let msg = 'No se pudo guardar el branding.';
+
+      // Detectar si se perdió la conexión durante el request
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        msg = 'Se perdió la conexión. Verifica tu red e intenta nuevamente.';
+      } else if (e instanceof Error) {
+        msg = e.message;
+      }
+
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -387,11 +508,20 @@ export function BrandingPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleReset} disabled={isSaving}>
+          <Button
+            variant="ghost"
+            onClick={handleRefreshFromServer}
+            disabled={isRefreshing || isSaving}
+            title="Actualizar branding desde el servidor"
+          >
+            <RefreshCw size={16} className={`mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Actualizando…' : 'Actualizar'}
+          </Button>
+          <Button variant="outline" onClick={handleReset} disabled={isSaving || isRefreshing}>
             <Undo2 size={16} className="mr-2" />
             Descartar
           </Button>
-          <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
+          <Button onClick={handleSave} disabled={!hasChanges || isSaving || isRefreshing}>
             <Save size={16} className="mr-2" />
             {isSaving ? 'Guardando…' : 'Guardar'}
           </Button>

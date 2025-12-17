@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useTenantStore, useThemeStore } from '@/store';
 
 const queryClient = new QueryClient({
@@ -20,16 +20,28 @@ export function AppProviders({ children }: AppProvidersProps) {
   const { currentOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode, resetToDefault } = useThemeStore();
 
-  // Aplicar theme cuando cambia la organización: tema base (según isDarkMode) + override
+  // Refs para trackear cambios reales y prevenir re-ejecuciones innecesarias
+  const prevOrgIdRef = useRef<string | null>(null);
+  const prevIsDarkModeRef = useRef<boolean>(isDarkMode);
+
+  // Aplicar theme cuando cambia la organización O el modo dark/light
+  // Usa refs para detectar cambios reales y evitar loops
   useLayoutEffect(() => {
-    if (currentOrganization) {
-      // Usar tema base según isDarkMode + override de organización
+    const orgId = currentOrganization?.id ?? null;
+    const orgChanged = prevOrgIdRef.current !== orgId;
+    const modeChanged = prevIsDarkModeRef.current !== isDarkMode;
+
+    if (currentOrganization && (orgChanged || modeChanged)) {
+      // Aplicar tema base (según isDarkMode) + override de organización
       setDarkMode(isDarkMode, currentOrganization.theme);
-    } else {
+      prevOrgIdRef.current = orgId;
+      prevIsDarkModeRef.current = isDarkMode;
+    } else if (!currentOrganization && orgChanged) {
+      // Si no hay organización (logout), resetear a default
       resetToDefault();
+      prevOrgIdRef.current = null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentOrganization]); // Solo cuando cambia la organización
+  }, [currentOrganization, isDarkMode, setDarkMode, resetToDefault]);
 
   return (
     <QueryClientProvider client={queryClient}>

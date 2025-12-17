@@ -231,3 +231,24 @@ export interface AceptarInvitacionResponse {
 export interface CambiarRolRequest {
   nuevoRol: 'Admin' | 'Operador' | 'Analista';
 }
+
+// ==================== Dispositivos DTOs ====================
+
+/**
+ * DTO de dispositivo para listado (GET /api/v1/dispositivos)
+ * El backend ya aplica:
+ * - Autenticación
+ * - Tenancy (organización desde el token)
+ * - Ownership (allow-list por organización)
+ *
+ * IMPORTANTE:
+ * - El frontend NO envía organizationId ni filtra por organización.
+ * - No se expone TraccarDeviceId.
+ */
+export interface DispositivoDto {
+  id: string;
+  nombre: string;
+  activo: boolean;
+  estado: string | null;
+  ultimaActualizacionUtc: string | null; // ISO 8601 UTC
+}
