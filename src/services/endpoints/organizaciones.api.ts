@@ -181,32 +181,11 @@ export async function updateOrganizacionTheme(
   return response.data;
 }
 
-/**
- * Cambia el estado (habilitar/deshabilitar) de un usuario
- */
-export async function cambiarEstadoUsuario(
-  userId: string,
-  activo: boolean
-): Promise<void> {
-  const orgId = getOrganizationId();
-
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    return;
-  }
-
-  await apiClient.put(
-    `${ORGANIZACIONES_BASE}/${orgId}/usuarios/${userId}/estado`,
-    { activo }
-  );
-}
-
 export const organizacionesApi = {
   getOrganizaciones,
   getOrganizacionById,
   getUsuariosOrganizacion,
   cambiarRolUsuario,
   removerUsuario,
-  cambiarEstadoUsuario,
   updateOrganizacionTheme,
 };

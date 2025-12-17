@@ -15,6 +15,7 @@ import {
   ReenviarCodigoResponse,
   LoginConGoogleRequest,
   GoogleAuthResponse,
+  OrganizacionThemeDto,
 } from '@/shared/types/api';
 
 const AUTH_BASE = 'auth';
@@ -34,21 +35,26 @@ export interface LoginResponse {
   email: string;
   nombreOrganizacion: string;
   rol: string;
+  theme?: OrganizacionThemeDto | null;
 }
 
 /**
  * Login con email y contraseña
  * Nuevo endpoint POST /api/v1/auth/login
  */
-export async function login(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
+export async function login(email: string, password: string): Promise<{
+  token: string;
+  user: AuthUser;
+  theme?: OrganizacionThemeDto | null;
+}> {
   if (shouldUseMocks()) {
     // Fallback a mock si VITE_USE_MOCKS=true
     const response = await mockHandlers.login(email, password, 'org-segurostech');
-    
+
     if (!response.ok) {
       throw new Error((response.data as { message: string }).message);
     }
-    
+
     return response.data as { token: string; user: AuthUser };
   }
 
@@ -60,7 +66,7 @@ export async function login(email: string, password: string): Promise<{ token: s
 
   // Mapear respuesta del backend a AuthUser
   const data = response.data;
-  
+
   // Mapear rol del backend a UserRole del frontend
   const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
     'Admin': 'Admin',
@@ -68,7 +74,7 @@ export async function login(email: string, password: string): Promise<{ token: s
     'Operador': 'Operador',
     'Analista': 'Analista',
   };
-  
+
   return {
     token: data.token,
     user: {
@@ -79,6 +85,7 @@ export async function login(email: string, password: string): Promise<{ token: s
       organizationId: data.organizacionId,
       organizationName: data.nombreOrganizacion,
     },
+    theme: data.theme,
   };
 }
 

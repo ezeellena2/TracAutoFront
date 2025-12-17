@@ -22,8 +22,8 @@ export interface LoginResult {
  */
 export async function login(email: string, password: string): Promise<LoginResult> {
   try {
-    const { token, user } = await authApi.login(email, password);
-    
+    const { token, user, theme } = await authApi.login(email, password);
+
     // Guardar en auth store
     useAuthStore.getState().login(user, token);
 
@@ -38,11 +38,19 @@ export async function login(email: string, password: string): Promise<LoginResul
     }
 
     // Cargar branding de empresa (company-wide) y aplicarlo como override.
-    // Esto hace que Admin y Operador vean los mismos colores de marca en la misma organización.
-    // Best-effort: si falla, seguimos con el tema base y el usuario puede navegar igual.
+    // Si el backend ya devolvió el theme en la respuesta del login, usarlo directamente.
+    // Caso contrario, hacer fetch explícito (fallback para compatibilidad).
     try {
-      const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
-      const t = orgDto.theme;
+      let t = theme;
+      let orgName = user.organizationName;
+
+      // Si el theme no vino en el login response, hacer fetch de la organización
+      if (!t) {
+        const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
+        t = orgDto.theme;
+        orgName = orgDto.nombre;
+      }
+
       const override: Partial<ThemeColors> = {
         ...(t?.primary ? { primary: t.primary } : {}),
         ...(t?.primaryDark ? { primaryDark: t.primaryDark } : {}),
@@ -56,8 +64,8 @@ export async function login(email: string, password: string): Promise<LoginResul
       };
 
       useTenantStore.getState().setOrganization({
-        id: orgDto.id,
-        name: orgDto.nombre,
+        id: user.organizationId,
+        name: orgName,
         logo: t?.logoUrl ?? '',
         theme: override,
       });
@@ -66,7 +74,7 @@ export async function login(email: string, password: string): Promise<LoginResul
     } catch {
       useThemeStore.getState().setDarkMode(preferredIsDark);
     }
-    
+
     return {
       success: true,
       user,

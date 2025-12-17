@@ -166,35 +166,6 @@ export function UsersPage() {
                   {rol} {u.rol === rol && '(actual)'}
                 </button>
               ))}
-              
-              <div className="border-t border-border my-1" />
-              
-              <button
-                className={`w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 ${
-                  u.activo ? 'text-warning' : 'text-success'
-                }`}
-                onClick={async () => {
-                   setActionMenuOpen(null);
-                   try {
-                     await organizacionesApi.cambiarEstadoUsuario(u.usuarioId, !u.activo);
-                     await loadUsers();
-                   } catch (error) {
-                     console.error(error);
-                   }
-                }}
-              >
-                {u.activo ? (
-                    <>
-                        <UserCog size={14} /> {/* Placeholder icon, consider Ban/EyeOff */}
-                        Inhabilitar
-                    </>
-                ) : (
-                    <>
-                        <UserPlus size={14} />
-                        Habilitar
-                    </>
-                )}
-              </button>
 
               <div className="border-t border-border my-1" />
               <button
