@@ -25,8 +25,58 @@ export async function getDispositivos(): Promise<DispositivoDto[]> {
 }
 
 /**
+ * Crea un nuevo dispositivo vinculado a la organización actual
+ * 
+ * @param traccarDeviceId ID del dispositivo en Traccar (requerido)
+ * @param alias Alias opcional para mostrar en TracAuto
+ * @returns Dispositivo creado
+ */
+export async function createDispositivo(
+  traccarDeviceId: number,
+  alias?: string
+): Promise<DispositivoDto> {
+  const response = await apiClient.post<DispositivoDto>(
+    DISPOSITIVOS_BASE,
+    { traccarDeviceId, alias }
+  );
+  return response.data;
+}
+
+/**
+ * Actualiza un dispositivo existente
+ * 
+ * @param id ID del dispositivo en TracAuto
+ * @param alias Nuevo alias (opcional)
+ * @param activo Estado activo/inactivo
+ * @returns Dispositivo actualizado
+ */
+export async function updateDispositivo(
+  id: string,
+  alias: string | undefined,
+  activo: boolean
+): Promise<DispositivoDto> {
+  const response = await apiClient.put<DispositivoDto>(
+    `${DISPOSITIVOS_BASE}/${id}`,
+    { alias, activo }
+  );
+  return response.data;
+}
+
+/**
+ * Elimina un dispositivo (soft delete: marca Activo = false)
+ * 
+ * @param id ID del dispositivo en TracAuto
+ */
+export async function deleteDispositivo(id: string): Promise<void> {
+  await apiClient.delete(`${DISPOSITIVOS_BASE}/${id}`);
+}
+
+/**
  * Objeto API exportado (patrón consistente con otros endpoints)
  */
 export const dispositivosApi = {
   getDispositivos,
+  createDispositivo,
+  updateDispositivo,
+  deleteDispositivo,
 };

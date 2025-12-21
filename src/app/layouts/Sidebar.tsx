@@ -9,8 +9,8 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
-import { useTenantStore } from '@/store';
+import { useMemo } from 'react';
+import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { Permission } from '@/config/permissions';
 
@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
 ];
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, toggleCollapsed } = useSidebarStore();
   const { currentOrganization } = useTenantStore();
   const { can } = usePermissions();
 
@@ -47,13 +47,13 @@ export function Sidebar() {
   return (
     <aside 
       className={`
-        fixed left-0 top-0 h-full bg-surface border-r border-border
-        transition-all duration-300 z-40
+        fixed left-0 top-0 h-screen bg-surface border-r border-border
+        transition-all duration-300 z-40 flex flex-col
         ${isCollapsed ? 'w-20' : 'w-64'}
       `}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center justify-center border-b border-border px-4">
+      <div className="h-16 flex items-center justify-center border-b border-border px-4 flex-shrink-0">
         {!isCollapsed ? (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
@@ -69,7 +69,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="p-4 space-y-2">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         {visibleNavItems.map((item) => (
           <NavLink
             key={item.path}
@@ -91,7 +91,7 @@ export function Sidebar() {
 
       {/* Collapse button */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={toggleCollapsed}
         className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-text-muted hover:text-text transition-colors"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -99,7 +99,7 @@ export function Sidebar() {
 
       {/* Organization info at bottom */}
       {currentOrganization && !isCollapsed && (
-        <div className="absolute bottom-4 left-4 right-4 p-4 bg-background rounded-lg">
+        <div className="p-4 border-t border-border bg-background flex-shrink-0">
           <p className="text-xs text-text-muted">Organización</p>
           <p className="text-sm font-medium text-text truncate">
             {currentOrganization.name}
