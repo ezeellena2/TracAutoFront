@@ -11,6 +11,7 @@ import { EventsPage } from '@/features/events';
 import { UsersPage } from '@/features/users';
 import { AcceptInvitationPage } from '@/features/invitations/pages/AcceptInvitationPage';
 import { BrandingPage } from '@/features/organization';
+import { TraccarMapPage } from '@/features/traccar-map';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: 'usuarios',
         element: <UsersPage />,
+      },
+      {
+        path: 'mapa',
+        element: <TraccarMapPage />,
       },
       {
         path: 'configuracion/empresa/apariencia',

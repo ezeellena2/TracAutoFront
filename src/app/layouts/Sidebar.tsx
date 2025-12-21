@@ -7,7 +7,8 @@ import {
   Users,
   Palette,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Map
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTenantStore, useSidebarStore } from '@/store';
@@ -24,6 +25,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/mapa', label: 'Mapa', icon: Map },
   { path: '/vehiculos', label: 'Vehículos', icon: Car },
   { path: '/dispositivos', label: 'Dispositivos', icon: Cpu },
   { path: '/eventos', label: 'Eventos', icon: Bell },
