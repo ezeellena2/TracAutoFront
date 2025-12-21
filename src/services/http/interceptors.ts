@@ -1,19 +1,14 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { buildApiUrl, env } from '@/config/env';
+import { ProblemDetails } from '@/shared/types/api';
+import { toast } from '@/store/toast.store';
+import { sanitizePayload } from './payloadSanitizer';
 
 /**
  * Formato de error del backend (ProblemDetails RFC 7807)
+ * Usamos el tipo compartido desde api.ts
  */
-interface ProblemDetails {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  traceId?: string;
-  errors?: Record<string, string[]>;
-}
 
 /**
  * Formato de error de validación del backend
@@ -55,6 +50,34 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
   }
 
   return getDefaultMessage(status);
+}
+
+/**
+ * Detecta si un error 403 es por violación de tenancy
+ * Preferido: detectar por campo code (cuando backend lo agregue)
+ * Fallback: detectar por title o detail (acotado, sin depender de texto largo)
+ */
+function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean {
+  if (!data) return false;
+  
+  // Preferido: detectar por campo code (cuando backend lo agregue)
+  if (data.code === 'TENANCY_VIOLATION' || data.code === 'TenancyViolation') {
+    return true;
+  }
+  
+  // Fallback: detectar por title (acotado, sin depender de texto largo)
+  const title = data.title?.toLowerCase() || '';
+  if (title.includes('tenant') || title.includes('organización')) {
+    return true;
+  }
+  
+  // Fallback adicional: detectar por detail (solo si contiene palabras clave específicas)
+  const detail = data.detail?.toLowerCase() || '';
+  if (detail.includes('otra organización') || detail.includes('cross-tenant')) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -165,7 +188,7 @@ export function setupInterceptors(client: AxiosInstance): void {
     pendingRequests.splice(0).forEach((p) => p.reject(err));
   }
 
-  // Request interceptor - agrega token de auth y headers
+  // Request interceptor - agrega token de auth y sanitiza payloads
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const state = useAuthStore.getState();
@@ -175,9 +198,20 @@ export function setupInterceptors(client: AxiosInstance): void {
         config.headers.Authorization = `Bearer ${state.token}`;
       }
       
-      // Agregar organization ID para multi-tenant
-      if (state.organizationId && config.headers) {
-        config.headers['X-Organization-Id'] = state.organizationId;
+      // REMOVER: Header X-Organization-Id (redundante, backend lo obtiene del token)
+      // if (state.organizationId && config.headers) {
+      //   config.headers['X-Organization-Id'] = state.organizationId;
+      // }
+      
+      // Sanitizar body si es JSON (POST/PUT/PATCH)
+      if (config.data && 
+          (config.method === 'post' || config.method === 'put' || config.method === 'patch') &&
+          typeof config.data === 'object' &&
+          !(config.data instanceof FormData) &&
+          !(config.data instanceof Blob) &&
+          !(config.data instanceof File) &&
+          !Array.isArray(config.data)) {
+        config.data = sanitizePayload(config.data);
       }
       
       return config;
@@ -230,7 +264,26 @@ export function setupInterceptors(client: AxiosInstance): void {
         }
       }
 
-      // Extraer mensaje de error legible
+      // 403: Distinguir entre tenancy violation (logout) y permisos (solo mensaje)
+      if (status === 403) {
+        const data = error.response?.data as ProblemDetails | undefined;
+        const isTenancy = isTenancyViolation(data);
+        
+        if (isTenancy) {
+          // Tenancy violation: mensaje específico + logout + redirección
+          toast.error(
+            'No se puede acceder a datos de otra organización. Por favor inicie sesión nuevamente.'
+          );
+          await safeLogoutBestEffort();
+          return Promise.reject(new Error('Violación de tenancy'));
+        } else {
+          // 403 por permisos/roles: solo mostrar mensaje, NO logout
+          const message = extractErrorMessage(data, status);
+          return Promise.reject(new Error(message));
+        }
+      }
+
+      // Extraer mensaje de error legible para otros errores
       const message = extractErrorMessage(error.response?.data, status);
 
       return Promise.reject(new Error(message));
