@@ -20,6 +20,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -53,7 +54,7 @@ export function LoginPage() {
     setIsLoading(true);
     setError('');
 
-    const result = await authService.login(email, password);
+    const result = await authService.login(email, password, rememberMe);
     
     if (result.success) {
       // Redirigir al dashboard
@@ -136,6 +137,18 @@ export function LoginPage() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+
+            {/* Remember Me Checkbox */}
+            <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary"
+                disabled={isLoading}
+              />
+              Recordarme
+            </label>
 
             {error && (
               <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">

@@ -24,6 +24,7 @@ const AUTH_BASE = 'auth';
 export interface LoginRequest {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 // DTO para login response (alineado con backend)
@@ -41,8 +42,9 @@ export interface LoginResponse {
 /**
  * Login con email y contraseña
  * Nuevo endpoint POST /api/v1/auth/login
+ * @param rememberMe Si es true, sesión de 7 días. Si es false, sesión de 4 horas.
  */
-export async function login(email: string, password: string): Promise<{
+export async function login(email: string, password: string, rememberMe: boolean = true): Promise<{
   token: string;
   user: AuthUser;
   theme?: OrganizacionThemeDto | null;
@@ -62,6 +64,7 @@ export async function login(email: string, password: string): Promise<{
   const response = await apiClient.post<LoginResponse>(`${AUTH_BASE}/login`, {
     email,
     password,
+    rememberMe,
   });
 
   // Mapear respuesta del backend a AuthUser

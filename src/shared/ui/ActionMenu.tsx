@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { MoreVertical } from 'lucide-react';
 import { Portal } from './Portal';
 
@@ -9,23 +9,78 @@ interface ActionMenuProps {
   children: React.ReactNode;
 }
 
+const MENU_WIDTH = 160;
+const MENU_ESTIMATED_HEIGHT = 200; // Estimated max height for the dropdown
+const MENU_GAP = 4;
+
 export function ActionMenu({ isOpen, onToggle, onClose, children }: ActionMenuProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const scrollY = window.scrollY;
-      const scrollX = window.scrollX;
-      
-      // Posicionar abajo a la izquierda del botón por defecto
-      setPosition({
-        top: rect.bottom + scrollY + 4,
-        left: rect.right + scrollX - 160 // 160px width
-      });
+  // Calculate and update menu position
+  const updatePosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    
+    const rect = buttonRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    
+    // Get actual menu height if available, otherwise use estimate
+    const menuHeight = menuRef.current?.offsetHeight || MENU_ESTIMATED_HEIGHT;
+    
+    // Calculate if there's enough space below
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    
+    let top: number;
+    if (spaceBelow >= menuHeight + MENU_GAP) {
+      // Enough space below - position normally
+      top = rect.bottom + MENU_GAP;
+    } else if (spaceAbove >= menuHeight + MENU_GAP) {
+      // Not enough space below but enough above - flip upward
+      top = rect.top - menuHeight - MENU_GAP;
+    } else {
+      // Not enough space either way - position at best available spot
+      if (spaceBelow > spaceAbove) {
+        top = rect.bottom + MENU_GAP;
+      } else {
+        top = Math.max(MENU_GAP, rect.top - menuHeight - MENU_GAP);
+      }
     }
-  }, [isOpen]);
+    
+    // Calculate horizontal position (align to right edge of button)
+    let left = rect.right - MENU_WIDTH;
+    
+    // Ensure it doesn't go off-screen horizontally
+    if (left < MENU_GAP) {
+      left = MENU_GAP;
+    } else if (left + MENU_WIDTH > viewportWidth - MENU_GAP) {
+      left = viewportWidth - MENU_WIDTH - MENU_GAP;
+    }
+    
+    setPosition({ top, left });
+  }, []);
+
+  // Initial position calculation and recalculate on scroll/resize
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    updatePosition();
+    
+    // Recalculate position on scroll/resize instead of closing
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+    
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [isOpen, updatePosition]);
 
   // Cerrar al clickear afuera
   useEffect(() => {
@@ -34,7 +89,6 @@ export function ActionMenu({ isOpen, onToggle, onClose, children }: ActionMenuPr
     const handleClickOutside = (event: MouseEvent) => {
       if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         // Chequear si el click fue dentro del menú (que está en el portal)
-        // Como el portal está en body, necesitamos un ref al contenido del menú o usar closest
         const target = event.target as HTMLElement;
         if (!target.closest('.action-menu-content')) {
             onClose();
@@ -43,13 +97,10 @@ export function ActionMenu({ isOpen, onToggle, onClose, children }: ActionMenuPr
     };
     
     // Escuchar en captura para ganarle a otros handlers si es necesario
-    document.addEventListener('click', handleClickOutside, true); 
-    // También al scroll para cerrar (más simple que recalcular)
-    window.addEventListener('scroll', onClose, true);
+    document.addEventListener('click', handleClickOutside, true);
 
     return () => {
       document.removeEventListener('click', handleClickOutside, true);
-      window.removeEventListener('scroll', onClose, true);
     };
   }, [isOpen, onClose]);
 
@@ -69,6 +120,7 @@ export function ActionMenu({ isOpen, onToggle, onClose, children }: ActionMenuPr
       {isOpen && (
         <Portal>
           <div
+            ref={menuRef}
             className="action-menu-content fixed bg-background border border-border rounded-lg shadow-lg py-1 z-[9999] min-w-[160px]"
             style={{
               top: position.top,

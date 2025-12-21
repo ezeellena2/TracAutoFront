@@ -19,10 +19,11 @@ export interface LoginResult {
 
 /**
  * Realiza login con email y password
+ * @param rememberMe Si es true, sesión de 7 días. Si es false, sesión de 4 horas. Default: true.
  */
-export async function login(email: string, password: string): Promise<LoginResult> {
+export async function login(email: string, password: string, rememberMe: boolean = true): Promise<LoginResult> {
   try {
-    const { token, user, theme } = await authApi.login(email, password);
+    const { token, user, theme } = await authApi.login(email, password, rememberMe);
 
     // Guardar en auth store
     useAuthStore.getState().login(user, token);
