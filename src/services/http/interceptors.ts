@@ -45,7 +45,8 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
     }
   }
 
-  if ('message' in data && data.message) {
+  // Verificar que message existe y es string (type guard para TypeScript)
+  if ('message' in data && typeof data.message === 'string' && data.message) {
     return data.message;
   }
 
