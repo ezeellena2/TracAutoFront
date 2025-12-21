@@ -45,11 +45,12 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
     }
   }
 
-  // Verificar que message existe y es string (type guard para TypeScript)
-  if ('message' in data) {
-    const message = data.message;
-    if (typeof message === 'string' && message) {
-      return message;
+  // Verificar message solo en ValidationError (no en ProblemDetails)
+  // ProblemDetails tiene 'status', ValidationError no lo tiene
+  if ('message' in data && !('status' in data)) {
+    const msg = (data as ValidationError).message;
+    if (msg && typeof msg === 'string') {
+      return msg;
     }
   }
 
