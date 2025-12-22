@@ -9,18 +9,40 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { DispositivoDto } from '@/shared/types/api';
+import { DispositivoDto, ListaPaginada, PaginacionParams } from '@/shared/types/api';
 
 const DISPOSITIVOS_BASE = 'dispositivos';
 
 /**
- * Obtiene la lista de dispositivos de la organización actual
+ * Parámetros para obtener dispositivos
+ */
+export interface GetDispositivosParams extends PaginacionParams {
+  soloActivos?: boolean;
+}
+
+/**
+ * Obtiene la lista paginada de dispositivos de la organización actual
  * El backend filtra automáticamente por organizationId desde el token
  *
- * @returns Lista de dispositivos (solo los de la organización del usuario)
+ * @returns ListaPaginada con dispositivos y metadata
  */
-export async function getDispositivos(): Promise<DispositivoDto[]> {
-  const response = await apiClient.get<DispositivoDto[]>(DISPOSITIVOS_BASE);
+export async function getDispositivos(
+  params: GetDispositivosParams = {}
+): Promise<ListaPaginada<DispositivoDto>> {
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos } = params;
+  
+  const queryParams: Record<string, string | number | boolean> = {
+    numeroPagina,
+    tamanoPagina,
+  };
+  
+  if (soloActivos !== undefined) {
+    queryParams.soloActivos = soloActivos;
+  }
+  
+  const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, { 
+    params: queryParams 
+  });
   return response.data;
 }
 

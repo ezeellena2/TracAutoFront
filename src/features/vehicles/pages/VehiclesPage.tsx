@@ -1,18 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
-import { usePermissions } from '@/hooks';
+import { usePermissions, usePaginationParams } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { VehiculoDto, CreateVehiculoRequest, TipoVehiculo } from '../types';
-import type { DispositivoDto } from '@/shared/types/api';
+import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
 
 export function VehiclesPage() {
-  // Data state
-  const [vehicles, setVehicles] = useState<VehiculoDto[]>([]);
+  // Data state - ahora guardamos ListaPaginada completa
+  const [vehiclesData, setVehiclesData] = useState<ListaPaginada<VehiculoDto> | null>(null);
   const [devices, setDevices] = useState<DispositivoDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Hook de paginación reutilizable
+  const { 
+    setNumeroPagina, 
+    setTamanoPagina, 
+    params: paginationParams 
+  } = usePaginationParams({ initialPageSize: 10 });
   
   // Create modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -56,24 +63,24 @@ export function VehiclesPage() {
   const canCreate = can('vehiculos:crear');
   const canDelete = can('vehiculos:eliminar');
 
-  // Load data
+  // Load data - usa parámetros de paginación dinámicos
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [vehiculosData, devicesData] = await Promise.all([
-        vehiculosApi.getVehiculos(),
-        dispositivosApi.getDispositivos(),
+      const [vehiculosResult, devicesResult] = await Promise.all([
+        vehiculosApi.getVehiculos(paginationParams),
+        dispositivosApi.getDispositivos({ tamanoPagina: 50 }), // Dispositivos sin paginar (para select)
       ]);
-      setVehicles(vehiculosData);
-      setDevices(devicesData);
+      setVehiclesData(vehiculosResult);
+      setDevices(devicesResult.items);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'No se pudo cargar los datos';
       setError(msg);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [paginationParams]);
 
   useEffect(() => {
     void loadData();
@@ -236,6 +243,9 @@ export function VehiclesPage() {
       setIsAssigning(false);
     }
   };
+
+  // Extraer items para compatibilidad (computed desde vehiclesData)
+  const vehicles = vehiclesData?.items ?? [];
 
   // Table helpers
   const getDeviceName = (deviceId: string | null) => {
@@ -536,6 +546,18 @@ export function VehiclesPage() {
       {/* Table */}
       <Card padding="none">
         <Table columns={columns} data={vehicles} keyExtractor={(v) => v.id} />
+        {/* Controles de paginación */}
+        {vehiclesData && vehiclesData.totalRegistros > 0 && (
+          <PaginationControls
+            paginaActual={vehiclesData.paginaActual}
+            totalPaginas={vehiclesData.totalPaginas}
+            tamanoPagina={vehiclesData.tamanoPagina}
+            totalRegistros={vehiclesData.totalRegistros}
+            onPageChange={setNumeroPagina}
+            onPageSizeChange={setTamanoPagina}
+            disabled={isLoading}
+          />
+        )}
       </Card>
 
       {/* Create Modal */}

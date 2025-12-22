@@ -1,18 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Trash2, UserPlus, Clock, UserCog } from 'lucide-react';
-import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, ConfirmationModal } from '@/shared/ui';
+import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
-import { usePermissions } from '@/hooks';
-import { UsuarioOrganizacionDto } from '@/shared/types/api';
+import { usePermissions, usePaginationParams } from '@/hooks';
+import { UsuarioOrganizacionDto, ListaPaginada } from '@/shared/types/api';
 import { InviteUserModal } from '../components/InviteUserModal';
 import { PendingInvitationsTable } from '../components/PendingInvitationsTable';
 
 type RolType = 'Admin' | 'Operador' | 'Analista';
 
 export function UsersPage() {
-  const [users, setUsers] = useState<UsuarioOrganizacionDto[]>([]);
+  // Datos paginados
+  const [usersData, setUsersData] = useState<ListaPaginada<UsuarioOrganizacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Hook de paginación reutilizable
+  const { 
+    setNumeroPagina, 
+    setTamanoPagina, 
+    params: paginationParams 
+  } = usePaginationParams({ initialPageSize: 10 });
+  
+  // Modales y estado de UI
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
   const [refreshInvites, setRefreshInvites] = useState(0);
@@ -28,16 +38,17 @@ export function UsersPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await organizacionesApi.getUsuariosOrganizacion();
-      setUsers(data);
+      const result = await organizacionesApi.getUsuariosOrganizacion(paginationParams);
+      setUsersData(result);
     } catch (err) {
       console.error('Error loading users:', err);
       setError('Error al cargar usuarios');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [paginationParams]);
 
+  // Refetch cuando cambian los parámetros de paginación
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
@@ -79,6 +90,9 @@ export function UsersPage() {
       minute: '2-digit',
     });
   };
+
+  // Extraer items para la tabla (vacío si no hay datos)
+  const users = usersData?.items ?? [];
 
   const columns = [
     { 
@@ -263,13 +277,31 @@ export function UsersPage() {
           <div className="p-8 text-center text-text-muted">
             Cargando usuarios...
           </div>
+        ) : users.length === 0 ? (
+          <div className="p-8 text-center text-text-muted">
+            No hay usuarios en esta organización
+          </div>
         ) : (
-          <Table
-            columns={columns}
-            data={users}
-            keyExtractor={(u) => u.usuarioId}
-            containerClassName="overflow-visible"
-          />
+          <>
+            <Table
+              columns={columns}
+              data={users}
+              keyExtractor={(u) => u.usuarioId}
+              containerClassName="overflow-visible"
+            />
+            {/* Controles de paginación */}
+            {usersData && (
+              <PaginationControls
+                paginaActual={usersData.paginaActual}
+                totalPaginas={usersData.totalPaginas}
+                tamanoPagina={usersData.tamanoPagina}
+                totalRegistros={usersData.totalRegistros}
+                onPageChange={setNumeroPagina}
+                onPageSizeChange={setTamanoPagina}
+                disabled={isLoading}
+              />
+            )}
+          </>
         )}
       </Card>
 

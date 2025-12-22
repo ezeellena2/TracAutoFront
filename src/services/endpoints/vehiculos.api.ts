@@ -10,28 +10,42 @@ import type {
   UpdateVehiculoRequest,
   AssignDispositivoRequest,
 } from '@/features/vehicles/types';
+import type { ListaPaginada, PaginacionParams } from '@/shared/types/api';
 
 const VEHICULOS_BASE = 'vehiculos';
 
 /**
- * Fetches all vehicles for the current organization
+ * Parámetros para obtener vehículos
+ */
+export interface GetVehiculosParams extends PaginacionParams {
+  soloActivos?: boolean;
+  filtroPatente?: string;
+}
+
+/**
+ * Fetches vehicles with pagination
+ * @returns ListaPaginada with items and metadata
  */
 export async function getVehiculos(
-  soloActivos?: boolean,
-  filtroPatente?: string
-): Promise<VehiculoDto[]> {
-  const params = new URLSearchParams();
+  params: GetVehiculosParams = {}
+): Promise<ListaPaginada<VehiculoDto>> {
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente } = params;
+  
+  const queryParams: Record<string, string | number | boolean> = {
+    numeroPagina,
+    tamanoPagina,
+  };
+  
   if (soloActivos !== undefined) {
-    params.append('soloActivos', String(soloActivos));
+    queryParams.soloActivos = soloActivos;
   }
   if (filtroPatente) {
-    params.append('filtroPatente', filtroPatente);
+    queryParams.filtroPatente = filtroPatente;
   }
   
-  const queryString = params.toString();
-  const url = queryString ? `${VEHICULOS_BASE}?${queryString}` : VEHICULOS_BASE;
-  
-  const response = await apiClient.get<VehiculoDto[]>(url);
+  const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, { 
+    params: queryParams 
+  });
   return response.data;
 }
 

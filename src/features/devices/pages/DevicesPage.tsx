@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { dispositivosApi } from '@/services/endpoints';
-import { usePermissions } from '@/hooks';
+import { usePermissions, usePaginationParams } from '@/hooks';
 import { toast } from '@/store/toast.store';
-import type { DispositivoDto } from '@/shared/types/api';
+import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
 
 export function DevicesPage() {
-  const [devices, setDevices] = useState<DispositivoDto[]>([]);
+  // Datos paginados
+  const [devicesData, setDevicesData] = useState<ListaPaginada<DispositivoDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Hook de paginación reutilizable
+  const { 
+    setNumeroPagina, 
+    setTamanoPagina, 
+    params: paginationParams 
+  } = usePaginationParams({ initialPageSize: 10 });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -39,10 +47,10 @@ export function DevicesPage() {
       if (import.meta.env.DEV) {
         console.log('[DevicesPage] Loading devices...');
       }
-      const data = await dispositivosApi.getDispositivos();
-      setDevices(data);
+      const result = await dispositivosApi.getDispositivos(paginationParams);
+      setDevicesData(result);
       if (import.meta.env.DEV) {
-        console.log('[DevicesPage] Devices loaded:', data);
+        console.log('[DevicesPage] Devices loaded:', result.items, 'Total:', result.totalRegistros);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'No se pudo cargar la lista de dispositivos';
@@ -53,7 +61,10 @@ export function DevicesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [paginationParams]);
+
+  // Extraer items para compatibilidad
+  const devices = devicesData?.items ?? [];
 
   // Cargar dispositivos al montar el componente
   useEffect(() => {
@@ -434,6 +445,18 @@ export function DevicesPage() {
           data={devices}
           keyExtractor={(d) => d.id}
         />
+        {/* Controles de paginación */}
+        {devicesData && devicesData.totalRegistros > 0 && (
+          <PaginationControls
+            paginaActual={devicesData.paginaActual}
+            totalPaginas={devicesData.totalPaginas}
+            tamanoPagina={devicesData.tamanoPagina}
+            totalRegistros={devicesData.totalRegistros}
+            onPageChange={setNumeroPagina}
+            onPageSizeChange={setTamanoPagina}
+            disabled={isLoading}
+          />
+        )}
       </Card>
 
       {/* Modal de creación */}

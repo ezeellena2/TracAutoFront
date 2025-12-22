@@ -66,14 +66,17 @@ export async function getOrganizaciones(
 // ==================== Usuarios de Organización ====================
 
 /**
- * Obtiene los usuarios de la organización actual
+ * Obtiene los usuarios de la organización actual con paginación
  * El orgId se obtiene automáticamente del store
  */
-export async function getUsuariosOrganizacion(): Promise<UsuarioOrganizacionDto[]> {
+export async function getUsuariosOrganizacion(
+  params: PaginacionParams = {}
+): Promise<ListaPaginada<UsuarioOrganizacionDto>> {
   const orgId = getOrganizationId();
+  const { numeroPagina = 1, tamanoPagina = 10 } = params;
   
   if (shouldUseMocks()) {
-    return [
+    const mockUsers: UsuarioOrganizacionDto[] = [
       {
         usuarioId: 'user-1',
         email: 'admin@segurostech.com',
@@ -93,10 +96,18 @@ export async function getUsuariosOrganizacion(): Promise<UsuarioOrganizacionDto[
         fechaAsignacion: new Date().toISOString(),
       },
     ];
+    return {
+      items: mockUsers,
+      paginaActual: 1,
+      tamanoPagina: mockUsers.length,
+      totalPaginas: 1,
+      totalRegistros: mockUsers.length,
+    };
   }
 
-  const response = await apiClient.get<UsuarioOrganizacionDto[]>(
-    `${ORGANIZACIONES_BASE}/${orgId}/usuarios`
+  const response = await apiClient.get<ListaPaginada<UsuarioOrganizacionDto>>(
+    `${ORGANIZACIONES_BASE}/${orgId}/usuarios`,
+    { params: { numeroPagina, tamanoPagina } }
   );
   return response.data;
 }

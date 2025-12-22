@@ -10,7 +10,9 @@ import {
   InvitacionDto,
   CreateInvitacionRequest,
   AceptarInvitacionRequest,
-  AceptarInvitacionResponse
+  AceptarInvitacionResponse,
+  ListaPaginada,
+  PaginacionParams
 } from '@/shared/types/api';
 
 const ORGANIZACIONES_BASE = 'organizaciones';
@@ -62,14 +64,17 @@ export async function createInvitacion(
 }
 
 /**
- * Obtiene las invitaciones pendientes de la organización actual
+ * Obtiene las invitaciones pendientes de la organización actual con paginación
  */
-export async function getInvitacionesPendientes(): Promise<InvitacionDto[]> {
+export async function getInvitacionesPendientes(
+  params: PaginacionParams = {}
+): Promise<ListaPaginada<InvitacionDto>> {
   const orgId = getOrganizationId();
+  const { numeroPagina = 1, tamanoPagina = 10 } = params;
   
   if (shouldUseMocks()) {
     await new Promise(r => setTimeout(r, 500));
-    return [
+    const mockInvitaciones: InvitacionDto[] = [
       {
         id: 'inv-1',
         email: 'usuario1@ejemplo.com',
@@ -82,10 +87,18 @@ export async function getInvitacionesPendientes(): Promise<InvitacionDto[]> {
         fechaAceptacion: null,
       },
     ];
+    return {
+      items: mockInvitaciones,
+      paginaActual: 1,
+      tamanoPagina: mockInvitaciones.length,
+      totalPaginas: 1,
+      totalRegistros: mockInvitaciones.length,
+    };
   }
 
-  const response = await apiClient.get<InvitacionDto[]>(
-    `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`
+  const response = await apiClient.get<ListaPaginada<InvitacionDto>>(
+    `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`,
+    { params: { numeroPagina, tamanoPagina } }
   );
   return response.data;
 }

@@ -11,3 +11,5 @@ export { PermissionGate, DisabledGate } from './PermissionGate';
 export { ToastContainer } from './Toast';
 export { ConfirmationModal } from './ConfirmationModal';
 export { KPICard } from './KPICard';
+export { PaginationControls } from './PaginationControls';
+export type { PaginationControlsProps } from './PaginationControls';

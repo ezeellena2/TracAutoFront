@@ -1,36 +1,36 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Mail, RefreshCw, Trash2, Clock } from 'lucide-react';
-import { Table, Badge, Button, Card, CardHeader, ConfirmationModal } from '@/shared/ui';
+import { Table, Badge, Button, Card, CardHeader, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { invitacionesApi } from '@/services/endpoints';
+import { usePaginationParams } from '@/hooks';
 import { toast } from '@/store';
-
-interface Invitacion {
-  id: string;
-  email: string;
-  rolAsignado: string;
-  estado: string;
-  fechaCreacion: string;
-  fechaExpiracion: string;
-  token?: string;
-}
+import { ListaPaginada, InvitacionDto } from '@/shared/types/api';
 
 export function PendingInvitationsTable() {
-  const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
+  // Datos paginados
+  const [invitacionesData, setInvitacionesData] = useState<ListaPaginada<InvitacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [invitationIdToCancel, setInvitationIdToCancel] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
+  // Hook de paginación reutilizable
+  const { 
+    setNumeroPagina, 
+    setTamanoPagina, 
+    params: paginationParams 
+  } = usePaginationParams({ initialPageSize: 10 });
+
   const loadInvitaciones = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await invitacionesApi.getInvitacionesPendientes();
-      setInvitaciones(data);
+      const result = await invitacionesApi.getInvitacionesPendientes(paginationParams);
+      setInvitacionesData(result);
     } catch (err) {
       console.error('Error loading invitations:', err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [paginationParams]);
 
   useEffect(() => {
     loadInvitaciones();
@@ -74,11 +74,14 @@ export function PendingInvitationsTable() {
     });
   };
 
+  // Extraer items para la tabla
+  const invitaciones = invitacionesData?.items ?? [];
+
   const columns = [
     {
       key: 'email',
       header: 'Email',
-      render: (i: Invitacion) => (
+      render: (i: InvitacionDto) => (
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-text-muted" />
           <span className="font-medium text-text">{i.email}</span>
@@ -88,12 +91,12 @@ export function PendingInvitationsTable() {
     {
       key: 'rolAsignado',
       header: 'Rol',
-      render: (i: Invitacion) => <Badge>{i.rolAsignado}</Badge>
+      render: (i: InvitacionDto) => <Badge>{i.rolAsignado}</Badge>
     },
     {
       key: 'fechaCreacion',
       header: 'Enviada',
-      render: (i: Invitacion) => (
+      render: (i: InvitacionDto) => (
         <div className="flex items-center gap-1 text-text-muted">
           <Clock size={14} />
           {formatDate(i.fechaCreacion)}
@@ -103,7 +106,7 @@ export function PendingInvitationsTable() {
     {
       key: 'actions',
       header: 'Acciones',
-      render: (i: Invitacion) => (
+      render: (i: InvitacionDto) => (
         <div className="flex gap-2">
             <Button
             variant="ghost"
@@ -126,19 +129,39 @@ export function PendingInvitationsTable() {
     }
   ];
 
+  // No mostrar si no hay invitaciones y no está cargando
   if (invitaciones.length === 0 && !isLoading) return null;
 
   return (
     <>
       <Card className="mt-8 overflow-visible" padding="none">
           <CardHeader title="Invitaciones Pendientes" className="p-4 border-b border-border mb-0" />
-          <Table
-              columns={columns}
-              data={invitaciones}
-              keyExtractor={(i) => i.id}
-              containerClassName="overflow-visible"
-              isLoading={isLoading}
-          />
+          {isLoading ? (
+            <div className="p-8 text-center text-text-muted">
+              Cargando invitaciones...
+            </div>
+          ) : (
+            <>
+              <Table
+                  columns={columns}
+                  data={invitaciones}
+                  keyExtractor={(i) => i.id}
+                  containerClassName="overflow-visible"
+              />
+              {/* Controles de paginación */}
+              {invitacionesData && invitacionesData.totalRegistros > 0 && (
+                <PaginationControls
+                  paginaActual={invitacionesData.paginaActual}
+                  totalPaginas={invitacionesData.totalPaginas}
+                  tamanoPagina={invitacionesData.tamanoPagina}
+                  totalRegistros={invitacionesData.totalRegistros}
+                  onPageChange={setNumeroPagina}
+                  onPageSizeChange={setTamanoPagina}
+                  disabled={isLoading}
+                />
+              )}
+            </>
+          )}
       </Card>
 
       <ConfirmationModal
