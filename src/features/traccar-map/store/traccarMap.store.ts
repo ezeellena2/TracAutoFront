@@ -39,7 +39,7 @@ const initialState = {
   selectedVehicleId: null,
   searchText: '',
   showLabels: true,
-  mapStyle: 'dark' as MapStyle,
+  mapStyle: 'streets' as MapStyle,
   viewport: DEFAULT_VIEWPORT,
 };
 

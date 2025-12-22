@@ -20,12 +20,12 @@ function formatDateTime(date: Date): string {
 function getMarkerColor(estado: VehiclePosition['estado']): string {
   switch (estado) {
     case 'online':
-      return '#22c55e'; // green - online
+      return '#22c55e'; // success - green
     case 'offline':
-      return '#94a3b8'; // gray - offline
+      return '#ef4444'; // error - red (matches DevicesPage)
     case 'unknown':
     default:
-      return '#f59e0b'; // yellow - unknown
+      return '#f59e0b'; // warning - yellow
   }
 }
 
@@ -101,7 +101,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
               <span className={`
                 px-1.5 py-0.5 rounded text-xs font-medium
                 ${vehicle.estado === 'online' ? 'bg-green-100 text-green-700' : ''}
-                ${vehicle.estado === 'offline' ? 'bg-gray-100 text-gray-700' : ''}
+                ${vehicle.estado === 'offline' ? 'bg-red-100 text-red-700' : ''}
                 ${vehicle.estado === 'unknown' ? 'bg-yellow-100 text-yellow-700' : ''}
               `}>
                 {vehicle.estado === 'online' ? 'Online' : vehicle.estado === 'offline' ? 'Offline' : 'Desconocido'}

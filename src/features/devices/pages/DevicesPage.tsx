@@ -494,6 +494,16 @@ export function DevicesPage() {
         title="Editar Dispositivo"
       >
         <div className="space-y-4">
+          {/* IMEI Info - Read only */}
+          {editingDevice && (
+            <div className="p-3 bg-background rounded-lg border border-border">
+              <p className="text-xs text-text-muted mb-1">IMEI / ID Traccar</p>
+              <p className="text-sm font-mono font-medium text-text">
+                {editingDevice.uniqueId || editingDevice.nombre}
+              </p>
+            </div>
+          )}
+          
           <Input
             label="Alias"
             type="text"

@@ -33,7 +33,7 @@ function getStatusColor(estado: VehiclePosition['estado']) {
     case 'online':
       return 'bg-success/10 border-success/30';
     case 'offline':
-      return 'bg-surface border-border';
+      return 'bg-error/10 border-error/30'; // Red to match DevicesPage
     case 'unknown':
     default:
       return 'bg-warning/10 border-warning/30';

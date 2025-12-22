@@ -264,5 +264,6 @@ export interface DispositivoDto {
   nombre: string;
   activo: boolean;
   estado: string | null;
+  uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
 }
