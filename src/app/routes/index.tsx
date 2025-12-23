@@ -9,9 +9,11 @@ import { VehiclesPage } from '@/features/vehicles';
 import { DevicesPage } from '@/features/devices';
 import { EventsPage } from '@/features/events';
 import { UsersPage } from '@/features/users';
+import { DriversPage } from '@/features/drivers';
 import { AcceptInvitationPage } from '@/features/invitations/pages/AcceptInvitationPage';
 import { BrandingPage } from '@/features/organization';
 import { TraccarMapPage } from '@/features/traccar-map';
+import { ReplayPage } from '@/features/replay';
 
 const router = createBrowserRouter([
   {
@@ -55,8 +57,16 @@ const router = createBrowserRouter([
         element: <UsersPage />,
       },
       {
+        path: 'conductores',
+        element: <DriversPage />,
+      },
+      {
         path: 'mapa',
         element: <TraccarMapPage />,
+      },
+      {
+        path: 'replay',
+        element: <ReplayPage />,
       },
       {
         path: 'configuracion/empresa/apariencia',

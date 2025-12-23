@@ -8,7 +8,8 @@ import {
   Palette,
   ChevronLeft,
   ChevronRight,
-  Map
+  Map,
+  UserCircle
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTenantStore, useSidebarStore } from '@/store';
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { path: '/vehiculos', label: 'Vehículos', icon: Car },
   { path: '/dispositivos', label: 'Dispositivos', icon: Cpu },
   { path: '/eventos', label: 'Eventos', icon: Bell },
+  { path: '/conductores', label: 'Conductores', icon: UserCircle, requiredPermission: 'conductores:ver' },
   { path: '/usuarios', label: 'Usuarios', icon: Users, requiredPermission: 'usuarios:ver' },
   { path: '/configuracion/empresa/apariencia', label: 'Empresa · Apariencia', icon: Palette, requiredPermission: 'organizacion:editar' },
 ];

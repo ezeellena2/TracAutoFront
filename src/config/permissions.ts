@@ -29,6 +29,11 @@ export type Permission =
   | 'usuarios:invitar'
   | 'usuarios:editar'
   | 'usuarios:eliminar'
+  // Conductores
+  | 'conductores:ver'
+  | 'conductores:crear'
+  | 'conductores:editar'
+  | 'conductores:eliminar'
   // Organización
   | 'organizacion:editar';
 
@@ -59,6 +64,11 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'usuarios:invitar',
     'usuarios:editar',
     'usuarios:eliminar',
+    // Conductores
+    'conductores:ver',
+    'conductores:crear',
+    'conductores:editar',
+    'conductores:eliminar',
     // Organización
     'organizacion:editar',
   ],
@@ -76,6 +86,10 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     // Eventos
     'eventos:ver',
     'eventos:exportar',
+    // Conductores
+    'conductores:ver',
+    'conductores:crear',
+    'conductores:editar',
   ],
 
   Analista: [
@@ -88,6 +102,8 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     // Eventos
     'eventos:ver',
     'eventos:exportar',
+    // Conductores (solo lectura)
+    'conductores:ver',
   ],
 };
 
@@ -99,6 +115,7 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/vehiculos': ['Admin', 'Operador', 'Analista'],
   '/dispositivos': ['Admin', 'Operador', 'Analista'],
   '/eventos': ['Admin', 'Operador', 'Analista'],
+  '/conductores': ['Admin', 'Operador', 'Analista'],
   '/dashboard': ['Admin', 'Operador', 'Analista'],
   '/configuracion/empresa/apariencia': ['Admin'],
 };

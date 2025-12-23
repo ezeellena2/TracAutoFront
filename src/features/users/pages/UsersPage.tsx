@@ -225,6 +225,43 @@ export function UsersPage() {
         </PermissionGate>
       </div>
 
+      {/* Users Table */}
+      <Card padding="none" className="overflow-visible">
+        {isLoading ? (
+          <div className="p-8 text-center text-text-muted">
+            Cargando usuarios...
+          </div>
+        ) : users.length === 0 ? (
+          <div className="p-8 text-center text-text-muted">
+            No hay usuarios en esta organización
+          </div>
+        ) : (
+          <>
+            <Table
+              columns={columns}
+              data={users}
+              keyExtractor={(u) => u.usuarioId}
+              containerClassName="overflow-visible"
+            />
+            {/* Controles de paginación */}
+            {usersData && (
+              <PaginationControls
+                paginaActual={usersData.paginaActual}
+                totalPaginas={usersData.totalPaginas}
+                tamanoPagina={usersData.tamanoPagina}
+                totalRegistros={usersData.totalRegistros}
+                onPageChange={setNumeroPagina}
+                onPageSizeChange={setTamanoPagina}
+                disabled={isLoading}
+              />
+            )}
+          </>
+        )}
+      </Card>
+
+      {/* Pending Invitations */}
+      <PendingInvitationsTable key={refreshInvites} />
+
       {/* Permissions Matrix */}
       <Card>
         <CardHeader 
@@ -271,40 +308,6 @@ export function UsersPage() {
         </div>
       </Card>
 
-      {/* Users Table */}
-      <Card padding="none" className="overflow-visible">
-        {isLoading ? (
-          <div className="p-8 text-center text-text-muted">
-            Cargando usuarios...
-          </div>
-        ) : users.length === 0 ? (
-          <div className="p-8 text-center text-text-muted">
-            No hay usuarios en esta organización
-          </div>
-        ) : (
-          <>
-            <Table
-              columns={columns}
-              data={users}
-              keyExtractor={(u) => u.usuarioId}
-              containerClassName="overflow-visible"
-            />
-            {/* Controles de paginación */}
-            {usersData && (
-              <PaginationControls
-                paginaActual={usersData.paginaActual}
-                totalPaginas={usersData.totalPaginas}
-                tamanoPagina={usersData.tamanoPagina}
-                totalRegistros={usersData.totalRegistros}
-                onPageChange={setNumeroPagina}
-                onPageSizeChange={setTamanoPagina}
-                disabled={isLoading}
-              />
-            )}
-          </>
-        )}
-      </Card>
-
       {/* Invite User Modal */}
       <InviteUserModal
         isOpen={isInviteModalOpen}
@@ -314,8 +317,6 @@ export function UsersPage() {
           setRefreshInvites(prev => prev + 1);
         }}
       />
-      
-      <PendingInvitationsTable key={refreshInvites} />
 
       <ConfirmationModal
         isOpen={!!userToDelete}
