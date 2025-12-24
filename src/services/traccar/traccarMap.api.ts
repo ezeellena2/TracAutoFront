@@ -15,6 +15,7 @@ interface VehiclePositionApiDto {
   id: string;
   nombre: string;
   uniqueId: string;
+  patente: string | null;
   latitud: number;
   longitud: number;
   velocidad: number;
@@ -29,12 +30,12 @@ function mapToVehiclePosition(dto: VehiclePositionApiDto): VehiclePosition {
   return {
     id: dto.id,
     nombre: dto.nombre,
-    patente: dto.uniqueId, // Backend uses uniqueId, frontend displays as patente
+    patente: dto.patente ?? dto.uniqueId, // Usar patente real, fallback a uniqueId si no hay vehículo asignado
     latitud: dto.latitud,
     longitud: dto.longitud,
     velocidad: dto.velocidad,
     lastUpdate: new Date(dto.lastUpdateUtc),
-    estado: (dto.estado as VehiclePosition['estado']) ?? 'inactivo',
+    estado: (dto.estado as VehiclePosition['estado']) ?? 'unknown',
   };
 }
 

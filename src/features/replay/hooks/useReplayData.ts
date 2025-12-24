@@ -58,7 +58,6 @@ function getDateRangeFromPreset(preset: DatePreset): { from: Date; to: Date } {
 interface UseReplayDataReturn {
   // Data
   positions: ReplayPosition[];
-  path: [number, number][];
   isLoading: boolean;
   error: string | null;
   
@@ -94,11 +93,6 @@ export function useReplayData(): UseReplayDataReturn {
   const store = useReplayStore();
   const playIntervalRef = useRef<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  // Memoized path for polyline (avoid recalculating on each render)
-  const path = useMemo<[number, number][]>(() => {
-    return store.positions.map(p => [p.lat, p.lon] as [number, number]);
-  }, [store.positions]);
 
   // Current position based on playback index
   const currentPosition = useMemo(() => {
@@ -168,20 +162,27 @@ export function useReplayData(): UseReplayDataReturn {
     };
   }, [store.playback.isPlaying, store.playback.speed, store.positions.length, store]);
 
-  // Reset on mount, cleanup on unmount
+  // Read URL params and pre-select device on mount
   useEffect(() => {
     store.resetState(); // Limpiar estado al entrar a la página
+    
+    // Check for dispositivoId in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const dispositivoId = urlParams.get('dispositivoId');
+    if (dispositivoId) {
+      store.setSelectedDispositivo(dispositivoId);
+    }
     
     return () => {
       abortControllerRef.current?.abort(); // Cancelar request pendiente
       store.resetState(); // Limpiar al salir
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
     // Data
     positions: store.positions,
-    path,
     isLoading: store.isLoading,
     error: store.error,
     

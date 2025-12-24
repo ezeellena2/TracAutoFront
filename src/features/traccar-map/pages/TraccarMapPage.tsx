@@ -114,7 +114,7 @@ export function TraccarMapPage() {
       <MapShell
         sidebar={<SidebarSkeleton />}
         map={<MapLoadingSkeleton />}
-        vehicleCount={0}
+        itemCount={0}
       />
     );
   }
@@ -129,7 +129,7 @@ export function TraccarMapPage() {
     <MapShell
       sidebar={<VehiclesSidebar />}
       map={<MapView />}
-      vehicleCount={vehicles.length}
+      itemCount={vehicles.length}
     />
   );
 }

@@ -1,5 +1,7 @@
 import { Marker, Popup, Tooltip } from 'react-leaflet';
+import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
+import { History } from 'lucide-react';
 import { VehiclePosition } from '../types';
 import { useTraccarMapStore } from '../store/traccarMap.store';
 
@@ -63,8 +65,14 @@ function createCustomIcon(estado: VehiclePosition['estado'], isSelected: boolean
 }
 
 export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
+  const navigate = useNavigate();
   const { selectedVehicleId, setSelectedVehicle, showLabels } = useTraccarMapStore();
   const isSelected = selectedVehicleId === vehicle.id;
+
+  const handleReplayClick = () => {
+    // Navigate to replay page with device pre-selected
+    navigate(`/replay?dispositivoId=${vehicle.id}`);
+  };
 
   return (
     <Marker
@@ -119,8 +127,18 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
               Lat: {vehicle.latitud.toFixed(6)} | Lng: {vehicle.longitud.toFixed(6)}
             </p>
           </div>
+          
+          {/* Ver recorrido button */}
+          <button
+            onClick={handleReplayClick}
+            className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <History size={16} />
+            Ver recorrido
+          </button>
         </div>
       </Popup>
     </Marker>
   );
 }
+

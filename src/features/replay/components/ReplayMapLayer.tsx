@@ -1,12 +1,13 @@
 /**
  * ReplayMapLayer component
  * Polyline for route + marker at current position
+ * Path is colored by speed (green -> yellow -> orange -> red)
  */
 
 import { useEffect, useMemo } from 'react';
 import { Polyline, CircleMarker, useMap } from 'react-leaflet';
 import { LatLngBounds } from 'leaflet';
-import { ReplayPosition } from '../types';
+import { ReplayPosition, getSpeedColor } from '../types';
 
 interface ReplayMapLayerProps {
   positions: ReplayPosition[];
@@ -14,16 +15,29 @@ interface ReplayMapLayerProps {
 }
 
 /**
- * Get color based on speed (green -> yellow -> red)
+ * Create path segments with their colors for speed visualization
  */
-function getSpeedColor(speed: number): string {
-  // 0-30 km/h: green
-  // 30-80 km/h: yellow/orange
-  // 80+ km/h: red
-  if (speed <= 30) return '#22c55e'; // green
-  if (speed <= 60) return '#eab308'; // yellow
-  if (speed <= 80) return '#f97316'; // orange
-  return '#ef4444'; // red
+function createSpeedSegments(
+  positions: ReplayPosition[],
+  endIndex: number
+): { path: [number, number][]; color: string }[] {
+  const segments: { path: [number, number][]; color: string }[] = [];
+  
+  for (let i = 0; i < endIndex && i < positions.length - 1; i++) {
+    const curr = positions[i];
+    const next = positions[i + 1];
+    const avgSpeed = (curr.speed + next.speed) / 2;
+    
+    segments.push({
+      path: [
+        [curr.lat, curr.lon],
+        [next.lat, next.lon]
+      ],
+      color: getSpeedColor(avgSpeed),
+    });
+  }
+  
+  return segments;
 }
 
 export function ReplayMapLayer({ positions, currentIndex }: ReplayMapLayerProps) {
@@ -34,13 +48,13 @@ export function ReplayMapLayer({ positions, currentIndex }: ReplayMapLayerProps)
     return positions.map(p => [p.lat, p.lon] as [number, number]);
   }, [positions]);
 
-  // Current position
-  const currentPosition = positions[currentIndex];
+  // Current position with guard
+  const currentPosition = positions[currentIndex] ?? null;
 
-  // Path up to current index (traveled portion)
-  const traveledPath = useMemo<[number, number][]>(() => {
-    return path.slice(0, currentIndex + 1);
-  }, [path, currentIndex]);
+  // Speed-colored segments for traveled portion
+  const traveledSegments = useMemo(() => {
+    return createSpeedSegments(positions, currentIndex + 1);
+  }, [positions, currentIndex]);
 
   // Path after current index (remaining portion)
   const remainingPath = useMemo<[number, number][]>(() => {
@@ -63,30 +77,30 @@ export function ReplayMapLayer({ positions, currentIndex }: ReplayMapLayerProps)
 
   return (
     <>
-      {/* Remaining path (faded) */}
+      {/* Remaining path (solid blue, slightly lighter) */}
       {remainingPath.length > 1 && (
         <Polyline
           positions={remainingPath}
           pathOptions={{
-            color: '#94a3b8',
+            color: '#60a5fa',
             weight: 3,
-            opacity: 0.4,
-            dashArray: '5, 10',
+            opacity: 0.6,
           }}
         />
       )}
 
-      {/* Traveled path (solid, colored by speed) */}
-      {traveledPath.length > 1 && (
+      {/* Traveled path - speed-colored segments */}
+      {traveledSegments.map((segment, idx) => (
         <Polyline
-          positions={traveledPath}
+          key={idx}
+          positions={segment.path}
           pathOptions={{
-            color: '#3b82f6',
+            color: segment.color,
             weight: 4,
-            opacity: 0.8,
+            opacity: 0.9,
           }}
         />
-      )}
+      ))}
 
       {/* Current position marker */}
       {currentPosition && (

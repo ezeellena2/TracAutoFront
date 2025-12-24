@@ -73,7 +73,7 @@ export const useReplayStore = create<ReplayStore>((set, get) => ({
   playback: { ...initialPlayback },
 
   // Data actions
-  setPositions: (positions) => set({ positions, error: null }),
+  setPositions: (positions) => set({ positions, error: null, isLoading: false }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),
   clearPositions: () => set({ positions: [], playback: { ...initialPlayback } }),

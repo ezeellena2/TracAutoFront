@@ -9,36 +9,6 @@ import { ReplayPosition, DatePreset } from '../types';
 const MAP_BASE = 'map';
 
 /**
- * API response DTO from backend
- */
-interface ReplayPositionApiDto {
-  id: number;
-  timestamp: string;
-  lat: number;
-  lon: number;
-  speed: number;
-  course: number;
-  ignition: boolean | null;
-  motion: boolean | null;
-}
-
-/**
- * Parse API response to frontend type
- */
-function mapToReplayPosition(dto: ReplayPositionApiDto): ReplayPosition {
-  return {
-    id: dto.id,
-    timestamp: dto.timestamp,
-    lat: dto.lat,
-    lon: dto.lon,
-    speed: dto.speed,
-    course: dto.course,
-    ignition: dto.ignition,
-    motion: dto.motion,
-  };
-}
-
-/**
  * Fetches historical positions for replay.
  * 
  * @param dispositivoId - Device ID (TracAuto internal)
@@ -55,7 +25,7 @@ export async function getReplayPositions(
   preset?: DatePreset,
   signal?: AbortSignal
 ): Promise<ReplayPosition[]> {
-  const response = await apiClient.get<ReplayPositionApiDto[]>(
+  const response = await apiClient.get<ReplayPosition[]>(
     `${MAP_BASE}/replay`,
     {
       params: {
@@ -67,12 +37,6 @@ export async function getReplayPositions(
       signal,
     }
   );
-  return response.data.map(mapToReplayPosition);
+  return response.data;
 }
 
-/**
- * Exported API object for consistency with other endpoints
- */
-export const replayApi = {
-  getReplayPositions,
-};

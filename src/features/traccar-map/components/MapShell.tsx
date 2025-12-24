@@ -1,17 +1,25 @@
 import { ReactNode, useState } from 'react';
-import { ChevronLeft, ChevronRight, Car } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Car, LucideIcon } from 'lucide-react';
 
 interface MapShellProps {
   sidebar: ReactNode;
   map: ReactNode;
-  vehicleCount?: number;
+  /** Count shown when collapsed (default: 0) */
+  itemCount?: number;
+  /** Icon shown when collapsed (default: Car) */
+  CollapsedIcon?: LucideIcon;
 }
 
-export function MapShell({ sidebar, map, vehicleCount = 0 }: MapShellProps) {
+export function MapShell({ 
+  sidebar, 
+  map, 
+  itemCount = 0, 
+  CollapsedIcon = Car 
+}: MapShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background overflow-hidden">
       {/* Sidebar - collapsible on desktop */}
       <div 
         className={`
@@ -37,9 +45,9 @@ export function MapShell({ sidebar, map, vehicleCount = 0 }: MapShellProps) {
             <>
               <ChevronRight size={16} className="text-text-muted group-hover:text-primary transition-colors" />
               <div className="flex flex-col items-center">
-                <Car size={14} className="text-text-muted" />
-                {vehicleCount > 0 && (
-                  <span className="text-[10px] font-medium text-text-muted">{vehicleCount}</span>
+                <CollapsedIcon size={14} className="text-text-muted" />
+                {itemCount > 0 && (
+                  <span className="text-[10px] font-medium text-text-muted">{itemCount}</span>
                 )}
               </div>
             </>
@@ -56,4 +64,3 @@ export function MapShell({ sidebar, map, vehicleCount = 0 }: MapShellProps) {
     </div>
   );
 }
-

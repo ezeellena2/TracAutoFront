@@ -89,9 +89,9 @@ export function ReplayControls({
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between">
-        {/* Playback buttons */}
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3">
+        {/* Playback buttons - centered */}
+        <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => onSeek(0)}
             className="p-2 bg-background rounded-lg hover:bg-background-hover transition-colors"
@@ -135,18 +135,18 @@ export function ReplayControls({
           </button>
         </div>
 
-        {/* Speed selector */}
-        <div className="flex items-center gap-2">
+        {/* Speed selector - full width row */}
+        <div className="flex items-center justify-center gap-2">
           <span className="text-xs text-text-muted">Velocidad:</span>
           <div className="flex gap-1">
             {PLAYBACK_SPEEDS.map((s) => (
               <button
                 key={s}
                 onClick={() => onSpeedChange(s)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   speed === s
                     ? 'bg-primary text-white'
-                    : 'bg-background text-text hover:bg-background-hover'
+                    : 'bg-background text-text hover:bg-background-hover border border-border'
                 }`}
               >
                 {s}x
