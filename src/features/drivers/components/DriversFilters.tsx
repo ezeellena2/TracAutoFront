@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Search } from 'lucide-react';
 import { Card, Input } from '@/shared/ui';
 
@@ -14,6 +15,7 @@ export function DriversFilters({
   soloActivos,
   onSoloActivosChange,
 }: DriversFiltersProps) {
+  const { t } = useTranslation();
   return (
     <Card>
       <div className="flex flex-col sm:flex-row gap-4">
@@ -21,7 +23,7 @@ export function DriversFilters({
           <div className="relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
             <Input
-              placeholder="Buscar por nombre o DNI..."
+              placeholder={t('drivers.searchPlaceholder')}
               value={buscar}
               onChange={(e) => onBuscarChange(e.target.value)}
               className="pl-10"
@@ -37,11 +39,10 @@ export function DriversFilters({
             className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
           />
           <label htmlFor="soloActivos" className="text-sm text-text cursor-pointer">
-            Solo Activos
+            {t('drivers.onlyActive')}
           </label>
         </div>
       </div>
     </Card>
   );
 }
-

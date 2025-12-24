@@ -4,7 +4,6 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { mockHandlers, shouldUseMocks } from '../mock';
 import { AuthUser } from '@/shared/types';
 import {
   RegistrarEmpresaRequest,
@@ -41,7 +40,7 @@ export interface LoginResponse {
 
 /**
  * Login con email y contraseña
- * Nuevo endpoint POST /api/v1/auth/login
+ * POST /api/v1/auth/login
  * @param rememberMe Si es true, sesión de 7 días. Si es false, sesión de 4 horas.
  */
 export async function login(email: string, password: string, rememberMe: boolean = true): Promise<{
@@ -49,25 +48,12 @@ export async function login(email: string, password: string, rememberMe: boolean
   user: AuthUser;
   theme?: OrganizacionThemeDto | null;
 }> {
-  if (shouldUseMocks()) {
-    // Fallback a mock si VITE_USE_MOCKS=true
-    const response = await mockHandlers.login(email, password, 'org-segurostech');
-
-    if (!response.ok) {
-      throw new Error((response.data as { message: string }).message);
-    }
-
-    return response.data as { token: string; user: AuthUser };
-  }
-
-  // Llamada real al backend
   const response = await apiClient.post<LoginResponse>(`${AUTH_BASE}/login`, {
     email,
     password,
     rememberMe,
   });
 
-  // Mapear respuesta del backend a AuthUser
   const data = response.data;
 
   // Mapear rol del backend a UserRole del frontend
@@ -107,16 +93,6 @@ export async function loginTradicional(
  * Registra una nueva empresa y su usuario propietario
  */
 export async function registrarEmpresa(data: RegistrarEmpresaRequest): Promise<RegistroEmpresaResponse> {
-  if (shouldUseMocks()) {
-    return {
-      organizacionId: crypto.randomUUID(),
-      usuarioId: crypto.randomUUID(),
-      mensaje: 'Empresa registrada. Verifique su email.',
-      requiereVerificacionTelefono: !!data.telefono,
-      emailVerificado: !!data.googleToken,
-    };
-  }
-
   const response = await apiClient.post<RegistroEmpresaResponse>(
     `${AUTH_BASE}/registrar-empresa`,
     data
@@ -128,14 +104,6 @@ export async function registrarEmpresa(data: RegistrarEmpresaRequest): Promise<R
  * Verifica la cuenta con códigos de email y teléfono
  */
 export async function verificarCuenta(data: VerificarCuentaRequest): Promise<VerificacionCuentaResponse> {
-  if (shouldUseMocks()) {
-    return {
-      token: `mock-jwt-${Date.now()}`,
-      organizacionId: crypto.randomUUID(),
-      mensaje: 'Cuenta verificada exitosamente',
-    };
-  }
-
   const response = await apiClient.post<VerificacionCuentaResponse>(
     `${AUTH_BASE}/verificar-cuenta`,
     data
@@ -147,14 +115,6 @@ export async function verificarCuenta(data: VerificarCuentaRequest): Promise<Ver
  * Reenvía códigos de verificación
  */
 export async function reenviarCodigo(data: ReenviarCodigoRequest): Promise<ReenviarCodigoResponse> {
-  if (shouldUseMocks()) {
-    return {
-      mensaje: 'Códigos reenviados',
-      enviadoPorEmail: data.canal === 1 || data.canal === 3,
-      enviadoPorSms: data.canal === 2 || data.canal === 3,
-    };
-  }
-
   const response = await apiClient.post<ReenviarCodigoResponse>(
     `${AUTH_BASE}/reenviar-codigo`,
     data
@@ -166,17 +126,6 @@ export async function reenviarCodigo(data: ReenviarCodigoRequest): Promise<Reenv
  * Login con Google (Token Exchange)
  */
 export async function loginConGoogle(data: LoginConGoogleRequest): Promise<GoogleAuthResponse> {
-  if (shouldUseMocks()) {
-    return {
-      token: `mock-jwt-google-${Date.now()}`,
-      organizacionId: crypto.randomUUID(),
-      email: 'user@gmail.com',
-      nombre: 'Usuario Demo',
-      requiereRegistro: false,
-      fotoUrl: null,
-    };
-  }
-
   const response = await apiClient.post<GoogleAuthResponse>(
     `${AUTH_BASE}/google`,
     data
@@ -189,13 +138,6 @@ export async function loginConGoogle(data: LoginConGoogleRequest): Promise<Googl
  * Best-effort: si falla, el frontend igual limpiará la sesión
  */
 export async function logout(): Promise<void> {
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 200));
-    return;
-  }
-
-  // Llamar al backend para revocar el refresh token (HttpOnly cookie)
-  // El backend lee el refresh token de la cookie automáticamente
   await apiClient.post(`${AUTH_BASE}/logout`);
 }
 

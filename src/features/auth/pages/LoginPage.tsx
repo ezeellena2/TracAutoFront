@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2 } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
@@ -13,6 +14,7 @@ import { authService } from '@/services/auth.service';
  * - (Futuro) Login con Google
  */
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
@@ -47,7 +49,7 @@ export function LoginPage() {
     e.preventDefault();
     
     if (!email || !password) {
-      setError('Complete todos los campos');
+      setError(t('auth.errors.completeFields'));
       return;
     }
     
@@ -63,11 +65,11 @@ export function LoginPage() {
     } else {
       // Manejar errores específicos
       if (result.error?.includes('no verificado') || result.error?.includes('EmailNoVerificado')) {
-        setError('Su cuenta no está verificada. Por favor, revise su correo electrónico.');
+        setError(t('auth.errors.accountNotVerified'));
       } else if (result.error?.includes('bloqueada') || result.error?.includes('CuentaBloqueada')) {
-        setError('Su cuenta ha sido bloqueada. Contacte a soporte.');
+        setError(t('auth.errors.accountBlocked'));
       } else {
-        setError(result.error || 'Error de autenticación');
+        setError(result.error || t('auth.errors.authError'));
       }
     }
     
@@ -75,7 +77,7 @@ export function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    setError('Login con Google estará disponible próximamente');
+    setError(t('auth.errors.googleNotAvailable'));
     // TODO: Implementar OAuth con Google SDK
   };
 
@@ -87,17 +89,17 @@ export function LoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
             <Car size={32} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-text">TracAuto</h1>
-          <p className="text-text-muted mt-1">Plataforma de Gestión Telemática</p>
+          <h1 className="text-2xl font-bold text-text">{t('auth.title')}</h1>
+          <p className="text-text-muted mt-1">{t('auth.subtitle')}</p>
         </div>
 
         {/* Login Card */}
         <div className="bg-surface rounded-2xl border border-border p-8">
           <h2 className="text-lg font-semibold text-text mb-2">
-            Iniciar Sesión
+            {t('auth.signIn')}
           </h2>
           <p className="text-sm text-text-muted mb-6">
-            Ingrese sus credenciales para acceder
+            {t('auth.signInSubtitle')}
           </p>
 
           {/* Mensaje de éxito */}
@@ -109,22 +111,22 @@ export function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
-              label="Correo electrónico"
+              label={t('auth.emailLabel')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="usuario@empresa.com"
+              placeholder={t('auth.emailPlaceholder')}
               required
               disabled={isLoading}
             />
 
             <div className="relative">
               <Input
-                label="Contraseña"
+                label={t('auth.passwordLabel')}
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('auth.passwordPlaceholder')}
                 required
                 disabled={isLoading}
               />
@@ -147,7 +149,7 @@ export function LoginPage() {
                 className="w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary"
                 disabled={isLoading}
               />
-              Recordarme
+              {t('auth.rememberMe')}
             </label>
 
             {error && (
@@ -165,10 +167,10 @@ export function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 size={18} className="animate-spin mr-2" />
-                  Ingresando...
+                  {t('auth.signingIn')}
                 </>
               ) : (
-                'Ingresar'
+                t('auth.signInButton')
               )}
             </Button>
 
@@ -178,7 +180,7 @@ export function LoginPage() {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-surface px-2 text-text-muted">o continuar con</span>
+                <span className="bg-surface px-2 text-text-muted">{t('auth.continueWith')}</span>
               </div>
             </div>
 
@@ -208,19 +210,19 @@ export function LoginPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Continuar con Google
+              {t('auth.continueGoogle')}
             </Button>
           </form>
 
           {/* Register link */}
           <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-sm text-text-muted mb-3">
-              ¿No tiene una cuenta?
+              {t('auth.noAccount')}
             </p>
             <Link to="/registro">
               <Button variant="outline" className="w-full">
                 <Building2 size={18} className="mr-2" />
-                Registrar mi Empresa
+                {t('auth.registerCompany')}
               </Button>
             </Link>
           </div>
@@ -229,14 +231,14 @@ export function LoginPage() {
           <div className="mt-4 text-center">
             <button className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors">
               <HelpCircle size={16} />
-              Contactar Soporte
+              {t('auth.contactSupport')}
             </button>
           </div>
         </div>
 
         {/* Legal message */}
         <p className="mt-6 text-center text-xs text-text-muted">
-          Al ingresar, acepta nuestros términos de uso y políticas de privacidad.
+          {t('auth.legalMessage')}
         </p>
       </div>
     </div>

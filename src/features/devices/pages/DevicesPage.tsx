@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { dispositivosApi } from '@/services/endpoints';
-import { usePermissions, usePaginationParams } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
+import { formatDateTime } from '@/shared/utils';
 
 export function DevicesPage() {
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
+  const { getErrorMessage } = useErrorHandler();
   // Datos paginados
   const [devicesData, setDevicesData] = useState<ListaPaginada<DispositivoDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,8 +58,7 @@ export function DevicesPage() {
         console.log('[DevicesPage] Devices loaded:', result.items, 'Total:', result.totalRegistros);
       }
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo cargar la lista de dispositivos';
-      setError(msg);
+      setError(getErrorMessage(e));
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error loading devices:', e);
       }
@@ -81,7 +85,7 @@ export function DevicesPage() {
     const traccarDeviceIdNum = Number(createForm.traccarDeviceId);
     
     if (!createForm.traccarDeviceId || isNaN(traccarDeviceIdNum) || traccarDeviceIdNum <= 0) {
-      errors.traccarDeviceId = 'El ID de Traccar debe ser un número mayor a 0';
+      errors.traccarDeviceId = t('devices.form.traccarIdError');
     }
 
     if (Object.keys(errors).length > 0) {
@@ -98,15 +102,14 @@ export function DevicesPage() {
         createForm.alias.trim() || undefined
       );
       
-      toast.success('Dispositivo creado correctamente');
+      toast.success(t('devices.success.created'));
       setIsCreateModalOpen(false);
       setCreateForm({ traccarDeviceId: '', alias: '' });
       
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo crear el dispositivo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error creating device:', e);
       }
@@ -136,15 +139,14 @@ export function DevicesPage() {
         editForm.activo
       );
       
-      toast.success('Dispositivo actualizado correctamente');
+      toast.success(t('devices.success.updated'));
       setIsEditModalOpen(false);
       setEditingDevice(null);
       
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo actualizar el dispositivo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error updating device:', e);
       }
@@ -166,15 +168,14 @@ export function DevicesPage() {
     try {
       await dispositivosApi.deleteDispositivo(deviceToDelete.id);
       
-      toast.success('Dispositivo eliminado correctamente');
+      toast.success(t('devices.success.deleted'));
       setIsDeleteModalOpen(false);
       setDeviceToDelete(null);
       
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo eliminar el dispositivo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error deleting device:', e);
       }
@@ -183,47 +184,39 @@ export function DevicesPage() {
     }
   };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const getEstadoBadge = (estado: string | null) => {
-    if (!estado) return <Badge variant="info">Desconocido</Badge>;
+    if (!estado) return <Badge variant="info">{t('devices.unknownStatus')}</Badge>;
     switch (estado) {
-      case 'online': return <Badge variant="success">Online</Badge>;
-      case 'offline': return <Badge variant="error">Offline</Badge>;
+      case 'online': return <Badge variant="success">{t('devices.onlineStatus')}</Badge>;
+      case 'offline': return <Badge variant="error">{t('devices.offlineStatus')}</Badge>;
       default: return <Badge variant="info">{estado}</Badge>;
     }
   };
 
   const columns = [
-    { key: 'nombre', header: 'Nombre', sortable: true },
+    { key: 'nombre', header: t('devices.name'), sortable: true },
     {
       key: 'estado',
-      header: 'Estado',
+      header: t('devices.status'),
       render: (d: DispositivoDto) => getEstadoBadge(d.estado)
     },
     {
       key: 'ultimaActualizacionUtc',
-      header: 'Última actualización',
-      render: (d: DispositivoDto) => formatDate(d.ultimaActualizacionUtc)
+      header: t('devices.lastUpdate'),
+      render: (d: DispositivoDto) => d.ultimaActualizacionUtc 
+        ? formatDateTime(d.ultimaActualizacionUtc, culture, timeZoneId)
+        : '-'
     },
     {
       key: 'activo',
-      header: 'Activo',
+      header: t('common.active'),
       render: (d: DispositivoDto) => (
-        d.activo ? <Badge variant="success">Sí</Badge> : <Badge variant="error">No</Badge>
+        d.activo ? <Badge variant="success">{t('common.yes')}</Badge> : <Badge variant="error">{t('common.no')}</Badge>
       )
     },
     {
       key: 'actions',
-      header: 'Acciones',
+      header: t('devices.actions'),
       render: (d: DispositivoDto) => {
         // Sin permiso de configurar, no mostrar acciones
         if (!canConfigure) return null;
@@ -234,7 +227,7 @@ export function DevicesPage() {
               variant="ghost"
               size="sm"
               onClick={() => handleOpenEdit(d)}
-              title="Editar dispositivo"
+              title={t('devices.editDevice')}
             >
               <Edit size={16} />
             </Button>
@@ -242,7 +235,7 @@ export function DevicesPage() {
               variant="ghost"
               size="sm"
               onClick={() => handleOpenDelete(d)}
-              title="Eliminar dispositivo"
+              title={t('devices.deleteDevice')}
             >
               <Trash2 size={16} className="text-error" />
             </Button>
@@ -258,15 +251,15 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
-            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
+            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
         </div>
         <Card>
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-text-muted mt-4">Cargando dispositivos...</p>
+              <p className="text-text-muted mt-4">{t('devices.loading')}</p>
             </div>
           </div>
         </Card>
@@ -280,16 +273,16 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
-            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
+            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
         </div>
         <Card>
           <div className="flex flex-col items-center justify-center py-12">
             <AlertCircle size={48} className="text-error mb-4" />
-            <h3 className="text-lg font-semibold text-text mb-2">Error al cargar dispositivos</h3>
+            <h3 className="text-lg font-semibold text-text mb-2">{t('devices.loadError')}</h3>
             <p className="text-text-muted mb-6 text-center max-w-md">{error}</p>
-            <Button onClick={loadDevices}>Reintentar</Button>
+            <Button onClick={loadDevices}>{t('devices.retry')}</Button>
           </div>
         </Card>
       </div>
@@ -302,27 +295,27 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
-            <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
+            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
           {canCreate && (
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
-              Agregar Dispositivo
+              {t('devices.createDevice')}
             </Button>
           )}
         </div>
         <Card>
           <div className="flex flex-col items-center justify-center py-12">
             <Settings size={48} className="text-text-muted mb-4" />
-            <h3 className="text-lg font-semibold text-text mb-2">Sin dispositivos</h3>
+            <h3 className="text-lg font-semibold text-text mb-2">{t('devices.emptyTitle')}</h3>
             <p className="text-text-muted text-center max-w-md mb-4">
-              No hay dispositivos registrados para tu organización.
+              {t('devices.emptyDescription')}
             </p>
             {canCreate && (
               <Button onClick={() => setIsCreateModalOpen(true)}>
                 <Plus size={16} className="mr-2" />
-                Agregar Dispositivo
+                {t('devices.createDevice')}
               </Button>
             )}
           </div>
@@ -336,26 +329,26 @@ export function DevicesPage() {
             setCreateForm({ traccarDeviceId: '', alias: '' });
             setCreateErrors({});
           }}
-          title="Agregar Dispositivo"
+          title={t('devices.createDevice')}
         >
           <div className="space-y-4">
             <Input
-              label="ID de Traccar"
+              label={t('devices.form.traccarId')}
               type="number"
               value={createForm.traccarDeviceId}
               onChange={(e) => setCreateForm({ ...createForm, traccarDeviceId: e.target.value })}
-              placeholder="12345"
+              placeholder={t('devices.form.traccarIdPlaceholder')}
               error={createErrors.traccarDeviceId}
-              helperText="ID numérico del dispositivo en Traccar"
+              helperText={t('devices.form.traccarIdHelper')}
               required
             />
             <Input
-              label="Alias (opcional)"
+              label={t('devices.form.alias')}
               type="text"
               value={createForm.alias}
               onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
-              placeholder="GPS Vehículo 1"
-              helperText="Nombre descriptivo para mostrar en TracAuto"
+              placeholder={t('devices.form.aliasPlaceholder')}
+              helperText={t('devices.form.aliasHelper')}
             />
             <div className="flex justify-end gap-3 pt-4">
               <Button
@@ -367,10 +360,10 @@ export function DevicesPage() {
                 }}
                 disabled={isCreating}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button onClick={handleCreateDevice} disabled={isCreating}>
-                {isCreating ? 'Creando...' : 'Crear'}
+                {isCreating ? t('devices.creating') : t('common.create')}
               </Button>
             </div>
           </div>
@@ -384,19 +377,30 @@ export function DevicesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Dispositivos</h1>
-          <p className="text-text-muted mt-1">Gestión de dispositivos telemáticos</p>
+          <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
+          <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
         </div>
         {canCreate && (
           <Button onClick={() => setIsCreateModalOpen(true)}>
             <Plus size={16} className="mr-2" />
-            Agregar Dispositivo
+            {t('devices.createDevice')}
           </Button>
         )}
       </div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-primary/10">
+              <Settings size={24} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-text">{devices.length}</p>
+              <p className="text-sm text-text-muted">{t('devices.totalDevices')}</p>
+            </div>
+          </div>
+        </Card>
         <Card>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-lg bg-success/10">
@@ -406,7 +410,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estado === 'online').length}
               </p>
-              <p className="text-sm text-text-muted">Dispositivos Online</p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOnline')}</p>
             </div>
           </div>
         </Card>
@@ -419,7 +423,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estado === 'offline').length}
               </p>
-              <p className="text-sm text-text-muted">Dispositivos Offline</p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOffline')}</p>
             </div>
           </div>
         </Card>
@@ -432,7 +436,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estado !== 'online' && d.estado !== 'offline').length}
               </p>
-              <p className="text-sm text-text-muted">Disponibles</p>
+              <p className="text-sm text-text-muted">{t('devices.available')}</p>
             </div>
           </div>
         </Card>
@@ -467,26 +471,26 @@ export function DevicesPage() {
           setCreateForm({ traccarDeviceId: '', alias: '' });
           setCreateErrors({});
         }}
-        title="Agregar Dispositivo"
+        title={t('devices.createDevice')}
       >
         <div className="space-y-4">
           <Input
-            label="ID de Traccar"
+            label={t('devices.form.traccarId')}
             type="number"
             value={createForm.traccarDeviceId}
             onChange={(e) => setCreateForm({ ...createForm, traccarDeviceId: e.target.value })}
-            placeholder="12345"
+            placeholder={t('devices.form.traccarIdPlaceholder')}
             error={createErrors.traccarDeviceId}
-            helperText="ID numérico del dispositivo en Traccar"
+            helperText={t('devices.form.traccarIdHelper')}
             required
           />
           <Input
-            label="Alias (opcional)"
+            label={t('devices.form.alias')}
             type="text"
             value={createForm.alias}
             onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
-            placeholder="GPS Vehículo 1"
-            helperText="Nombre descriptivo para mostrar en TracAuto"
+            placeholder={t('devices.form.aliasPlaceholder')}
+            helperText={t('devices.form.aliasHelper')}
           />
           <div className="flex justify-end gap-3 pt-4">
             <Button
@@ -498,10 +502,10 @@ export function DevicesPage() {
               }}
               disabled={isCreating}
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleCreateDevice} disabled={isCreating}>
-              {isCreating ? 'Creando...' : 'Crear'}
+              {isCreating ? t('devices.creating') : t('common.create')}
             </Button>
           </div>
         </div>
@@ -514,13 +518,13 @@ export function DevicesPage() {
           setIsEditModalOpen(false);
           setEditingDevice(null);
         }}
-        title="Editar Dispositivo"
+        title={t('devices.editDevice')}
       >
         <div className="space-y-4">
           {/* IMEI Info - Read only */}
           {editingDevice && (
             <div className="p-3 bg-background rounded-lg border border-border">
-              <p className="text-xs text-text-muted mb-1">IMEI / ID Traccar</p>
+              <p className="text-xs text-text-muted mb-1">{t('devices.form.imeiLabel')}</p>
               <p className="text-sm font-mono font-medium text-text">
                 {editingDevice.uniqueId || editingDevice.nombre}
               </p>
@@ -528,12 +532,12 @@ export function DevicesPage() {
           )}
           
           <Input
-            label="Alias"
+            label={t('devices.form.aliasLabel')}
             type="text"
             value={editForm.alias}
             onChange={(e) => setEditForm({ ...editForm, alias: e.target.value })}
-            placeholder="GPS Vehículo 1"
-            helperText="Nombre descriptivo para mostrar en TracAuto"
+            placeholder={t('devices.form.aliasPlaceholder')}
+            helperText={t('devices.form.aliasHelper')}
           />
           <div className="flex items-center gap-3">
             <input
@@ -544,7 +548,7 @@ export function DevicesPage() {
               className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
             <label htmlFor="activo-edit" className="text-sm text-text">
-              Dispositivo activo
+              {t('devices.form.active')}
             </label>
           </div>
           <div className="flex justify-end gap-3 pt-4">
@@ -556,10 +560,10 @@ export function DevicesPage() {
               }}
               disabled={isUpdating}
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleUpdateDevice} disabled={isUpdating}>
-              {isUpdating ? 'Guardando...' : 'Guardar'}
+              {isUpdating ? t('devices.saving') : t('common.save')}
             </Button>
           </div>
         </div>
@@ -573,10 +577,10 @@ export function DevicesPage() {
           setDeviceToDelete(null);
         }}
         onConfirm={handleDeleteDevice}
-        title="Eliminar Dispositivo"
-        description={`¿Está seguro de eliminar el dispositivo "${deviceToDelete?.nombre}"? Esta acción marcará el dispositivo como inactivo.`}
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title={t('devices.deleteDevice')}
+        description={t('devices.confirmDelete', { nombre: deviceToDelete?.nombre || '' })}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="danger"
         isLoading={isDeleting}
       />

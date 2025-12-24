@@ -12,30 +12,32 @@ import {
   UserCircle
 } from 'lucide-react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { Permission } from '@/config/permissions';
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: string; // Key de traducción en lugar de label hardcodeado
   icon: React.ElementType;
   /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
   requiredPermission?: Permission;
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/mapa', label: 'Mapa', icon: Map },
-  { path: '/vehiculos', label: 'Vehículos', icon: Car },
-  { path: '/dispositivos', label: 'Dispositivos', icon: Cpu },
-  { path: '/eventos', label: 'Eventos', icon: Bell },
-  { path: '/conductores', label: 'Conductores', icon: UserCircle, requiredPermission: 'conductores:ver' },
-  { path: '/usuarios', label: 'Usuarios', icon: Users, requiredPermission: 'usuarios:ver' },
-  { path: '/configuracion/empresa/apariencia', label: 'Empresa · Apariencia', icon: Palette, requiredPermission: 'organizacion:editar' },
+  { path: '/', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
+  { path: '/mapa', labelKey: 'sidebar.map', icon: Map },
+  { path: '/vehiculos', labelKey: 'sidebar.vehicles', icon: Car },
+  { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
+  { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
+  { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
+  { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
+  { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organization', icon: Palette, requiredPermission: 'organizacion:editar' },
 ];
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { isCollapsed, toggleCollapsed } = useSidebarStore();
   const { currentOrganization } = useTenantStore();
   const { can } = usePermissions();
@@ -88,7 +90,7 @@ export function Sidebar() {
             `}
           >
             <item.icon size={20} />
-            {!isCollapsed && <span className="font-medium">{item.label}</span>}
+            {!isCollapsed && <span className="font-medium">{t(item.labelKey)}</span>}
           </NavLink>
         ))}
       </nav>
@@ -104,7 +106,7 @@ export function Sidebar() {
       {/* Organization info at bottom */}
       {currentOrganization && !isCollapsed && (
         <div className="p-4 border-t border-border bg-background flex-shrink-0">
-          <p className="text-xs text-text-muted">Organización</p>
+          <p className="text-xs text-text-muted">{t('sidebar.organizationLabel')}</p>
           <p className="text-sm font-medium text-text truncate">
             {currentOrganization.name}
           </p>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ThemePreset } from '@/config/themePresets';
 import { Card } from '@/shared/ui';
 
@@ -10,10 +11,11 @@ export function ThemePresetCard({
   onApply: (preset: ThemePreset) => void;
   isActive?: boolean;
 }) {
+  const { t } = useTranslation();
   const swatches = [
-    { label: 'Primary', value: preset.colors.primary },
-    { label: 'Secondary', value: preset.colors.secondary },
-    { label: 'Rol (Admin)', value: preset.colors.roleAdminBg ?? preset.colors.primary },
+    { label: t('organization.primary'), value: preset.colors.primary },
+    { label: t('organization.secondary'), value: preset.colors.secondary },
+    { label: `${t('organization.roleColors')} (${t('organization.admin')})`, value: preset.colors.roleAdminBg ?? preset.colors.primary },
   ];
 
   return (
@@ -58,7 +60,7 @@ export function ThemePresetCard({
                 />
               ))}
             </div>
-            <p className="text-xs text-text-muted mt-2 w-full">Click (preview)</p>
+            <p className="text-xs text-text-muted mt-2 w-full">{t('common.select')} ({t('organization.preview')})</p>
           </div>
         </div>
       </Card>

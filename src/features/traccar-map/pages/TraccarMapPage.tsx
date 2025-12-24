@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapShell } from '../components/MapShell';
 import { VehiclesSidebar } from '../components/VehiclesSidebar';
 import { MapView } from '../components/MapView';
@@ -25,11 +26,12 @@ function SidebarSkeleton() {
 
 // Loading state for map
 function MapLoadingSkeleton() {
+  const { t } = useTranslation();
   return (
     <div className="w-full h-full bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-3 text-text-muted">
         <Loader2 size={48} className="animate-spin" />
-        <p className="text-sm">Cargando mapa...</p>
+        <p className="text-sm">{t('map.loading')}</p>
       </div>
     </div>
   );
@@ -37,6 +39,7 @@ function MapLoadingSkeleton() {
 
 // Error boundary component
 function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
       <div className="flex-1 flex items-center justify-center p-8">
@@ -44,13 +47,13 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
           <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center">
             <AlertCircle size={32} className="text-error" />
           </div>
-          <h2 className="text-xl font-semibold text-text">Error al cargar datos</h2>
+          <h2 className="text-xl font-semibold text-text">{t('map.loadError')}</h2>
           <p className="text-text-muted">{error}</p>
           <button
             onClick={onRetry}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
           >
-            Reintentar
+            {t('map.retry')}
           </button>
         </div>
       </div>
@@ -60,6 +63,7 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
 
 // Empty state when no vehicles exist
 function EmptyState() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
       <div className="flex-1 flex items-center justify-center p-8">
@@ -67,9 +71,9 @@ function EmptyState() {
           <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center">
             <MapPin size={32} className="text-text-muted" />
           </div>
-          <h2 className="text-xl font-semibold text-text">Sin vehículos</h2>
+          <h2 className="text-xl font-semibold text-text">{t('map.empty')}</h2>
           <p className="text-text-muted">
-            No hay vehículos disponibles para mostrar en el mapa.
+            {t('map.emptyDescription')}
           </p>
         </div>
       </div>
@@ -78,6 +82,7 @@ function EmptyState() {
 }
 
 export function TraccarMapPage() {
+  const { t } = useTranslation();
   const { isLoading, error, vehicles, setVehicles, setLoading, setError, resetState } =
     useTraccarMapStore();
 
@@ -88,7 +93,7 @@ export function TraccarMapPage() {
       const data = await getVehiclePositions();
       setVehicles(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }

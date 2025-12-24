@@ -3,12 +3,15 @@ import { LogOut, User, ChevronDown, Building2, Shield, Moon, Sun } from 'lucide-
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { authService } from '@/services/auth.service';
+import { LanguageSwitcher } from '@/shared/ui/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { currentOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode } = useThemeStore();
+  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -78,9 +81,9 @@ export function Header() {
           className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-background transition-colors"
         >
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-text">{user?.nombre || 'Usuario'}</p>
+            <p className="text-sm font-medium text-text">{user?.nombre || t('users.roles.usuario')}</p>
             <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[user?.rol || ''] || 'bg-role-default-bg text-role-default-text'}`}>
-              {user?.rol || 'Usuario'}
+              {user?.rol || t('users.roles.usuario')}
             </span>
           </div>
           <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
@@ -117,6 +120,14 @@ export function Header() {
               </div>
             </div>
 
+            {/* Language switcher */}
+            <div className="px-4 py-2 border-b border-border">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-muted">{t('header.language')}</span>
+                <LanguageSwitcher />
+              </div>
+            </div>
+
             {/* Dark mode toggle */}
             <button
               onClick={handleToggleDarkMode}
@@ -125,12 +136,12 @@ export function Header() {
               {isDarkMode ? (
                 <>
                   <Sun size={16} />
-                  Modo claro
+                  {t('header.lightMode')}
                 </>
               ) : (
                 <>
                   <Moon size={16} />
-                  Modo oscuro
+                  {t('header.darkMode')}
                 </>
               )}
             </button>
@@ -141,7 +152,7 @@ export function Header() {
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-error/10 transition-colors"
             >
               <LogOut size={16} />
-              Cerrar sesión
+              {t('header.logout')}
             </button>
           </div>
         )}

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Modal, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
+import { useErrorHandler } from '@/hooks';
 import type { ConductorDto } from '../types';
 import type { DispositivoDto } from '@/shared/types/api';
 
@@ -21,6 +23,8 @@ export function AssignDeviceModal({
   onClose,
   onSuccess,
 }: AssignDeviceModalProps) {
+  const { t } = useTranslation();
+  const { getErrorMessage } = useErrorHandler();
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +37,7 @@ export function AssignDeviceModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!conductor || !selectedDeviceId) {
-      toast.error('Debe seleccionar un dispositivo');
+      toast.error(t('drivers.errors.mustSelectDevice'));
       return;
     }
 
@@ -43,14 +47,12 @@ export function AssignDeviceModal({
       await conductoresApi.asignarDispositivo(conductor.id, {
         dispositivoId: selectedDeviceId,
       });
-      toast.success('Dispositivo asignado correctamente');
+      toast.success(t('drivers.success.deviceAssigned'));
       setSelectedDeviceId('');
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      const errorMsg = error.response?.data?.detail || 'No se pudo asignar el dispositivo';
-      toast.error(errorMsg);
+      toast.error(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +66,7 @@ export function AssignDeviceModal({
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-text">Asignar Dispositivo</h2>
+          <h2 className="text-xl font-semibold text-text">{t('drivers.assignDeviceModal.title')}</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
@@ -72,13 +74,13 @@ export function AssignDeviceModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="p-3 bg-background rounded-lg border border-border">
-            <p className="text-xs text-text-muted mb-1">Conductor</p>
+            <p className="text-xs text-text-muted mb-1">{t('drivers.assignDeviceModal.driver')}</p>
             <p className="font-medium text-text">{conductor.nombreCompleto}</p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text mb-2">
-              Dispositivo
+              {t('drivers.assignDeviceModal.deviceLabel')}
             </label>
             <select
               value={selectedDeviceId}
@@ -86,7 +88,7 @@ export function AssignDeviceModal({
               className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
               required
             >
-              <option value="">Seleccione un dispositivo</option>
+              <option value="">{t('drivers.assignDeviceModal.devicePlaceholder')}</option>
               {dispositivosActivos.map((dispositivo) => (
                 <option key={dispositivo.id} value={dispositivo.id}>
                   {dispositivo.nombre} {dispositivo.uniqueId ? `(${dispositivo.uniqueId})` : ''}
@@ -94,7 +96,7 @@ export function AssignDeviceModal({
               ))}
             </select>
             <p className="text-xs text-text-muted mt-1">
-              Selecciona el dispositivo GPS a asignar a este conductor
+              {t('drivers.assignDeviceModal.deviceHint')}
             </p>
           </div>
 
@@ -106,10 +108,10 @@ export function AssignDeviceModal({
               disabled={isLoading}
               className="flex-1"
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading || !selectedDeviceId} className="flex-1">
-              {isLoading ? 'Guardando...' : 'Guardar'}
+              {isLoading ? t('common.saving') : t('common.save')}
             </Button>
           </div>
         </form>
@@ -117,4 +119,3 @@ export function AssignDeviceModal({
     </Modal>
   );
 }
-

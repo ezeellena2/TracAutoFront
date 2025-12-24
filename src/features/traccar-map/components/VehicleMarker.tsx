@@ -1,23 +1,17 @@
 import { Marker, Popup, Tooltip } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import { History } from 'lucide-react';
 import { VehiclePosition } from '../types';
 import { useTraccarMapStore } from '../store/traccarMap.store';
+import { useLocalization } from '@/hooks/useLocalization';
+import { formatDateTime } from '@/shared/utils';
 
 interface VehicleMarkerProps {
   vehicle: VehiclePosition;
 }
 
-function formatDateTime(date: Date): string {
-  return date.toLocaleString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 function getMarkerColor(estado: VehiclePosition['estado']): string {
   switch (estado) {
@@ -65,6 +59,8 @@ function createCustomIcon(estado: VehiclePosition['estado'], isSelected: boolean
 }
 
 export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
   const navigate = useNavigate();
   const { selectedVehicleId, setSelectedVehicle, showLabels } = useTraccarMapStore();
   const isSelected = selectedVehicleId === vehicle.id;
@@ -102,26 +98,26 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
           </h3>
           <div className="space-y-1 text-sm text-gray-700">
             <p>
-              <span className="font-medium">Patente:</span> {vehicle.patente}
+              <span className="font-medium">{t('vehicles.licensePlate')}:</span> {vehicle.patente}
             </p>
             <p>
-              <span className="font-medium">Estado:</span>{' '}
+              <span className="font-medium">{t('common.status')}:</span>{' '}
               <span className={`
                 px-1.5 py-0.5 rounded text-xs font-medium
                 ${vehicle.estado === 'online' ? 'bg-green-100 text-green-700' : ''}
                 ${vehicle.estado === 'offline' ? 'bg-red-100 text-red-700' : ''}
                 ${vehicle.estado === 'unknown' ? 'bg-yellow-100 text-yellow-700' : ''}
               `}>
-                {vehicle.estado === 'online' ? 'Online' : vehicle.estado === 'offline' ? 'Offline' : 'Desconocido'}
+                {vehicle.estado === 'online' ? t('devices.onlineStatus') : vehicle.estado === 'offline' ? t('devices.offlineStatus') : t('devices.unknownStatus')}
               </span>
             </p>
             <p>
-              <span className="font-medium">Velocidad:</span> {vehicle.velocidad} km/h
+              <span className="font-medium">{t('map.speed')}:</span> {vehicle.velocidad} km/h
             </p>
             <p>
-              <span className="font-medium">Última actualización:</span>
+              <span className="font-medium">{t('map.lastUpdate')}:</span>
               <br />
-              {formatDateTime(vehicle.lastUpdate)}
+              {formatDateTime(new Date(vehicle.lastUpdate), culture, timeZoneId)}
             </p>
             <p className="text-xs text-gray-500 pt-1 border-t border-gray-200 mt-2">
               Lat: {vehicle.latitud.toFixed(6)} | Lng: {vehicle.longitud.toFixed(6)}
@@ -134,7 +130,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
             className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             <History size={16} />
-            Ver recorrido
+            {t('map.viewRoute')}
           </button>
         </div>
       </Popup>

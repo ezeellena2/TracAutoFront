@@ -1,17 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import { Search, Car, AlertTriangle, Moon } from 'lucide-react';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
 import { VehiclePosition } from '../types';
 
-function formatLastUpdate(date: Date): string {
+function formatLastUpdate(date: Date, t: (key: string, options?: { minutes?: number; hours?: number }) => string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   
-  if (diffMins < 1) return 'Ahora';
-  if (diffMins < 60) return `Hace ${diffMins} min`;
+  if (diffMins < 1) return t('map.now');
+  if (diffMins < 60) return t('map.minutesAgo', { minutes: diffMins });
   
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `Hace ${diffHours}h`;
+  if (diffHours < 24) return t('map.hoursAgo', { hours: diffHours });
   
   return date.toLocaleDateString();
 }
@@ -41,6 +42,7 @@ function getStatusColor(estado: VehiclePosition['estado']) {
 }
 
 export function VehiclesSidebar() {
+  const { t } = useTranslation();
   const { searchText, setSearchText, selectedVehicleId, setSelectedVehicle } = useTraccarMapStore();
   const filteredVehicles = useFilteredVehicles();
 
@@ -48,7 +50,7 @@ export function VehiclesSidebar() {
     <div className="flex flex-col h-full bg-surface border-r border-border">
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold text-text mb-3">Vehículos</h2>
+        <h2 className="text-lg font-semibold text-text mb-3">{t('map.vehicles')}</h2>
         
         {/* Search Input */}
         <div className="relative">
@@ -58,7 +60,7 @@ export function VehiclesSidebar() {
           />
           <input
             type="text"
-            placeholder="Buscar por nombre o patente..."
+            placeholder={t('map.searchPlaceholder')}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-background border border-border text-text placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
@@ -72,7 +74,7 @@ export function VehiclesSidebar() {
           <div className="flex flex-col items-center justify-center h-full text-text-muted p-4">
             <Car size={48} className="mb-3 opacity-50" />
             <p className="text-center">
-              {searchText ? 'No se encontraron vehículos' : 'No hay vehículos disponibles'}
+              {searchText ? t('map.noVehiclesFound') : t('map.noVehiclesAvailable')}
             </p>
           </div>
         ) : (
@@ -101,7 +103,7 @@ export function VehiclesSidebar() {
                       {vehicle.patente}
                     </p>
                     <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
-                      <span>{formatLastUpdate(vehicle.lastUpdate)}</span>
+                      <span>{formatLastUpdate(vehicle.lastUpdate, t)}</span>
                       {vehicle.velocidad > 0 && (
                         <>
                           <span>•</span>
@@ -120,7 +122,7 @@ export function VehiclesSidebar() {
       {/* Footer with count */}
       <div className="p-3 border-t border-border bg-background">
         <p className="text-xs text-text-muted text-center">
-          {filteredVehicles.length} vehículo{filteredVehicles.length !== 1 ? 's' : ''}
+          {filteredVehicles.length} {filteredVehicles.length === 1 ? t('map.vehicle') : t('map.vehicles_plural')}
         </p>
       </div>
     </div>

@@ -6,54 +6,7 @@ import { useCallback, useEffect, useRef, useMemo } from 'react';
 import { useReplayStore } from '../store/replay.store';
 import { getReplayPositions } from '../api/replay.api';
 import { DatePreset, ReplayPosition, PlaybackSpeed } from '../types';
-
-/**
- * Calculate date range from preset
- */
-function getDateRangeFromPreset(preset: DatePreset): { from: Date; to: Date } {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  switch (preset) {
-    case 'today':
-      return { from: today, to: now };
-    
-    case 'yesterday': {
-      const yesterdayStart = new Date(today);
-      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-      return { from: yesterdayStart, to: today };
-    }
-    
-    case 'thisWeek': {
-      const weekStart = new Date(today);
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      return { from: weekStart, to: now };
-    }
-    
-    case 'previousWeek': {
-      const thisWeekStart = new Date(today);
-      thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
-      const prevWeekStart = new Date(thisWeekStart);
-      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
-      return { from: prevWeekStart, to: thisWeekStart };
-    }
-    
-    case 'thisMonth': {
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      return { from: monthStart, to: now };
-    }
-    
-    case 'previousMonth': {
-      const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return { from: prevMonthStart, to: thisMonthStart };
-    }
-    
-    case 'custom':
-    default:
-      return { from: today, to: now };
-  }
-}
+import { useErrorHandler } from '@/hooks';
 
 interface UseReplayDataReturn {
   // Data
@@ -91,6 +44,7 @@ interface UseReplayDataReturn {
 
 export function useReplayData(): UseReplayDataReturn {
   const store = useReplayStore();
+  const { getErrorMessage } = useErrorHandler();
   const playIntervalRef = useRef<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -116,11 +70,23 @@ export function useReplayData(): UseReplayDataReturn {
     store.clearPositions();
 
     try {
+      // REGLA: Si preset está presente y no es "custom", enviar solo preset
+      // Si preset es "custom", enviar fromLocalDate/toLocalDate (intención local)
+      let fromLocalDate: string | undefined;
+      let toLocalDate: string | undefined;
+
+      if (store.preset === 'custom') {
+        // Para custom, enviar intención local (formato YYYY-MM-DD o YYYY-MM-DDTHH:mm)
+        // El backend convertirá a UTC usando timezone de organización
+        fromLocalDate = formatLocalDateForBackend(store.from);
+        toLocalDate = formatLocalDateForBackend(store.to);
+      }
+
       const positions = await getReplayPositions(
         store.selectedDispositivoId,
-        store.from,
-        store.to,
         store.preset,
+        fromLocalDate,
+        toLocalDate,
         abortControllerRef.current.signal
       );
       store.setPositions(positions);
@@ -129,17 +95,42 @@ export function useReplayData(): UseReplayDataReturn {
       if ((err as Error).name === 'AbortError' || (err as Error).name === 'CanceledError') {
         return;
       }
-      const message = err instanceof Error ? err.message : 'Error al cargar posiciones';
-      store.setError(message);
+      store.setError(getErrorMessage(err));
     }
-  }, [store]);
+  }, [store, getErrorMessage]);
 
-  // Set preset and update date range
+  /**
+   * Formatea una fecha local para enviar al backend como "intención local".
+   * Formato: YYYY-MM-DD (solo fecha) o YYYY-MM-DDTHH:mm (fecha + hora)
+   */
+  function formatLocalDateForBackend(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    // Si es medianoche (00:00), enviar solo fecha
+    if (date.getHours() === 0 && date.getMinutes() === 0) {
+      return `${year}-${month}-${day}`;
+    }
+    
+    // Si tiene hora, enviar fecha + hora
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // Set preset - NO calcular rangos, backend lo hace
   const setPreset = useCallback((preset: DatePreset) => {
     store.setPreset(preset);
-    if (preset !== 'custom') {
-      const { from, to } = getDateRangeFromPreset(preset);
-      store.setDateRange(from, to);
+    // Para presets, NO calcular rangos (backend lo calcula)
+    // Solo para custom necesitamos mantener from/to para el UI
+    if (preset === 'custom') {
+      // Mantener from/to actual o inicializar con valores por defecto
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (!store.from || !store.to) {
+        store.setDateRange(today, now);
+      }
     }
   }, [store]);
 

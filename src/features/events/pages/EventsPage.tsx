@@ -1,13 +1,34 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocalization } from '@/hooks/useLocalization';
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { Card, Badge, Button } from '@/shared/ui';
-import { mockEvents } from '@/services/mock';
 import { useAuthStore } from '@/store';
+import { formatDateTime } from '@/shared/utils';
 
-// Event type is inferred from mockEvents
+// TODO: Replace with real events API when available
+interface EventItem {
+  id: string;
+  tipo: string;
+  severidad: string;
+  estado: 'open' | 'in_progress' | 'resolved';
+  descripcion: string;
+  patente: string;
+  ubicacion: string;
+  fecha: string;
+}
+
+const initialEvents: EventItem[] = [
+  { id: '1', tipo: 'exceso_velocidad', severidad: 'warning', estado: 'open', descripcion: 'Velocidad máxima superada: 120 km/h', patente: 'ABC-123', ubicacion: 'Av. Corrientes 1234', fecha: new Date().toISOString() },
+  { id: '2', tipo: 'dtc_critico', severidad: 'error', estado: 'in_progress', descripcion: 'Código DTC P0300 detectado', patente: 'XYZ-789', ubicacion: 'Ruta 9 Km 45', fecha: new Date().toISOString() },
+  { id: '3', tipo: 'geofence', severidad: 'info', estado: 'open', descripcion: 'Vehículo salió de zona autorizada', patente: 'DEF-456', ubicacion: 'Zona Norte', fecha: new Date().toISOString() },
+  { id: '4', tipo: 'choque', severidad: 'error', estado: 'resolved', descripcion: 'Impacto moderado detectado', patente: 'GHI-321', ubicacion: 'Av. Santa Fe 2500', fecha: new Date().toISOString() },
+];
 
 export function EventsPage() {
-  const [events, setEvents] = useState(mockEvents);
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'resolved'>('all');
   const { user } = useAuthStore();
 
@@ -16,16 +37,6 @@ export function EventsPage() {
   const filteredEvents = events.filter(e => 
     filter === 'all' || e.estado === filter
   );
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const handleResolve = (eventId: string) => {
     if (!canResolve) return;
@@ -36,18 +47,18 @@ export function EventsPage() {
 
   const getSeverityBadge = (severidad: string) => {
     switch (severidad) {
-      case 'error': return <Badge variant="error">Crítico</Badge>;
-      case 'warning': return <Badge variant="warning">Advertencia</Badge>;
-      case 'info': return <Badge variant="info">Informativo</Badge>;
+      case 'error': return <Badge variant="error">{t('events.severity.critical')}</Badge>;
+      case 'warning': return <Badge variant="warning">{t('events.severity.warning')}</Badge>;
+      case 'info': return <Badge variant="info">{t('events.severity.info')}</Badge>;
       default: return <Badge>{severidad}</Badge>;
     }
   };
 
   const getStatusBadge = (estado: string) => {
     switch (estado) {
-      case 'open': return <Badge variant="error">Abierto</Badge>;
-      case 'in_progress': return <Badge variant="warning">En Progreso</Badge>;
-      case 'resolved': return <Badge variant="success">Resuelto</Badge>;
+      case 'open': return <Badge variant="error">{t('events.status.open')}</Badge>;
+      case 'in_progress': return <Badge variant="warning">{t('events.status.inProgress')}</Badge>;
+      case 'resolved': return <Badge variant="success">{t('events.status.resolved')}</Badge>;
       default: return <Badge>{estado}</Badge>;
     }
   };
@@ -70,11 +81,11 @@ export function EventsPage() {
 
   const formatTipo = (tipo: string) => {
     const tipos: Record<string, string> = {
-      'exceso_velocidad': 'Exceso de Velocidad',
-      'geofence': 'Violación de Geofence',
-      'dtc_critico': 'DTC Crítico',
-      'choque': 'Colisión/Impacto',
-      'robo': 'Alerta de Robo',
+      'exceso_velocidad': t('events.types.speedExceeded'),
+      'geofence': t('events.types.geofence'),
+      'dtc_critico': t('events.types.dtcCritical'),
+      'choque': t('events.types.crash'),
+      'robo': t('events.types.theft'),
     };
     return tipos[tipo] || tipo;
   };
@@ -84,8 +95,8 @@ export function EventsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Eventos</h1>
-          <p className="text-text-muted mt-1">Timeline de eventos y alertas</p>
+          <h1 className="text-2xl font-bold text-text">{t('events.title')}</h1>
+          <p className="text-text-muted mt-1">{t('events.subtitle')}</p>
         </div>
       </div>
 
@@ -96,28 +107,28 @@ export function EventsPage() {
           size="sm"
           onClick={() => setFilter('all')}
         >
-          Todos ({events.length})
+          {t('events.filters.all')} ({events.length})
         </Button>
         <Button 
           variant={filter === 'open' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => setFilter('open')}
         >
-          Abiertos ({events.filter(e => e.estado === 'open').length})
+          {t('events.filters.open')} ({events.filter(e => e.estado === 'open').length})
         </Button>
         <Button 
           variant={filter === 'in_progress' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => setFilter('in_progress')}
         >
-          En Progreso ({events.filter(e => e.estado === 'in_progress').length})
+          {t('events.filters.inProgress')} ({events.filter(e => e.estado === 'in_progress').length})
         </Button>
         <Button 
           variant={filter === 'resolved' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => setFilter('resolved')}
         >
-          Resueltos ({events.filter(e => e.estado === 'resolved').length})
+          {t('events.filters.resolved')} ({events.filter(e => e.estado === 'resolved').length})
         </Button>
       </div>
 
@@ -156,11 +167,11 @@ export function EventsPage() {
                           onClick={() => handleResolve(event.id)}
                         >
                           <CheckCircle size={16} className="mr-1" />
-                          Resolver
+                          {t('events.actions.resolve')}
                         </Button>
                       ) : (
                         <span className="text-xs text-text-muted italic">
-                          Solo Admin/Operador puede resolver
+                          {t('events.actions.onlyAdminCanResolve')}
                         </span>
                       )}
                     </div>
@@ -175,7 +186,7 @@ export function EventsPage() {
                   <span>{event.ubicacion}</span>
                   <span className="flex items-center gap-1">
                     <Clock size={12} />
-                    {formatDate(event.fecha)}
+                    {formatDateTime(new Date(event.fecha), culture, timeZoneId)}
                   </span>
                 </div>
               </div>

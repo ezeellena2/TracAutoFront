@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Modal, Input, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
+import { useErrorHandler } from '@/hooks';
 import type { ConductorDto } from '../types';
 
 interface EditDriverModalProps {
@@ -13,6 +15,8 @@ interface EditDriverModalProps {
 }
 
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
+  const { t } = useTranslation();
+  const { getErrorMessage } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',
@@ -42,13 +46,11 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
         email: form.email?.trim() || undefined,
         telefono: form.telefono?.trim() || undefined,
       });
-      toast.success('Conductor actualizado correctamente');
+      toast.success(t('drivers.success.updated'));
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      const errorMsg = error.response?.data?.detail || 'No se pudo actualizar el conductor';
-      toast.error(errorMsg);
+      toast.error(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +62,7 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-text">Editar Conductor</h2>
+          <h2 className="text-xl font-semibold text-text">{t('drivers.editDriver')}</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
@@ -68,32 +70,32 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nombre Completo"
+            label={t('drivers.form.fullNameLabel')}
             value={form.nombreCompleto}
             onChange={(e) => setForm({ ...form, nombreCompleto: e.target.value })}
-            placeholder="Juan Pérez"
+            placeholder={t('drivers.form.fullNamePlaceholder')}
             required
           />
           {conductor.dni && (
             <Input
-              label="DNI"
+              label={t('drivers.form.dniLabel')}
               value={conductor.dni}
               disabled
-              helperText="El DNI no se puede modificar"
+              helperText={t('drivers.form.dniCannotModify')}
             />
           )}
           <Input
-            label="Email"
+            label={t('drivers.form.emailLabel')}
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="juan@example.com"
+            placeholder={t('drivers.form.emailPlaceholder')}
           />
           <Input
-            label="Teléfono"
+            label={t('drivers.form.phoneLabel')}
             value={form.telefono}
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-            placeholder="+54 11 1234-5678"
+            placeholder={t('drivers.form.phonePlaceholder')}
           />
 
           <div className="flex gap-3 pt-2">
@@ -104,10 +106,10 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
               disabled={isLoading}
               className="flex-1"
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? 'Actualizando...' : 'Actualizar'}
+              {isLoading ? t('common.saving') : t('common.save')}
             </Button>
           </div>
         </form>
@@ -115,4 +117,3 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
     </Modal>
   );
 }
-

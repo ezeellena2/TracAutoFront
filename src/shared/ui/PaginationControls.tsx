@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
@@ -62,6 +63,7 @@ export function PaginationControls({
   className = '',
   disabled = false,
 }: PaginationControlsProps) {
+  const { t } = useTranslation();
   const hasPrevious = paginaActual > 1;
   const hasNext = paginaActual < totalPaginas;
 
@@ -95,12 +97,12 @@ export function PaginationControls({
       <div className="flex items-center gap-4 text-sm text-text-muted">
         {showTotal && (
           <span>
-            {totalRegistros} {totalRegistros === 1 ? 'resultado' : 'resultados'}
+            {totalRegistros} {totalRegistros === 1 ? t('common.results') : t('common.results_plural')}
           </span>
         )}
         {showPageSize && (
           <div className="flex items-center gap-2">
-            <span>Mostrar</span>
+            <span>{t('common.show')}</span>
             <select
               value={tamanoPagina}
               onChange={handlePageSizeChange}
@@ -113,7 +115,7 @@ export function PaginationControls({
                 </option>
               ))}
             </select>
-            <span>por página</span>
+            <span>{t('common.perPage')}</span>
           </div>
         )}
       </div>
@@ -121,7 +123,7 @@ export function PaginationControls({
       {/* Navegación */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-text-muted">
-          Página {paginaActual} de {totalPaginas}
+          {t('common.page')} {paginaActual} {t('common.of')} {totalPaginas}
         </span>
         
         <div className="flex items-center gap-1">
@@ -130,7 +132,7 @@ export function PaginationControls({
             onClick={handlePrevious}
             disabled={!hasPrevious || disabled}
             className="p-1.5 rounded border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Página anterior"
+            aria-label={t('common.page') + ' ' + t('common.previous')}
           >
             <ChevronLeft size={18} className="text-text" />
           </button>
@@ -139,7 +141,7 @@ export function PaginationControls({
             onClick={handleNext}
             disabled={!hasNext || disabled}
             className="p-1.5 rounded border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Página siguiente"
+            aria-label={t('common.page') + ' ' + t('common.next')}
           >
             <ChevronRight size={18} className="text-text" />
           </button>

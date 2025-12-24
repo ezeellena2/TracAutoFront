@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useLayoutEffect, useRef } from 'react';
 import { useTenantStore, useThemeStore } from '@/store';
+import { I18nProvider } from './I18nProvider';
+import '@/shared/i18n/config'; // Inicializar i18n
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,7 +47,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <I18nProvider>
+        {children}
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

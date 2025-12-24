@@ -1,11 +1,30 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Car, Cpu, Bell, Wifi, AlertTriangle, Clock } from 'lucide-react';
 import { KPICard, Card, CardHeader, Badge } from '@/shared/ui';
-import { mockDashboardKPIs, mockRecentActivity } from '@/services/mock';
+import { formatDateTime } from '@/shared/utils';
+import { useLocalization } from '@/hooks/useLocalization';
+
+// TODO: Replace with real dashboard API when available
+const dashboardKPIs = {
+  vehiculosActivos: 4,
+  vehiculosTotal: 5,
+  eventosHoy: 4,
+  eventosAbiertos: 2,
+  asistenciasAbiertas: 1,
+  tasaConexion: 80,
+};
+
+const recentActivity = [
+  { id: '1', tipo: 'evento', descripcion: 'Exceso de velocidad detectado', vehiculo: 'ABC-123', fecha: new Date().toISOString() },
+  { id: '2', tipo: 'dispositivo', descripcion: 'GPS reconectado', vehiculo: 'XYZ-789', fecha: new Date().toISOString() },
+];
 
 export function DashboardPage() {
-  const [kpis] = useState(mockDashboardKPIs);
-  const [activity] = useState(mockRecentActivity);
+  const { t } = useTranslation();
+  const { timeZoneId, culture } = useLocalization();
+  const [kpis] = useState(dashboardKPIs);
+  const [activity] = useState(recentActivity);
 
   const getActivityIcon = (tipo: string) => {
     switch (tipo) {
@@ -17,50 +36,40 @@ export function DashboardPage() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-text">Dashboard</h1>
-        <p className="text-text-muted mt-1">Resumen de actividad y métricas principales</p>
+        <h1 className="text-2xl font-bold text-text">{t('dashboard.title')}</h1>
+        <p className="text-text-muted mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
-          title="Vehículos Activos"
+          title={t('dashboard.activeVehicles')}
           value={kpis.vehiculosActivos}
-          subtitle={`de ${kpis.vehiculosTotal} totales`}
+          subtitle={t('dashboard.ofTotal', { total: kpis.vehiculosTotal })}
           icon={Car}
           color="primary"
         />
         <KPICard
-          title="Eventos Hoy"
+          title={t('dashboard.eventsToday')}
           value={kpis.eventosHoy}
-          subtitle={`${kpis.eventosAbiertos} abiertos`}
+          subtitle={`${kpis.eventosAbiertos} ${t('dashboard.open')}`}
           icon={Bell}
           color="warning"
         />
         <KPICard
-          title="Asistencias Abiertas"
+          title={t('dashboard.openAssistances')}
           value={kpis.asistenciasAbiertas}
           icon={AlertTriangle}
           color="error"
         />
         <KPICard
-          title="Tasa de Conexión"
+          title={t('dashboard.connectionRate')}
           value={`${kpis.tasaConexion}%`}
-          subtitle="Dispositivos online"
+          subtitle={t('dashboard.devicesOnlineSubtitle')}
           icon={Wifi}
           color="success"
         />
@@ -69,8 +78,8 @@ export function DashboardPage() {
       {/* Recent Activity */}
       <Card>
         <CardHeader 
-          title="Actividad Reciente"
-          subtitle="Últimos eventos del sistema"
+          title={t('dashboard.recentActivity')}
+          subtitle={t('dashboard.recentActivitySubtitle')}
         />
         <div className="space-y-4">
           {activity.map((item) => (
@@ -92,7 +101,7 @@ export function DashboardPage() {
                     </Badge>
                   )}
                   <span className="text-xs text-text-muted">
-                    {formatDate(item.fecha)}
+                    {formatDateTime(item.fecha, culture, timeZoneId)}
                   </span>
                 </div>
               </div>
@@ -104,40 +113,40 @@ export function DashboardPage() {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader title="Estado de Flota" />
+          <CardHeader title={t('dashboard.fleetStatus')} />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Vehículos en movimiento</span>
+              <span className="text-sm text-text-muted">{t('dashboard.vehiclesMoving')}</span>
               <span className="font-semibold text-text">2</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Vehículos detenidos</span>
+              <span className="text-sm text-text-muted">{t('dashboard.vehiclesStopped')}</span>
               <span className="font-semibold text-text">2</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Sin señal (+24h)</span>
+              <span className="text-sm text-text-muted">{t('dashboard.noSignal')}</span>
               <span className="font-semibold text-error">1</span>
             </div>
           </div>
         </Card>
 
         <Card>
-          <CardHeader title="Eventos por Tipo" />
+          <CardHeader title={t('dashboard.eventsByType')} />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Exceso de velocidad</span>
+              <span className="text-sm text-text-muted">{t('dashboard.speedExcess')}</span>
               <Badge variant="warning">1</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">DTC Crítico</span>
+              <span className="text-sm text-text-muted">{t('dashboard.dtcCritical')}</span>
               <Badge variant="error">1</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Geofence</span>
+              <span className="text-sm text-text-muted">{t('dashboard.geofence')}</span>
               <Badge variant="info">1</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-text-muted">Impacto</span>
+              <span className="text-sm text-text-muted">{t('dashboard.impact')}</span>
               <Badge variant="error">1</Badge>
             </div>
           </div>

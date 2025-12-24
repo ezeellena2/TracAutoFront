@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Car, Smartphone } from 'lucide-react';
 import { Modal } from '@/shared/ui';
 import { AssignmentTable } from './AssignmentTable';
@@ -28,12 +29,13 @@ export function ViewAssignmentsModal({
   onUnassignVehicle,
   onUnassignDevice,
 }: ViewAssignmentsModalProps) {
+  const { t } = useTranslation();
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <div className="p-6 max-w-4xl w-full">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-text">
-            {conductor ? `Asignaciones - ${conductor.nombreCompleto}` : 'Asignaciones'}
+            {conductor ? t('drivers.assignmentsModal.title', { name: conductor.nombreCompleto }) : t('drivers.assignmentsModal.title', { name: '' })}
           </h2>
         </div>
 
@@ -48,7 +50,7 @@ export function ViewAssignmentsModal({
               <div>
                 <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
                   <Car size={18} />
-                  Vehículos
+                  {t('drivers.assignmentsModal.vehicles')}
                 </h3>
                 <AssignmentTable
                   assignments={vehiculosAssignments}
@@ -63,7 +65,7 @@ export function ViewAssignmentsModal({
               <div>
                 <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
                   <Smartphone size={18} />
-                  Dispositivos
+                  {t('drivers.assignmentsModal.devices')}
                 </h3>
                 <AssignmentTable
                   assignments={dispositivosAssignments}
@@ -80,4 +82,3 @@ export function ViewAssignmentsModal({
     </Modal>
   );
 }
-

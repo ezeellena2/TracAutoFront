@@ -4,12 +4,14 @@ import { CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { invitacionesApi } from '@/services/endpoints';
 import { InvitacionDto } from '@/shared/types/api';
 import { Button, Input } from '@/shared/ui';
+import { useErrorHandler } from '@/hooks';
 
 type PageState = 'loading' | 'valid' | 'expired' | 'invalid' | 'already_accepted' | 'success' | 'error';
 
 export function AcceptInvitationPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { parseError, getErrorMessage } = useErrorHandler();
   
   const [pageState, setPageState] = useState<PageState>('loading');
   const [invitation, setInvitation] = useState<InvitacionDto | null>(null);
@@ -24,9 +26,7 @@ export function AcceptInvitationPage() {
   });
 
   useEffect(() => {
-    console.log('AcceptInvitationPage mounted, token:', token);
     if (!token) {
-      console.error('No token found in params');
       setPageState('invalid');
       return;
     }
@@ -37,14 +37,12 @@ export function AcceptInvitationPage() {
         setInvitation(data);
         setPageState('valid');
       } catch (err: unknown) {
-        console.error('Error validating token:', err);
-        const error = err as { response?: { data?: { code?: string } } };
-        const code = error.response?.data?.code;
-        console.log('Error code:', code);
+        const parsed = parseError(err);
+        const code = parsed.code;
         
-        if (code === 'Invitacion.Expirada') {
+        if (code === 'errors.Invitacion.Expirada' || code === 'Invitacion.Expirada') {
           setPageState('expired');
-        } else if (code === 'Invitacion.YaAceptada') {
+        } else if (code === 'errors.Invitacion.YaAceptada' || code === 'Invitacion.YaAceptada') {
           setPageState('already_accepted');
         } else {
           setPageState('invalid');
@@ -76,8 +74,7 @@ export function AcceptInvitationPage() {
       });
       setPageState('success');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      setErrorMessage(error.response?.data?.detail || 'Error al aceptar la invitación');
+      setErrorMessage(getErrorMessage(err));
       setPageState('error');
     } finally {
       setIsSubmitting(false);

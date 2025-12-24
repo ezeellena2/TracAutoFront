@@ -7,15 +7,19 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check-i18n": "node scripts/check-i18n.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.60.0",
     "axios": "^1.7.7",
+    "i18next": "^23.16.8",
+    "i18next-browser-languagedetector": "^8.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^14.1.3",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.28.0",
     "zod": "^3.23.8",

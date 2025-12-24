@@ -13,3 +13,4 @@ export { ConfirmationModal } from './ConfirmationModal';
 export { KPICard } from './KPICard';
 export { PaginationControls } from './PaginationControls';
 export type { PaginationControlsProps } from './PaginationControls';
+export { LanguageSwitcher } from './LanguageSwitcher';

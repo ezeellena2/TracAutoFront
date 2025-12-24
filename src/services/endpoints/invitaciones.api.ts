@@ -4,7 +4,6 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { shouldUseMocks } from '../mock';
 import { useAuthStore } from '@/store';
 import { 
   InvitacionDto,
@@ -41,21 +40,6 @@ export async function createInvitacion(
 ): Promise<InvitacionDto> {
   const orgId = getOrganizationId();
   
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    return {
-      id: `inv-${Date.now()}`,
-      email,
-      organizacionId: orgId,
-      nombreOrganizacion: 'Mock Organization',
-      rolAsignado,
-      estado: 'Pendiente',
-      fechaExpiracion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      fechaCreacion: new Date().toISOString(),
-      fechaAceptacion: null,
-    };
-  }
-
   const response = await apiClient.post<InvitacionDto>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`,
     { email, rolAsignado } as CreateInvitacionRequest
@@ -72,30 +56,6 @@ export async function getInvitacionesPendientes(
   const orgId = getOrganizationId();
   const { numeroPagina = 1, tamanoPagina = 10 } = params;
   
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    const mockInvitaciones: InvitacionDto[] = [
-      {
-        id: 'inv-1',
-        email: 'usuario1@ejemplo.com',
-        organizacionId: orgId,
-        nombreOrganizacion: 'Mock Organization',
-        rolAsignado: 'Analista',
-        estado: 'Pendiente',
-        fechaExpiracion: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-        fechaCreacion: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        fechaAceptacion: null,
-      },
-    ];
-    return {
-      items: mockInvitaciones,
-      paginaActual: 1,
-      tamanoPagina: mockInvitaciones.length,
-      totalPaginas: 1,
-      totalRegistros: mockInvitaciones.length,
-    };
-  }
-
   const response = await apiClient.get<ListaPaginada<InvitacionDto>>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`,
     { params: { numeroPagina, tamanoPagina } }
@@ -109,11 +69,6 @@ export async function getInvitacionesPendientes(
 export async function reenviarInvitacion(invitacionId: string): Promise<boolean> {
   const orgId = getOrganizationId();
   
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    return true;
-  }
-
   const response = await apiClient.post<boolean>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones/${invitacionId}/reenviar`
   );
@@ -126,11 +81,6 @@ export async function reenviarInvitacion(invitacionId: string): Promise<boolean>
 export async function cancelInvitacion(invitacionId: string): Promise<void> {
   const orgId = getOrganizationId();
   
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    return;
-  }
-
   await apiClient.delete(`${INVITACIONES_BASE}/${invitacionId}?orgId=${orgId}`);
 }
 
@@ -141,40 +91,6 @@ export async function cancelInvitacion(invitacionId: string): Promise<void> {
  * Endpoint público - no requiere autenticación
  */
 export async function validarInvitacion(token: string): Promise<InvitacionDto> {
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 500));
-    
-    // Simular diferentes estados para testing
-    if (token === 'expired') {
-      throw {
-        response: {
-          status: 400,
-          data: { code: 'Invitacion.Expirada', detail: 'La invitación ha expirado' }
-        }
-      };
-    }
-    if (token === 'invalid') {
-      throw {
-        response: {
-          status: 404,
-          data: { code: 'Invitacion.TokenInvalido', detail: 'Token inválido' }
-        }
-      };
-    }
-    
-    return {
-      id: 'inv-mock',
-      email: 'invitado@test.com',
-      organizacionId: 'org-mock',
-      nombreOrganizacion: 'SegurosTech',
-      rolAsignado: 'Analista',
-      estado: 'Pendiente',
-      fechaExpiracion: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      fechaCreacion: new Date().toISOString(),
-      fechaAceptacion: null,
-    };
-  }
-
   const response = await apiClient.get<InvitacionDto>(
     `${INVITACIONES_BASE}/${token}`
   );
@@ -189,17 +105,6 @@ export async function aceptarInvitacion(
   token: string,
   data: AceptarInvitacionRequest
 ): Promise<AceptarInvitacionResponse> {
-  if (shouldUseMocks()) {
-    await new Promise(r => setTimeout(r, 1000));
-    return {
-      usuarioId: `user-${Date.now()}`,
-      organizacionId: 'org-mock',
-      nombreOrganizacion: 'SegurosTech',
-      rol: 'Analista',
-      mensaje: 'Usuario creado y vinculado exitosamente'
-    };
-  }
-
   const response = await apiClient.post<AceptarInvitacionResponse>(
     `${INVITACIONES_BASE}/${token}/aceptar`,
     data

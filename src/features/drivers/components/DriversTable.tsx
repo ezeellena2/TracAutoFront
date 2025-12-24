@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Edit, Trash2, Car, Smartphone, List } from 'lucide-react';
 import { Table, Badge, ActionMenu } from '@/shared/ui';
 import type { ConductorDto } from '../types';
@@ -29,52 +30,53 @@ export function DriversTable({
   onDelete,
   formatDate,
 }: DriversTableProps) {
+  const { t } = useTranslation();
   const columns = [
     {
       key: 'nombreCompleto',
-      header: 'Nombre Completo',
+      header: t('drivers.fullName'),
       render: (c: ConductorDto) => (
         <div className="font-medium text-text">{c.nombreCompleto}</div>
       ),
     },
     {
       key: 'dni',
-      header: 'DNI',
+      header: t('drivers.dni'),
       render: (c: ConductorDto) => c.dni || '-',
     },
     {
       key: 'email',
-      header: 'Email',
+      header: t('drivers.email'),
       render: (c: ConductorDto) => c.email || '-',
     },
     {
       key: 'telefono',
-      header: 'Teléfono',
+      header: t('drivers.phone'),
       render: (c: ConductorDto) => c.telefono || '-',
     },
     {
       key: 'activo',
-      header: 'Estado',
+      header: t('drivers.status'),
       render: (c: ConductorDto) => (
         <Badge variant={c.activo ? 'success' : 'error'}>
-          {c.activo ? 'Activo' : 'Inactivo'}
+          {c.activo ? t('drivers.active') : t('drivers.inactive')}
         </Badge>
       ),
     },
     {
       key: 'asignaciones',
-      header: 'Asignaciones',
+      header: t('drivers.assignments'),
       render: () => (
         <div className="flex items-center gap-2 text-text-muted text-sm">
           <Car size={14} />
           <Smartphone size={14} />
-          <span className="text-xs">Ver en acciones</span>
+          <span className="text-xs">{t('drivers.seeInActions')}</span>
         </div>
       ),
     },
     {
       key: 'fechaCreacion',
-      header: 'Creado',
+      header: t('drivers.created'),
       render: (c: ConductorDto) => formatDate(c.fechaCreacion),
     },
     {
@@ -102,7 +104,7 @@ export function DriversTable({
                     className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
                   >
                     <Edit size={14} />
-                    Editar
+                    {t('drivers.edit')}
                   </button>
                   <button
                     onClick={() => {
@@ -112,10 +114,10 @@ export function DriversTable({
                     className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
                   >
                     <List size={14} />
-                    Ver Asignaciones
+                    {t('drivers.viewAssignments')}
                   </button>
                   <div className="px-3 py-2 text-xs font-medium text-text-muted border-b border-border">
-                    Asignar
+                    {t('drivers.assign')}
                   </div>
                   <button
                     onClick={() => {
@@ -125,7 +127,7 @@ export function DriversTable({
                     className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
                   >
                     <Car size={14} />
-                    Asignar Vehículo
+                    {t('drivers.assignVehicle')}
                   </button>
                   <button
                     onClick={() => {
@@ -135,7 +137,7 @@ export function DriversTable({
                     className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
                   >
                     <Smartphone size={14} />
-                    Asignar Dispositivo
+                    {t('drivers.assignDevice')}
                   </button>
                 </>
               )}
@@ -150,7 +152,7 @@ export function DriversTable({
                     className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                   >
                     <Trash2 size={14} />
-                    Eliminar
+                    {t('drivers.delete')}
                   </button>
                 </>
               )}
@@ -170,4 +172,3 @@ export function DriversTable({
     />
   );
 }
-

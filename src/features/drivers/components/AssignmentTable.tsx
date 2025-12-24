@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Unlink } from 'lucide-react';
 import { Badge, Button } from '@/shared/ui';
 import type {
@@ -22,6 +23,7 @@ export function AssignmentTable<T extends Assignment>({
   formatDateTime,
   onUnassign,
 }: AssignmentTableProps<T>) {
+  const { t } = useTranslation();
   const getAssignmentName = (assignment: T): string => {
     if (type === 'vehiculo') {
       return (assignment as ConductorVehiculoAsignacionDto).vehiculoPatente;
@@ -30,13 +32,13 @@ export function AssignmentTable<T extends Assignment>({
   };
 
   const getColumnHeader = (): string => {
-    return type === 'vehiculo' ? 'Patente' : 'Dispositivo';
+    return type === 'vehiculo' ? t('drivers.assignmentsModal.licensePlate') : t('drivers.assignmentsModal.device');
   };
 
   if (assignments.length === 0) {
     return (
       <p className="text-text-muted text-sm">
-        No hay asignaciones de {type === 'vehiculo' ? 'vehículos' : 'dispositivos'}
+        {type === 'vehiculo' ? t('drivers.assignmentsModal.emptyVehicles') : t('drivers.assignmentsModal.emptyDevices')}
       </p>
     );
   }
@@ -49,9 +51,9 @@ export function AssignmentTable<T extends Assignment>({
             <th className="px-4 py-2 text-left font-medium text-text-muted">
               {getColumnHeader()}
             </th>
-            <th className="px-4 py-2 text-left font-medium text-text-muted">Inicio</th>
-            <th className="px-4 py-2 text-left font-medium text-text-muted">Fin</th>
-            <th className="px-4 py-2 text-left font-medium text-text-muted">Estado</th>
+            <th className="px-4 py-2 text-left font-medium text-text-muted">{t('drivers.assignmentsModal.start')}</th>
+            <th className="px-4 py-2 text-left font-medium text-text-muted">{t('drivers.assignmentsModal.end')}</th>
+            <th className="px-4 py-2 text-left font-medium text-text-muted">{t('drivers.assignmentsModal.status')}</th>
             <th className="px-4 py-2 text-left font-medium text-text-muted"></th>
           </tr>
         </thead>
@@ -65,7 +67,7 @@ export function AssignmentTable<T extends Assignment>({
               </td>
               <td className="px-4 py-2">
                 <Badge variant={asignacion.finUtc ? 'default' : 'success'}>
-                  {asignacion.finUtc ? 'Finalizada' : 'Activa'}
+                  {asignacion.finUtc ? t('drivers.assignmentsModal.finished') : t('drivers.assignmentsModal.active')}
                 </Badge>
               </td>
               <td className="px-4 py-2">
@@ -74,7 +76,7 @@ export function AssignmentTable<T extends Assignment>({
                     variant="ghost"
                     size="sm"
                     onClick={() => onUnassign(asignacion)}
-                    title="Desasignar"
+                    title={t('drivers.assignmentsModal.unassign')}
                   >
                     <Unlink size={14} className="text-error" />
                   </Button>
@@ -87,4 +89,3 @@ export function AssignmentTable<T extends Assignment>({
     </div>
   );
 }
-

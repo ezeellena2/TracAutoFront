@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
@@ -10,6 +11,7 @@ import { useAuthStore } from '@/store';
  * Flujo: Datos → Registro → Verificación → Auto-login → Dashboard
  */
 export function RegistroPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuthStore();
   
@@ -49,12 +51,12 @@ export function RegistroPage() {
     
     // Validaciones
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError(t('auth.errors.passwordMismatch'));
       return;
     }
     
     if (formData.password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+      setError(t('auth.errors.passwordMinLength'));
       return;
     }
     
@@ -78,7 +80,7 @@ export function RegistroPage() {
       });
       setStep('verificacion');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al registrar empresa';
+      const message = err instanceof Error ? err.message : t('auth.errors.registerError');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -117,7 +119,7 @@ export function RegistroPage() {
       navigate('/', { replace: true });
       
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al verificar cuenta';
+      const message = err instanceof Error ? err.message : t('auth.errors.verifyError');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -138,13 +140,13 @@ export function RegistroPage() {
       });
       setResendSuccess(
         canal === 'email' 
-          ? 'Código reenviado a su correo electrónico' 
-          : 'Código reenviado a su teléfono'
+          ? t('auth.success.codeResentEmail')
+          : t('auth.success.codeResentSms')
       );
       // Limpiar mensaje de éxito después de 5 segundos
       setTimeout(() => setResendSuccess(''), 5000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al reenviar código';
+      const message = err instanceof Error ? err.message : t('auth.errors.resendError');
       setError(message);
     } finally {
       setIsResending(null);
@@ -159,8 +161,8 @@ export function RegistroPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
             <Car size={32} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-text">TracAuto</h1>
-          <p className="text-text-muted mt-1">Plataforma de Gestión Telemática</p>
+          <h1 className="text-2xl font-bold text-text">{t('auth.title')}</h1>
+          <p className="text-text-muted mt-1">{t('auth.subtitle')}</p>
         </div>
 
         {/* Card */}
@@ -171,7 +173,7 @@ export function RegistroPage() {
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text mb-6"
           >
             <ArrowLeft size={16} />
-            Volver al inicio
+            {t('auth.backToLogin')}
           </Link>
 
           {step === 'datos' ? (
@@ -181,60 +183,60 @@ export function RegistroPage() {
                   <Building2 size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-text">Registrar Empresa</h2>
-                  <p className="text-sm text-text-muted">Complete los datos para crear su cuenta</p>
+                  <h2 className="font-semibold text-text">{t('auth.registerTitle')}</h2>
+                  <p className="text-sm text-text-muted">{t('auth.registerSubtitle')}</p>
                 </div>
               </div>
 
               <form onSubmit={handleRegistro} className="space-y-4">
                 {/* Empresa */}
                 <Input
-                  label="Nombre de la Empresa"
+                  label={t('auth.companyNameLabel')}
                   type="text"
                   value={formData.nombreEmpresa}
                   onChange={(e) => updateField('nombreEmpresa', e.target.value)}
-                  placeholder="Mi Aseguradora S.A."
+                  placeholder={t('auth.companyNamePlaceholder')}
                   required
                   disabled={isLoading}
                 />
 
                 {/* Usuario */}
                 <Input
-                  label="Nombre Completo"
+                  label={t('auth.fullNameLabel')}
                   type="text"
                   value={formData.nombreCompleto}
                   onChange={(e) => updateField('nombreCompleto', e.target.value)}
-                  placeholder="Juan Pérez"
+                  placeholder={t('auth.fullNamePlaceholder')}
                   required
                   disabled={isLoading}
                 />
 
                 <Input
-                  label="Correo Electrónico"
+                  label={t('auth.emailLabelRegister')}
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
-                  placeholder="contacto@empresa.com"
+                  placeholder={t('auth.emailPlaceholderRegister')}
                   required
                   disabled={isLoading}
                 />
 
                 <Input
-                  label="Teléfono (opcional)"
+                  label={t('auth.phoneLabel')}
                   type="tel"
                   value={formData.telefono}
                   onChange={(e) => updateField('telefono', e.target.value)}
-                  placeholder="+54 11 1234-5678"
+                  placeholder={t('auth.phonePlaceholder')}
                   disabled={isLoading}
                 />
 
                 <div className="relative">
                   <Input
-                    label="Contraseña"
+                    label={t('auth.passwordLabelRegister')}
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => updateField('password', e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder={t('auth.passwordPlaceholderRegister')}
                     required
                     disabled={isLoading}
                   />
@@ -249,11 +251,11 @@ export function RegistroPage() {
                 </div>
 
                 <Input
-                  label="Confirmar Contraseña"
+                  label={t('auth.confirmPasswordLabel')}
                   type={showPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => updateField('confirmPassword', e.target.value)}
-                  placeholder="Repita la contraseña"
+                  placeholder={t('auth.confirmPasswordPlaceholder')}
                   required
                   disabled={isLoading}
                 />
@@ -273,10 +275,10 @@ export function RegistroPage() {
                   {isLoading ? (
                     <>
                       <Loader2 size={18} className="animate-spin mr-2" />
-                      Registrando...
+                      {t('auth.registering')}
                     </>
                   ) : (
-                    'Crear Cuenta'
+                    t('auth.createAccount')
                   )}
                 </Button>
               </form>
@@ -288,16 +290,16 @@ export function RegistroPage() {
                   <Mail size={20} className="text-success" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-text">Verificar Cuenta</h2>
-                  <p className="text-sm text-text-muted">Ingrese los códigos enviados</p>
+                  <h2 className="font-semibold text-text">{t('auth.verifyTitle')}</h2>
+                  <p className="text-sm text-text-muted">{t('auth.verifySubtitle')}</p>
                 </div>
               </div>
 
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 mb-6">
                 <p className="text-sm text-text">
-                  Hemos enviado un código de verificación a <strong>{formData.email}</strong>
+                  {t('auth.verifyMessage')} <strong>{formData.email}</strong>
                   {formData.telefono && (
-                    <> y a <strong>{formData.telefono}</strong></>
+                    <> {t('common.and')} <strong>{formData.telefono}</strong></>
                   )}
                 </p>
               </div>
@@ -312,11 +314,11 @@ export function RegistroPage() {
 
               <form onSubmit={handleVerificar} className="space-y-4">
                 <Input
-                  label="Código de Email"
+                  label={t('auth.emailCodeLabel')}
                   type="text"
                   value={codigoEmail}
                   onChange={(e) => setCodigoEmail(e.target.value)}
-                  placeholder="123456"
+                  placeholder={t('auth.emailCodePlaceholder')}
                   required
                   disabled={isLoading}
                   maxLength={6}
@@ -324,11 +326,11 @@ export function RegistroPage() {
 
                 {formData.telefono && (
                   <Input
-                    label="Código de SMS"
+                    label={t('auth.smsCodeLabel')}
                     type="text"
                     value={codigoTelefono}
                     onChange={(e) => setCodigoTelefono(e.target.value)}
-                    placeholder="123456"
+                    placeholder={t('auth.smsCodePlaceholder')}
                     disabled={isLoading}
                     maxLength={6}
                   />
@@ -349,10 +351,10 @@ export function RegistroPage() {
                   {isLoading ? (
                     <>
                       <Loader2 size={18} className="animate-spin mr-2" />
-                      Verificando...
+                      {t('auth.verifying')}
                     </>
                   ) : (
-                    'Verificar Cuenta'
+                    t('auth.verifyButton')
                   )}
                 </Button>
 
@@ -369,7 +371,7 @@ export function RegistroPage() {
                     ) : (
                       <RefreshCw size={14} />
                     )}
-                    Reenviar por email
+                    {t('auth.resendEmail')}
                   </button>
                   {formData.telefono && (
                     <>
@@ -385,7 +387,7 @@ export function RegistroPage() {
                         ) : (
                           <RefreshCw size={14} />
                         )}
-                        Reenviar por SMS
+                        {t('auth.resendSms')}
                       </button>
                     </>
                   )}
@@ -397,7 +399,7 @@ export function RegistroPage() {
 
         {/* Legal */}
         <p className="mt-6 text-center text-xs text-text-muted">
-          Al registrarse, acepta nuestros términos de servicio y políticas de privacidad.
+          {t('auth.legalRegister')}
         </p>
       </div>
     </div>

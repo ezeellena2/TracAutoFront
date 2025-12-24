@@ -4,7 +4,10 @@
  */
 
 import { Play, Pause, Square, SkipBack, SkipForward } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { PLAYBACK_SPEEDS, PlaybackSpeed, ReplayPosition } from '../types';
+import { formatTime, formatDate, formatSpeed } from '@/shared/utils';
+import { useLocalization } from '@/hooks/useLocalization';
 
 interface ReplayControlsProps {
   positions: ReplayPosition[];
@@ -29,26 +32,10 @@ export function ReplayControls({
   onSeek,
   onSpeedChange,
 }: ReplayControlsProps) {
+  const { t } = useTranslation();
   const hasPositions = positions.length > 0;
   const currentPosition = positions[currentIndex];
-
-  // Format timestamp
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('es-AR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  };
-
-  // Format date
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
+  const { timeZoneId, culture, measurementSystem } = useLocalization();
 
   if (!hasPositions) {
     return (
@@ -64,14 +51,18 @@ export function ReplayControls({
       {currentPosition && (
         <div className="flex items-center justify-between text-sm">
           <div>
-            <span className="text-text-muted">Posición:</span>{' '}
+            <span className="text-text-muted">{t('replay.position')}:</span>{' '}
             <span className="font-medium text-text">
               {currentIndex + 1} / {positions.length}
             </span>
           </div>
           <div className="text-right">
-            <div className="text-text font-medium">{formatTime(currentPosition.timestamp)}</div>
-            <div className="text-xs text-text-muted">{formatDate(currentPosition.timestamp)}</div>
+            <div className="text-text font-medium">
+              {formatTime(currentPosition.timestamp, culture, timeZoneId)}
+            </div>
+            <div className="text-xs text-text-muted">
+              {formatDate(currentPosition.timestamp, culture, timeZoneId)}
+            </div>
           </div>
         </div>
       )}
@@ -95,7 +86,7 @@ export function ReplayControls({
           <button
             onClick={() => onSeek(0)}
             className="p-2 bg-background rounded-lg hover:bg-background-hover transition-colors"
-            title="Ir al inicio"
+            title={t('replay.goToStart')}
           >
             <SkipBack size={16} className="text-text" />
           </button>
@@ -104,7 +95,7 @@ export function ReplayControls({
             <button
               onClick={onPause}
               className="p-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-              title="Pausar"
+              title={t('replay.pause')}
             >
               <Pause size={20} />
             </button>
@@ -112,7 +103,7 @@ export function ReplayControls({
             <button
               onClick={onPlay}
               className="p-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-              title="Reproducir"
+              title={t('replay.play')}
             >
               <Play size={20} />
             </button>
@@ -121,7 +112,7 @@ export function ReplayControls({
           <button
             onClick={onStop}
             className="p-2 bg-background rounded-lg hover:bg-background-hover transition-colors"
-            title="Detener"
+            title={t('replay.stop')}
           >
             <Square size={16} className="text-text" />
           </button>
@@ -129,7 +120,7 @@ export function ReplayControls({
           <button
             onClick={() => onSeek(positions.length - 1)}
             className="p-2 bg-background rounded-lg hover:bg-background-hover transition-colors"
-            title="Ir al final"
+            title={t('replay.goToEnd')}
           >
             <SkipForward size={16} className="text-text" />
           </button>
@@ -137,7 +128,7 @@ export function ReplayControls({
 
         {/* Speed selector - full width row */}
         <div className="flex items-center justify-center gap-2">
-          <span className="text-xs text-text-muted">Velocidad:</span>
+          <span className="text-xs text-text-muted">{t('replay.playbackSpeed')}:</span>
           <div className="flex gap-1">
             {PLAYBACK_SPEEDS.map((s) => (
               <button
@@ -160,13 +151,13 @@ export function ReplayControls({
       {currentPosition && (
         <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
           <div className="text-center">
-            <div className="text-xs text-text-muted">Velocidad</div>
+            <div className="text-xs text-text-muted">{t('replay.speed')}</div>
             <div className="text-lg font-semibold text-text">
-              {currentPosition.speed.toFixed(0)} <span className="text-xs font-normal">km/h</span>
+              {formatSpeed(currentPosition.speed, measurementSystem, culture)}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-text-muted">Estado</div>
+            <div className="text-xs text-text-muted">{t('replay.status')}</div>
             <div className="flex items-center justify-center gap-2 mt-1">
               {currentPosition.ignition !== null && (
                 <span className={`px-2 py-0.5 text-xs rounded ${
@@ -174,7 +165,7 @@ export function ReplayControls({
                     ? 'bg-success/20 text-success'
                     : 'bg-text-muted/20 text-text-muted'
                 }`}>
-                  {currentPosition.ignition ? 'Encendido' : 'Apagado'}
+                  {currentPosition.ignition ? t('replay.ignition') : t('replay.off')}
                 </span>
               )}
               {currentPosition.motion !== null && (
@@ -183,7 +174,7 @@ export function ReplayControls({
                     ? 'bg-primary/20 text-primary'
                     : 'bg-text-muted/20 text-text-muted'
                 }`}>
-                  {currentPosition.motion ? 'En movimiento' : 'Detenido'}
+                  {currentPosition.motion ? t('replay.motion') : t('replay.stopped')}
                 </span>
               )}
             </div>

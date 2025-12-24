@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AlertCircle, Building2, Palette, RefreshCw, Save, Undo2, Sparkles } from 'lucide-react';
 import { Button, Card, Input } from '@/shared/ui';
-import { usePermissions } from '@/hooks';
+import { usePermissions, useErrorHandler } from '@/hooks';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import { organizacionesApi } from '@/services/endpoints/organizaciones.api';
@@ -57,6 +58,7 @@ function ColorField({
   onChange: (next: string) => void;
   placeholder?: string;
 }) {
+  const { t } = useTranslation();
   const isValid = value === '' || isHexColor(value);
   const pickerValue = isHexColor(value) ? normalize(value) : '#000000';
 
@@ -69,7 +71,7 @@ function ColorField({
           value={pickerValue}
           onChange={(e) => onChange(e.target.value)}
           className="h-10 w-12 rounded border border-border bg-surface"
-          aria-label={`${label} (selector de color)`}
+          aria-label={`${label} (${t('common.select')})`}
         />
         <div className="flex-1">
           <Input
@@ -81,7 +83,7 @@ function ColorField({
           />
           {!isValid && (
             <p className="mt-1 text-xs text-error">
-              Formato inválido. Use hex: #RRGGBB
+              {t('organization.invalidColorFormat')}
             </p>
           )}
         </div>
@@ -106,7 +108,9 @@ function mapThemeDtoToColorsOverride(theme?: OrganizacionThemeDto | null): Parti
 }
 
 export function BrandingPage() {
+  const { t } = useTranslation();
   const { can } = usePermissions();
+  const { getErrorMessage } = useErrorHandler();
   const isAllowed = can('organizacion:editar');
   const navigate = useNavigate();
 
@@ -167,8 +171,7 @@ export function BrandingPage() {
 
       return { logoUrl, override };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo cargar la organización';
-      setLoadError(msg);
+      setLoadError(getErrorMessage(e));
       throw e;
     }
   };
@@ -329,7 +332,7 @@ export function BrandingPage() {
     // Advertir si hay cambios sin guardar
     if (hasChanges) {
       const confirmed = window.confirm(
-        'Tienes cambios sin guardar. Al actualizar desde el servidor se perderán.\n\n¿Deseas continuar?'
+        t('organization.unsavedChangesWarning')
       );
       if (!confirmed) return;
     }
@@ -359,10 +362,9 @@ export function BrandingPage() {
       // Reset active preset (since we loaded from server)
       setActivePresetId(null);
 
-      toast.success('Branding actualizado desde el servidor.');
+      toast.success(t('organization.success.refreshed'));
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo actualizar desde el servidor';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsRefreshing(false);
     }
@@ -378,22 +380,22 @@ export function BrandingPage() {
                 <div className="flex items-center gap-3 text-error">
                   <AlertCircle size={24} />
                   <div>
-                    <h3 className="font-semibold">Error al cargar organización</h3>
+                    <h3 className="font-semibold">{t('organization.loadError')}</h3>
                     <p className="text-sm mt-1">{loadError}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
                   <Button onClick={handleRetry} disabled={isRetrying}>
                     <RefreshCw size={16} className="mr-2" />
-                    {isRetrying ? 'Reintentando…' : 'Reintentar'}
+                    {isRetrying ? t('organization.retrying') : t('organization.retry')}
                   </Button>
                   <Button variant="outline" onClick={() => navigate(-1)}>
-                    Volver
+                    {t('organization.back')}
                   </Button>
                 </div>
               </div>
             ) : (
-              <p className="text-text-muted">Cargando organización…</p>
+              <p className="text-text-muted">{t('organization.loading')}</p>
             )}
           </div>
         </Card>
@@ -416,7 +418,7 @@ export function BrandingPage() {
       roleAnalistaBg: baseline.theme.roleAnalistaBg || '',
       roleAnalistaText: baseline.theme.roleAnalistaText || '',
     });
-    toast.info('Cambios descartados (preview revertido).');
+    toast.info(t('organization.success.discarded'));
   };
 
   const applyPresetToForm = (preset: ThemePreset) => {
@@ -435,7 +437,7 @@ export function BrandingPage() {
       roleAnalistaText: pickHex(preset.colors.roleAnalistaText) ?? s.roleAnalistaText,
     }));
     setActivePresetId(preset.id);
-    toast.info(`Preset aplicado (preview): ${preset.name}. No se guardó.`);
+    toast.info(t('organization.success.presetApplied', { name: preset.name }));
   };
 
   const handleSave = async () => {
@@ -444,13 +446,13 @@ export function BrandingPage() {
     // Validación mínima de colores (solo si se cargaron)
     const invalid = Object.entries(form).find(([k, v]) => k !== 'logoUrl' && v !== '' && !isHexColor(v));
     if (invalid) {
-      toast.error('Hay colores con formato inválido. Use hex (#RRGGBB).');
+      toast.error(t('organization.errors.invalidColors'));
       return;
     }
 
     // Detectar offline antes de intentar guardar
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      toast.error('Sin conexión a internet. Verifica tu red e intenta nuevamente.');
+      toast.error(t('organization.errors.noConnection'));
       return;
     }
 
@@ -474,17 +476,17 @@ export function BrandingPage() {
 
       // Actualizar baseline para que la UI quede "sin cambios pendientes"
       baselineRef.current = { logoUrl: nextLogo, theme: nextColors };
-      toast.success('✓ Branding actualizado y aplicado correctamente.');
+      toast.success(t('organization.success.updated'));
     } catch (e) {
       console.error('[BrandingPage] Error al guardar branding:', e);
 
-      let msg = 'No se pudo guardar el branding.';
+      let msg = t('organization.errors.saveFailed');
 
       // Detectar si se perdió la conexión durante el request
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        msg = 'Se perdió la conexión. Verifica tu red e intenta nuevamente.';
-      } else if (e instanceof Error) {
-        msg = e.message;
+        msg = t('organization.errors.connectionLost');
+      } else {
+        msg = getErrorMessage(e);
       }
 
       toast.error(msg);
@@ -502,9 +504,9 @@ export function BrandingPage() {
           <Palette size={20} className="text-primary" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-text">Empresa · Apariencia / Branding</h1>
+          <h1 className="text-xl font-semibold text-text">{t('organization.title')}</h1>
           <p className="text-sm text-text-muted">
-            Configura colores de marca de la empresa. Preview inmediato (sin guardar).
+            {t('organization.subtitle')}
           </p>
         </div>
         <div className="flex gap-3">
@@ -512,18 +514,18 @@ export function BrandingPage() {
             variant="ghost"
             onClick={handleRefreshFromServer}
             disabled={isRefreshing || isSaving}
-            title="Actualizar branding desde el servidor"
+            title={t('organization.refreshFromServer')}
           >
             <RefreshCw size={16} className={`mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Actualizando…' : 'Actualizar'}
+            {isRefreshing ? t('organization.refreshing') : t('organization.refresh')}
           </Button>
           <Button variant="outline" onClick={handleReset} disabled={isSaving || isRefreshing}>
             <Undo2 size={16} className="mr-2" />
-            Descartar
+            {t('organization.discard')}
           </Button>
           <Button onClick={handleSave} disabled={!hasChanges || isSaving || isRefreshing}>
             <Save size={16} className="mr-2" />
-            {isSaving ? 'Guardando…' : 'Guardar'}
+            {isSaving ? t('organization.saving') : t('organization.save')}
           </Button>
         </div>
       </div>
@@ -534,10 +536,10 @@ export function BrandingPage() {
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-text-muted" />
-                <h2 className="font-semibold text-text">Presets (branding)</h2>
+                <h2 className="font-semibold text-text">{t('organization.presets')}</h2>
               </div>
               <p className="text-sm text-text-muted">
-                Son <strong>preview</strong> inmediato. No guardan automáticamente: puedes ajustar manualmente y luego guardar.
+                {t('organization.presetsDescription')}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -557,22 +559,22 @@ export function BrandingPage() {
             <div className="p-6 space-y-5">
               <div className="flex items-center gap-2">
                 <Building2 size={16} className="text-text-muted" />
-                <h2 className="font-semibold text-text">Branding</h2>
+                <h2 className="font-semibold text-text">{t('organization.branding')}</h2>
               </div>
 
               <Input
-                label="Logo (URL)"
+                label={t('organization.logo')}
                 type="url"
                 value={form.logoUrl}
                 onChange={(e) => setForm((s) => ({ ...s, logoUrl: e.target.value }))}
-                placeholder="https://..."
+                placeholder={t('organization.logoPlaceholder')}
               />
               {logoPreview && (
                 <div className="flex items-center gap-4 p-4 rounded-lg bg-background border border-border">
                   <div className="w-14 h-14 rounded-lg bg-surface border border-border flex items-center justify-center overflow-hidden">
                     <img
                       src={logoPreview}
-                      alt="Preview logo"
+                      alt={t('organization.logo')}
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = 'none';
@@ -580,7 +582,7 @@ export function BrandingPage() {
                     />
                   </div>
                   <div className="text-sm text-text-muted">
-                    Preview local del logo (no se guarda hasta presionar Guardar).
+                    {t('organization.logoPreview')}
                   </div>
                 </div>
               )}
@@ -589,11 +591,11 @@ export function BrandingPage() {
 
           <Card>
             <div className="p-6 space-y-6">
-              <h2 className="font-semibold text-text">Colores principales</h2>
+              <h2 className="font-semibold text-text">{t('organization.mainColors')}</h2>
               <div className="space-y-4">
-                <ColorField label="Primary" value={form.primary} onChange={(v) => setForm((s) => ({ ...s, primary: v }))} />
-                <ColorField label="Primary Dark" value={form.primaryDark} onChange={(v) => setForm((s) => ({ ...s, primaryDark: v }))} />
-                <ColorField label="Secondary" value={form.secondary} onChange={(v) => setForm((s) => ({ ...s, secondary: v }))} />
+                <ColorField label={t('organization.primary')} value={form.primary} onChange={(v) => setForm((s) => ({ ...s, primary: v }))} />
+                <ColorField label={t('organization.primaryDark')} value={form.primaryDark} onChange={(v) => setForm((s) => ({ ...s, primaryDark: v }))} />
+                <ColorField label={t('organization.secondary')} value={form.secondary} onChange={(v) => setForm((s) => ({ ...s, secondary: v }))} />
               </div>
             </div>
           </Card>
@@ -602,22 +604,22 @@ export function BrandingPage() {
 
           <Card>
             <div className="p-6 space-y-6">
-              <h2 className="font-semibold text-text">Colores por rol (badge)</h2>
+              <h2 className="font-semibold text-text">{t('organization.roleColors')}</h2>
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-text">Admin</h3>
-                  <ColorField label="Admin BG" value={form.roleAdminBg} onChange={(v) => setForm((s) => ({ ...s, roleAdminBg: v }))} />
-                  <ColorField label="Admin Text" value={form.roleAdminText} onChange={(v) => setForm((s) => ({ ...s, roleAdminText: v }))} />
+                  <h3 className="text-sm font-semibold text-text">{t('organization.admin')}</h3>
+                  <ColorField label={t('organization.adminBg')} value={form.roleAdminBg} onChange={(v) => setForm((s) => ({ ...s, roleAdminBg: v }))} />
+                  <ColorField label={t('organization.adminText')} value={form.roleAdminText} onChange={(v) => setForm((s) => ({ ...s, roleAdminText: v }))} />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-text">Operador</h3>
-                  <ColorField label="Operador BG" value={form.roleOperadorBg} onChange={(v) => setForm((s) => ({ ...s, roleOperadorBg: v }))} />
-                  <ColorField label="Operador Text" value={form.roleOperadorText} onChange={(v) => setForm((s) => ({ ...s, roleOperadorText: v }))} />
+                  <h3 className="text-sm font-semibold text-text">{t('organization.operador')}</h3>
+                  <ColorField label={t('organization.operadorBg')} value={form.roleOperadorBg} onChange={(v) => setForm((s) => ({ ...s, roleOperadorBg: v }))} />
+                  <ColorField label={t('organization.operadorText')} value={form.roleOperadorText} onChange={(v) => setForm((s) => ({ ...s, roleOperadorText: v }))} />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-text">Analista</h3>
-                  <ColorField label="Analista BG" value={form.roleAnalistaBg} onChange={(v) => setForm((s) => ({ ...s, roleAnalistaBg: v }))} />
-                  <ColorField label="Analista Text" value={form.roleAnalistaText} onChange={(v) => setForm((s) => ({ ...s, roleAnalistaText: v }))} />
+                  <h3 className="text-sm font-semibold text-text">{t('organization.analista')}</h3>
+                  <ColorField label={t('organization.analistaBg')} value={form.roleAnalistaBg} onChange={(v) => setForm((s) => ({ ...s, roleAnalistaBg: v }))} />
+                  <ColorField label={t('organization.analistaText')} value={form.roleAnalistaText} onChange={(v) => setForm((s) => ({ ...s, roleAnalistaText: v }))} />
                 </div>
               </div>
             </div>
@@ -627,30 +629,30 @@ export function BrandingPage() {
         <div className="space-y-6 lg:col-span-3 lg:sticky lg:top-4 self-start">
           <Card>
             <div className="p-6 space-y-4">
-              <h2 className="font-semibold text-text">Preview</h2>
+              <h2 className="font-semibold text-text">{t('organization.preview')}</h2>
               <p className="text-sm text-text-muted">
-                Esto refleja el theme aplicado por CSS variables en tiempo real.
+                {t('organization.previewDescription')}
               </p>
 
               <div className="p-4 rounded-lg border border-border bg-surface">
-                <div className="text-sm font-semibold text-text">Card</div>
+                <div className="text-sm font-semibold text-text">{t('organization.card')}</div>
                 <p className="text-sm text-text-muted mt-1">
-                  Texto muted / bordes / fondo/superficie
+                  {t('organization.cardDescription')}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-role-admin-bg text-role-admin-text">
-                    Admin
+                    {t('organization.admin')}
                   </span>
                   <span className="text-xs px-2 py-1 rounded-full bg-role-operador-bg text-role-operador-text">
-                    Operador
+                    {t('organization.operador')}
                   </span>
                   <span className="text-xs px-2 py-1 rounded-full bg-role-analista-bg text-role-analista-text">
-                    Analista
+                    {t('organization.analista')}
                   </span>
                 </div>
                 <div className="mt-4 flex gap-2">
-                  <Button size="sm">Acción primaria</Button>
-                  <Button size="sm" variant="outline">Secundaria</Button>
+                  <Button size="sm">{t('organization.primaryAction')}</Button>
+                  <Button size="sm" variant="outline">{t('organization.secondaryAction')}</Button>
                 </div>
               </div>
             </div>
@@ -658,16 +660,16 @@ export function BrandingPage() {
 
           <Card>
             <div className="p-6 space-y-3">
-              <h2 className="font-semibold text-text">Notas</h2>
+              <h2 className="font-semibold text-text">{t('organization.notes')}</h2>
               <ul className="text-sm text-text-muted space-y-2">
                 <li>
-                  - El modo claro/oscuro es preferencia del usuario (no se guarda por empresa).
+                  - {t('organization.note1')}
                 </li>
                 <li>
-                  - El branding de empresa define colores de marca (primary/roles). El resto depende del tema base light/dark.
+                  - {t('organization.note2')}
                 </li>
                 <li>
-                  - Presets solo completan inputs; no guardan automáticamente.
+                  - {t('organization.note3')}
                 </li>
               </ul>
             </div>

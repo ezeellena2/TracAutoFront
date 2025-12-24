@@ -4,10 +4,12 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Calendar, Loader2 } from 'lucide-react';
 import { DatePreset, DATE_PRESET_LABELS } from '../types';
 import { getDispositivos } from '@/services/endpoints/dispositivos.api';
 import { DispositivoDto } from '@/shared/types/api';
+import { formatDateForInput } from '@/shared/utils';
 
 interface ReplayFiltersProps {
   selectedDispositivoId: string | null;
@@ -32,6 +34,7 @@ export function ReplayFilters({
   onDateRangeChange,
   onLoadClick,
 }: ReplayFiltersProps) {
+  const { t } = useTranslation();
   const [dispositivos, setDispositivos] = useState<DispositivoDto[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,13 +67,13 @@ export function ReplayFilters({
       {/* Device selector */}
       <div>
         <label className="block text-sm font-medium text-text mb-2">
-          Dispositivo
+          {t('replay.device')}
         </label>
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
             type="text"
-            placeholder="Buscar dispositivo..."
+            placeholder={t('replay.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -80,11 +83,11 @@ export function ReplayFilters({
           {loadingDevices ? (
             <div className="p-3 text-center text-text-muted">
               <Loader2 size={16} className="animate-spin inline mr-2" />
-              Cargando dispositivos...
+              {t('replay.loadingDevices')}
             </div>
           ) : filteredDispositivos.length === 0 ? (
             <div className="p-3 text-center text-text-muted text-sm">
-              No hay dispositivos disponibles
+              {t('replay.noDevices')}
             </div>
           ) : (
             filteredDispositivos.map((d) => (
@@ -108,10 +111,10 @@ export function ReplayFilters({
       {/* Date preset */}
       <div>
         <label className="block text-sm font-medium text-text mb-2">
-          Período
+          {t('replay.period')}
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {presets.map(([key, label]) => (
+          {presets.map(([key]) => (
             <button
               key={key}
               onClick={() => onPresetChange(key)}
@@ -121,7 +124,7 @@ export function ReplayFilters({
                   : 'bg-background border border-border text-text hover:bg-background-hover'
               }`}
             >
-              {label}
+              {t(`replay.${key}`)}
             </button>
           ))}
         </div>
@@ -131,24 +134,24 @@ export function ReplayFilters({
       {preset === 'custom' && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-text-muted mb-1">Desde</label>
+            <label className="block text-xs text-text-muted mb-1">{t('replay.from')}</label>
             <div className="relative">
               <Calendar size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted" />
               <input
                 type="datetime-local"
-                value={from.toISOString().slice(0, 16)}
+                value={formatDateForInput(from)}
                 onChange={(e) => onDateRangeChange(new Date(e.target.value), to)}
                 className="w-full pl-7 pr-2 py-1.5 text-sm bg-background border border-border rounded text-text"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs text-text-muted mb-1">Hasta</label>
+            <label className="block text-xs text-text-muted mb-1">{t('replay.to')}</label>
             <div className="relative">
               <Calendar size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted" />
               <input
                 type="datetime-local"
-                value={to.toISOString().slice(0, 16)}
+                value={formatDateForInput(to)}
                 onChange={(e) => onDateRangeChange(from, new Date(e.target.value))}
                 className="w-full pl-7 pr-2 py-1.5 text-sm bg-background border border-border rounded text-text"
               />
@@ -166,10 +169,10 @@ export function ReplayFilters({
         {isLoading ? (
           <>
             <Loader2 size={16} className="animate-spin" />
-            Cargando...
+            {t('replay.loading')}
           </>
         ) : (
-          'Cargar Recorrido'
+          t('replay.load')
         )}
       </button>
     </div>

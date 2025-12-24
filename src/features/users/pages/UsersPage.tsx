@@ -1,15 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Trash2, UserPlus, Clock, UserCog } from 'lucide-react';
 import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
-import { usePermissions, usePaginationParams } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { UsuarioOrganizacionDto, ListaPaginada } from '@/shared/types/api';
 import { InviteUserModal } from '../components/InviteUserModal';
 import { PendingInvitationsTable } from '../components/PendingInvitationsTable';
+import { formatDateTime } from '@/shared/utils';
 
 type RolType = 'Admin' | 'Operador' | 'Analista';
 
 export function UsersPage() {
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
+  const { getErrorMessage } = useErrorHandler();
   // Datos paginados
   const [usersData, setUsersData] = useState<ListaPaginada<UsuarioOrganizacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,8 +46,7 @@ export function UsersPage() {
       const result = await organizacionesApi.getUsuariosOrganizacion(paginationParams);
       setUsersData(result);
     } catch (err) {
-      console.error('Error loading users:', err);
-      setError('Error al cargar usuarios');
+      setError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -81,15 +85,6 @@ export function UsersPage() {
     }
   };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return 'Nunca';
-    return new Date(dateStr).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   // Extraer items para la tabla (vacío si no hay datos)
   const users = usersData?.items ?? [];
@@ -97,7 +92,7 @@ export function UsersPage() {
   const columns = [
     { 
       key: 'nombreCompleto', 
-      header: 'Usuario',
+      header: t('users.name'),
       render: (u: UsuarioOrganizacionDto) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
@@ -108,7 +103,7 @@ export function UsersPage() {
               {u.nombreCompleto}
               {u.esDuenio && (
                 <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                  Dueño
+                  {t('users.owner')}
                 </span>
               )}
             </p>
@@ -119,7 +114,7 @@ export function UsersPage() {
     },
     {
       key: 'rol',
-      header: 'Rol',
+      header: t('users.role'),
       render: (u: UsuarioOrganizacionDto) => {
         const colors: Record<string, 'info' | 'warning' | 'success'> = {
           Admin: 'info',
@@ -129,18 +124,20 @@ export function UsersPage() {
         return (
           <div className="flex gap-2">
             <Badge variant={colors[u.rol] || 'default'}>{u.rol}</Badge>
-            {!u.activo && <Badge variant="error" size="sm">Inhabilitado</Badge>}
+            {!u.activo && <Badge variant="error" size="sm">{t('users.disabled')}</Badge>}
           </div>
         );
       }
     },
     {
       key: 'fechaAsignacion',
-      header: 'Miembro desde',
+      header: t('users.memberSince'),
       render: (u: UsuarioOrganizacionDto) => (
         <div className={`flex items-center gap-1 text-text-muted ${!u.activo ? 'opacity-50' : ''}`}>
           <Clock size={14} />
-          {formatDate(u.fechaAsignacion)}
+          {u.fechaAsignacion 
+            ? formatDateTime(u.fechaAsignacion, culture, timeZoneId)
+            : t('users.never')}
         </div>
       )
     },
@@ -162,7 +159,7 @@ export function UsersPage() {
           >
             <div className="flex flex-col">
               <div className="px-3 py-2 text-xs font-medium text-text-muted border-b border-border">
-                Cambiar rol
+                {t('users.changeRoleLabel')}
               </div>
               {(['Admin', 'Operador', 'Analista'] as RolType[]).map((rol) => (
                 <button
@@ -177,7 +174,7 @@ export function UsersPage() {
                   }`}
                 >
                   <UserCog size={14} />
-                  {rol} {u.rol === rol && '(actual)'}
+                  {rol} {u.rol === rol && t('users.current')}
                 </button>
               ))}
 
@@ -190,7 +187,7 @@ export function UsersPage() {
                 }}
               >
                 <Trash2 size={14} />
-                Eliminar definitivamente
+                {t('users.deletePermanently')}
               </button>
             </div>
           </ActionMenu>
@@ -203,7 +200,7 @@ export function UsersPage() {
     return (
       <div className="p-8 text-center">
         <p className="text-red-500">{error}</p>
-        <Button onClick={loadUsers} className="mt-4">Reintentar</Button>
+        <Button onClick={loadUsers} className="mt-4">{t('users.retry')}</Button>
       </div>
     );
   }
@@ -213,14 +210,14 @@ export function UsersPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Usuarios</h1>
-          <p className="text-text-muted mt-1">Gestión de usuarios de la organización</p>
+          <h1 className="text-2xl font-bold text-text">{t('users.title')}</h1>
+          <p className="text-text-muted mt-1">{t('users.subtitle')}</p>
         </div>
         
         <PermissionGate permission="usuarios:invitar">
           <Button onClick={() => setIsInviteModalOpen(true)}>
             <UserPlus size={18} className="mr-2" />
-            Invitar Usuario
+            {t('users.inviteUser')}
           </Button>
         </PermissionGate>
       </div>
@@ -229,11 +226,11 @@ export function UsersPage() {
       <Card padding="none" className="overflow-visible">
         {isLoading ? (
           <div className="p-8 text-center text-text-muted">
-            Cargando usuarios...
+            {t('users.loading')}
           </div>
         ) : users.length === 0 ? (
           <div className="p-8 text-center text-text-muted">
-            No hay usuarios en esta organización
+            {t('users.empty')}
           </div>
         ) : (
           <>
@@ -265,40 +262,40 @@ export function UsersPage() {
       {/* Permissions Matrix */}
       <Card>
         <CardHeader 
-          title="Matriz de Permisos" 
-          subtitle="Permisos por rol en el sistema"
+          title={t('users.permissionsMatrix')} 
+          subtitle={t('users.permissionsMatrixSubtitle')}
         />
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="px-4 py-3 text-left font-medium text-text-muted">Permiso</th>
-                <th className="px-4 py-3 text-center font-medium text-text-muted">Admin</th>
-                <th className="px-4 py-3 text-center font-medium text-text-muted">Operador</th>
-                <th className="px-4 py-3 text-center font-medium text-text-muted">Analista</th>
+                <th className="px-4 py-3 text-left font-medium text-text-muted">{t('users.permission')}</th>
+                <th className="px-4 py-3 text-center font-medium text-text-muted">{t('users.roles.admin')}</th>
+                <th className="px-4 py-3 text-center font-medium text-text-muted">{t('users.roles.operador')}</th>
+                <th className="px-4 py-3 text-center font-medium text-text-muted">{t('users.roles.analista')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               <tr>
-                <td className="px-4 py-3 text-text">Ver Dashboard</td>
+                <td className="px-4 py-3 text-text">{t('users.viewDashboard')}</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">✅</td>
               </tr>
               <tr>
-                <td className="px-4 py-3 text-text">Ver Vehículos</td>
+                <td className="px-4 py-3 text-text">{t('users.viewVehicles')}</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">✅</td>
               </tr>
               <tr>
-                <td className="px-4 py-3 text-text">Gestionar Dispositivos</td>
+                <td className="px-4 py-3 text-text">{t('users.manageDevices')}</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">❌</td>
               </tr>
               <tr>
-                <td className="px-4 py-3 text-text">Gestionar Usuarios</td>
+                <td className="px-4 py-3 text-text">{t('users.manageUsers')}</td>
                 <td className="px-4 py-3 text-center">✅</td>
                 <td className="px-4 py-3 text-center">❌</td>
                 <td className="px-4 py-3 text-center">❌</td>
@@ -324,9 +321,10 @@ export function UsersPage() {
         onConfirm={() => {
           if (userToDelete) handleRemoveUser(userToDelete);
         }}
-        title="Eliminar Usuario"
-        description="¿Estás seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer."
-        confirmText="Eliminar"
+        title={t('users.deleteUser')}
+        description={t('users.confirmDelete')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="danger"
         isLoading={isDeleting}
       />

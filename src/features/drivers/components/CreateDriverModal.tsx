@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Modal, Input, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
+import { useErrorHandler } from '@/hooks';
 import type { CreateConductorCommand } from '../types';
 
 interface CreateDriverModalProps {
@@ -12,6 +14,8 @@ interface CreateDriverModalProps {
 }
 
 export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverModalProps) {
+  const { t } = useTranslation();
+  const { getErrorMessage } = useErrorHandler();
   const [form, setForm] = useState<CreateConductorCommand>({
     nombreCompleto: '',
     dni: '',
@@ -26,7 +30,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
 
     const validationErrors: { nombreCompleto?: string } = {};
     if (!form.nombreCompleto.trim()) {
-      validationErrors.nombreCompleto = 'El nombre completo es requerido';
+      validationErrors.nombreCompleto = t('drivers.form.fullNameRequired');
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -44,15 +48,13 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
         email: form.email?.trim() || undefined,
         telefono: form.telefono?.trim() || undefined,
       });
-      toast.success('Conductor creado correctamente');
+      toast.success(t('drivers.success.created'));
       setForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
       setErrors({});
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } };
-      const errorMsg = error.response?.data?.detail || 'No se pudo crear el conductor';
-      toast.error(errorMsg);
+      toast.error(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +70,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
     <Modal isOpen={isOpen} onClose={handleClose}>
       <div className="p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-text">Agregar Conductor</h2>
+          <h2 className="text-xl font-semibold text-text">{t('drivers.createDriver')}</h2>
           <button onClick={handleClose} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
@@ -76,31 +78,31 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nombre Completo"
+            label={t('drivers.form.fullNameLabel')}
             value={form.nombreCompleto}
             onChange={(e) => setForm({ ...form, nombreCompleto: e.target.value })}
-            placeholder="Juan Pérez"
+            placeholder={t('drivers.form.fullNamePlaceholder')}
             error={errors.nombreCompleto}
             required
           />
           <Input
-            label="DNI"
+            label={t('drivers.form.dniLabel')}
             value={form.dni || ''}
             onChange={(e) => setForm({ ...form, dni: e.target.value })}
-            placeholder="12345678"
+            placeholder={t('drivers.form.dniPlaceholder')}
           />
           <Input
-            label="Email"
+            label={t('drivers.form.emailLabel')}
             type="email"
             value={form.email || ''}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="juan@example.com"
+            placeholder={t('drivers.form.emailPlaceholder')}
           />
           <Input
-            label="Teléfono"
+            label={t('drivers.form.phoneLabel')}
             value={form.telefono || ''}
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-            placeholder="+54 11 1234-5678"
+            placeholder={t('drivers.form.phonePlaceholder')}
           />
 
           <div className="flex gap-3 pt-2">
@@ -111,10 +113,10 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
               disabled={isLoading}
               className="flex-1"
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? 'Creando...' : 'Crear'}
+              {isLoading ? t('common.creating') : t('common.create')}
             </Button>
           </div>
         </form>
@@ -122,4 +124,3 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
     </Modal>
   );
 }
-

@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Focus, Crosshair, Tag, Tags, Layers, Moon, Sun, Satellite, Map } from 'lucide-react';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
-import { MapStyle, MAP_TILES } from '../types';
+import { MapStyle } from '../types';
 
 interface MapToolbarProps {
   onCenterFleet: () => void;
@@ -15,7 +16,15 @@ const STYLE_ICONS: Record<MapStyle, React.ReactNode> = {
   streets: <Map size={16} />,
 };
 
+const MAP_STYLE_LABELS: Record<MapStyle, string> = {
+  dark: 'map.dark',
+  light: 'map.light',
+  satellite: 'map.satellite',
+  streets: 'map.streets',
+};
+
 export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps) {
+  const { t } = useTranslation();
   const { showLabels, toggleLabels, selectedVehicleId, mapStyle, setMapStyle } = useTraccarMapStore();
   const vehicles = useFilteredVehicles();
   
@@ -45,15 +54,15 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         <button
           onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)}
           className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg"
-          title="Tipo de mapa"
+          title={t('map.mapType')}
         >
           <Layers size={18} />
-          <span className="text-sm font-medium hidden sm:inline">{MAP_TILES[mapStyle].label}</span>
+          <span className="text-sm font-medium hidden sm:inline">{t(MAP_STYLE_LABELS[mapStyle])}</span>
         </button>
         
         {isStyleMenuOpen && (
           <div className="absolute top-full right-0 mt-2 w-40 bg-surface border border-border rounded-lg shadow-xl overflow-hidden">
-            {(Object.keys(MAP_TILES) as MapStyle[]).map((style) => (
+            {(Object.keys(MAP_STYLE_LABELS) as MapStyle[]).map((style) => (
               <button
                 key={style}
                 onClick={() => handleStyleChange(style)}
@@ -66,7 +75,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
                 `}
               >
                 {STYLE_ICONS[style]}
-                {MAP_TILES[style].label}
+                {t(MAP_STYLE_LABELS[style])}
               </button>
             ))}
           </div>
@@ -78,10 +87,10 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         onClick={onCenterFleet}
         disabled={vehicles.length === 0}
         className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        title="Centrar flota"
+        title={t('map.centerFleet')}
       >
         <Focus size={18} />
-        <span className="text-sm font-medium hidden sm:inline">Centrar flota</span>
+        <span className="text-sm font-medium hidden sm:inline">{t('map.centerFleet')}</span>
       </button>
 
       {/* Center Selected Button */}
@@ -89,10 +98,10 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         onClick={onCenterSelected}
         disabled={!selectedVehicleId}
         className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        title="Centrar seleccionado"
+        title={t('map.centerSelected')}
       >
         <Crosshair size={18} />
-        <span className="text-sm font-medium hidden sm:inline">Centrar seleccionado</span>
+        <span className="text-sm font-medium hidden sm:inline">{t('map.centerSelected')}</span>
       </button>
 
       {/* Toggle Labels Button */}
@@ -105,12 +114,11 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
             : 'bg-surface border-border text-text hover:bg-background'
           }
         `}
-        title={showLabels ? 'Ocultar etiquetas' : 'Mostrar etiquetas'}
+        title={showLabels ? t('map.hideLabels') : t('map.showLabels')}
       >
         {showLabels ? <Tag size={18} /> : <Tags size={18} />}
-        <span className="text-sm font-medium hidden sm:inline">Etiquetas</span>
+        <span className="text-sm font-medium hidden sm:inline">{t('map.labels')}</span>
       </button>
     </div>
   );
 }
-

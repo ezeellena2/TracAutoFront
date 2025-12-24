@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { conductoresApi, vehiculosApi, dispositivosApi } from '@/services/endpoints';
-import { usePaginationParams } from '@/hooks';
+import { usePaginationParams, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type {
   ConductorDto,
@@ -12,6 +13,10 @@ import type { ListaPaginada, DispositivoDto } from '@/shared/types/api';
 import type { VehiculoDto } from '@/features/vehicles/types';
 
 export function useDriversPage() {
+  const { t } = useTranslation();
+  // Error handling
+  const { getErrorMessage } = useErrorHandler();
+  
   // Data state
   const [conductoresData, setConductoresData] = useState<ListaPaginada<ConductorDto> | null>(null);
   const [vehiculos, setVehiculos] = useState<VehiculoDto[]>([]);
@@ -104,8 +109,7 @@ export function useDriversPage() {
       setVehiculos(vehiculosResult.items);
       setDispositivos(dispositivosResult.items);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo cargar los datos';
-      setError(msg);
+      setError(getErrorMessage(e));
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +123,7 @@ export function useDriversPage() {
   const handleCreate = async () => {
     const errors: { nombreCompleto?: string } = {};
     if (!createForm.nombreCompleto.trim()) {
-      errors.nombreCompleto = 'El nombre completo es requerido';
+      errors.nombreCompleto = t('drivers.form.fullNameRequired');
     }
     if (Object.keys(errors).length > 0) {
       setCreateErrors(errors);
@@ -134,14 +138,13 @@ export function useDriversPage() {
         email: createForm.email?.trim() || undefined,
         telefono: createForm.telefono?.trim() || undefined,
       });
-      toast.success('Conductor creado correctamente');
+      toast.success(t('drivers.success.created'));
       setIsCreateModalOpen(false);
       setCreateForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
       setCreateErrors({});
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo crear el conductor';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsCreating(false);
     }
@@ -169,13 +172,12 @@ export function useDriversPage() {
         email: editForm.email?.trim() || undefined,
         telefono: editForm.telefono?.trim() || undefined,
       });
-      toast.success('Conductor actualizado correctamente');
+      toast.success(t('drivers.success.updated'));
       setIsEditModalOpen(false);
       setEditingConductor(null);
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo actualizar el conductor';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsUpdating(false);
     }
@@ -194,13 +196,12 @@ export function useDriversPage() {
     setIsDeleting(true);
     try {
       await conductoresApi.eliminar(conductorToDelete.id);
-      toast.success('Conductor eliminado correctamente');
+      toast.success(t('drivers.success.deleted'));
       setIsDeleteModalOpen(false);
       setConductorToDelete(null);
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo eliminar el conductor';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsDeleting(false);
     }
@@ -216,7 +217,7 @@ export function useDriversPage() {
 
   const handleAssignVehicle = async () => {
     if (!conductorForAssignment || !selectedVehicleId) {
-      toast.error('Debe seleccionar un vehículo');
+      toast.error(t('drivers.errors.mustSelectVehicle'));
       return;
     }
 
@@ -225,14 +226,13 @@ export function useDriversPage() {
       await conductoresApi.asignarVehiculo(conductorForAssignment.id, {
         vehiculoId: selectedVehicleId,
       });
-      toast.success('Vehículo asignado correctamente');
+      toast.success(t('drivers.success.vehicleAssigned'));
       setIsAssignVehicleModalOpen(false);
       setConductorForAssignment(null);
       setSelectedVehicleId('');
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo asignar el vehículo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsAssigningVehicle(false);
     }
@@ -247,7 +247,7 @@ export function useDriversPage() {
 
   const handleAssignDevice = async () => {
     if (!conductorForAssignment || !selectedDeviceId) {
-      toast.error('Debe seleccionar un dispositivo');
+      toast.error(t('drivers.errors.mustSelectDevice'));
       return;
     }
 
@@ -256,14 +256,13 @@ export function useDriversPage() {
       await conductoresApi.asignarDispositivo(conductorForAssignment.id, {
         dispositivoId: selectedDeviceId,
       });
-      toast.success('Dispositivo asignado correctamente');
+      toast.success(t('drivers.success.deviceAssigned'));
       setIsAssignDeviceModalOpen(false);
       setConductorForAssignment(null);
       setSelectedDeviceId('');
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo asignar el dispositivo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsAssigningDevice(false);
     }
@@ -281,8 +280,7 @@ export function useDriversPage() {
         dispositivos: dispositivosResult,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudieron cargar las asignaciones';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsLoadingAssignments(false);
     }
@@ -297,7 +295,7 @@ export function useDriversPage() {
 
   const handleOpenUnassignVehicle = (asignacion: ConductorVehiculoAsignacionDto) => {
     if (asignacion.finUtc) {
-      toast.error('Esta asignación ya está finalizada');
+      toast.error(t('drivers.errors.assignmentAlreadyFinished'));
       return;
     }
     setAssignmentToUnassign({
@@ -317,7 +315,7 @@ export function useDriversPage() {
         conductorForAssignment.id,
         assignmentToUnassign.id
       );
-      toast.success('Vehículo desasignado correctamente');
+      toast.success(t('drivers.success.vehicleUnassigned'));
       setIsUnassignVehicleModalOpen(false);
       setAssignmentToUnassign(null);
       // Recargar asignaciones si el modal está abierto
@@ -326,8 +324,7 @@ export function useDriversPage() {
       }
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo desasignar el vehículo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsUnassigningVehicle(false);
     }
@@ -335,7 +332,7 @@ export function useDriversPage() {
 
   const handleOpenUnassignDevice = (asignacion: ConductorDispositivoAsignacionDto) => {
     if (asignacion.finUtc) {
-      toast.error('Esta asignación ya está finalizada');
+      toast.error(t('drivers.errors.assignmentAlreadyFinished'));
       return;
     }
     setAssignmentToUnassign({
@@ -355,7 +352,7 @@ export function useDriversPage() {
         conductorForAssignment.id,
         assignmentToUnassign.id
       );
-      toast.success('Dispositivo desasignado correctamente');
+      toast.success(t('drivers.success.deviceUnassigned'));
       setIsUnassignDeviceModalOpen(false);
       setAssignmentToUnassign(null);
       // Recargar asignaciones si el modal está abierto
@@ -364,8 +361,7 @@ export function useDriversPage() {
       }
       await loadData();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'No se pudo desasignar el dispositivo';
-      toast.error(msg);
+      toast.error(getErrorMessage(e));
     } finally {
       setIsUnassigningDevice(false);
     }

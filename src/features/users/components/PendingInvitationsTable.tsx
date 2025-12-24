@@ -1,12 +1,17 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Mail, RefreshCw, Trash2, Clock } from 'lucide-react';
 import { Table, Badge, Button, Card, CardHeader, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { invitacionesApi } from '@/services/endpoints';
-import { usePaginationParams } from '@/hooks';
+import { usePaginationParams, useErrorHandler, useLocalization } from '@/hooks';
 import { toast } from '@/store';
 import { ListaPaginada, InvitacionDto } from '@/shared/types/api';
+import { formatDateTime } from '@/shared/utils';
 
 export function PendingInvitationsTable() {
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
+  const { getErrorMessage } = useErrorHandler();
   // Datos paginados
   const [invitacionesData, setInvitacionesData] = useState<ListaPaginada<InvitacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,9 +44,9 @@ export function PendingInvitationsTable() {
   const handleResend = async (id: string) => {
     try {
       await invitacionesApi.reenviarInvitacion(id);
-      toast.success('Invitación reenviada correctamente');
+      toast.success(t('users.success.resendInvitation'));
     } catch (error) {
-      toast.error('Error al reenviar invitación');
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -54,24 +59,14 @@ export function PendingInvitationsTable() {
     try {
       setIsCancelling(true);
       await invitacionesApi.cancelInvitacion(invitationIdToCancel);
-      toast.success('Invitación cancelada');
+      toast.success(t('users.success.cancelInvitation'));
       setInvitationIdToCancel(null);
       loadInvitaciones();
     } catch (error) {
-      toast.error('Error al cancelar invitación');
+      toast.error(getErrorMessage(error));
     } finally {
       setIsCancelling(false);
     }
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   // Extraer items para la tabla
@@ -80,7 +75,7 @@ export function PendingInvitationsTable() {
   const columns = [
     {
       key: 'email',
-      header: 'Email',
+      header: t('users.email'),
       render: (i: InvitacionDto) => (
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-text-muted" />
@@ -90,29 +85,29 @@ export function PendingInvitationsTable() {
     },
     {
       key: 'rolAsignado',
-      header: 'Rol',
+      header: t('users.role'),
       render: (i: InvitacionDto) => <Badge>{i.rolAsignado}</Badge>
     },
     {
       key: 'fechaCreacion',
-      header: 'Enviada',
+      header: t('users.sent'),
       render: (i: InvitacionDto) => (
         <div className="flex items-center gap-1 text-text-muted">
           <Clock size={14} />
-          {formatDate(i.fechaCreacion)}
+          {formatDateTime(i.fechaCreacion, culture, timeZoneId)}
         </div>
       )
     },
     {
       key: 'actions',
-      header: 'Acciones',
+      header: t('users.actions'),
       render: (i: InvitacionDto) => (
         <div className="flex gap-2">
             <Button
             variant="ghost"
             size="sm"
             onClick={() => handleResend(i.id)}
-            title="Reenviar"
+            title={t('users.resendInvitation')}
             >
             <RefreshCw size={16} className="text-primary" />
             </Button>
@@ -120,7 +115,7 @@ export function PendingInvitationsTable() {
             variant="ghost"
             size="sm"
             onClick={() => confirmCancel(i.id)}
-            title="Cancelar"
+            title={t('users.cancelInvitation')}
             >
             <Trash2 size={16} className="text-error" />
             </Button>
@@ -135,10 +130,10 @@ export function PendingInvitationsTable() {
   return (
     <>
       <Card className="mt-8 overflow-visible" padding="none">
-          <CardHeader title="Invitaciones Pendientes" className="p-4 border-b border-border mb-0" />
+          <CardHeader title={t('users.pendingInvitations')} className="p-4 border-b border-border mb-0" />
           {isLoading ? (
             <div className="p-8 text-center text-text-muted">
-              Cargando invitaciones...
+              {t('users.loadingInvitations')}
             </div>
           ) : (
             <>
@@ -168,9 +163,10 @@ export function PendingInvitationsTable() {
         isOpen={!!invitationIdToCancel}
         onClose={() => setInvitationIdToCancel(null)}
         onConfirm={handleCancel}
-        title="Cancelar Invitación"
-        description="¿Estás seguro de que deseas cancelar esta invitación? El enlace enviado dejará de ser válido."
-        confirmText="Sí, cancelar"
+        title={t('users.cancelInvitation')}
+        description={t('users.confirmCancelInvitation')}
+        confirmText={t('users.yesCancel')}
+        cancelText={t('common.cancel')}
         variant="danger"
         isLoading={isCancelling}
       />
