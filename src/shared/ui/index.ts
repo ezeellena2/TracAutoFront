@@ -14,3 +14,4 @@ export { KPICard } from './KPICard';
 export { PaginationControls } from './PaginationControls';
 export type { PaginationControlsProps } from './PaginationControls';
 export { LanguageSwitcher } from './LanguageSwitcher';
+export { OrganizacionAsociadaSelector } from './OrganizacionAsociadaSelector';

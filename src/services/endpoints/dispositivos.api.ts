@@ -55,11 +55,12 @@ export async function getDispositivos(
  */
 export async function createDispositivo(
   traccarDeviceId: number,
-  alias?: string
+  alias?: string,
+  organizacionAsociadaId?: string
 ): Promise<DispositivoDto> {
   const response = await apiClient.post<DispositivoDto>(
     DISPOSITIVOS_BASE,
-    { traccarDeviceId, alias }
+    { traccarDeviceId, alias, organizacionAsociadaId }
   );
   return response.data;
 }
@@ -75,11 +76,12 @@ export async function createDispositivo(
 export async function updateDispositivo(
   id: string,
   alias: string | undefined,
-  activo: boolean
+  activo: boolean,
+  organizacionAsociadaId?: string
 ): Promise<DispositivoDto> {
   const response = await apiClient.put<DispositivoDto>(
     `${DISPOSITIVOS_BASE}/${id}`,
-    { alias, activo }
+    { alias, activo, organizacionAsociadaId }
   );
   return response.data;
 }

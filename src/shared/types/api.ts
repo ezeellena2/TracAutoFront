@@ -146,6 +146,20 @@ export interface OrganizacionThemeDto {
   roleAnalistaText?: string | null;
 }
 
+export interface OrganizacionRelacionDto {
+  id: string;
+  organizacionAId: string;
+  organizacionANombre: string;
+  organizacionBId: string;
+  organizacionBNombre: string;
+  tipoRelacion?: string | null;
+  activa: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  creadoPorUsuarioId?: string | null;
+  modificadoPorUsuarioId?: string | null;
+}
+
 export interface OrganizacionDto {
   id: string;
   nombre: string;
@@ -266,4 +280,7 @@ export interface DispositivoDto {
   estado: string | null;
   uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
+  organizacionAsociadaId?: string | null;
+  organizacionAsociadaNombre?: string | null;
+  esRecursoAsociado: boolean;
 }

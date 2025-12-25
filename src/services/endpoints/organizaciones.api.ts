@@ -11,7 +11,8 @@ import {
   PaginacionParams,
   UsuarioOrganizacionDto,
   CambiarRolRequest,
-  OrganizacionThemeDto
+  OrganizacionThemeDto,
+  OrganizacionRelacionDto
 } from '@/shared/types/api';
 
 const ORGANIZACIONES_BASE = 'organizaciones';
@@ -131,6 +132,56 @@ export async function getCurrentOrganizationPreferences(): Promise<LocalizationP
   return response.data;
 }
 
+// ==================== Relaciones entre Organizaciones ====================
+
+/**
+ * Crea una relación entre dos organizaciones
+ */
+export async function crearRelacionOrganizacion(
+  organizacionAId: string,
+  organizacionBId: string,
+  tipoRelacion?: string
+): Promise<OrganizacionRelacionDto> {
+  const orgId = getOrganizationId();
+  
+  const response = await apiClient.post<OrganizacionRelacionDto>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones`,
+    {
+      organizacionAId,
+      organizacionBId,
+      tipoRelacion
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Lista las relaciones de una organización con paginación
+ */
+export async function listarRelacionesOrganizacion(
+  params: PaginacionParams & { soloActivas?: boolean } = {}
+): Promise<ListaPaginada<OrganizacionRelacionDto>> {
+  const orgId = getOrganizationId();
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivas } = params;
+  
+  const response = await apiClient.get<ListaPaginada<OrganizacionRelacionDto>>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones`,
+    { params: { numeroPagina, tamanoPagina, soloActivas } }
+  );
+  return response.data;
+}
+
+/**
+ * Elimina (soft delete) una relación entre organizaciones
+ */
+export async function eliminarRelacionOrganizacion(
+  relacionId: string
+): Promise<void> {
+  const orgId = getOrganizationId();
+  
+  await apiClient.delete(`${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}`);
+}
+
 export const organizacionesApi = {
   getOrganizaciones,
   getOrganizacionById,
@@ -139,4 +190,7 @@ export const organizacionesApi = {
   removerUsuario,
   updateOrganizacionTheme,
   getCurrentOrganizationPreferences,
+  crearRelacionOrganizacion,
+  listarRelacionesOrganizacion,
+  eliminarRelacionOrganizacion,
 };

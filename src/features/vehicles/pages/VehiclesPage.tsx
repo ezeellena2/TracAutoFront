@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, OrganizacionAsociadaSelector } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -37,6 +37,7 @@ export function VehiclesPage() {
     marca: '',
     modelo: '',
     año: undefined,
+    organizacionAsociadaId: undefined,
   });
   const [createDeviceId, setCreateDeviceId] = useState(''); // Device to assign on create
   const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
@@ -52,6 +53,7 @@ export function VehiclesPage() {
     modelo: '',
     año: undefined as number | undefined,
     activo: true,
+    organizacionAsociadaId: undefined as string | undefined,
   });
   
   // Delete modal
@@ -112,6 +114,7 @@ export function VehiclesPage() {
         patente: createForm.patente.trim().toUpperCase(),
         marca: createForm.marca?.trim() || undefined,
         modelo: createForm.modelo?.trim() || undefined,
+        organizacionAsociadaId: createForm.organizacionAsociadaId || undefined,
       });
       
       // 2. If device selected, assign it
@@ -129,7 +132,7 @@ export function VehiclesPage() {
       }
       
       setIsCreateModalOpen(false);
-      setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', año: undefined });
+      setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', año: undefined, organizacionAsociadaId: undefined });
       setCreateDeviceId('');
       await loadData();
     } catch (e) {
@@ -149,6 +152,7 @@ export function VehiclesPage() {
       modelo: vehicle.modelo || '',
       año: vehicle.año || undefined,
       activo: vehicle.activo,
+      organizacionAsociadaId: vehicle.organizacionAsociadaId || undefined,
     });
     setIsEditModalOpen(true);
   };
@@ -165,6 +169,7 @@ export function VehiclesPage() {
         modelo: editForm.modelo?.trim() || undefined,
         año: editForm.año,
         activo: editForm.activo,
+        organizacionAsociadaId: editForm.organizacionAsociadaId || undefined,
       });
       toast.success(t('vehicles.success.updated'));
       setIsEditModalOpen(false);
@@ -274,6 +279,23 @@ export function VehiclesPage() {
         ) : (
           <span className="text-text-muted">{t('vehicles.table.unassigned')}</span>
         );
+      },
+    },
+    {
+      key: 'organizacionAsociada',
+      header: t('vehicles.associatedOrganization'),
+      render: (v: VehiculoDto) => {
+        if (v.organizacionAsociadaNombre) {
+          return (
+            <div className="flex items-center gap-2">
+              <Badge variant="info">{v.organizacionAsociadaNombre}</Badge>
+              {v.esRecursoAsociado && (
+                <span className="text-xs text-text-muted">({t('vehicles.sharedResource')})</span>
+              )}
+            </div>
+          );
+        }
+        return <span className="text-text-muted">-</span>;
       },
     },
     {
@@ -441,6 +463,12 @@ export function VehiclesPage() {
               placeholder={t('vehicles.form.yearPlaceholder')}
             />
             
+            {/* Organization selector (optional) */}
+            <OrganizacionAsociadaSelector
+              value={createForm.organizacionAsociadaId}
+              onChange={(orgId) => setCreateForm({ ...createForm, organizacionAsociadaId: orgId })}
+            />
+            
             {/* Device selector (optional) */}
             <div>
               <label className="block text-sm font-medium text-text mb-2">
@@ -587,6 +615,12 @@ export function VehiclesPage() {
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
           
+          {/* Organization selector (optional) */}
+          <OrganizacionAsociadaSelector
+            value={createForm.organizacionAsociadaId}
+            onChange={(orgId) => setCreateForm({ ...createForm, organizacionAsociadaId: orgId })}
+          />
+          
           {/* Device selector (optional) */}
           <div>
             <label className="block text-sm font-medium text-text mb-2">
@@ -653,6 +687,13 @@ export function VehiclesPage() {
             onChange={(e) => setEditForm({ ...editForm, año: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
+          
+          {/* Organization selector (optional) */}
+          <OrganizacionAsociadaSelector
+            value={editForm.organizacionAsociadaId}
+            onChange={(orgId) => setEditForm({ ...editForm, organizacionAsociadaId: orgId })}
+          />
+          
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
