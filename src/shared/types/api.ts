@@ -29,9 +29,8 @@ export const RegistrarEmpresaRequestSchema = z.object({
   razonSocial: z.string().optional(),
   cuit: z
     .string()
-    .regex(/^[\d\-]+$/, "CUIT solo puede contener números y guiones")
-    .max(20, "CUIT no puede exceder 20 caracteres")
-    .optional(),
+    .min(11, "CUIT debe tener al menos 11 caracteres")
+    .max(14, "CUIT no puede exceder 14 caracteres"),
   tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
   email: z.string().email("Email inválido"),
   password: z

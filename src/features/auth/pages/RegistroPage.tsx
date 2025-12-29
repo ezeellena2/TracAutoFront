@@ -29,6 +29,8 @@ export function RegistroPage() {
   // Form fields
   const [formData, setFormData] = useState({
     nombreEmpresa: '',
+    cuit: '',
+    tipoOrganizacion: 0, // 0 = no seleccionado
     nombreCompleto: '',
     email: '',
     telefono: '',
@@ -41,15 +43,59 @@ export function RegistroPage() {
   const [codigoEmail, setCodigoEmail] = useState('');
   const [codigoTelefono, setCodigoTelefono] = useState('');
 
-  const updateField = (field: keyof typeof formData, value: string) => {
+  const updateField = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
   };
+
+  // Validación de CUIT argentino (algoritmo módulo 11)
+  const validarCuit = (cuit: string): boolean => {
+    // Normalizar: remover guiones y espacios
+    const cuitNormalizado = cuit.replace(/[^\d]/g, '');
+    
+    if (cuitNormalizado.length !== 11) return false;
+    
+    // Validar tipos válidos (primeros 2 dígitos)
+    const tipo = parseInt(cuitNormalizado.substring(0, 2), 10);
+    const tiposValidos = [20, 23, 24, 27, 30, 33, 34];
+    if (!tiposValidos.includes(tipo)) return false;
+    
+    // Calcular dígito verificador (módulo 11)
+    const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+    let suma = 0;
+    for (let i = 0; i < 10; i++) {
+      suma += parseInt(cuitNormalizado[i], 10) * multiplicadores[i];
+    }
+    const resto = 11 - (suma % 11);
+    const digitoCalculado = resto === 11 ? 0 : (resto === 10 ? 9 : resto);
+    const digitoReal = parseInt(cuitNormalizado[10], 10);
+    
+    return digitoCalculado === digitoReal;
+  };
+
+  // Tipos de organización disponibles
+  const tiposOrganizacion = [
+    { value: 1, label: t('auth.orgTypes.flotaPrivada') },
+    { value: 2, label: t('auth.orgTypes.aseguradora') },
+    { value: 3, label: t('auth.orgTypes.tallerMecanico') },
+    { value: 4, label: t('auth.orgTypes.concesionario') },
+    { value: 5, label: t('auth.orgTypes.empresaRenting') },
+  ];
 
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validaciones
+    if (!formData.cuit || !validarCuit(formData.cuit)) {
+      setError(t('auth.errors.invalidCuit'));
+      return;
+    }
+
+    if (!formData.tipoOrganizacion) {
+      setError(t('auth.errors.selectOrgType'));
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError(t('auth.errors.passwordMismatch'));
       return;
@@ -66,11 +112,12 @@ export function RegistroPage() {
     try {
       const response = await authApi.registrarEmpresa({
         nombreEmpresa: formData.nombreEmpresa,
+        cuit: formData.cuit.replace(/[^\d]/g, ''), // Enviar normalizado
+        tipoOrganizacion: formData.tipoOrganizacion,
         email: formData.email,
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
         telefono: formData.telefono || undefined,
-        tipoOrganizacion: 2, // Aseguradora por defecto
       });
       
       setSuccessData({
@@ -199,6 +246,38 @@ export function RegistroPage() {
                   required
                   disabled={isLoading}
                 />
+
+                {/* CUIT */}
+                <Input
+                  label={t('auth.cuitLabel')}
+                  type="text"
+                  value={formData.cuit}
+                  onChange={(e) => updateField('cuit', e.target.value)}
+                  placeholder={t('auth.cuitPlaceholder')}
+                  required
+                  disabled={isLoading}
+                />
+
+                {/* Tipo de Organización */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-text">
+                    {t('auth.orgTypeLabel')} <span className="text-error">*</span>
+                  </label>
+                  <select
+                    value={formData.tipoOrganizacion}
+                    onChange={(e) => updateField('tipoOrganizacion', parseInt(e.target.value, 10))}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-text focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                    disabled={isLoading}
+                  >
+                    <option value={0}>{t('auth.selectOrgType')}</option>
+                    {tiposOrganizacion.map((tipo) => (
+                      <option key={tipo.value} value={tipo.value}>
+                        {tipo.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 {/* Usuario */}
                 <Input
