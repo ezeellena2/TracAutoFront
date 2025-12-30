@@ -35,7 +35,8 @@
     "total": "Total",
     "creating": "Creando...",
     "saving": "Guardando...",
-    "optional": "opcional"
+    "optional": "opcional",
+    "assign": "Asignar"
   },
   "resources": {
     "form": {
@@ -61,7 +62,9 @@
     "events": "Eventos",
     "users": "Usuarios",
     "organization": "Organización",
-    "organizationLabel": "Organización"
+    "organizationLabel": "Organización",
+    "organizationAppearance": "Apariencia",
+    "organizationRelations": "Relaciones"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -483,6 +486,21 @@
     "labels": "Etiquetas",
     "showLabels": "Mostrar etiquetas",
     "hideLabels": "Ocultar etiquetas",
+    "labelConfig": {
+      "title": "Configurar Etiquetas",
+      "enableLabels": "Mostrar etiquetas",
+      "showImei": "IMEI",
+      "showPatente": "Patente",
+      "showEstado": "Estado",
+      "showOrganizacionAsociada": "Org Relacionada",
+      "showOrganizacionAsociadaShort": "Org. Rel."
+    },
+    "filter": {
+      "title": "Filtrar por Organización",
+      "all": "Todos",
+      "own": "Solo propios",
+      "selectOrganization": "Seleccionar organización..."
+    },
     "vehicles": "Vehículos",
     "searchPlaceholder": "Buscar por nombre o patente...",
     "lastUpdate": "Última actualización",
@@ -644,6 +662,53 @@
       "invalidColors": "Hay colores con formato inválido. Use hex (#RRGGBB).",
       "noConnection": "Sin conexión a internet. Verifica tu red e intenta nuevamente.",
       "connectionLost": "Se perdió la conexión. Verifica tu red e intenta nuevamente."
+    },
+    "relations": {
+      "title": "Relaciones entre Organizaciones",
+      "subtitle": "Gestiona las relaciones con otras organizaciones",
+      "empty": "No hay relaciones activas",
+      "create": {
+        "title": "Crear Relación",
+        "searchOrganization": "Buscar organización",
+        "searchPlaceholder": "Buscar por nombre...",
+        "selectOrganization": "Seleccionar organización",
+        "selectPlaceholder": "Seleccione una organización",
+        "noOrganizations": "No hay organizaciones disponibles para vincular",
+        "relationType": "Tipo de relación",
+        "relationTypePlaceholder": "Ej: Aseguradora-Concesionaria",
+        "relationTypeHelp": "Descripción opcional del tipo de relación",
+        "autoAssignResources": "Asignación automática de recursos",
+        "autoAssignResourcesHelp": "Si está habilitado, todos los recursos se compartirán automáticamente cuando solo haya 1 relación activa"
+      },
+      "table": {
+        "organization": "Organización",
+        "relationType": "Tipo de Relación",
+        "noType": "Sin tipo",
+        "autoAssignment": "Asignación",
+        "automatic": "Automática",
+        "manual": "Manual",
+        "status": "Estado",
+        "createdDate": "Fecha de Creación"
+      },
+      "actions": {
+        "delete": "Eliminar Relación"
+      },
+      "delete": {
+        "title": "Eliminar Relación",
+        "message": "¿Está seguro de eliminar esta relación? Los recursos compartidos dejarán de estar asociados."
+      },
+      "assign": {
+        "title": "Asignar Recursos",
+        "vehicles": "Vehículos",
+        "devices": "Dispositivos",
+        "noVehicles": "No hay vehículos disponibles",
+        "noDevices": "No hay dispositivos disponibles",
+        "noResourcesSelected": "Debe seleccionar al menos un recurso",
+        "success": "Recursos asignados correctamente"
+      },
+      "success": {
+        "created": "Relación creada correctamente"
+      }
     }
   }
 }

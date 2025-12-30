@@ -115,3 +115,16 @@ body {
   background-color: var(--color-primary);
   color: white;
 }
+
+/* Leaflet tooltip customization for vehicle labels */
+.vehicle-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.vehicle-tooltip .leaflet-tooltip-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}

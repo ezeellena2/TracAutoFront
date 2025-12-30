@@ -1,28 +1,33 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Car, 
   Cpu, 
   Bell, 
   Users,
+  Building,
   Palette,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Map,
-  UserCircle
+  UserCircle,
+  Link2
 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { Permission } from '@/config/permissions';
 
 interface NavItem {
-  path: string;
+  path?: string; // Opcional si tiene children
   labelKey: string; // Key de traducción en lugar de label hardcodeado
   icon: React.ElementType;
   /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
   requiredPermission?: Permission;
+  /** Items hijos para submenús */
+  children?: NavItem[];
 }
 
 const navItems: NavItem[] = [
@@ -32,8 +37,16 @@ const navItems: NavItem[] = [
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
-  { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
-  { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organization', icon: Palette, requiredPermission: 'organizacion:editar' },
+  { 
+    labelKey: 'sidebar.organization', 
+    icon: Building, 
+    requiredPermission: 'organizacion:editar',
+    children: [
+      { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
+      { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organizationAppearance', icon: Palette },
+      { path: '/configuracion/empresa/relaciones', labelKey: 'sidebar.organizationRelations', icon: Link2 },
+    ]
+  },
 ];
 
 export function Sidebar() {
@@ -41,6 +54,8 @@ export function Sidebar() {
   const { isCollapsed, toggleCollapsed } = useSidebarStore();
   const { currentOrganization } = useTenantStore();
   const { can } = usePermissions();
+  const location = useLocation();
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
   // Filtrar items según permisos del usuario
   const visibleNavItems = useMemo(() => 
@@ -49,6 +64,36 @@ export function Sidebar() {
     ),
     [can]
   );
+
+  // Auto-expandir submenús cuando la ruta actual coincide con algún hijo
+  useEffect(() => {
+    const newExpanded = new Set<string>();
+    visibleNavItems.forEach((item, index) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => 
+          child.path && location.pathname === child.path
+        );
+        if (hasActiveChild) {
+          newExpanded.add(`menu-${index}`);
+        }
+      }
+    });
+    setExpandedMenus(newExpanded);
+  }, [location.pathname, visibleNavItems]);
+
+  const toggleMenu = (menuKey: string) => {
+    setExpandedMenus(prev => {
+      const next = new Set(prev);
+      if (next.has(menuKey)) {
+        next.delete(menuKey);
+      } else {
+        next.add(menuKey);
+      }
+      return next;
+    });
+  };
+
+  const isMenuExpanded = (menuKey: string) => expandedMenus.has(menuKey);
 
   return (
     <aside 
@@ -76,23 +121,89 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-        {visibleNavItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) => `
-              flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-              ${isActive 
-                ? 'bg-primary text-white' 
-                : 'text-text-muted hover:text-text hover:bg-background'
-              }
-              ${isCollapsed ? 'justify-center' : ''}
-            `}
-          >
-            <item.icon size={20} />
-            {!isCollapsed && <span className="font-medium">{t(item.labelKey)}</span>}
-          </NavLink>
-        ))}
+        {visibleNavItems.map((item, index) => {
+          const menuKey = `menu-${index}`;
+          
+          // Si tiene children, renderizar como submenú
+          if (item.children) {
+            const isExpanded = isMenuExpanded(menuKey);
+            const hasActiveChild = item.children.some(child => 
+              child.path && location.pathname === child.path
+            );
+
+            return (
+              <div key={menuKey} className="space-y-1">
+                <button
+                  onClick={() => !isCollapsed && toggleMenu(menuKey)}
+                  className={`
+                    w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    ${hasActiveChild
+                      ? 'bg-primary text-white' 
+                      : 'text-text-muted hover:text-text hover:bg-background'
+                    }
+                    ${isCollapsed ? 'justify-center' : ''}
+                  `}
+                  disabled={isCollapsed}
+                >
+                  <item.icon size={20} />
+                  {!isCollapsed && (
+                    <>
+                      <span className="font-medium flex-1 text-left">{t(item.labelKey)}</span>
+                      <ChevronDown 
+                        size={16} 
+                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </>
+                  )}
+                </button>
+                
+                {/* Submenú items */}
+                {!isCollapsed && isExpanded && (
+                  <div className="ml-4 space-y-1 border-l-2 border-border pl-2">
+                    {item.children.map((child) => {
+                      const isActive = child.path === location.pathname;
+                      return (
+                        <NavLink
+                          key={child.path}
+                          to={child.path!}
+                          className={`
+                            flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
+                            ${isActive
+                              ? 'bg-primary text-white' 
+                              : 'text-text-muted hover:text-text hover:bg-background'
+                            }
+                          `}
+                        >
+                          <child.icon size={18} />
+                          <span className="font-medium text-sm">{t(child.labelKey)}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          // Si no tiene children, renderizar como item normal
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path!}
+              className={({ isActive }) => `
+                flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                ${isActive 
+                  ? 'bg-primary text-white' 
+                  : 'text-text-muted hover:text-text hover:bg-background'
+                }
+                ${isCollapsed ? 'justify-center' : ''}
+              `}
+            >
+              <item.icon size={20} />
+              {!isCollapsed && <span className="font-medium">{t(item.labelKey)}</span>}
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Collapse button */}

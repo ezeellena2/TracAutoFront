@@ -135,12 +135,33 @@ export async function getCurrentOrganizationPreferences(): Promise<LocalizationP
 // ==================== Relaciones entre Organizaciones ====================
 
 /**
+ * Obtiene organizaciones disponibles para vincular
+ * Excluye la organización actual y las organizaciones ya vinculadas
+ */
+export async function getOrganizacionesDisponiblesParaVincular(
+  params: PaginacionParams & { 
+    tipoFiltro?: number; 
+    filtroNombre?: string 
+  } = {}
+): Promise<ListaPaginada<OrganizacionDto>> {
+  const orgId = getOrganizationId();
+  const { numeroPagina = 1, tamanoPagina = 50, tipoFiltro, filtroNombre } = params;
+  
+  const response = await apiClient.get<ListaPaginada<OrganizacionDto>>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/disponibles`,
+    { params: { numeroPagina, tamanoPagina, tipoFiltro, filtroNombre } }
+  );
+  return response.data;
+}
+
+/**
  * Crea una relación entre dos organizaciones
  */
 export async function crearRelacionOrganizacion(
   organizacionAId: string,
   organizacionBId: string,
-  tipoRelacion?: string
+  tipoRelacion?: string,
+  asignacionAutomaticaRecursos?: boolean
 ): Promise<OrganizacionRelacionDto> {
   const orgId = getOrganizationId();
   
@@ -149,7 +170,8 @@ export async function crearRelacionOrganizacion(
     {
       organizacionAId,
       organizacionBId,
-      tipoRelacion
+      tipoRelacion,
+      asignacionAutomaticaRecursos
     }
   );
   return response.data;
@@ -182,6 +204,25 @@ export async function eliminarRelacionOrganizacion(
   await apiClient.delete(`${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}`);
 }
 
+/**
+ * Asigna recursos manualmente a una relación entre organizaciones
+ */
+export async function asignarRecursosARelacion(
+  relacionId: string,
+  recursos: {
+    vehiculoIds?: string[];
+    conductorIds?: string[];
+    dispositivoIds?: string[];
+  }
+): Promise<void> {
+  const orgId = getOrganizationId();
+  
+  await apiClient.post(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/asignar-recursos`,
+    recursos
+  );
+}
+
 export const organizacionesApi = {
   getOrganizaciones,
   getOrganizacionById,
@@ -190,7 +231,9 @@ export const organizacionesApi = {
   removerUsuario,
   updateOrganizacionTheme,
   getCurrentOrganizationPreferences,
+  getOrganizacionesDisponiblesParaVincular,
   crearRelacionOrganizacion,
   listarRelacionesOrganizacion,
   eliminarRelacionOrganizacion,
+  asignarRecursosARelacion,
 };

@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { VehiclePosition, MapViewport, MapStyle } from '../types';
 
+interface LabelConfig {
+  enabled: boolean;
+  showImei: boolean;
+  showPatente: boolean;
+  showEstado: boolean;
+  showOrganizacionAsociada: boolean;
+}
+
 interface TraccarMapState {
   // Data
   vehicles: VehiclePosition[];
@@ -10,7 +18,8 @@ interface TraccarMapState {
   // UI State
   selectedVehicleId: string | null;
   searchText: string;
-  showLabels: boolean;
+  labelConfig: LabelConfig;
+  filterOrganizacionAsociadaId: string | null; // null = todos, "own" = solo propios, GUID = organización específica
   mapStyle: MapStyle;
   viewport: MapViewport;
   
@@ -20,7 +29,10 @@ interface TraccarMapState {
   setError: (error: string | null) => void;
   setSelectedVehicle: (id: string | null) => void;
   setSearchText: (text: string) => void;
-  toggleLabels: () => void;
+  toggleLabelField: (field: keyof Omit<LabelConfig, 'enabled'>) => void;
+  setLabelConfig: (config: Partial<LabelConfig>) => void;
+  setFilterOrganizacionAsociadaId: (id: string | null) => void;
+  clearFilter: () => void;
   setMapStyle: (style: MapStyle) => void;
   setViewport: (viewport: MapViewport) => void;
   resetState: () => void;
@@ -32,13 +44,22 @@ const DEFAULT_VIEWPORT: MapViewport = {
   zoom: 11,
 };
 
+const initialLabelConfig: LabelConfig = {
+  enabled: true,
+  showImei: false,
+  showPatente: true,
+  showEstado: false,
+  showOrganizacionAsociada: false,
+};
+
 const initialState = {
   vehicles: [],
   isLoading: false,
   error: null,
   selectedVehicleId: null,
   searchText: '',
-  showLabels: true,
+  labelConfig: initialLabelConfig,
+  filterOrganizacionAsociadaId: null,
   mapStyle: 'streets' as MapStyle,
   viewport: DEFAULT_VIEWPORT,
 };
@@ -51,24 +72,54 @@ export const useTraccarMapStore = create<TraccarMapState>((set) => ({
   setError: (error) => set({ error }),
   setSelectedVehicle: (selectedVehicleId) => set({ selectedVehicleId }),
   setSearchText: (searchText) => set({ searchText }),
-  toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
+  toggleLabelField: (field) => set((state) => ({
+    labelConfig: {
+      ...state.labelConfig,
+      [field]: !state.labelConfig[field],
+    },
+  })),
+  setLabelConfig: (config) => set((state) => ({
+    labelConfig: {
+      ...state.labelConfig,
+      ...config,
+    },
+  })),
+  setFilterOrganizacionAsociadaId: (id) => set({ filterOrganizacionAsociadaId: id }),
+  clearFilter: () => set({ filterOrganizacionAsociadaId: null }),
   setMapStyle: (mapStyle) => set({ mapStyle }),
   setViewport: (viewport) => set({ viewport }),
   resetState: () => set(initialState),
 }));
 
-// Selector for filtered vehicles based on search
+// Selector for filtered vehicles based on search and organization filter
 export const useFilteredVehicles = () => {
   const vehicles = useTraccarMapStore((state) => state.vehicles);
   const searchText = useTraccarMapStore((state) => state.searchText);
+  const filterOrganizacionAsociadaId = useTraccarMapStore((state) => state.filterOrganizacionAsociadaId);
   
-  if (!searchText.trim()) return vehicles;
+  let filtered = vehicles;
   
-  const search = searchText.toLowerCase();
-  return vehicles.filter(
-    (v) =>
-      v.nombre.toLowerCase().includes(search) ||
-      v.patente.toLowerCase().includes(search)
-  );
+  // Apply organization filter
+  if (filterOrganizacionAsociadaId !== null) {
+    if (filterOrganizacionAsociadaId === 'own') {
+      // Solo propios: sin organizacionAsociadaId
+      filtered = filtered.filter((v) => !v.organizacionAsociadaId);
+    } else {
+      // Organización específica
+      filtered = filtered.filter((v) => v.organizacionAsociadaId === filterOrganizacionAsociadaId);
+    }
+  }
+  
+  // Apply search filter
+  if (searchText.trim()) {
+    const search = searchText.toLowerCase();
+    filtered = filtered.filter(
+      (v) =>
+        v.nombre.toLowerCase().includes(search) ||
+        (v.patente && v.patente.toLowerCase().includes(search))
+    );
+  }
+  
+  return filtered;
 };
 

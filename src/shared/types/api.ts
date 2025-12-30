@@ -153,6 +153,7 @@ export interface OrganizacionRelacionDto {
   organizacionBNombre: string;
   tipoRelacion?: string | null;
   activa: boolean;
+  asignacionAutomaticaRecursos: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
   creadoPorUsuarioId?: string | null;

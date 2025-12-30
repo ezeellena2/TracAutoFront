@@ -8,6 +8,7 @@ import { OrganizacionRelacionDto, ListaPaginada } from '@/shared/types/api';
 import { useAuthStore } from '@/store';
 import { CrearRelacionModal } from '../components/CrearRelacionModal';
 import { RelacionesTable } from '../components/RelacionesTable';
+import { AsignarRecursosModal } from '../components/AsignarRecursosModal';
 
 export function RelacionesOrganizacionPage() {
   const { t } = useTranslation();
@@ -31,6 +32,7 @@ export function RelacionesOrganizacionPage() {
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
   const [relacionToDelete, setRelacionToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [relacionToAssignResources, setRelacionToAssignResources] = useState<string | null>(null);
   const { can } = usePermissions();
 
   // Permisos específicos para acciones de relaciones (solo Admin)
@@ -130,6 +132,7 @@ export function RelacionesOrganizacionPage() {
               relaciones={relaciones}
               organizacionActualId={organizacionId}
               onDelete={handleDelete}
+              onAssignResources={(relacionId) => setRelacionToAssignResources(relacionId)}
               actionMenuOpen={actionMenuOpen}
               setActionMenuOpen={setActionMenuOpen}
               relacionToDelete={relacionToDelete}
@@ -160,6 +163,16 @@ export function RelacionesOrganizacionPage() {
         onSuccess={loadRelaciones}
         organizacionActualId={organizacionId}
       />
+
+      {relacionToAssignResources && (
+        <AsignarRecursosModal
+          isOpen={relacionToAssignResources !== null}
+          onClose={() => setRelacionToAssignResources(null)}
+          onSuccess={loadRelaciones}
+          relacionId={relacionToAssignResources}
+          organizacionActualId={organizacionId}
+        />
+      )}
     </div>
   );
 }

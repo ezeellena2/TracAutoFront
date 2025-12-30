@@ -24,6 +24,7 @@ export function CrearRelacionModal({
   const { getErrorMessage } = useErrorHandler();
   const [organizacionBId, setOrganizacionBId] = useState('');
   const [tipoRelacion, setTipoRelacion] = useState('');
+  const [asignacionAutomaticaRecursos, setAsignacionAutomaticaRecursos] = useState(true);
   const [organizaciones, setOrganizaciones] = useState<OrganizacionDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOrgs, setIsLoadingOrgs] = useState(false);
@@ -39,15 +40,12 @@ export function CrearRelacionModal({
   const loadOrganizaciones = async () => {
     try {
       setIsLoadingOrgs(true);
-      const result = await organizacionesApi.getOrganizaciones({
+      const result = await organizacionesApi.getOrganizacionesDisponiblesParaVincular({
         numeroPagina: 1,
         tamanoPagina: 50,
-        filtroNombre: filtroNombre || undefined,
-        soloActivas: true
+        filtroNombre: filtroNombre || undefined
       });
-      // Filtrar la organización actual
-      const orgsFiltradas = result.items.filter(o => o.id !== organizacionActualId);
-      setOrganizaciones(orgsFiltradas);
+      setOrganizaciones(result.items);
     } catch (err) {
       console.error('Error loading organizations:', err);
     } finally {
@@ -63,11 +61,13 @@ export function CrearRelacionModal({
       await organizacionesApi.crearRelacionOrganizacion(
         organizacionActualId,
         organizacionBId,
-        tipoRelacion || undefined
+        tipoRelacion || undefined,
+        asignacionAutomaticaRecursos
       );
       toast.success(t('organization.relations.success.created'));
       setOrganizacionBId('');
       setTipoRelacion('');
+      setAsignacionAutomaticaRecursos(true);
       setFiltroNombre('');
       onSuccess();
       onClose();
@@ -81,6 +81,7 @@ export function CrearRelacionModal({
   const handleClose = () => {
     setOrganizacionBId('');
     setTipoRelacion('');
+    setAsignacionAutomaticaRecursos(true);
     setFiltroNombre('');
     onClose();
   };
@@ -155,6 +156,23 @@ export function CrearRelacionModal({
             />
             <p className="text-xs text-text-muted mt-1">
               {t('organization.relations.create.relationTypeHelp')}
+            </p>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={asignacionAutomaticaRecursos}
+                onChange={(e) => setAsignacionAutomaticaRecursos(e.target.checked)}
+                className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+              />
+              <span className="text-sm font-medium text-text">
+                {t('organization.relations.create.autoAssignResources')}
+              </span>
+            </label>
+            <p className="text-xs text-text-muted mt-1 ml-6">
+              {t('organization.relations.create.autoAssignResourcesHelp')}
             </p>
           </div>
 

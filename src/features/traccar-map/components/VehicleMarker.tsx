@@ -29,7 +29,7 @@ function createCustomIcon(estado: VehiclePosition['estado'], isSelected: boolean
   const color = getMarkerColor(estado);
   const size = isSelected ? 36 : 28;
   const borderWidth = isSelected ? 4 : 2;
-  
+
   return L.divIcon({
     className: 'custom-marker',
     html: `
@@ -62,13 +62,62 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
   const navigate = useNavigate();
-  const { selectedVehicleId, setSelectedVehicle, showLabels } = useTraccarMapStore();
+  const { selectedVehicleId, setSelectedVehicle, labelConfig } = useTraccarMapStore();
   const isSelected = selectedVehicleId === vehicle.id;
 
   const handleReplayClick = () => {
     // Navigate to replay page with device pre-selected
     navigate(`/replay?dispositivoId=${vehicle.id}`);
   };
+
+  // Build label content based on configuration
+  const buildLabelContent = () => {
+    if (!labelConfig.enabled) return null;
+
+    const items: Array<{ label: string; value: string; variant?: 'success' | 'error' | 'warning' | 'info' }> = [];
+
+    if (labelConfig.showImei) {
+      items.push({ label: 'IMEI', value: vehicle.imei });
+    }
+
+    if (labelConfig.showPatente && vehicle.patente) {
+      items.push({ label: t('vehicles.licensePlate'), value: vehicle.patente });
+    }
+
+    if (labelConfig.showEstado) {
+      // Usar Map para evitar ternarios anidados complejos
+      const statusMap = {
+        'online': { text: t('devices.onlineStatus'), variant: 'success' },
+        'offline': { text: t('devices.offlineStatus'), variant: 'error' },
+        'unknown': { text: t('devices.unknownStatus'), variant: 'warning' }
+      } as const;
+
+      const status = statusMap[vehicle.estado as keyof typeof statusMap] || statusMap['unknown'];
+
+      items.push({
+        label: t('common.status'),
+        value: status.text,
+        variant: status.variant
+      });
+    }
+
+      if (labelConfig.showOrganizacionAsociada && vehicle.organizacionAsociadaNombre) {
+        items.push({
+          label: t('map.labelConfig.showOrganizacionAsociadaShort'),
+          value: vehicle.organizacionAsociadaNombre,
+          variant: 'info'
+        });
+      }
+
+    // Fallback: si no hay nada seleccionado, mostrar nombre
+    if (items.length === 0) {
+      items.push({ label: t('common.name'), value: vehicle.nombre });
+    }
+
+    return items;
+  };
+
+  const labelItems = buildLabelContent();
 
   return (
     <Marker
@@ -78,15 +127,61 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
         click: () => setSelectedVehicle(vehicle.id),
       }}
     >
-      {/* Tooltip with vehicle name (shows on hover or always if labels enabled) */}
-      {showLabels && (
-        <Tooltip 
-          permanent 
-          direction="top" 
+      {/* Tooltip with configurable label */}
+      {labelItems && labelItems.length > 0 && (
+        <Tooltip
+          permanent
+          direction="top"
           offset={[0, -20]}
           className="vehicle-tooltip"
         >
-          <span className="font-medium text-xs">{vehicle.patente || vehicle.nombre}</span>
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.98)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(0, 0, 0, 0.15)',
+              borderRadius: '6px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              padding: '6px 10px',
+              minWidth: 'max-content',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {labelItems.map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: '6px',
+                    lineHeight: '1.3'
+                  }}
+                >
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    color: '#6b7280',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {item.label}:
+                  </span>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: item.variant === 'success' ? '#15803d' :
+                      item.variant === 'error' ? '#dc2626' :
+                        item.variant === 'warning' ? '#d97706' :
+                          item.variant === 'info' ? '#1d4ed8' :
+                            '#111827'
+                  }}>
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </Tooltip>
       )}
 
@@ -128,7 +223,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
               Lat: {vehicle.latitud.toFixed(6)} | Lng: {vehicle.longitud.toFixed(6)}
             </p>
           </div>
-          
+
           {/* Ver recorrido button */}
           <button
             onClick={handleReplayClick}
