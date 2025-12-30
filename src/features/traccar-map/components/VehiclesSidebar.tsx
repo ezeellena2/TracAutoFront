@@ -100,8 +100,13 @@ export function VehiclesSidebar() {
                       {vehicle.nombre}
                     </p>
                     <p className="text-sm text-text-muted">
-                      {vehicle.patente}
+                      {vehicle.imei}
                     </p>
+                    {vehicle.patente && (
+                      <p className="text-sm text-primary font-medium">
+                        {vehicle.patente}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
                       <span>{formatLastUpdate(vehicle.lastUpdate, t)}</span>
                       {vehicle.velocidad > 0 && (

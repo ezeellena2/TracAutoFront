@@ -86,7 +86,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
           offset={[0, -20]}
           className="vehicle-tooltip"
         >
-          <span className="font-medium text-xs">{vehicle.patente}</span>
+          <span className="font-medium text-xs">{vehicle.patente || vehicle.nombre}</span>
         </Tooltip>
       )}
 
@@ -98,8 +98,13 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
           </h3>
           <div className="space-y-1 text-sm text-gray-700">
             <p>
-              <span className="font-medium">{t('vehicles.licensePlate')}:</span> {vehicle.patente}
+              <span className="font-medium">IMEI:</span> {vehicle.imei}
             </p>
+            {vehicle.patente && (
+              <p>
+                <span className="font-medium">{t('vehicles.licensePlate')}:</span> {vehicle.patente}
+              </p>
+            )}
             <p>
               <span className="font-medium">{t('common.status')}:</span>{' '}
               <span className={`

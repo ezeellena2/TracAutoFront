@@ -4,7 +4,8 @@
 export interface VehiclePosition {
   id: string;
   nombre: string;
-  patente: string;
+  imei: string;
+  patente: string | null;
   latitud: number;
   longitud: number;
   lastUpdate: Date;

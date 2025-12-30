@@ -30,7 +30,8 @@ function mapToVehiclePosition(dto: VehiclePositionApiDto): VehiclePosition {
   return {
     id: dto.id,
     nombre: dto.nombre,
-    patente: dto.patente ?? dto.uniqueId, // Usar patente real, fallback a uniqueId si no hay vehículo asignado
+    imei: dto.uniqueId,
+    patente: dto.patente,
     latitud: dto.latitud,
     longitud: dto.longitud,
     velocidad: dto.velocidad,

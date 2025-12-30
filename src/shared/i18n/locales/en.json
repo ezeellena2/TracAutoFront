@@ -158,7 +158,9 @@
     },
     "creating": "Creating...",
     "saving": "Saving...",
-    "deviceName": "Device"
+    "deviceName": "Device",
+    "associatedOrganization": "ASSOCIATED ORGANIZATION",
+    "sharedResource": "Shared resource"
   },
   "devices": {
     "title": "Devices",
@@ -217,7 +219,9 @@
     "creating": "Creating...",
     "saving": "Saving...",
     "devicesOnline": "Online Devices",
-    "devicesOffline": "Offline Devices"
+    "devicesOffline": "Offline Devices",
+    "associatedOrganization": "ASSOCIATED ORGANIZATION",
+    "sharedResource": "Shared resource"
   },
   "events": {
     "title": "Events",
@@ -423,7 +427,9 @@
       "assignmentAlreadyFinished": "This assignment is already finished",
       "unassignVehicleFailed": "Failed to unassign vehicle",
       "unassignDeviceFailed": "Failed to unassign device"
-    }
+    },
+    "associatedOrganization": "ASSOCIATED ORGANIZATION",
+    "sharedResource": "Shared resource"
   },
   "replay": {
     "device": "Device",

@@ -34,7 +34,16 @@
     "perPage": "por página",
     "total": "Total",
     "creating": "Creando...",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "optional": "opcional"
+  },
+  "resources": {
+    "form": {
+      "associatedOrganizationLabel": "Organización Asociada",
+      "associatedOrganizationPlaceholder": "Sin organización asociada",
+      "noRelatedOrganizations": "No hay organizaciones relacionadas disponibles",
+      "associatedOrganizationHelp": "Selecciona una organización relacionada para compartir este recurso"
+    }
   },
   "header": {
     "darkMode": "Modo oscuro",
@@ -158,7 +167,9 @@
     },
     "creating": "Creando...",
     "saving": "Guardando...",
-    "deviceName": "Dispositivo"
+    "deviceName": "Dispositivo",
+    "associatedOrganization": "ORGANIZACIÓN ASOCIADA",
+    "sharedResource": "Recurso compartido"
   },
   "devices": {
     "title": "Dispositivos",
@@ -217,7 +228,9 @@
     "creating": "Creando...",
     "saving": "Guardando...",
     "devicesOnline": "Dispositivos Online",
-    "devicesOffline": "Dispositivos Offline"
+    "devicesOffline": "Dispositivos Offline",
+    "associatedOrganization": "ORGANIZACIÓN ASOCIADA",
+    "sharedResource": "Recurso compartido"
   },
   "events": {
     "title": "Eventos",
@@ -423,7 +436,9 @@
       "assignmentAlreadyFinished": "Esta asignación ya está finalizada",
       "unassignVehicleFailed": "No se pudo desasignar el vehículo",
       "unassignDeviceFailed": "No se pudo desasignar el dispositivo"
-    }
+    },
+    "associatedOrganization": "ORGANIZACIÓN ASOCIADA",
+    "sharedResource": "Recurso compartido"
   },
   "replay": {
     "device": "Dispositivo",
