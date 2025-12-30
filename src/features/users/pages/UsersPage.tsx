@@ -57,6 +57,17 @@ export function UsersPage() {
     loadUsers();
   }, [loadUsers]);
 
+  // Ajustar automáticamente si la página actual excede el total de páginas
+  useEffect(() => {
+    if (
+      usersData && 
+      usersData.paginaActual > usersData.totalPaginas && 
+      usersData.totalPaginas > 0
+    ) {
+      setNumeroPagina(usersData.totalPaginas);
+    }
+  }, [usersData, setNumeroPagina]);
+
   const handleChangeRole = async (userId: string, nuevoRol: RolType) => {
     try {
       await organizacionesApi.cambiarRolUsuario(userId, nuevoRol);

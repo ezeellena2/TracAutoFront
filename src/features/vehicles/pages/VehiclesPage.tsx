@@ -94,6 +94,17 @@ export function VehiclesPage() {
     void loadData();
   }, [loadData]);
 
+  // Ajustar automáticamente si la página actual excede el total de páginas
+  useEffect(() => {
+    if (
+      vehiclesData && 
+      vehiclesData.paginaActual > vehiclesData.totalPaginas && 
+      vehiclesData.totalPaginas > 0
+    ) {
+      setNumeroPagina(vehiclesData.totalPaginas);
+    }
+  }, [vehiclesData, setNumeroPagina]);
+
   // Create handlers
   const handleCreate = async () => {
     const errors: { patente?: string } = {};

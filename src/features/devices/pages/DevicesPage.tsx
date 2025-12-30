@@ -77,6 +77,17 @@ export function DevicesPage() {
     void loadDevices();
   }, [loadDevices]);
 
+  // Ajustar automáticamente si la página actual excede el total de páginas
+  useEffect(() => {
+    if (
+      devicesData && 
+      devicesData.paginaActual > devicesData.totalPaginas && 
+      devicesData.totalPaginas > 0
+    ) {
+      setNumeroPagina(devicesData.totalPaginas);
+    }
+  }, [devicesData, setNumeroPagina]);
+
   // Permisos
   const canConfigure = can('dispositivos:configurar');
   const canCreate = can('dispositivos:configurar'); // Usar mismo permiso que configurar

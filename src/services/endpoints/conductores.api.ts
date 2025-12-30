@@ -8,31 +8,38 @@ import type {
   AsignarVehiculoRequest,
   AsignarDispositivoRequest,
 } from '@/features/drivers/types';
-import type { ListaPaginada } from '@/shared/types/api';
+import type { ListaPaginada, PaginacionParams } from '@/shared/types/api';
 
 const BASE = 'conductores';
+
+/**
+ * Parámetros para obtener conductores
+ */
+export interface GetConductoresParams extends PaginacionParams {
+  soloActivos?: boolean;
+  buscar?: string;
+}
 
 export const conductoresApi = {
   /**
    * Obtiene la lista paginada de conductores
    */
   listar: async (
-    numeroPagina: number = 1,
-    tamanoPagina: number = 10,
-    soloActivos?: boolean,
-    buscar?: string
+    params: GetConductoresParams = {}
   ): Promise<ListaPaginada<ConductorDto>> => {
-    const params: Record<string, string | number> = {
+    const { numeroPagina = 1, tamanoPagina = 10, soloActivos, buscar } = params;
+    
+    const queryParams: Record<string, string | number> = {
       numeroPagina,
       tamanoPagina,
     };
     if (soloActivos !== undefined) {
-      params.soloActivos = soloActivos.toString();
+      queryParams.soloActivos = soloActivos.toString();
     }
     if (buscar) {
-      params.buscar = buscar;
+      queryParams.buscar = buscar;
     }
-    const response = await apiClient.get<ListaPaginada<ConductorDto>>(BASE, { params });
+    const response = await apiClient.get<ListaPaginada<ConductorDto>>(BASE, { params: queryParams });
     return response.data;
   },
 

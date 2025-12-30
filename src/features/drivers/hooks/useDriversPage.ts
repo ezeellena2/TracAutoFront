@@ -16,7 +16,7 @@ export function useDriversPage() {
   const { t } = useTranslation();
   // Error handling
   const { getErrorMessage } = useErrorHandler();
-  
+
   // Data state
   const [conductoresData, setConductoresData] = useState<ListaPaginada<ConductorDto> | null>(null);
   const [vehiculos, setVehiculos] = useState<VehiculoDto[]>([]);
@@ -33,7 +33,10 @@ export function useDriversPage() {
     setNumeroPagina,
     setTamanoPagina,
     params: paginationParams,
-  } = usePaginationParams({ initialPageSize: 10 });
+  } = usePaginationParams({
+    initialPageSize: 10,
+    totalPaginas: conductoresData?.totalPaginas
+  });
 
   // Create modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -96,12 +99,11 @@ export function useDriversPage() {
     setError(null);
     try {
       const [conductoresResult, vehiculosResult, dispositivosResult] = await Promise.all([
-        conductoresApi.listar(
-          paginationParams.numeroPagina || 1,
-          paginationParams.tamanoPagina || 10,
-          soloActivos ?? undefined,
-          buscar.trim() || undefined
-        ),
+        conductoresApi.listar({
+          ...paginationParams,
+          soloActivos: soloActivos ?? undefined,
+          buscar: buscar.trim() || undefined,
+        }),
         vehiculosApi.getVehiculos({ tamanoPagina: 100 }),
         dispositivosApi.getDispositivos({ tamanoPagina: 100 }),
       ]);
@@ -118,6 +120,17 @@ export function useDriversPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  // Ajustar automáticamente si la página actual excede el total de páginas
+  useEffect(() => {
+    if (
+      conductoresData &&
+      conductoresData.paginaActual > conductoresData.totalPaginas &&
+      conductoresData.totalPaginas > 0
+    ) {
+      setNumeroPagina(conductoresData.totalPaginas);
+    }
+  }, [conductoresData, setNumeroPagina]);
 
   // Create handlers
   const handleCreate = async () => {

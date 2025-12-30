@@ -61,6 +61,17 @@ export function RelacionesOrganizacionPage() {
     }
   }, [loadRelaciones, organizacionId]);
 
+  // Ajustar automáticamente si la página actual excede el total de páginas
+  useEffect(() => {
+    if (
+      relacionesData && 
+      relacionesData.paginaActual > relacionesData.totalPaginas && 
+      relacionesData.totalPaginas > 0
+    ) {
+      setNumeroPagina(relacionesData.totalPaginas);
+    }
+  }, [relacionesData, setNumeroPagina]);
+
   const handleDelete = async (relacionId: string) => {
     try {
       setIsDeleting(true);
