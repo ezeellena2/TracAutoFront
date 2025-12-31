@@ -16,12 +16,12 @@ export function DevicesPage() {
   const [devicesData, setDevicesData] = useState<ListaPaginada<DispositivoDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Hook de paginación reutilizable
-  const { 
-    setNumeroPagina, 
-    setTamanoPagina, 
-    params: paginationParams 
+  const {
+    setNumeroPagina,
+    setTamanoPagina,
+    params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -80,8 +80,8 @@ export function DevicesPage() {
   // Ajustar automáticamente si la página actual excede el total de páginas
   useEffect(() => {
     if (
-      devicesData && 
-      devicesData.paginaActual > devicesData.totalPaginas && 
+      devicesData &&
+      devicesData.paginaActual > devicesData.totalPaginas &&
       devicesData.totalPaginas > 0
     ) {
       setNumeroPagina(devicesData.totalPaginas);
@@ -96,7 +96,7 @@ export function DevicesPage() {
     // Validar formulario
     const errors: { traccarDeviceId?: string } = {};
     const traccarDeviceIdNum = Number(createForm.traccarDeviceId);
-    
+
     if (!createForm.traccarDeviceId || isNaN(traccarDeviceIdNum) || traccarDeviceIdNum <= 0) {
       errors.traccarDeviceId = t('devices.form.traccarIdError');
     }
@@ -115,11 +115,11 @@ export function DevicesPage() {
         createForm.alias.trim() || undefined,
         createForm.organizacionAsociadaId
       );
-      
+
       toast.success(t('devices.success.created'));
       setIsCreateModalOpen(false);
       setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
-      
+
       // Refetch lista
       await loadDevices();
     } catch (e) {
@@ -154,11 +154,11 @@ export function DevicesPage() {
         editForm.activo,
         editForm.organizacionAsociadaId
       );
-      
+
       toast.success(t('devices.success.updated'));
       setIsEditModalOpen(false);
       setEditingDevice(null);
-      
+
       // Refetch lista
       await loadDevices();
     } catch (e) {
@@ -183,11 +183,11 @@ export function DevicesPage() {
 
     try {
       await dispositivosApi.deleteDispositivo(deviceToDelete.id);
-      
+
       toast.success(t('devices.success.deleted'));
       setIsDeleteModalOpen(false);
       setDeviceToDelete(null);
-      
+
       // Refetch lista
       await loadDevices();
     } catch (e) {
@@ -200,26 +200,33 @@ export function DevicesPage() {
     }
   };
 
-  const getEstadoBadge = (estado: string | null) => {
-    if (!estado) return <Badge variant="info">{t('devices.unknownStatus')}</Badge>;
-    switch (estado) {
+  const getEstadoBadge = (estadoConexion: string | null) => {
+    if (!estadoConexion) return <Badge variant="info">{t('devices.unknownStatus')}</Badge>;
+    switch (estadoConexion) {
       case 'online': return <Badge variant="success">{t('devices.onlineStatus')}</Badge>;
       case 'offline': return <Badge variant="error">{t('devices.offlineStatus')}</Badge>;
-      default: return <Badge variant="info">{estado}</Badge>;
+      default: return <Badge variant="info">{estadoConexion}</Badge>;
     }
   };
 
   const columns = [
     { key: 'nombre', header: t('devices.name'), sortable: true },
     {
-      key: 'estado',
+      key: 'estadoConexion',
+      header: t('devices.connection'),
+      render: (d: DispositivoDto) => getEstadoBadge(d.estadoConexion)
+    },
+    {
+      key: 'activo',
       header: t('devices.status'),
-      render: (d: DispositivoDto) => getEstadoBadge(d.estado)
+      render: (d: DispositivoDto) => (
+        d.activo ? <Badge variant="success">{t('common.active')}</Badge> : <Badge variant="error">{t('common.inactive')}</Badge>
+      )
     },
     {
       key: 'ultimaActualizacionUtc',
       header: t('devices.lastUpdate'),
-      render: (d: DispositivoDto) => d.ultimaActualizacionUtc 
+      render: (d: DispositivoDto) => d.ultimaActualizacionUtc
         ? formatDateTime(d.ultimaActualizacionUtc, culture, timeZoneId)
         : '-'
     },
@@ -239,13 +246,6 @@ export function DevicesPage() {
         }
         return <span className="text-text-muted">-</span>;
       },
-    },
-    {
-      key: 'activo',
-      header: t('common.active'),
-      render: (d: DispositivoDto) => (
-        d.activo ? <Badge variant="success">{t('common.yes')}</Badge> : <Badge variant="error">{t('common.no')}</Badge>
-      )
     },
     {
       key: 'actions',
@@ -445,7 +445,7 @@ export function DevicesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {devices.filter(d => d.estado === 'online').length}
+                {devices.filter(d => d.estadoConexion === 'online').length}
               </p>
               <p className="text-sm text-text-muted">{t('devices.devicesOnline')}</p>
             </div>
@@ -458,7 +458,7 @@ export function DevicesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {devices.filter(d => d.estado === 'offline').length}
+                {devices.filter(d => d.estadoConexion === 'offline').length}
               </p>
               <p className="text-sm text-text-muted">{t('devices.devicesOffline')}</p>
             </div>
@@ -471,7 +471,7 @@ export function DevicesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {devices.filter(d => d.estado !== 'online' && d.estado !== 'offline').length}
+                {devices.filter(d => d.estadoConexion !== 'online' && d.estadoConexion !== 'offline').length}
               </p>
               <p className="text-sm text-text-muted">{t('devices.available')}</p>
             </div>
@@ -567,7 +567,7 @@ export function DevicesPage() {
               </p>
             </div>
           )}
-          
+
           <Input
             label={t('devices.form.aliasLabel')}
             type="text"

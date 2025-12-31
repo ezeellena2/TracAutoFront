@@ -14,6 +14,7 @@ import { AcceptInvitationPage } from '@/features/invitations/pages/AcceptInvitat
 import { BrandingPage, RelacionesOrganizacionPage } from '@/features/organization';
 import { TraccarMapPage } from '@/features/traccar-map';
 import { ReplayPage } from '@/features/replay';
+import { MarketplacePage } from '@/features/marketplace';
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
       {
         path: 'conductores',
         element: <DriversPage />,
+      },
+      {
+        path: 'marketplace',
+        element: <MarketplacePage />,
       },
       {
         path: 'mapa',

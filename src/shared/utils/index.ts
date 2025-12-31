@@ -4,4 +4,5 @@
 
 export * from './dateFormatter';
 export * from './unitFormatter';
+export * from './currencyFormatter';
 

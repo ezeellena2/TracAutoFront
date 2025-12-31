@@ -11,7 +11,7 @@ interface TenantState {
    * - No existe selector ni cambio de organización en runtime.
    */
   currentOrganization: OrganizationTheme | null;
-  
+
   // Actions
   setOrganization: (org: OrganizationTheme) => void;
   setOrganizationFromDto: (dto: OrganizacionDto) => void;
@@ -55,6 +55,7 @@ export const useTenantStore = create<TenantState>()(
           name: dto.nombre,
           // El backend expone logoUrl dentro del theme (branding).
           logo: dto.theme?.logoUrl || '',
+          tipoOrganizacion: dto.tipoOrganizacion,
           theme: themeOverride, // Override parcial (solo tokens soportados por el frontend)
         };
         set({ currentOrganization: orgTheme });

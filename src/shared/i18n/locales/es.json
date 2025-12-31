@@ -64,7 +64,8 @@
     "organization": "Organización",
     "organizationLabel": "Organización",
     "organizationAppearance": "Apariencia",
-    "organizationRelations": "Relaciones"
+    "organizationRelations": "Relaciones",
+    "marketplace": "Marketplace"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -184,6 +185,7 @@
     "uniqueId": "ID ÚNICO",
     "name": "NOMBRE",
     "vehicle": "VEHÍCULO",
+    "connection": "CONEXIÓN",
     "status": "ESTADO",
     "lastUpdate": "ÚLTIMA ACTUALIZACIÓN",
     "actions": "ACCIONES",
@@ -442,6 +444,84 @@
     },
     "associatedOrganization": "ORGANIZACIÓN ASOCIADA",
     "sharedResource": "Recurso compartido"
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Gestión de vehículos publicados para la venta",
+    "publishVehicle": "Publicar Vehículo",
+    "editPublication": "Editar Publicación",
+    "totalPublished": "Publicados",
+    "totalDrafts": "Borradores",
+    "totalPaused": "Pausados",
+    "totalSold": "Vendidos",
+    "table": {
+      "licensePlate": "PATENTE",
+      "vehicle": "VEHÍCULO",
+      "mileage": "KILOMETRAJE",
+      "price": "PRECIO",
+      "status": "ESTADO",
+      "publicationStatus": "ESTADO PUB.",
+      "actions": "ACCIONES",
+      "consultPrice": "Consultar",
+      "notPublished": "Sin publicar",
+      "km": "km"
+    },
+    "status": {
+      "borrador": "Borrador",
+      "publicado": "Publicado",
+      "pausado": "Pausado",
+      "vendido": "Vendido"
+    },
+    "form": {
+      "price": "Precio",
+      "pricePlaceholder": "Ej: 25000",
+      "priceHelper": "Deje vacío para mostrar 'Consultar precio'",
+      "currency": "Moneda",
+      "mileage": "Kilometraje",
+      "mileagePlaceholder": "Ej: 50000",
+      "mileageRequired": "El kilometraje es requerido",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Detalles del vehículo: estado, equipamiento, historial...",
+      "descriptionHelper": "Máx. 4000 caracteres",
+      "publicationStatus": "Estado de Publicación",
+      "vehicleInfo": "Información del Vehículo"
+    },
+    "actions": {
+      "publish": "Publicar",
+      "edit": "Editar",
+      "pause": "Pausar",
+      "reactivate": "Reactivar",
+      "markAsSold": "Marcar como Vendido",
+      "saveDraft": "Guardar Borrador",
+      "viewPublication": "Ver Publicación"
+    },
+    "confirmations": {
+      "publishTitle": "¿Publicar vehículo?",
+      "publishMessage": "El vehículo {{patente}} será visible en el marketplace.",
+      "pauseTitle": "¿Pausar publicación?",
+      "pauseMessage": "La publicación del vehículo {{patente}} quedará oculta temporalmente.",
+      "markAsSoldTitle": "¿Marcar como vendido?",
+      "markAsSoldMessage": "La publicación del vehículo {{patente}} se marcará como vendida y no podrá editarse."
+    },
+    "success": {
+      "published": "Vehículo publicado correctamente",
+      "updated": "Publicación actualizada correctamente",
+      "paused": "Publicación pausada",
+      "reactivated": "Publicación reactivada",
+      "markedAsSold": "Vehículo marcado como vendido"
+    },
+    "errors": {
+      "publishFailed": "Error al publicar vehículo",
+      "updateFailed": "Error al actualizar publicación",
+      "notConcesionaria": "El marketplace solo está disponible para concesionarias",
+      "loadFailed": "Error al cargar publicaciones"
+    },
+    "loading": "Cargando publicaciones...",
+    "loadError": "Error al cargar publicaciones",
+    "retry": "Reintentar",
+    "emptyTitle": "Sin publicaciones",
+    "emptyDescription": "No hay vehículos publicados en el marketplace.",
+    "emptyFiltered": "No se encontraron vehículos con los filtros aplicados."
   },
   "replay": {
     "device": "Dispositivo",

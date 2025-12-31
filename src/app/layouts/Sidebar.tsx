@@ -1,9 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Car, 
-  Cpu, 
-  Bell, 
+import {
+  LayoutDashboard,
+  Car,
+  Cpu,
+  Bell,
   Users,
   Building,
   Palette,
@@ -12,13 +12,15 @@ import {
   ChevronDown,
   Map,
   UserCircle,
-  Link2
+  Link2,
+  ShoppingCart
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { Permission } from '@/config/permissions';
+import { TipoOrganizacion } from '@/shared/types/api';
 
 interface NavItem {
   path?: string; // Opcional si tiene children
@@ -26,6 +28,8 @@ interface NavItem {
   icon: React.ElementType;
   /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
   requiredPermission?: Permission;
+  /** Tipo de organización requerido para ver este ítem */
+  requiredOrganizationType?: TipoOrganizacion;
   /** Items hijos para submenús */
   children?: NavItem[];
 }
@@ -33,13 +37,19 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
   { path: '/mapa', labelKey: 'sidebar.map', icon: Map },
+  {
+    path: '/marketplace',
+    labelKey: 'marketplace.title',
+    icon: ShoppingCart,
+    requiredOrganizationType: TipoOrganizacion.ConcesionarioAutos
+  },
   { path: '/vehiculos', labelKey: 'sidebar.vehicles', icon: Car },
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
-  { 
-    labelKey: 'sidebar.organization', 
-    icon: Building, 
+  {
+    labelKey: 'sidebar.organization',
+    icon: Building,
     requiredPermission: 'organizacion:editar',
     children: [
       { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
@@ -57,12 +67,19 @@ export function Sidebar() {
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
-  // Filtrar items según permisos del usuario
-  const visibleNavItems = useMemo(() => 
-    navItems.filter(item => 
-      !item.requiredPermission || can(item.requiredPermission)
-    ),
-    [can]
+  // Filtrar items según permisos del usuario y tipo de organización
+  const visibleNavItems = useMemo(() =>
+    navItems.filter(item => {
+      // Validar permiso
+      const hasPermission = !item.requiredPermission || can(item.requiredPermission);
+
+      // Validar tipo de organización
+      const hasOrganizationType = !item.requiredOrganizationType ||
+        (currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
+
+      return hasPermission && hasOrganizationType;
+    }),
+    [can, currentOrganization]
   );
 
   // Auto-expandir submenús cuando la ruta actual coincide con algún hijo
@@ -70,7 +87,7 @@ export function Sidebar() {
     const newExpanded = new Set<string>();
     visibleNavItems.forEach((item, index) => {
       if (item.children) {
-        const hasActiveChild = item.children.some(child => 
+        const hasActiveChild = item.children.some(child =>
           child.path && location.pathname === child.path
         );
         if (hasActiveChild) {
@@ -96,7 +113,7 @@ export function Sidebar() {
   const isMenuExpanded = (menuKey: string) => expandedMenus.has(menuKey);
 
   return (
-    <aside 
+    <aside
       className={`
         fixed left-0 top-0 h-screen bg-surface border-r border-border
         transition-all duration-300 z-40 flex flex-col
@@ -123,11 +140,11 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         {visibleNavItems.map((item, index) => {
           const menuKey = `menu-${index}`;
-          
+
           // Si tiene children, renderizar como submenú
           if (item.children) {
             const isExpanded = isMenuExpanded(menuKey);
-            const hasActiveChild = item.children.some(child => 
+            const hasActiveChild = item.children.some(child =>
               child.path && location.pathname === child.path
             );
 
@@ -138,7 +155,7 @@ export function Sidebar() {
                   className={`
                     w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${hasActiveChild
-                      ? 'bg-primary text-white' 
+                      ? 'bg-primary text-white'
                       : 'text-text-muted hover:text-text hover:bg-background'
                     }
                     ${isCollapsed ? 'justify-center' : ''}
@@ -149,14 +166,14 @@ export function Sidebar() {
                   {!isCollapsed && (
                     <>
                       <span className="font-medium flex-1 text-left">{t(item.labelKey)}</span>
-                      <ChevronDown 
-                        size={16} 
+                      <ChevronDown
+                        size={16}
                         className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     </>
                   )}
                 </button>
-                
+
                 {/* Submenú items */}
                 {!isCollapsed && isExpanded && (
                   <div className="ml-4 space-y-1 border-l-2 border-border pl-2">
@@ -169,7 +186,7 @@ export function Sidebar() {
                           className={`
                             flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
                             ${isActive
-                              ? 'bg-primary text-white' 
+                              ? 'bg-primary text-white'
                               : 'text-text-muted hover:text-text hover:bg-background'
                             }
                           `}
@@ -192,8 +209,8 @@ export function Sidebar() {
               to={item.path!}
               className={({ isActive }) => `
                 flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                ${isActive 
-                  ? 'bg-primary text-white' 
+                ${isActive
+                  ? 'bg-primary text-white'
                   : 'text-text-muted hover:text-text hover:bg-background'
                 }
                 ${isCollapsed ? 'justify-center' : ''}

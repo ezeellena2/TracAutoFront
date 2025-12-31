@@ -15,22 +15,21 @@ interface AsignarRecursosModalProps {
   organizacionActualId: string;
 }
 
-export function AsignarRecursosModal({ 
-  isOpen, 
-  onClose, 
+export function AsignarRecursosModal({
+  isOpen,
+  onClose,
   onSuccess,
   relacionId,
-  organizacionActualId
 }: AsignarRecursosModalProps) {
   const { t } = useTranslation();
   const { getErrorMessage } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRecursos, setIsLoadingRecursos] = useState(false);
-  
+
   // Recursos disponibles
   const [vehiculos, setVehiculos] = useState<VehiculoDto[]>([]);
   const [dispositivos, setDispositivos] = useState<DispositivoDto[]>([]);
-  
+
   // Recursos seleccionados
   const [vehiculosSeleccionados, setVehiculosSeleccionados] = useState<Set<string>>(new Set());
   const [dispositivosSeleccionados, setDispositivosSeleccionados] = useState<Set<string>>(new Set());
@@ -45,13 +44,13 @@ export function AsignarRecursosModal({
   const loadRecursos = async () => {
     try {
       setIsLoadingRecursos(true);
-      
+
       // Cargar vehículos y dispositivos en paralelo
       const [vehiculosData, dispositivosData] = await Promise.all([
         vehiculosApi.getVehiculos({ numeroPagina: 1, tamanoPagina: 100 }),
         dispositivosApi.getDispositivos({ numeroPagina: 1, tamanoPagina: 100 })
       ]);
-      
+
       setVehiculos(vehiculosData.items);
       setDispositivos(dispositivosData.items);
     } catch (err) {
@@ -84,7 +83,7 @@ export function AsignarRecursosModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (vehiculosSeleccionados.size === 0 && dispositivosSeleccionados.size === 0) {
       toast.error(t('organization.relations.assign.noResourcesSelected'));
       return;
@@ -97,7 +96,7 @@ export function AsignarRecursosModal({
         vehiculoIds: vehiculosSeleccionados.size > 0 ? Array.from(vehiculosSeleccionados) : undefined,
         dispositivoIds: dispositivosSeleccionados.size > 0 ? Array.from(dispositivosSeleccionados) : undefined,
       });
-      
+
       toast.success(t('organization.relations.assign.success'));
       setVehiculosSeleccionados(new Set());
       setDispositivosSeleccionados(new Set());

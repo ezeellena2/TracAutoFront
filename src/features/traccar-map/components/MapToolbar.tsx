@@ -45,18 +45,15 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
   const [isLabelMenuOpen, setIsLabelMenuOpen] = useState(false);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [organizacionesRelacionadas, setOrganizacionesRelacionadas] = useState<OrganizacionRelacionDto[]>([]);
-  const [isLoadingOrganizaciones, setIsLoadingOrganizaciones] = useState(false);
 
   const styleMenuRef = useRef<HTMLDivElement>(null);
   const labelMenuRef = useRef<HTMLDivElement>(null);
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
   // Load organizaciones relacionadas on mount
-  // Load organizaciones relacionadas on mount
   useEffect(() => {
     const loadOrganizaciones = async () => {
       try {
-        setIsLoadingOrganizaciones(true);
         const result = await organizacionesApi.listarRelacionesOrganizacion({
           numeroPagina: 1,
           tamanoPagina: 100,
@@ -65,10 +62,6 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         setOrganizacionesRelacionadas(result.items);
       } catch (err) {
         console.error('Error loading organizaciones relacionadas:', err);
-        // Toast para notificar al usuario (asumiendo que existe un toast global o similar)
-        // toast.error(t('common.errorLoadingData'));
-      } finally {
-        setIsLoadingOrganizaciones(false);
       }
     };
     loadOrganizaciones();
@@ -133,8 +126,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         <button
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
           className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg ${filterOrganizacionAsociadaId !== null
-              ? 'bg-primary border-primary text-white hover:bg-primary/90'
-              : 'bg-surface border-border text-text hover:bg-background'
+            ? 'bg-primary border-primary text-white hover:bg-primary/90'
+            : 'bg-surface border-border text-text hover:bg-background'
             }`}
           title={t('map.filter.title')}
         >
@@ -150,8 +143,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
             <button
               onClick={() => handleFilterChange(null)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === null
-                  ? 'bg-primary text-white font-medium'
-                  : 'text-text hover:bg-background'
+                ? 'bg-primary text-white font-medium'
+                : 'text-text hover:bg-background'
                 }`}
             >
               {t('map.filter.all')}
@@ -159,8 +152,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
             <button
               onClick={() => handleFilterChange('own')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === 'own'
-                  ? 'bg-primary text-white font-medium'
-                  : 'text-text hover:bg-background'
+                ? 'bg-primary text-white font-medium'
+                : 'text-text hover:bg-background'
                 }`}
             >
               {t('map.filter.own')}
@@ -178,8 +171,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
                       key={relacion.id}
                       onClick={() => handleFilterChange(orgId)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === orgId
-                          ? 'bg-primary text-white font-medium'
-                          : 'text-text hover:bg-background'
+                        ? 'bg-primary text-white font-medium'
+                        : 'text-text hover:bg-background'
                         }`}
                     >
                       {orgName}

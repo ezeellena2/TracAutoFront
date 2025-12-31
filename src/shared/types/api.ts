@@ -4,6 +4,15 @@
 
 import { z } from "zod";
 
+// ==================== System DTOs ====================
+
+export interface CurrencyInfo {
+  code: string;
+  symbol: string;
+  name: string;
+  cultureInfo: string;
+}
+
 // ==================== Auth DTOs ====================
 
 /** Canal de envío para códigos de verificación */
@@ -260,6 +269,28 @@ export interface CambiarRolRequest {
   nuevoRol: 'Admin' | 'Operador' | 'Analista';
 }
 
+// ==================== Vehiculos DTOs ====================
+
+export enum TipoVehiculo {
+  Auto = 1,
+}
+
+export interface VehiculoDto {
+  id: string;
+  tipo: TipoVehiculo;
+  patente: string;
+  marca: string | null;
+  modelo: string | null;
+  año: number | null;
+  activo: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  dispositivoActivoId: string | null;
+  organizacionAsociadaId?: string | null;
+  organizacionAsociadaNombre?: string | null;
+  esRecursoAsociado: boolean;
+}
+
 // ==================== Dispositivos DTOs ====================
 
 /**
@@ -277,10 +308,66 @@ export interface DispositivoDto {
   id: string;
   nombre: string;
   activo: boolean;
-  estado: string | null;
+  estadoConexion: string | null;
   uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
   organizacionAsociadaId?: string | null;
   organizacionAsociadaNombre?: string | null;
   esRecursoAsociado: boolean;
+}
+
+// ==================== Marketplace DTOs ====================
+
+/**
+ * Estados posibles de una publicación en el marketplace
+ */
+export enum EstadoPublicacion {
+  Borrador = 1,
+  Publicado = 2,
+  Pausado = 3,
+  Vendido = 4,
+}
+
+/**
+ * DTO de vehículo con información de marketplace
+ */
+export interface VehiculoMarketplaceDto {
+  // Datos del vehículo
+  vehiculoId: string;
+  patente: string;
+  marca: string | null;
+  modelo: string | null;
+  año: number | null;
+  activo: boolean;
+
+  // Datos de la publicación (null si no publicado)
+  publicacionId: string | null;
+  estadoPublicacion: EstadoPublicacion | null;
+  precio: number | null;
+  moneda: string | null;
+  kilometraje: number;
+  descripcion: string | null;
+  destacado: boolean;
+  fechaPublicacion: string | null; // ISO 8601
+}
+
+/**
+ * Request para publicar un vehículo en el marketplace
+ */
+export interface PublicarVehiculoRequest {
+  precio: number | null;
+  moneda: string;
+  kilometraje: number;
+  descripcion: string | null;
+}
+
+/**
+ * Request para editar una publicación existente
+ */
+export interface EditarPublicacionRequest {
+  precio: number | null;
+  moneda: string | null;
+  kilometraje: number;
+  descripcion: string | null;
+  estado: EstadoPublicacion;
 }

@@ -14,19 +14,19 @@ export function RelacionesOrganizacionPage() {
   const { t } = useTranslation();
   const { getErrorMessage } = useErrorHandler();
   const organizacionId = useAuthStore((state) => state.organizationId);
-  
+
   // Datos paginados
   const [relacionesData, setRelacionesData] = useState<ListaPaginada<OrganizacionRelacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Hook de paginación reutilizable
-  const { 
-    setNumeroPagina, 
-    setTamanoPagina, 
-    params: paginationParams 
+  const {
+    setNumeroPagina,
+    setTamanoPagina,
+    params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
-  
+
   // Modales y estado de UI
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
@@ -64,8 +64,8 @@ export function RelacionesOrganizacionPage() {
   // Ajustar automáticamente si la página actual excede el total de páginas
   useEffect(() => {
     if (
-      relacionesData && 
-      relacionesData.paginaActual > relacionesData.totalPaginas && 
+      relacionesData &&
+      relacionesData.paginaActual > relacionesData.totalPaginas &&
       relacionesData.totalPaginas > 0
     ) {
       setNumeroPagina(relacionesData.totalPaginas);
@@ -100,45 +100,84 @@ export function RelacionesOrganizacionPage() {
     );
   }
 
-  return (
-    <div className="p-6 space-y-6">
-      <Card>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-text flex items-center gap-2">
-                <Link2 size={24} />
-                {t('organization.relations.title')}
-              </h1>
-              <p className="text-text-muted mt-1">
-                {t('organization.relations.subtitle')}
-              </p>
-            </div>
-            {canManage && (
-              <Button
-                onClick={() => setIsCreateModalOpen(true)}
-              >
-                {t('organization.relations.create.title')}
-              </Button>
-            )}
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text flex items-center gap-2">
+              <Link2 size={24} />
+              {t('organization.relations.title')}
+            </h1>
+            <p className="text-text-muted mt-1">
+              {t('organization.relations.subtitle')}
+            </p>
           </div>
-
-        {error && (
-          <div className="p-4 bg-error/10 border border-error/20 rounded-lg text-error">
-            {error}
-          </div>
-        )}
-
-        {isLoading ? (
+        </div>
+        <Card>
           <div className="p-8 text-center text-text-muted">
             {t('common.loading')}...
           </div>
-        ) : relaciones.length === 0 ? (
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text flex items-center gap-2">
+              <Link2 size={24} />
+              {t('organization.relations.title')}
+            </h1>
+            <p className="text-text-muted mt-1">
+              {t('organization.relations.subtitle')}
+            </p>
+          </div>
+        </div>
+        <Card>
+          <div className="p-4 bg-error/10 border border-error/20 rounded-lg text-error">
+            {error}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text flex items-center gap-2">
+            <Link2 size={24} />
+            {t('organization.relations.title')}
+          </h1>
+          <p className="text-text-muted mt-1">
+            {t('organization.relations.subtitle')}
+          </p>
+        </div>
+        {canManage && (
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            {t('organization.relations.create.title')}
+          </Button>
+        )}
+      </div>
+
+      {/* Table */}
+      <Card padding="none" className="overflow-visible">
+        {relaciones.length === 0 ? (
           <div className="p-8 text-center text-text-muted">
             {t('organization.relations.empty')}
           </div>
         ) : (
-          <div className="px-6 pb-6">
+          <>
             <RelacionesTable
               relaciones={relaciones}
               organizacionActualId={organizacionId}
@@ -152,20 +191,18 @@ export function RelacionesOrganizacionPage() {
             />
 
             {relacionesData && (
-              <div className="mt-4 pt-4 border-t border-border">
-                <PaginationControls
-                  paginaActual={relacionesData.paginaActual}
-                  totalPaginas={relacionesData.totalPaginas}
-                  totalRegistros={relacionesData.totalRegistros}
-                  tamanoPagina={relacionesData.tamanoPagina}
-                  onPageChange={setNumeroPagina}
-                  onPageSizeChange={setTamanoPagina}
-                />
-              </div>
+              <PaginationControls
+                paginaActual={relacionesData.paginaActual}
+                totalPaginas={relacionesData.totalPaginas}
+                totalRegistros={relacionesData.totalRegistros}
+                tamanoPagina={relacionesData.tamanoPagina}
+                onPageChange={setNumeroPagina}
+                onPageSizeChange={setTamanoPagina}
+                disabled={isLoading}
+              />
             )}
-          </div>
+          </>
         )}
-        </div>
       </Card>
 
       <CrearRelacionModal
