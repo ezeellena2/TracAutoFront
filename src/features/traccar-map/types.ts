@@ -11,8 +11,7 @@ export interface VehiclePosition {
   lastUpdate: Date;
   velocidad: number;
   estado: 'online' | 'offline' | 'unknown';
-  organizacionAsociadaId?: string;
-  organizacionAsociadaNombre?: string;
+  esRecursoAsociado?: boolean;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { Modal, Input, Button, OrganizacionAsociadaSelector } from '@/shared/ui';
+import { Modal, Input, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
 import { useErrorHandler } from '@/hooks';
@@ -21,7 +21,6 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
     nombreCompleto: '',
     email: '',
     telefono: '',
-    organizacionAsociadaId: undefined as string | undefined,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,7 +30,6 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
         nombreCompleto: conductor.nombreCompleto,
         email: conductor.email || '',
         telefono: conductor.telefono || '',
-        organizacionAsociadaId: conductor.organizacionAsociadaId || undefined,
       });
     }
   }, [conductor]);
@@ -47,7 +45,6 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
         nombreCompleto: form.nombreCompleto.trim(),
         email: form.email?.trim() || undefined,
         telefono: form.telefono?.trim() || undefined,
-        organizacionAsociadaId: form.organizacionAsociadaId || undefined,
       });
       toast.success(t('drivers.success.updated'));
       onSuccess();
@@ -100,11 +97,7 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
             placeholder={t('drivers.form.phonePlaceholder')}
           />
-          
-          <OrganizacionAsociadaSelector
-            value={form.organizacionAsociadaId}
-            onChange={(orgId) => setForm({ ...form, organizacionAsociadaId: orgId })}
-          />
+
 
           <div className="flex gap-3 pt-2">
             <Button

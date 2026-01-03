@@ -61,7 +61,7 @@ export function Header() {
                 />
               </div>
             ) : (
-              <div 
+              <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-primary"
               >
                 {currentOrganization.name.charAt(0)}
@@ -94,7 +94,7 @@ export function Header() {
 
         {/* Dropdown */}
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-64 bg-surface rounded-xl border border-border shadow-xl py-2 z-50">
+          <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-surface rounded-xl border border-border shadow-xl py-2 z-50">
             {/* User info */}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center gap-3 mb-2">

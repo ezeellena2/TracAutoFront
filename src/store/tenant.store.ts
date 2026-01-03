@@ -23,13 +23,22 @@ export const useTenantStore = create<TenantState>()(
     (set) => ({
       currentOrganization: null,
 
-      setOrganization: (org) => set({ currentOrganization: org }),
+      setOrganization: (org) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tenant.store.ts:26',message:'[HYP-A] setOrganization llamado',data:{orgId:org.id,orgName:org.name,tipoOrganizacion:org.tipoOrganizacion,tipoOrgDefinido:!!org.tipoOrganizacion},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        set({ currentOrganization: org });
+      },
 
       /**
        * Convierte un OrganizacionDto del backend a OrganizationTheme
        * Maneja el caso donde theme puede no estar presente (fallback seguro)
        */
       setOrganizationFromDto: (dto) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tenant.store.ts:32',message:'[HYP-A] setOrganizationFromDto llamado',data:{dtoId:dto.id,dtoNombre:dto.nombre,tipoOrganizacion:dto.tipoOrganizacion,tipoOrgDefinido:!!dto.tipoOrganizacion},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+
         const themeOverride: Partial<ThemeColors> = {
           ...(dto.theme?.primary ? { primary: dto.theme.primary } : {}),
           ...(dto.theme?.primaryDark ? { primaryDark: dto.theme.primaryDark } : {}),
@@ -58,7 +67,16 @@ export const useTenantStore = create<TenantState>()(
           tipoOrganizacion: dto.tipoOrganizacion,
           theme: themeOverride, // Override parcial (solo tokens soportados por el frontend)
         };
+
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tenant.store.ts:60',message:'[HYP-A] setOrganizationFromDto - orgTheme creado',data:{orgThemeId:orgTheme.id,orgThemeName:orgTheme.name,tipoOrganizacion:orgTheme.tipoOrganizacion,tipoOrgDefinido:!!orgTheme.tipoOrganizacion},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+
         set({ currentOrganization: orgTheme });
+
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tenant.store.ts:64',message:'[HYP-B] Después de set - verificar persistencia',data:{},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
       },
 
       clearOrganization: () => set({ currentOrganization: null }),

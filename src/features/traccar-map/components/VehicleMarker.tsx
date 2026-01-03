@@ -101,13 +101,6 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
       });
     }
 
-      if (labelConfig.showOrganizacionAsociada && vehicle.organizacionAsociadaNombre) {
-        items.push({
-          label: t('map.labelConfig.showOrganizacionAsociadaShort'),
-          value: vehicle.organizacionAsociadaNombre,
-          variant: 'info'
-        });
-      }
 
     // Fallback: si no hay nada seleccionado, mostrar nombre
     if (items.length === 0) {

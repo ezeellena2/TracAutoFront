@@ -38,14 +38,6 @@
     "optional": "opcional",
     "assign": "Asignar"
   },
-  "resources": {
-    "form": {
-      "associatedOrganizationLabel": "Organización Asociada",
-      "associatedOrganizationPlaceholder": "Sin organización asociada",
-      "noRelatedOrganizations": "No hay organizaciones relacionadas disponibles",
-      "associatedOrganizationHelp": "Selecciona una organización relacionada para compartir este recurso"
-    }
-  },
   "header": {
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro",
@@ -104,7 +96,7 @@
     "device": "DISPOSITIVO",
     "status": "ESTADO",
     "created": "CREADO",
-    "actions": "ACC",
+    "actions": "ACCIONES",
     "createVehicle": "Agregar Vehículo",
     "editVehicle": "Editar Vehículo",
     "deleteVehicle": "Eliminar Vehículo",
@@ -448,12 +440,25 @@
   "marketplace": {
     "title": "Marketplace",
     "subtitle": "Gestión de vehículos publicados para la venta",
+    "addVehicle": "Agregar Vehículo",
     "publishVehicle": "Publicar Vehículo",
     "editPublication": "Editar Publicación",
+    "linkVehicle": "Vincular Vehículo",
     "totalPublished": "Publicados",
     "totalDrafts": "Borradores",
     "totalPaused": "Pausados",
     "totalSold": "Vendidos",
+    "licensePlate": "PATENTE",
+    "vehicle": "VEHÍCULO",
+    "status": "ESTADO",
+    "price": "PRECIO",
+    "mileage": "KILOMETRAJE",
+    "publicationDate": "FECHA PUBLICACIÓN",
+    "actions": "ACCIONES",
+    "consultPrice": "Consultar precio",
+    "noPublications": "No hay publicaciones",
+    "creating": "Creando...",
+    "linking": "Vinculando...",
     "table": {
       "licensePlate": "PATENTE",
       "vehicle": "VEHÍCULO",
@@ -467,12 +472,30 @@
       "km": "km"
     },
     "status": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "paused": "Pausado",
+      "sold": "Vendido",
       "borrador": "Borrador",
       "publicado": "Publicado",
       "pausado": "Pausado",
       "vendido": "Vendido"
     },
+    "stats": {
+      "published": "Publicados",
+      "drafts": "Borradores",
+      "paused": "Pausados",
+      "sold": "Vendidos"
+    },
     "form": {
+      "licensePlate": "Patente",
+      "licensePlatePlaceholder": "ABC123",
+      "brand": "Marca",
+      "brandPlaceholder": "Ford",
+      "model": "Modelo",
+      "modelPlaceholder": "Ranger",
+      "year": "Año",
+      "yearPlaceholder": "2024",
       "price": "Precio",
       "pricePlaceholder": "Ej: 25000",
       "priceHelper": "Deje vacío para mostrar 'Consultar precio'",
@@ -484,7 +507,19 @@
       "descriptionPlaceholder": "Detalles del vehículo: estado, equipamiento, historial...",
       "descriptionHelper": "Máx. 4000 caracteres",
       "publicationStatus": "Estado de Publicación",
-      "vehicleInfo": "Información del Vehículo"
+      "vehicleInfo": "Información del Vehículo",
+      "vehicleToLink": "Vehículo a vincular",
+      "existingVehicle": "Vehículo existente",
+      "noVehicle": "Sin vehículo",
+      "selectExistingVehicle": "Selecciona un vehículo existente para vincular la publicación",
+      "device": "Dispositivo",
+      "noDevice": "Sin dispositivo",
+      "selectDeviceToCreateVehicle": "Selecciona un dispositivo para crear un nuevo vehículo operativo",
+      "reason": "Motivo del cambio",
+      "reasonPlaceholder": "Motivo de la vinculación (opcional)",
+      "linkExistingVehicle": "Vincular vehículo existente",
+      "createNewVehicle": "Crear nuevo vehículo (sin vincular)",
+      "linkExistingVehicleHelp": "Opcional: Selecciona un vehículo operativo existente para vincularlo a esta publicación. Si no seleccionas ninguno, se creará una publicación independiente."
     },
     "actions": {
       "publish": "Publicar",
@@ -572,8 +607,6 @@
       "showImei": "IMEI",
       "showPatente": "Patente",
       "showEstado": "Estado",
-      "showOrganizacionAsociada": "Org Relacionada",
-      "showOrganizacionAsociadaShort": "Org. Rel."
     },
     "filter": {
       "title": "Filtrar por Organización",

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, OrganizacionAsociadaSelector } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -28,7 +28,6 @@ export function DevicesPage() {
   const [createForm, setCreateForm] = useState({
     traccarDeviceId: '',
     alias: '',
-    organizacionAsociadaId: undefined as string | undefined,
   });
   const [createErrors, setCreateErrors] = useState<{
     traccarDeviceId?: string;
@@ -39,7 +38,6 @@ export function DevicesPage() {
   const [editForm, setEditForm] = useState({
     alias: '',
     activo: true,
-    organizacionAsociadaId: undefined as string | undefined,
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -112,13 +110,12 @@ export function DevicesPage() {
     try {
       await dispositivosApi.createDispositivo(
         traccarDeviceIdNum,
-        createForm.alias.trim() || undefined,
-        createForm.organizacionAsociadaId
+        createForm.alias.trim() || undefined
       );
 
       toast.success(t('devices.success.created'));
       setIsCreateModalOpen(false);
-      setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
+      setCreateForm({ traccarDeviceId: '', alias: '' });
 
       // Refetch lista
       await loadDevices();
@@ -137,7 +134,6 @@ export function DevicesPage() {
     setEditForm({
       alias: device.nombre, // El nombre puede ser el alias o "Dispositivo {id}"
       activo: device.activo,
-      organizacionAsociadaId: device.organizacionAsociadaId || undefined,
     });
     setIsEditModalOpen(true);
   };
@@ -151,8 +147,7 @@ export function DevicesPage() {
       await dispositivosApi.updateDispositivo(
         editingDevice.id,
         editForm.alias.trim() || undefined,
-        editForm.activo,
-        editForm.organizacionAsociadaId
+        editForm.activo
       );
 
       toast.success(t('devices.success.updated'));
@@ -229,23 +224,6 @@ export function DevicesPage() {
       render: (d: DispositivoDto) => d.ultimaActualizacionUtc
         ? formatDateTime(d.ultimaActualizacionUtc, culture, timeZoneId)
         : '-'
-    },
-    {
-      key: 'organizacionAsociada',
-      header: t('devices.associatedOrganization'),
-      render: (d: DispositivoDto) => {
-        if (d.organizacionAsociadaNombre) {
-          return (
-            <div className="flex items-center gap-2">
-              <Badge variant="info">{d.organizacionAsociadaNombre}</Badge>
-              {d.esRecursoAsociado && (
-                <span className="text-xs text-text-muted">({t('devices.sharedResource')})</span>
-              )}
-            </div>
-          );
-        }
-        return <span className="text-text-muted">-</span>;
-      },
     },
     {
       key: 'actions',
@@ -359,7 +337,7 @@ export function DevicesPage() {
           isOpen={isCreateModalOpen}
           onClose={() => {
             setIsCreateModalOpen(false);
-            setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
+            setCreateForm({ traccarDeviceId: '', alias: '' });
             setCreateErrors({});
           }}
           title={t('devices.createDevice')}
@@ -383,16 +361,12 @@ export function DevicesPage() {
               placeholder={t('devices.form.aliasPlaceholder')}
               helperText={t('devices.form.aliasHelper')}
             />
-            <OrganizacionAsociadaSelector
-              value={createForm.organizacionAsociadaId}
-              onChange={(orgId) => setCreateForm({ ...createForm, organizacionAsociadaId: orgId })}
-            />
             <div className="flex justify-end gap-3 pt-4">
               <Button
                 variant="outline"
                 onClick={() => {
                   setIsCreateModalOpen(false);
-                  setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
+                  setCreateForm({ traccarDeviceId: '', alias: '' });
                   setCreateErrors({});
                 }}
                 disabled={isCreating}
@@ -505,7 +479,7 @@ export function DevicesPage() {
         isOpen={isCreateModalOpen}
         onClose={() => {
           setIsCreateModalOpen(false);
-          setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
+          setCreateForm({ traccarDeviceId: '', alias: '' });
           setCreateErrors({});
         }}
         title={t('devices.createDevice')}
@@ -534,7 +508,7 @@ export function DevicesPage() {
               variant="outline"
               onClick={() => {
                 setIsCreateModalOpen(false);
-                setCreateForm({ traccarDeviceId: '', alias: '', organizacionAsociadaId: undefined });
+                setCreateForm({ traccarDeviceId: '', alias: '' });
                 setCreateErrors({});
               }}
               disabled={isCreating}
@@ -575,10 +549,6 @@ export function DevicesPage() {
             onChange={(e) => setEditForm({ ...editForm, alias: e.target.value })}
             placeholder={t('devices.form.aliasPlaceholder')}
             helperText={t('devices.form.aliasHelper')}
-          />
-          <OrganizacionAsociadaSelector
-            value={editForm.organizacionAsociadaId}
-            onChange={(orgId) => setEditForm({ ...editForm, organizacionAsociadaId: orgId })}
           />
           <div className="flex items-center gap-3">
             <input

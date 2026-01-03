@@ -1,572 +1,699 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart, Plus, Edit2, Pause, Play, CheckCircle, TrendingUp } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, PaginationControls } from '@/shared/ui';
-import { marketplaceApi } from '@/services/endpoints';
-import { usePaginationParams, useLocalization, useErrorHandler, useCurrencies } from '@/hooks';
+import { ShoppingCart, Plus, Edit, Link2, AlertCircle, Pause, CheckCircle } from 'lucide-react';
+import { Card, Table, Badge, Button, Modal, Input, PaginationControls } from '@/shared/ui';
+import { marketplaceApi, vehiculosApi, dispositivosApi } from '@/services/endpoints';
+import { usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
-import { EstadoPublicacion, type VehiculoMarketplaceDto, type PublicarVehiculoRequest, type EditarPublicacionRequest, type ListaPaginada } from '@/shared/types/api';
-import { formatNumber } from '@/shared/utils';
+import type {
+  VehiculoMarketplaceDto,
+  CreateVehiculoMarketplaceRequest,
+  VincularVehiculoMarketplaceRequest,
+  ListaPaginada,
+  VehiculoDto,
+  DispositivoDto
+} from '@/shared/types/api';
+import { EstadoPublicacion } from '@/shared/types/api';
+import { formatDate } from '@/shared/utils';
 
 export function MarketplacePage() {
-    const { t } = useTranslation();
-    const { getErrorMessage } = useErrorHandler();
-    const localization = useLocalization();
-    const { currencies, formatPrice } = useCurrencies();
+  const { t } = useTranslation();
+  const localization = useLocalization();
+  const culture = localization.culture;
+  const timeZoneId = localization.timeZoneId;
+  const { getErrorMessage } = useErrorHandler();
 
-    // Estado de datos
-    const [marketplaceData, setMarketplaceData] = useState<ListaPaginada<VehiculoMarketplaceDto> | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  // Data state
+  const [marketplaceData, setMarketplaceData] = useState<ListaPaginada<VehiculoMarketplaceDto> | null>(null);
+  const [vehicles, setVehicles] = useState<VehiculoDto[]>([]);
+  const [devices, setDevices] = useState<DispositivoDto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    // Paginación
-    const { setNumeroPagina, setTamanoPagina, params: paginationParams } = usePaginationParams({ initialPageSize: 10 });
+  // Hook de paginación
+  const {
+    setNumeroPagina,
+    setTamanoPagina,
+    params: paginationParams
+  } = usePaginationParams({ initialPageSize: 10 });
 
-    // Modal de publicar
-    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
-    const [isPublishing, setIsPublishing] = useState(false);
-    const [vehicleToPublish, setVehicleToPublish] = useState<VehiculoMarketplaceDto | null>(null);
-    const [publishForm, setPublishForm] = useState<PublicarVehiculoRequest>({
-        precio: null,
+  // Create vehículo en marketplace modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateVehiculoMarketplaceRequest>({
+    patente: '',
+    marca: '',
+    modelo: '',
+    anio: undefined,
+    precio: undefined,
+    moneda: 'ARS',
+    kilometraje: 0,
+    descripcion: '',
+    estado: EstadoPublicacion.Pausado,
+    vehiculoId: null, // Opcional: vincular a vehículo existente
+  });
+  const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
+
+  // Vincular vehículo modal
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
+  const [vehicleToLink, setVehicleToLink] = useState<VehiculoMarketplaceDto | null>(null);
+  const [linkForm, setLinkForm] = useState<VincularVehiculoMarketplaceRequest>({
+    vehiculoId: null,
+    dispositivoId: null,
+    conductorId: null,
+    motivoCambio: '',
+  });
+
+  // Load data
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await marketplaceApi.getVehiculosMarketplace({
+        numeroPagina: paginationParams.numeroPagina,
+        tamanoPagina: paginationParams.tamanoPagina,
+      });
+      setMarketplaceData(data);
+
+      // Cargar vehículos y dispositivos para los selectores
+      const [vehiclesData, devicesData] = await Promise.all([
+        vehiculosApi.getVehiculos({ numeroPagina: 1, tamanoPagina: 100 }),
+        dispositivosApi.getDispositivos({ numeroPagina: 1, tamanoPagina: 100 }),
+      ]);
+      setVehicles(vehiclesData.items);
+      setDevices(devicesData.items);
+    } catch (e) {
+      const errorMessage = getErrorMessage(e);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [paginationParams.numeroPagina, paginationParams.tamanoPagina, getErrorMessage]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Ajustar página si es necesario
+  useEffect(() => {
+    if (
+      marketplaceData &&
+      marketplaceData.paginaActual > marketplaceData.totalPaginas &&
+      marketplaceData.totalPaginas > 0
+    ) {
+      setNumeroPagina(marketplaceData.totalPaginas);
+    }
+  }, [marketplaceData, setNumeroPagina]);
+
+  // Create handlers
+  const handleCreate = async () => {
+    const errors: { patente?: string } = {};
+    if (!createForm.patente.trim()) {
+      errors.patente = t('marketplace.form.required');
+    }
+    if (Object.keys(errors).length > 0) {
+      setCreateErrors(errors);
+      return;
+    }
+
+    setIsCreating(true);
+    setCreateErrors({});
+    try {
+      await marketplaceApi.createVehiculoMarketplace({
+        ...createForm,
+        patente: createForm.patente.trim().toUpperCase(),
+        marca: createForm.marca?.trim() || undefined,
+        modelo: createForm.modelo?.trim() || undefined,
+      });
+      toast.success(t('marketplace.success.created'));
+      setIsCreateModalOpen(false);
+      setCreateForm({
+        patente: '',
+        marca: '',
+        modelo: '',
+        anio: undefined,
+        precio: undefined,
         moneda: 'ARS',
         kilometraje: 0,
-        descripcion: null,
+        descripcion: '',
+        estado: EstadoPublicacion.Pausado,
+        vehiculoId: null,
+      });
+      await loadData();
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // Link handlers
+  const handleOpenLink = (vehicle: VehiculoMarketplaceDto) => {
+    setVehicleToLink(vehicle);
+    setLinkForm({
+      vehiculoId: null,
+      dispositivoId: null,
+      conductorId: null,
+      motivoCambio: '',
     });
+    setIsLinkModalOpen(true);
+  };
 
-    // Modal de editar
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [publicationToEdit, setPublicationToEdit] = useState<VehiculoMarketplaceDto | null>(null);
-    const [editForm, setEditForm] = useState<EditarPublicacionRequest>({
-        precio: null,
-        moneda: 'ARS',
-        kilometraje: 0,
-        descripcion: null,
-        estado: EstadoPublicacion.Borrador,
-    });
+  const handleLink = async () => {
+    if (!vehicleToLink || !vehicleToLink.publicacionId) return;
 
-    // Cargar datos
-    const loadData = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const result = await marketplaceApi.getVehiculosMarketplace(paginationParams);
-            setMarketplaceData(result);
-        } catch (e) {
-            const errorMsg = getErrorMessage(e);
-            setError(errorMsg);
+    // Validar que al menos uno esté seleccionado
+    if (!linkForm.vehiculoId && !linkForm.dispositivoId) {
+      toast.error(t('marketplace.form.selectVehicleOrDevice'));
+      return;
+    }
 
-            // Si es error de tipo de organización, mostrar mensaje específico
-            if (errorMsg.includes('concesionaria') || errorMsg.includes('Concesionaria')) {
-                toast.error(t('marketplace.errors.notConcesionaria'));
-            } else {
-                toast.error(t('marketplace.errors.loadFailed'));
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [paginationParams, getErrorMessage, t]);
+    setIsLinking(true);
+    try {
+      await marketplaceApi.vincularVehiculoMarketplace(vehicleToLink.publicacionId, linkForm);
+      toast.success(t('marketplace.success.linked'));
+      setIsLinkModalOpen(false);
+      setVehicleToLink(null);
+      await loadData();
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsLinking(false);
+    }
+  };
 
-    useEffect(() => {
-        void loadData();
-    }, [loadData]);
+  // Extraer items
+  const items = marketplaceData?.items ?? [];
 
-    // Ajustar página si excede el total
-    useEffect(() => {
-        if (
-            marketplaceData &&
-            marketplaceData.totalPaginas > 0 &&
-            marketplaceData.paginaActual > marketplaceData.totalPaginas
-        ) {
-            setNumeroPagina(marketplaceData.totalPaginas);
-        }
-    }, [marketplaceData, setNumeroPagina]);
-
-    // --- Publicar vehículo ---
-    const handleOpenPublish = (vehicle: VehiculoMarketplaceDto) => {
-        setVehicleToPublish(vehicle);
-        setPublishForm({
-            precio: null,
-            moneda: 'ARS',
-            kilometraje: 0,
-            descripcion: null,
-        });
-        setIsPublishModalOpen(true);
+  // Helper para estado de publicación
+  const getEstadoBadge = (estado: EstadoPublicacion | null) => {
+    if (!estado) return null;
+    const variants: Record<EstadoPublicacion, 'default' | 'success' | 'warning' | 'error'> = {
+      [EstadoPublicacion.Borrador]: 'default',
+      [EstadoPublicacion.Publicado]: 'success',
+      [EstadoPublicacion.Pausado]: 'warning',
+      [EstadoPublicacion.Vendido]: 'error',
     };
-
-    const handlePublish = async () => {
-        if (!vehicleToPublish) return;
-
-        setIsPublishing(true);
-        try {
-            await marketplaceApi.publicarVehiculo(vehicleToPublish.vehiculoId, publishForm);
-            toast.success(t('marketplace.success.published'));
-            setIsPublishModalOpen(false);
-            setVehicleToPublish(null);
-            await loadData();
-        } catch (e) {
-            toast.error(getErrorMessage(e));
-        } finally {
-            setIsPublishing(false);
-        }
+    const labels: Record<EstadoPublicacion, string> = {
+      [EstadoPublicacion.Borrador]: t('marketplace.status.draft'),
+      [EstadoPublicacion.Publicado]: t('marketplace.status.published'),
+      [EstadoPublicacion.Pausado]: t('marketplace.status.paused'),
+      [EstadoPublicacion.Vendido]: t('marketplace.status.sold'),
     };
+    return <Badge variant={variants[estado]}>{labels[estado]}</Badge>;
+  };
 
-    // --- Editar publicación ---
-    const handleOpenEdit = (publication: VehiculoMarketplaceDto) => {
-        if (!publication.publicacionId) return;
-
-        setPublicationToEdit(publication);
-        setEditForm({
-            precio: publication.precio,
-            moneda: publication.moneda || 'ARS',
-            kilometraje: publication.kilometraje,
-            descripcion: publication.descripcion,
-            estado: publication.estadoPublicacion || EstadoPublicacion.Borrador,
-        });
-        setIsEditModalOpen(true);
-    };
-
-    const handleUpdate = async () => {
-        if (!publicationToEdit || !publicationToEdit.publicacionId) return;
-
-        setIsUpdating(true);
-        try {
-            await marketplaceApi.editarPublicacion(publicationToEdit.publicacionId, editForm);
-            toast.success(t('marketplace.success.updated'));
-            setIsEditModalOpen(false);
-            setPublicationToEdit(null);
-            await loadData();
-        } catch (e) {
-            toast.error(getErrorMessage(e));
-        } finally {
-            setIsUpdating(false);
-        }
-    };
-
-    // --- Cambio rápido de estado ---
-    const handleQuickStateChange = async (publication: VehiculoMarketplaceDto, newState: EstadoPublicacion) => {
-        if (!publication.publicacionId) return;
-
-        try {
-            await marketplaceApi.editarPublicacion(publication.publicacionId, {
-                precio: publication.precio,
-                moneda: publication.moneda || 'ARS',
-                kilometraje: publication.kilometraje,
-                descripcion: publication.descripcion,
-                estado: newState,
-            });
-
-            if (newState === EstadoPublicacion.Pausado) {
-                toast.success(t('marketplace.success.paused'));
-            } else if (newState === EstadoPublicacion.Publicado) {
-                toast.success(t('marketplace.success.reactivated'));
-            } else if (newState === EstadoPublicacion.Vendido) {
-                toast.success(t('marketplace.success.markedAsSold'));
-            }
-
-            await loadData();
-        } catch (e) {
-            toast.error(getErrorMessage(e));
-        }
-    };
-
-    // --- Calcular estadísticas ---
-    const stats = marketplaceData?.items?.reduce(
-        (acc, v) => {
-            if (v.estadoPublicacion === EstadoPublicacion.Publicado) acc.publicados++;
-            else if (v.estadoPublicacion === EstadoPublicacion.Borrador) acc.borradores++;
-            else if (v.estadoPublicacion === EstadoPublicacion.Pausado) acc.pausados++;
-            else if (v.estadoPublicacion === EstadoPublicacion.Vendido) acc.vendidos++;
-            return acc;
-        },
-        { publicados: 0, borradores: 0, pausados: 0, vendidos: 0 }
-    ) || { publicados: 0, borradores: 0, pausados: 0, vendidos: 0 };
-
-    // --- Badge de estado ---
-    const getEstadoBadge = (estado: EstadoPublicacion | null) => {
-        if (!estado) return <Badge variant="default">{t('marketplace.table.notPublished')}</Badge>;
-
-        switch (estado) {
-            case EstadoPublicacion.Borrador:
-                return <Badge variant="default">{t('marketplace.status.borrador')}</Badge>;
-            case EstadoPublicacion.Publicado:
-                return <Badge variant="success">{t('marketplace.status.publicado')}</Badge>;
-            case EstadoPublicacion.Pausado:
-                return <Badge variant="warning">{t('marketplace.status.pausado')}</Badge>;
-            case EstadoPublicacion.Vendido:
-                return <Badge variant="info">{t('marketplace.status.vendido')}</Badge>;
-            default:
-                return <Badge variant="default">-</Badge>;
-        }
-    };
-
-    // --- Columnas de la tabla ---
-    const columns = [
-        {
-            key: 'patente',
-            header: t('marketplace.table.licensePlate'),
-            render: (v: VehiculoMarketplaceDto) => (
-                <span className="font-medium">{v.patente}</span>
-            ),
-        },
-        {
-            key: 'vehiculo',
-            header: t('marketplace.table.vehicle'),
-            render: (v: VehiculoMarketplaceDto) => (
-                <div className="text-sm">
-                    {v.marca && v.modelo ? `${v.marca} ${v.modelo}` : '-'}
-                    {v.año && <span className="text-gray-500 dark:text-gray-400"> ({v.año})</span>}
-                </div>
-            ),
-        },
-        {
-            key: 'kilometraje',
-            header: t('marketplace.table.mileage'),
-            render: (v: VehiculoMarketplaceDto) => (
-                v.publicacionId ? (
-                    <span>{formatNumber(v.kilometraje, localization.culture)} {t('marketplace.table.km')}</span>
-                ) : (
-                    <span className="text-gray-400">-</span>
-                )
-            ),
-        },
-        {
-            key: 'precio',
-            header: t('marketplace.table.price'),
-            render: (v: VehiculoMarketplaceDto) => {
-                if (!v.publicacionId) return <span className="text-gray-400">-</span>;
-                if (!v.precio) return <span className="text-gray-500 italic">{t('marketplace.table.consultPrice')}</span>;
-                return <span className="font-semibold">{formatPrice(v.precio, v.moneda || 'ARS')}</span>;
-            },
-        },
-        {
-            key: 'estado',
-            header: t('marketplace.table.publicationStatus'),
-            render: (v: VehiculoMarketplaceDto) => getEstadoBadge(v.estadoPublicacion),
-        },
-        {
-            key: 'actions',
-            header: t('marketplace.table.actions'),
-            render: (v: VehiculoMarketplaceDto) => (
-                <div className="flex gap-2">
-                    {!v.publicacionId && (
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenPublish(v)}
-                        >
-                            <Plus size={16} className="mr-2" />
-                            {t('marketplace.actions.publish')}
-                        </Button>
-                    )}
-
-                    {v.publicacionId && v.estadoPublicacion !== EstadoPublicacion.Vendido && (
-                        <>
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleOpenEdit(v)}
-                                title={t('marketplace.actions.edit')}
-                            >
-                                <Edit2 size={16} />
-                            </Button>
-
-                            {v.estadoPublicacion === EstadoPublicacion.Publicado && (
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleQuickStateChange(v, EstadoPublicacion.Pausado)}
-                                    title={t('marketplace.actions.pause')}
-                                >
-                                    <Pause size={16} />
-                                </Button>
-                            )}
-
-                            {v.estadoPublicacion === EstadoPublicacion.Pausado && (
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleQuickStateChange(v, EstadoPublicacion.Publicado)}
-                                    title={t('marketplace.actions.reactivate')}
-                                >
-                                    <Play size={16} />
-                                </Button>
-                            )}
-
-                            {(v.estadoPublicacion === EstadoPublicacion.Publicado || v.estadoPublicacion === EstadoPublicacion.Pausado) && (
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleQuickStateChange(v, EstadoPublicacion.Vendido)}
-                                    title={t('marketplace.actions.markAsSold')}
-                                >
-                                    <CheckCircle size={16} />
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </div>
-            ),
-        },
-    ];
-
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold flex items-center gap-3">
-                    <ShoppingCart size={32} className="text-primary" />
-                    {t('marketplace.title')}
-                </h1>
-                <p className="text-muted-foreground mt-2">{t('marketplace.subtitle')}</p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">{t('marketplace.totalPublished')}</p>
-                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.publicados}</p>
-                        </div>
-                        <TrendingUp className="text-green-600 dark:text-green-400" size={24} />
-                    </div>
-                </Card>
-
-                <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">{t('marketplace.totalDrafts')}</p>
-                            <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.borradores}</p>
-                        </div>
-                        <Edit2 className="text-gray-600 dark:text-gray-400" size={24} />
-                    </div>
-                </Card>
-
-                <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">{t('marketplace.totalPaused')}</p>
-                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pausados}</p>
-                        </div>
-                        <Pause className="text-orange-600 dark:text-orange-400" size={24} />
-                    </div>
-                </Card>
-
-                <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">{t('marketplace.totalSold')}</p>
-                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.vendidos}</p>
-                        </div>
-                        <CheckCircle className="text-blue-600 dark:text-blue-400" size={24} />
-                    </div>
-                </Card>
-            </div>
-
-            {/* Tabla */}
-            <Card>
-                <div className="p-6">
-                    {isLoading && <p>{t('marketplace.loading')}</p>}
-
-                    {error && (
-                        <div className="text-center py-8">
-                            <p className="text-destructive mb-4">{error}</p>
-                            <Button onClick={loadData}>{t('marketplace.retry')}</Button>
-                        </div>
-                    )}
-
-                    {!isLoading && !error && marketplaceData && marketplaceData.items.length === 0 && (
-                        <div className="text-center py-12">
-                            <ShoppingCart size={48} className="mx-auto text-muted-foreground mb-4" />
-                            <p className="text-xl font-semibold mb-2">{t('marketplace.emptyTitle')}</p>
-                            <p className="text-muted-foreground">{t('marketplace.emptyDescription')}</p>
-                        </div>
-                    )}
-
-                    {!isLoading && !error && marketplaceData && marketplaceData.items.length > 0 && (
-                        <>
-                            <Table
-                                data={marketplaceData.items}
-                                columns={columns}
-                                keyExtractor={(item) => item.vehiculoId}
-                            />
-
-                            <div className="mt-6">
-                                <PaginationControls
-                                    paginaActual={marketplaceData.paginaActual}
-                                    totalPaginas={marketplaceData.totalPaginas}
-                                    tamanoPagina={marketplaceData.tamanoPagina}
-                                    totalRegistros={marketplaceData.totalRegistros}
-                                    onPageChange={setNumeroPagina}
-                                    onPageSizeChange={setTamanoPagina}
-                                    disabled={isLoading}
-                                />
-                            </div>
-                        </>
-                    )}
-                </div>
-            </Card>
-
-            {/* Modal Publicar */}
-            {vehicleToPublish && (
-                <Modal
-                    isOpen={isPublishModalOpen}
-                    onClose={() => {
-                        setIsPublishModalOpen(false);
-                        setVehicleToPublish(null);
-                    }}
-                    title={`${t('marketplace.publishVehicle')} - ${vehicleToPublish.patente}`}
-                >
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.price')}</label>
-                            <input
-                                type="number"
-                                className="w-full px-3 py-2 border rounded-md"
-                                placeholder={t('marketplace.form.pricePlaceholder')}
-                                value={publishForm.precio || ''}
-                                onChange={(e) => setPublishForm({ ...publishForm, precio: e.target.value ? parseFloat(e.target.value) : null })}
-                            />
-                            <p className="text-xs text-muted-foreground mt-1">{t('marketplace.form.priceHelper')}</p>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.currency')}</label>
-                            <select
-                                className="w-full px-3 py-2 border rounded-md"
-                                value={publishForm.moneda}
-                                onChange={(e) => setPublishForm({ ...publishForm, moneda: e.target.value })}
-                            >
-                                {currencies.map((currency) => (
-                                    <option key={currency.code} value={currency.code}>
-                                        {currency.code} ({currency.name})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.mileage')} *</label>
-                            <input
-                                type="number"
-                                className="w-full px-3 py-2 border rounded-md"
-                                placeholder={t('marketplace.form.mileagePlaceholder')}
-                                value={publishForm.kilometraje}
-                                onChange={(e) => setPublishForm({ ...publishForm, kilometraje: parseInt(e.target.value) || 0 })}
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.description')}</label>
-                            <textarea
-                                className="w-full px-3 py-2 border rounded-md"
-                                placeholder={t('marketplace.form.descriptionPlaceholder')}
-                                rows={4}
-                                maxLength={4000}
-                                value={publishForm.descripcion || ''}
-                                onChange={(e) => setPublishForm({ ...publishForm, descripcion: e.target.value || null })}
-                            />
-                            <p className="text-xs text-muted-foreground mt-1">{t('marketplace.form.descriptionHelper')}</p>
-                        </div>
-
-                        <div className="flex gap-2 justify-end pt-4">
-                            <Button variant="outline" onClick={() => setIsPublishModalOpen(false)} disabled={isPublishing}>
-                                {t('common.cancel')}
-                            </Button>
-                            <Button onClick={handlePublish} disabled={isPublishing || publishForm.kilometraje === 0}>
-                                {isPublishing ? `${t('common.loading')}...` : t('marketplace.actions.publish')}
-                            </Button>
-                        </div>
-                    </div>
-                </Modal>
-            )}
-
-            {/* Modal Editar */}
-            {publicationToEdit && (
-                <Modal
-                    isOpen={isEditModalOpen}
-                    onClose={() => {
-                        setIsEditModalOpen(false);
-                        setPublicationToEdit(null);
-                    }}
-                    title={`${t('marketplace.editPublication')} - ${publicationToEdit.patente}`}
-                >
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.price')}</label>
-                            <input
-                                type="number"
-                                className="w-full px-3 py-2 border rounded-md"
-                                placeholder={t('marketplace.form.pricePlaceholder')}
-                                value={editForm.precio || ''}
-                                onChange={(e) => setEditForm({ ...editForm, precio: e.target.value ? parseFloat(e.target.value) : null })}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.currency')}</label>
-                            <select
-                                className="w-full px-3 py-2 border rounded-md"
-                                value={editForm.moneda || 'ARS'}
-                                onChange={(e) => setEditForm({ ...editForm, moneda: e.target.value })}
-                            >
-                                {currencies.map((currency) => (
-                                    <option key={currency.code} value={currency.code}>
-                                        {currency.code} ({currency.name})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.mileage')} *</label>
-                            <input
-                                type="number"
-                                className="w-full px-3 py-2 border rounded-md"
-                                value={editForm.kilometraje}
-                                onChange={(e) => setEditForm({ ...editForm, kilometraje: parseInt(e.target.value) || 0 })}
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.description')}</label>
-                            <textarea
-                                className="w-full px-3 py-2 border rounded-md"
-                                rows={4}
-                                maxLength={4000}
-                                value={editForm.descripcion || ''}
-                                onChange={(e) => setEditForm({ ...editForm, descripcion: e.target.value || null })}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-2">{t('marketplace.form.publicationStatus')}</label>
-                            <select
-                                className="w-full px-3 py-2 border rounded-md"
-                                value={editForm.estado}
-                                onChange={(e) => setEditForm({ ...editForm, estado: parseInt(e.target.value) as EstadoPublicacion })}
-                            >
-                                <option value={EstadoPublicacion.Borrador}>{t('marketplace.status.borrador')}</option>
-                                <option value={EstadoPublicacion.Publicado}>{t('marketplace.status.publicado')}</option>
-                                <option value={EstadoPublicacion.Pausado}>{t('marketplace.status.pausado')}</option>
-                                <option value={EstadoPublicacion.Vendido}>{t('marketplace.status.vendido')}</option>
-                            </select>
-                        </div>
-
-                        <div className="flex gap-2 justify-end pt-4">
-                            <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isUpdating}>
-                                {t('common.cancel')}
-                            </Button>
-                            <Button onClick={handleUpdate} disabled={isUpdating || editForm.kilometraje === 0}>
-                                {isUpdating ? `${t('common.loading')}...` : t('common.save')}
-                            </Button>
-                        </div>
-                    </div>
-                </Modal>
-            )}
+  // Columnas de la tabla
+  const columns = [
+    { key: 'patente', header: t('marketplace.licensePlate'), sortable: true },
+    {
+      key: 'vehiculo',
+      header: t('marketplace.vehicle'),
+      render: (v: VehiculoMarketplaceDto) => {
+        const parts = [v.marca, v.modelo, v.anio].filter(Boolean);
+        return parts.length > 0 ? parts.join(' ') : '-';
+      },
+    },
+    {
+      key: 'estado',
+      header: t('marketplace.status'),
+      render: (v: VehiculoMarketplaceDto) => getEstadoBadge(v.estadoPublicacion),
+    },
+    {
+      key: 'precio',
+      header: t('marketplace.price'),
+      render: (v: VehiculoMarketplaceDto) => {
+        if (!v.precio) return <span className="text-text-muted">{t('marketplace.consultPrice')}</span>;
+        return `${v.moneda || 'ARS'} ${v.precio.toLocaleString(culture)}`;
+      },
+    },
+    {
+      key: 'kilometraje',
+      header: t('marketplace.mileage'),
+      render: (v: VehiculoMarketplaceDto) => `${v.kilometraje.toLocaleString(culture)} km`,
+    },
+    {
+      key: 'fechaPublicacion',
+      header: t('marketplace.publicationDate'),
+      render: (v: VehiculoMarketplaceDto) =>
+        v.fechaPublicacion ? formatDate(v.fechaPublicacion, culture, timeZoneId) : '-',
+    },
+    {
+      key: 'actions',
+      header: t('marketplace.actions'),
+      render: (v: VehiculoMarketplaceDto) => (
+        <div className="flex items-center gap-1">
+          {!v.tieneVehiculoAsociado && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleOpenLink(v)}
+              title={t('marketplace.linkVehicle')}
+            >
+              <Link2 size={16} />
+            </Button>
+          )}
+          {v.publicacionId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {/* TODO: Editar publicación */ }}
+              title={t('marketplace.editPublication')}
+            >
+              <Edit size={16} />
+            </Button>
+          )}
         </div>
+      ),
+    },
+  ];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">{t('marketplace.title')}</h1>
+            <p className="text-text-muted mt-1">{t('marketplace.subtitle')}</p>
+          </div>
+        </div>
+        <Card>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+              <p className="text-text-muted mt-4">{t('marketplace.loading')}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
     );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">{t('marketplace.title')}</h1>
+            <p className="text-text-muted mt-1">{t('marketplace.subtitle')}</p>
+          </div>
+        </div>
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <AlertCircle size={48} className="text-error mb-4" />
+            <h3 className="text-lg font-semibold text-text mb-2">{t('marketplace.loadError')}</h3>
+            <p className="text-text-muted mb-6 text-center max-w-md">{error}</p>
+            <Button onClick={loadData}>{t('marketplace.retry')}</Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (items.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text">{t('marketplace.title')}</h1>
+            <p className="text-text-muted mt-1">{t('marketplace.subtitle')}</p>
+          </div>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus size={16} className="mr-2" />
+            {t('marketplace.addVehicle')}
+          </Button>
+        </div>
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <ShoppingCart size={48} className="text-text-muted mb-4" />
+            <h3 className="text-lg font-semibold text-text mb-2">{t('marketplace.emptyTitle')}</h3>
+            <p className="text-text-muted text-center max-w-md mb-4">
+              {t('marketplace.emptyDescription')}
+            </p>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus size={16} className="mr-2" />
+              {t('marketplace.addVehicle')}
+            </Button>
+          </div>
+        </Card>
+
+        {/* Create Modal */}
+        <Modal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          title={t('marketplace.addVehicle')}
+        >
+          <div className="space-y-4">
+            {/* Selector de vehículo existente */}
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                {t('marketplace.form.linkExistingVehicle')}
+              </label>
+              <select
+                value={createForm.vehiculoId || ''}
+                onChange={(e) => {
+                  const vehiculoId = e.target.value || null;
+                  const vehiculoSeleccionado = vehicles.find(v => v.id === vehiculoId);
+                  setCreateForm({
+                    ...createForm,
+                    vehiculoId,
+                    // Si se selecciona un vehículo, pre-llenar datos del vehículo
+                    patente: vehiculoSeleccionado ? vehiculoSeleccionado.patente : createForm.patente,
+                    marca: vehiculoSeleccionado ? vehiculoSeleccionado.marca : createForm.marca,
+                    modelo: vehiculoSeleccionado ? vehiculoSeleccionado.modelo : createForm.modelo,
+                    anio: vehiculoSeleccionado ? vehiculoSeleccionado.anio : createForm.anio,
+                  });
+                }}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">{t('marketplace.form.createNewVehicle')}</option>
+                {vehicles
+                  .filter(v => v.activo)
+                  .map((vehicle) => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.patente} - {vehicle.marca} {vehicle.modelo} {vehicle.anio ? `(${vehicle.anio})` : ''}
+                    </option>
+                  ))}
+              </select>
+              <p className="text-xs text-text-muted mt-1">
+                {t('marketplace.form.linkExistingVehicleHelp')}
+              </p>
+            </div>
+
+            <Input
+              label={t('marketplace.form.licensePlate')}
+              value={createForm.patente}
+              onChange={(e) => setCreateForm({ ...createForm, patente: e.target.value })}
+              placeholder={t('marketplace.form.licensePlatePlaceholder')}
+              error={createErrors.patente}
+              required={!createForm.vehiculoId}
+              disabled={!!createForm.vehiculoId}
+            />
+            <Input
+              label={t('marketplace.form.brand')}
+              value={createForm.marca || ''}
+              onChange={(e) => setCreateForm({ ...createForm, marca: e.target.value })}
+              placeholder={t('marketplace.form.brandPlaceholder')}
+              disabled={!!createForm.vehiculoId}
+            />
+            <Input
+              label={t('marketplace.form.model')}
+              value={createForm.modelo || ''}
+              onChange={(e) => setCreateForm({ ...createForm, modelo: e.target.value })}
+              placeholder={t('marketplace.form.modelPlaceholder')}
+              disabled={!!createForm.vehiculoId}
+            />
+            <Input
+              label={t('marketplace.form.year')}
+              type="number"
+              value={createForm.anio?.toString() || ''}
+              onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder={t('marketplace.form.yearPlaceholder')}
+              disabled={!!createForm.vehiculoId}
+            />
+            <Input
+              label={t('marketplace.form.price')}
+              type="number"
+              value={createForm.precio?.toString() || ''}
+              onChange={(e) => setCreateForm({ ...createForm, precio: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder={t('marketplace.form.pricePlaceholder')}
+            />
+            <Input
+              label={t('marketplace.form.mileage')}
+              type="number"
+              value={(createForm.kilometraje ?? 0).toString()}
+              onChange={(e) => setCreateForm({ ...createForm, kilometraje: Number(e.target.value) || 0 })}
+              placeholder={t('marketplace.form.mileagePlaceholder')}
+            />
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                {t('marketplace.form.description')}
+              </label>
+              <textarea
+                value={createForm.descripcion || ''}
+                onChange={(e) => setCreateForm({ ...createForm, descripcion: e.target.value })}
+                placeholder={t('marketplace.form.descriptionPlaceholder')}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
+                rows={4}
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleCreate} disabled={isCreating}>
+                {isCreating ? t('marketplace.creating') : t('common.save')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+    );
+  }
+
+  // Main content
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text">{t('marketplace.title')}</h1>
+          <p className="text-text-muted mt-1">{t('marketplace.subtitle')}</p>
+        </div>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Plus size={16} className="mr-2" />
+          {t('marketplace.addVehicle')}
+        </Button>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-muted">{t('marketplace.stats.published')}</p>
+                <p className="text-2xl font-bold text-text">
+                  {items.filter(v => v.estadoPublicacion === EstadoPublicacion.Publicado).length}
+                </p>
+              </div>
+              <CheckCircle size={24} className="text-success" />
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-muted">{t('marketplace.stats.drafts')}</p>
+                <p className="text-2xl font-bold text-text">
+                  {items.filter(v => v.estadoPublicacion === EstadoPublicacion.Borrador).length}
+                </p>
+              </div>
+              <Edit size={24} className="text-text-muted" />
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-muted">{t('marketplace.stats.paused')}</p>
+                <p className="text-2xl font-bold text-text">
+                  {items.filter(v => v.estadoPublicacion === EstadoPublicacion.Pausado).length}
+                </p>
+              </div>
+              <Pause size={24} className="text-warning" />
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-text-muted">{t('marketplace.stats.sold')}</p>
+                <p className="text-2xl font-bold text-text">
+                  {items.filter(v => v.estadoPublicacion === EstadoPublicacion.Vendido).length}
+                </p>
+              </div>
+              <CheckCircle size={24} className="text-primary" />
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Table */}
+      <Card>
+        <Table
+          data={items}
+          columns={columns}
+          keyExtractor={(v) => v.vehiculoId}
+          emptyMessage={t('marketplace.noPublications')}
+        />
+      </Card>
+
+      {/* Pagination */}
+      {marketplaceData && (
+        <PaginationControls
+          paginaActual={marketplaceData.paginaActual}
+          totalPaginas={marketplaceData.totalPaginas}
+          totalRegistros={marketplaceData.totalRegistros}
+          tamanoPagina={marketplaceData.tamanoPagina}
+          onPageChange={setNumeroPagina}
+          onPageSizeChange={setTamanoPagina}
+        />
+      )}
+
+      {/* Create Modal */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title={t('marketplace.addVehicle')}
+      >
+        <div className="space-y-4">
+          <Input
+            label={t('marketplace.form.licensePlate')}
+            value={createForm.patente}
+            onChange={(e) => setCreateForm({ ...createForm, patente: e.target.value })}
+            placeholder={t('marketplace.form.licensePlatePlaceholder')}
+            error={createErrors.patente}
+            required
+          />
+          <Input
+            label={t('marketplace.form.brand')}
+            value={createForm.marca || ''}
+            onChange={(e) => setCreateForm({ ...createForm, marca: e.target.value })}
+            placeholder={t('marketplace.form.brandPlaceholder')}
+          />
+          <Input
+            label={t('marketplace.form.model')}
+            value={createForm.modelo || ''}
+            onChange={(e) => setCreateForm({ ...createForm, modelo: e.target.value })}
+            placeholder={t('marketplace.form.modelPlaceholder')}
+          />
+          <Input
+            label={t('marketplace.form.year')}
+            type="number"
+            value={createForm.anio?.toString() || ''}
+            onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
+            placeholder={t('marketplace.form.yearPlaceholder')}
+          />
+          <Input
+            label={t('marketplace.form.price')}
+            type="number"
+            value={createForm.precio?.toString() || ''}
+            onChange={(e) => setCreateForm({ ...createForm, precio: e.target.value ? Number(e.target.value) : undefined })}
+            placeholder={t('marketplace.form.pricePlaceholder')}
+          />
+          <Input
+            label={t('marketplace.form.mileage')}
+            type="number"
+            value={(createForm.kilometraje ?? 0).toString()}
+            onChange={(e) => setCreateForm({ ...createForm, kilometraje: Number(e.target.value) || 0 })}
+            placeholder={t('marketplace.form.mileagePlaceholder')}
+          />
+          <div>
+            <label className="block text-sm font-medium text-text mb-2">
+              {t('marketplace.form.description')}
+            </label>
+            <textarea
+              value={createForm.descripcion || ''}
+              onChange={(e) => setCreateForm({ ...createForm, descripcion: e.target.value })}
+              placeholder={t('marketplace.form.descriptionPlaceholder')}
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
+              rows={4}
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleCreate} disabled={isCreating}>
+              {isCreating ? t('marketplace.creating') : t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Link Modal */}
+      <Modal
+        isOpen={isLinkModalOpen}
+        onClose={() => setIsLinkModalOpen(false)}
+        title={t('marketplace.linkVehicle')}
+      >
+        <div className="space-y-4">
+          {vehicleToLink && (
+            <div className="p-3 bg-background rounded-lg border border-border">
+              <p className="text-xs text-text-muted mb-1">{t('marketplace.form.vehicleToLink')}</p>
+              <p className="font-medium text-text">
+                {vehicleToLink.patente} - {vehicleToLink.marca} {vehicleToLink.modelo}
+              </p>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-text mb-2">
+              {t('marketplace.form.existingVehicle')}
+            </label>
+            <select
+              value={linkForm.vehiculoId || ''}
+              onChange={(e) => setLinkForm({ ...linkForm, vehiculoId: e.target.value || null })}
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">{t('marketplace.form.noVehicle')}</option>
+              {vehicles.filter(v => v.activo).map((vehicle) => (
+                <option key={vehicle.id} value={vehicle.id}>
+                  {vehicle.patente} - {vehicle.marca} {vehicle.modelo}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-text-muted mt-1">
+              {t('marketplace.form.selectExistingVehicle')}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-text mb-2">
+              {t('marketplace.form.device')}
+            </label>
+            <select
+              value={linkForm.dispositivoId || ''}
+              onChange={(e) => setLinkForm({ ...linkForm, dispositivoId: e.target.value || null })}
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">{t('marketplace.form.noDevice')}</option>
+              {devices.filter(d => d.activo).map((device) => (
+                <option key={device.id} value={device.id}>
+                  {device.nombre} {device.uniqueId ? `(${device.uniqueId})` : ''}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-text-muted mt-1">
+              {t('marketplace.form.selectDeviceToCreateVehicle')}
+            </p>
+          </div>
+
+          <Input
+            label={t('marketplace.form.reason')}
+            value={linkForm.motivoCambio || ''}
+            onChange={(e) => setLinkForm({ ...linkForm, motivoCambio: e.target.value })}
+            placeholder={t('marketplace.form.reasonPlaceholder')}
+          />
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setIsLinkModalOpen(false)} disabled={isLinking}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleLink} disabled={isLinking}>
+              {isLinking ? t('marketplace.linking') : t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, OrganizacionAsociadaSelector } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -20,14 +20,14 @@ export function VehiclesPage() {
   const [devices, setDevices] = useState<DispositivoDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Hook de paginación reutilizable
-  const { 
-    setNumeroPagina, 
-    setTamanoPagina, 
-    params: paginationParams 
+  const {
+    setNumeroPagina,
+    setTamanoPagina,
+    params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
-  
+
   // Create modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -36,12 +36,12 @@ export function VehiclesPage() {
     patente: '',
     marca: '',
     modelo: '',
-    año: undefined,
-    organizacionAsociadaId: undefined,
+    anio: undefined,
+
   });
   const [createDeviceId, setCreateDeviceId] = useState(''); // Device to assign on create
   const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
-  
+
   // Edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -51,22 +51,22 @@ export function VehiclesPage() {
     patente: '',
     marca: '',
     modelo: '',
-    año: undefined as number | undefined,
+    anio: undefined as number | undefined,
     activo: true,
-    organizacionAsociadaId: undefined as string | undefined,
+
   });
-  
+
   // Delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<VehiculoDto | null>(null);
-  
+
   // Assign device modal
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [vehicleToAssign, setVehicleToAssign] = useState<VehiculoDto | null>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
-  
+
   const { can } = usePermissions();
   const canEdit = can('vehiculos:editar');
   const canCreate = can('vehiculos:crear');
@@ -97,8 +97,8 @@ export function VehiclesPage() {
   // Ajustar automáticamente si la página actual excede el total de páginas
   useEffect(() => {
     if (
-      vehiclesData && 
-      vehiclesData.paginaActual > vehiclesData.totalPaginas && 
+      vehiclesData &&
+      vehiclesData.paginaActual > vehiclesData.totalPaginas &&
       vehiclesData.totalPaginas > 0
     ) {
       setNumeroPagina(vehiclesData.totalPaginas);
@@ -124,10 +124,10 @@ export function VehiclesPage() {
         ...createForm,
         patente: createForm.patente.trim().toUpperCase(),
         marca: createForm.marca?.trim() || undefined,
-        modelo: createForm.modelo?.trim() || undefined,
-        organizacionAsociadaId: createForm.organizacionAsociadaId || undefined,
+
+
       });
-      
+
       // 2. If device selected, assign it
       if (createDeviceId) {
         try {
@@ -141,9 +141,10 @@ export function VehiclesPage() {
       } else {
         toast.success(t('vehicles.success.created'));
       }
-      
+
       setIsCreateModalOpen(false);
-      setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', año: undefined, organizacionAsociadaId: undefined });
+      setIsCreateModalOpen(false);
+      setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', anio: undefined });
       setCreateDeviceId('');
       await loadData();
     } catch (e) {
@@ -161,9 +162,8 @@ export function VehiclesPage() {
       patente: vehicle.patente,
       marca: vehicle.marca || '',
       modelo: vehicle.modelo || '',
-      año: vehicle.año || undefined,
+      anio: vehicle.anio || undefined,
       activo: vehicle.activo,
-      organizacionAsociadaId: vehicle.organizacionAsociadaId || undefined,
     });
     setIsEditModalOpen(true);
   };
@@ -178,9 +178,9 @@ export function VehiclesPage() {
         patente: editForm.patente.trim().toUpperCase(),
         marca: editForm.marca?.trim() || undefined,
         modelo: editForm.modelo?.trim() || undefined,
-        año: editForm.año,
+        anio: editForm.anio,
         activo: editForm.activo,
-        organizacionAsociadaId: editForm.organizacionAsociadaId || undefined,
+
       });
       toast.success(t('vehicles.success.updated'));
       setIsEditModalOpen(false);
@@ -224,16 +224,16 @@ export function VehiclesPage() {
 
   const handleAssignDevice = async () => {
     if (!vehicleToAssign) return;
-    
+
     const currentDeviceId = vehicleToAssign.dispositivoActivoId || '';
-    
+
     // P0 Fix: No-op detection - don't call API if nothing changed
     if (selectedDeviceId === currentDeviceId) {
       setIsAssignModalOpen(false);
       setVehicleToAssign(null);
       return; // No changes, just close modal
     }
-    
+
     setIsAssigning(true);
     try {
       if (selectedDeviceId) {
@@ -276,7 +276,7 @@ export function VehiclesPage() {
       key: 'vehiculo',
       header: t('vehicles.vehicle'),
       render: (v: VehiculoDto) => {
-        const parts = [v.marca, v.modelo, v.año].filter(Boolean);
+        const parts = [v.marca, v.modelo, v.anio].filter(Boolean);
         return parts.length > 0 ? parts.join(' ') : '-';
       },
     },
@@ -290,23 +290,6 @@ export function VehiclesPage() {
         ) : (
           <span className="text-text-muted">{t('vehicles.table.unassigned')}</span>
         );
-      },
-    },
-    {
-      key: 'organizacionAsociada',
-      header: t('vehicles.associatedOrganization'),
-      render: (v: VehiculoDto) => {
-        if (v.organizacionAsociadaNombre) {
-          return (
-            <div className="flex items-center gap-2">
-              <Badge variant="info">{v.organizacionAsociadaNombre}</Badge>
-              {v.esRecursoAsociado && (
-                <span className="text-xs text-text-muted">({t('vehicles.sharedResource')})</span>
-              )}
-            </div>
-          );
-        }
-        return <span className="text-text-muted">-</span>;
       },
     },
     {
@@ -469,17 +452,12 @@ export function VehiclesPage() {
             <Input
               label={t('vehicles.form.year')}
               type="number"
-              value={createForm.año?.toString() || ''}
-              onChange={(e) => setCreateForm({ ...createForm, año: e.target.value ? Number(e.target.value) : undefined })}
+              value={createForm.anio?.toString() || ''}
+              onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
               placeholder={t('vehicles.form.yearPlaceholder')}
             />
-            
-            {/* Organization selector (optional) */}
-            <OrganizacionAsociadaSelector
-              value={createForm.organizacionAsociadaId}
-              onChange={(orgId) => setCreateForm({ ...createForm, organizacionAsociadaId: orgId })}
-            />
-            
+
+
             {/* Device selector (optional) */}
             <div>
               <label className="block text-sm font-medium text-text mb-2">
@@ -501,7 +479,7 @@ export function VehiclesPage() {
                 {t('vehicles.form.deviceHint')}
               </p>
             </div>
-            
+
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); }} disabled={isCreating}>
                 {t('common.cancel')}
@@ -621,17 +599,12 @@ export function VehiclesPage() {
           <Input
             label={t('vehicles.form.year')}
             type="number"
-            value={createForm.año?.toString() || ''}
-            onChange={(e) => setCreateForm({ ...createForm, año: e.target.value ? Number(e.target.value) : undefined })}
+            value={createForm.anio?.toString() || ''}
+            onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
-          
-          {/* Organization selector (optional) */}
-          <OrganizacionAsociadaSelector
-            value={createForm.organizacionAsociadaId}
-            onChange={(orgId) => setCreateForm({ ...createForm, organizacionAsociadaId: orgId })}
-          />
-          
+
+
           {/* Device selector (optional) */}
           <div>
             <label className="block text-sm font-medium text-text mb-2">
@@ -653,7 +626,7 @@ export function VehiclesPage() {
               {t('vehicles.form.deviceHint')}
             </p>
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); }} disabled={isCreating}>
               {t('common.cancel')}
@@ -694,17 +667,12 @@ export function VehiclesPage() {
           <Input
             label={t('vehicles.form.year')}
             type="number"
-            value={editForm.año?.toString() || ''}
-            onChange={(e) => setEditForm({ ...editForm, año: e.target.value ? Number(e.target.value) : undefined })}
+            value={editForm.anio?.toString() || ''}
+            onChange={(e) => setEditForm({ ...editForm, anio: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
-          
-          {/* Organization selector (optional) */}
-          <OrganizacionAsociadaSelector
-            value={editForm.organizacionAsociadaId}
-            onChange={(orgId) => setEditForm({ ...editForm, organizacionAsociadaId: orgId })}
-          />
-          
+
+
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -743,7 +711,7 @@ export function VehiclesPage() {
               </p>
             </div>
           )}
-          
+
           <div>
             <label className="block text-sm font-medium text-text mb-2">
               {t('vehicles.form.device')}
@@ -764,7 +732,7 @@ export function VehiclesPage() {
               {t('vehicles.form.selectDevice')}
             </p>
           </div>
-          
+
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => setIsAssignModalOpen(false)} disabled={isAssigning}>
               {t('common.cancel')}

@@ -90,21 +90,6 @@ export function LabelConfigMenu({ isOpen, onClose: _onClose }: LabelConfigMenuPr
             </span>
           </label>
 
-          <label
-            className={`flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-background cursor-pointer transition-colors ${!labelConfig.enabled ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-          >
-            <input
-              type="checkbox"
-              checked={labelConfig.showOrganizacionAsociada}
-              onChange={() => toggleLabelField('showOrganizacionAsociada')}
-              disabled={!labelConfig.enabled}
-              className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <span className="text-sm text-text">
-              {t('map.labelConfig.showOrganizacionAsociada')}
-            </span>
-          </label>
         </div>
       </div>
     </div>

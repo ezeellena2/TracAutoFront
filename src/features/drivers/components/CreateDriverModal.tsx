@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { Modal, Input, Button, OrganizacionAsociadaSelector } from '@/shared/ui';
+import { Modal, Input, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
 import { useErrorHandler } from '@/hooks';
@@ -21,7 +21,6 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
     dni: '',
     email: '',
     telefono: '',
-    organizacionAsociadaId: undefined,
   });
   const [errors, setErrors] = useState<{ nombreCompleto?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -48,10 +47,9 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
         dni: form.dni?.trim() || undefined,
         email: form.email?.trim() || undefined,
         telefono: form.telefono?.trim() || undefined,
-        organizacionAsociadaId: form.organizacionAsociadaId || undefined,
       });
       toast.success(t('drivers.success.created'));
-      setForm({ nombreCompleto: '', dni: '', email: '', telefono: '', organizacionAsociadaId: undefined });
+      setForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
       setErrors({});
       onSuccess();
       onClose();
@@ -63,7 +61,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
   };
 
   const handleClose = () => {
-    setForm({ nombreCompleto: '', dni: '', email: '', telefono: '', organizacionAsociadaId: undefined });
+    setForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
     setErrors({});
     onClose();
   };
@@ -106,11 +104,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
             placeholder={t('drivers.form.phonePlaceholder')}
           />
-          
-          <OrganizacionAsociadaSelector
-            value={form.organizacionAsociadaId}
-            onChange={(orgId) => setForm({ ...form, organizacionAsociadaId: orgId })}
-          />
+
 
           <div className="flex gap-3 pt-2">
             <Button

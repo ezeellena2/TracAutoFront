@@ -7,8 +7,6 @@ export interface ConductorDto {
   activo: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
-  organizacionAsociadaId?: string | null;
-  organizacionAsociadaNombre?: string | null;
   esRecursoAsociado: boolean;
 }
 
@@ -39,7 +37,6 @@ export interface CreateConductorCommand {
   dni?: string;
   email?: string;
   telefono?: string;
-  organizacionAsociadaId?: string;
 }
 
 export interface UpdateConductorCommand {
@@ -47,7 +44,6 @@ export interface UpdateConductorCommand {
   nombreCompleto: string;
   email?: string;
   telefono?: string;
-  organizacionAsociadaId?: string;
 }
 
 export interface AsignarVehiculoRequest {

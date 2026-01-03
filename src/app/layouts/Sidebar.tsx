@@ -13,7 +13,8 @@ import {
   Map,
   UserCircle,
   Link2,
-  ShoppingCart
+  ShoppingCart,
+  X
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -61,15 +62,24 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const { t } = useTranslation();
-  const { isCollapsed, toggleCollapsed } = useSidebarStore();
+  const { isCollapsed, toggleCollapsed, isMobileOpen, closeMobile } = useSidebarStore();
   const { currentOrganization } = useTenantStore();
   const { can } = usePermissions();
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
+  // Close mobile drawer when route changes
+  useEffect(() => {
+    closeMobile();
+  }, [location.pathname, closeMobile]);
+
   // Filtrar items según permisos del usuario y tipo de organización
-  const visibleNavItems = useMemo(() =>
-    navItems.filter(item => {
+  const visibleNavItems = useMemo(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Sidebar.tsx:77',message:'[HYP-C/E] Sidebar render - currentOrganization estado',data:{currentOrg:currentOrganization?{id:currentOrganization.id,name:currentOrganization.name,tipoOrganizacion:currentOrganization.tipoOrganizacion}:null,esNull:!currentOrganization},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+
+    return navItems.filter(item => {
       // Validar permiso
       const hasPermission = !item.requiredPermission || can(item.requiredPermission);
 
@@ -77,10 +87,15 @@ export function Sidebar() {
       const hasOrganizationType = !item.requiredOrganizationType ||
         (currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
 
+      // #region agent log
+      if (item.path === '/marketplace') {
+        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Sidebar.tsx:84',message:'[HYP-D] Marketplace filter - comparación de tipos',data:{currentTipoOrg:currentOrganization?.tipoOrganizacion,requiredTipoOrg:item.requiredOrganizationType,comparacion:currentOrganization?.tipoOrganizacion===item.requiredOrganizationType,hasPermission,hasOrganizationType,visible:hasPermission&&hasOrganizationType},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      }
+      // #endregion
+
       return hasPermission && hasOrganizationType;
-    }),
-    [can, currentOrganization]
-  );
+    });
+  }, [can, currentOrganization]);
 
   // Auto-expandir submenús cuando la ruta actual coincide con algún hijo
   useEffect(() => {
@@ -113,133 +128,154 @@ export function Sidebar() {
   const isMenuExpanded = (menuKey: string) => expandedMenus.has(menuKey);
 
   return (
-    <aside
-      className={`
-        fixed left-0 top-0 h-screen bg-surface border-r border-border
-        transition-all duration-300 z-40 flex flex-col
-        ${isCollapsed ? 'w-20' : 'w-64'}
-      `}
-    >
-      {/* Logo */}
-      <div className="h-16 flex items-center justify-center border-b border-border px-4 flex-shrink-0">
-        {!isCollapsed ? (
-          <div className="flex items-center gap-3">
+    <>
+      {/* Mobile backdrop */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`
+          fixed left-0 top-0 h-screen bg-surface border-r border-border
+          transition-all duration-300 z-50 flex flex-col
+          ${isCollapsed ? 'md:w-20' : 'md:w-64'}
+          w-64 -translate-x-full md:translate-x-0
+          ${isMobileOpen ? 'translate-x-0' : ''}
+        `}
+      >
+        {/* Mobile close button */}
+        <button
+          onClick={closeMobile}
+          className="absolute top-4 right-4 p-1 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors md:hidden"
+          aria-label={t('common.close')}
+        >
+          <X size={20} />
+        </button>
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-center border-b border-border px-4 flex-shrink-0">
+          {!isCollapsed ? (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                <Car size={24} className="text-white" />
+              </div>
+              <span className="font-bold text-lg text-text">TracAuto</span>
+            </div>
+          ) : (
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <Car size={24} className="text-white" />
             </div>
-            <span className="font-bold text-lg text-text">TracAuto</span>
-          </div>
-        ) : (
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-            <Car size={24} className="text-white" />
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-        {visibleNavItems.map((item, index) => {
-          const menuKey = `menu-${index}`;
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          {visibleNavItems.map((item, index) => {
+            const menuKey = `menu-${index}`;
 
-          // Si tiene children, renderizar como submenú
-          if (item.children) {
-            const isExpanded = isMenuExpanded(menuKey);
-            const hasActiveChild = item.children.some(child =>
-              child.path && location.pathname === child.path
-            );
+            // Si tiene children, renderizar como submenú
+            if (item.children) {
+              const isExpanded = isMenuExpanded(menuKey);
+              const hasActiveChild = item.children.some(child =>
+                child.path && location.pathname === child.path
+              );
 
-            return (
-              <div key={menuKey} className="space-y-1">
-                <button
-                  onClick={() => !isCollapsed && toggleMenu(menuKey)}
-                  className={`
+              return (
+                <div key={menuKey} className="space-y-1">
+                  <button
+                    onClick={() => !isCollapsed && toggleMenu(menuKey)}
+                    className={`
                     w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${hasActiveChild
-                      ? 'bg-primary text-white'
-                      : 'text-text-muted hover:text-text hover:bg-background'
-                    }
+                        ? 'bg-primary text-white'
+                        : 'text-text-muted hover:text-text hover:bg-background'
+                      }
                     ${isCollapsed ? 'justify-center' : ''}
                   `}
-                  disabled={isCollapsed}
-                >
-                  <item.icon size={20} />
-                  {!isCollapsed && (
-                    <>
-                      <span className="font-medium flex-1 text-left">{t(item.labelKey)}</span>
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                      />
-                    </>
-                  )}
-                </button>
+                    disabled={isCollapsed}
+                  >
+                    <item.icon size={20} />
+                    {!isCollapsed && (
+                      <>
+                        <span className="font-medium flex-1 text-left">{t(item.labelKey)}</span>
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      </>
+                    )}
+                  </button>
 
-                {/* Submenú items */}
-                {!isCollapsed && isExpanded && (
-                  <div className="ml-4 space-y-1 border-l-2 border-border pl-2">
-                    {item.children.map((child) => {
-                      const isActive = child.path === location.pathname;
-                      return (
-                        <NavLink
-                          key={child.path}
-                          to={child.path!}
-                          className={`
+                  {/* Submenú items */}
+                  {!isCollapsed && isExpanded && (
+                    <div className="ml-4 space-y-1 border-l-2 border-border pl-2">
+                      {item.children.map((child) => {
+                        const isActive = child.path === location.pathname;
+                        return (
+                          <NavLink
+                            key={child.path}
+                            to={child.path!}
+                            className={`
                             flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
                             ${isActive
-                              ? 'bg-primary text-white'
-                              : 'text-text-muted hover:text-text hover:bg-background'
-                            }
+                                ? 'bg-primary text-white'
+                                : 'text-text-muted hover:text-text hover:bg-background'
+                              }
                           `}
-                        >
-                          <child.icon size={18} />
-                          <span className="font-medium text-sm">{t(child.labelKey)}</span>
-                        </NavLink>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          }
+                          >
+                            <child.icon size={18} />
+                            <span className="font-medium text-sm">{t(child.labelKey)}</span>
+                          </NavLink>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
-          // Si no tiene children, renderizar como item normal
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path!}
-              className={({ isActive }) => `
+            // Si no tiene children, renderizar como item normal
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path!}
+                className={({ isActive }) => `
                 flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                 ${isActive
-                  ? 'bg-primary text-white'
-                  : 'text-text-muted hover:text-text hover:bg-background'
-                }
+                    ? 'bg-primary text-white'
+                    : 'text-text-muted hover:text-text hover:bg-background'
+                  }
                 ${isCollapsed ? 'justify-center' : ''}
               `}
-            >
-              <item.icon size={20} />
-              {!isCollapsed && <span className="font-medium">{t(item.labelKey)}</span>}
-            </NavLink>
-          );
-        })}
-      </nav>
+              >
+                <item.icon size={20} />
+                {!isCollapsed && <span className="font-medium">{t(item.labelKey)}</span>}
+              </NavLink>
+            );
+          })}
+        </nav>
 
-      {/* Collapse button */}
-      <button
-        onClick={toggleCollapsed}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-text-muted hover:text-text transition-colors"
-      >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
+        {/* Collapse button - hidden on mobile */}
+        <button
+          onClick={toggleCollapsed}
+          className="hidden md:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface border border-border items-center justify-center text-text-muted hover:text-text transition-colors"
+        >
+          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
 
-      {/* Organization info at bottom */}
-      {currentOrganization && !isCollapsed && (
-        <div className="p-4 border-t border-border bg-background flex-shrink-0">
-          <p className="text-xs text-text-muted">{t('sidebar.organizationLabel')}</p>
-          <p className="text-sm font-medium text-text truncate">
-            {currentOrganization.name}
-          </p>
-        </div>
-      )}
-    </aside>
+        {/* Organization info at bottom */}
+        {currentOrganization && !isCollapsed && (
+          <div className="p-4 border-t border-border bg-background flex-shrink-0">
+            <p className="text-xs text-text-muted">{t('sidebar.organizationLabel')}</p>
+            <p className="text-sm font-medium text-text truncate">
+              {currentOrganization.name}
+            </p>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }

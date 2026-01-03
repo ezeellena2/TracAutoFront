@@ -14,13 +14,11 @@ export interface VehiculoDto {
   patente: string;
   marca: string | null;
   modelo: string | null;
-  año: number | null;
+  anio: number | null;
   activo: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
   dispositivoActivoId: string | null;
-  organizacionAsociadaId?: string | null;
-  organizacionAsociadaNombre?: string | null;
   esRecursoAsociado: boolean;
 }
 
@@ -30,8 +28,7 @@ export interface CreateVehiculoRequest {
   patente: string;
   marca?: string;
   modelo?: string;
-  año?: number;
-  organizacionAsociadaId?: string;
+  anio?: number;
 }
 
 /** Request to update a vehicle */
@@ -41,9 +38,8 @@ export interface UpdateVehiculoRequest {
   patente: string;
   marca?: string;
   modelo?: string;
-  año?: number;
+  anio?: number;
   activo: boolean;
-  organizacionAsociadaId?: string;
 }
 
 /** Request to assign a device to a vehicle */

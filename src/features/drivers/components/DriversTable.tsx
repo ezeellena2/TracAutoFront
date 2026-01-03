@@ -64,23 +64,6 @@ export function DriversTable({
       ),
     },
     {
-      key: 'organizacionAsociada',
-      header: t('drivers.associatedOrganization'),
-      render: (c: ConductorDto) => {
-        if (c.organizacionAsociadaNombre) {
-          return (
-            <div className="flex items-center gap-2">
-              <Badge variant="info">{c.organizacionAsociadaNombre}</Badge>
-              {c.esRecursoAsociado && (
-                <span className="text-xs text-text-muted">({t('drivers.sharedResource')})</span>
-              )}
-            </div>
-          );
-        }
-        return <span className="text-text-muted">-</span>;
-      },
-    },
-    {
       key: 'asignaciones',
       header: t('drivers.assignments'),
       render: () => (

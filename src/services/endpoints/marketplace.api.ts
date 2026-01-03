@@ -3,10 +3,12 @@ import type {
     VehiculoMarketplaceDto,
     PublicarVehiculoRequest,
     EditarPublicacionRequest,
+    CreateVehiculoMarketplaceRequest,
+    VincularVehiculoMarketplaceRequest,
     ListaPaginada,
 } from '@/shared/types/api';
 
-const BASE_URL = '/api/v1/marketplace';
+const BASE_URL = 'marketplace';
 
 /**
  * API para gestionar el marketplace de vehículos
@@ -71,5 +73,37 @@ export const marketplaceApi = {
             `${BASE_URL}/publicaciones/${publicacionId}`,
             data
         );
+    },
+
+    /**
+     * Crea un vehículo directamente en el marketplace (sin vehículo operativo asociado)
+     * @param data Datos del vehículo a crear
+     * @returns ID de la publicación creada
+     */
+    createVehiculoMarketplace: async (
+        data: CreateVehiculoMarketplaceRequest
+    ): Promise<string> => {
+        const response = await apiClient.post<string>(
+            `${BASE_URL}/vehiculos`,
+            data
+        );
+        return response.data;
+    },
+
+    /**
+     * Vincula un vehículo del marketplace a un vehículo/dispositivo/conductor existente
+     * @param publicacionId ID de la publicación a vincular
+     * @param data Datos de vinculación
+     * @returns ID del vehículo vinculado
+     */
+    vincularVehiculoMarketplace: async (
+        publicacionId: string,
+        data: VincularVehiculoMarketplaceRequest
+    ): Promise<string> => {
+        const response = await apiClient.post<string>(
+            `${BASE_URL}/publicaciones/${publicacionId}/vincular`,
+            data
+        );
+        return response.data;
     },
 };

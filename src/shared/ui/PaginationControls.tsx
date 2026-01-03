@@ -92,9 +92,9 @@ export function PaginationControls({
   }
 
   return (
-    <div className={`flex items-center justify-between gap-4 py-3 px-4 border-t border-border ${className}`}>
+    <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 px-4 border-t border-border ${className}`}>
       {/* Info de resultados */}
-      <div className="flex items-center gap-4 text-sm text-text-muted">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-text-muted">
         {showTotal && (
           <span>
             {totalRegistros} {totalRegistros === 1 ? t('common.results') : t('common.results_plural')}
@@ -125,7 +125,7 @@ export function PaginationControls({
         <span className="text-sm text-text-muted">
           {t('common.page')} {paginaActual} {t('common.of')} {totalPaginas}
         </span>
-        
+
         <div className="flex items-center gap-1">
           <button
             type="button"

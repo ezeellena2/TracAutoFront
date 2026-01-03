@@ -39,19 +39,21 @@ export async function login(email: string, password: string, rememberMe: boolean
     }
 
     // Cargar branding de empresa (company-wide) y aplicarlo como override.
-    // Si el backend ya devolvió el theme en la respuesta del login, usarlo directamente.
-    // Caso contrario, hacer fetch explícito (fallback para compatibilidad).
+    // IMPORTANTE: Siempre hacer fetch del DTO completo para obtener tipoOrganizacion
+    // (necesario para mostrar/ocultar módulos como Marketplace según el tipo)
     try {
-      let t = theme;
-      let orgName = user.organizationName;
+      // Siempre hacer fetch del DTO completo para tener tipoOrganizacion
+      const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
+      const t = theme || orgDto.theme;
 
-      // Si el theme no vino en el login response, hacer fetch de la organización
-      if (!t) {
-        const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
-        t = orgDto.theme;
-        orgName = orgDto.nombre;
-      }
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'auth.service.ts:49', message: '[HYP-A] orgDto recibido con tipoOrganizacion', data: { orgDtoId: orgDto.id, orgDtoNombre: orgDto.nombre, tipoOrganizacion: orgDto.tipoOrganizacion }, timestamp: Date.now(), sessionId: 'debug-marketplace', runId: 'run2', hypothesisId: 'A' }) }).catch(() => { });
+      // #endregion
 
+      // Usar setOrganizationFromDto para incluir tipoOrganizacion
+      useTenantStore.getState().setOrganizationFromDto(orgDto);
+
+      // Aplicar tema (usar theme del login si existe, sino del DTO)
       const override: Partial<ThemeColors> = {
         ...(t?.primary ? { primary: t.primary } : {}),
         ...(t?.primaryDark ? { primaryDark: t.primaryDark } : {}),
@@ -64,12 +66,13 @@ export async function login(email: string, password: string, rememberMe: boolean
         ...(t?.roleAnalistaText ? { roleAnalistaText: t.roleAnalistaText } : {}),
       };
 
-      useTenantStore.getState().setOrganization({
-        id: user.organizationId,
-        name: orgName,
-        logo: t?.logoUrl ?? '',
-        theme: override,
-      });
+      // Actualizar tema si hay override del login response
+      if (theme) {
+        useTenantStore.getState().setOrganization({
+          ...useTenantStore.getState().currentOrganization!,
+          theme: override,
+        });
+      }
 
       useThemeStore.getState().setDarkMode(preferredIsDark, override);
     } catch {
@@ -93,16 +96,16 @@ export async function login(email: string, password: string, rememberMe: boolean
  * Realiza login con email, password y organización seleccionada
  */
 export async function loginWithOrganization(
-  email: string, 
-  password: string, 
+  email: string,
+  password: string,
   organization: OrganizationTheme
 ): Promise<LoginResult> {
   try {
     const { token, user } = await authApi.loginTradicional(email, password, organization.id);
-    
+
     // Guardar en auth store
     useAuthStore.getState().login(user, token);
-    
+
     // Guardar organización y tema
     useTenantStore.getState().setOrganization(organization);
     // UI mode preferido (usuario+organización) + branding override (empresa)
@@ -115,7 +118,7 @@ export async function loginWithOrganization(
       // noop
     }
     themeState.setDarkMode(preferredIsDark, organization.theme);
-    
+
     return {
       success: true,
       user,

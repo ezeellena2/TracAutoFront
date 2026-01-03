@@ -30,18 +30,18 @@ export async function getDispositivos(
   params: GetDispositivosParams = {}
 ): Promise<ListaPaginada<DispositivoDto>> {
   const { numeroPagina = 1, tamanoPagina = 10, soloActivos } = params;
-  
+
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
     tamanoPagina,
   };
-  
+
   if (soloActivos !== undefined) {
     queryParams.soloActivos = soloActivos;
   }
-  
-  const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, { 
-    params: queryParams 
+
+  const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, {
+    params: queryParams
   });
   return response.data;
 }
@@ -55,12 +55,11 @@ export async function getDispositivos(
  */
 export async function createDispositivo(
   traccarDeviceId: number,
-  alias?: string,
-  organizacionAsociadaId?: string
+  alias?: string
 ): Promise<DispositivoDto> {
   const response = await apiClient.post<DispositivoDto>(
     DISPOSITIVOS_BASE,
-    { traccarDeviceId, alias, organizacionAsociadaId }
+    { traccarDeviceId, alias }
   );
   return response.data;
 }
@@ -76,12 +75,11 @@ export async function createDispositivo(
 export async function updateDispositivo(
   id: string,
   alias: string | undefined,
-  activo: boolean,
-  organizacionAsociadaId?: string
+  activo: boolean
 ): Promise<DispositivoDto> {
   const response = await apiClient.put<DispositivoDto>(
     `${DISPOSITIVOS_BASE}/${id}`,
-    { alias, activo, organizacionAsociadaId }
+    { alias, activo }
   );
   return response.data;
 }

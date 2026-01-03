@@ -35,9 +35,13 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
     selectedVehicleId,
     mapStyle,
     setMapStyle,
-    filterOrganizacionAsociadaId,
-    setFilterOrganizacionAsociadaId,
-    clearFilter
+    // New Filter State
+    filterMode,
+    filterOrgId,
+    // New Filter Actions
+    setFilterAll,
+    setFilterOwn,
+    setFilterByOrg
   } = useTraccarMapStore();
   const vehicles = useFilteredVehicles();
 
@@ -89,34 +93,39 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
     setIsStyleMenuOpen(false);
   };
 
-  const handleFilterChange = (value: string | null) => {
-    if (value === null) {
-      clearFilter();
-    } else {
-      setFilterOrganizacionAsociadaId(value);
+  const handleFilterClick = (type: 'all' | 'own' | 'org', orgId?: string, orgName?: string) => {
+    if (type === 'all') {
+      setFilterAll();
+    } else if (type === 'own') {
+      setFilterOwn();
+    } else if (type === 'org' && orgId && orgName) {
+      setFilterByOrg(orgId, orgName);
     }
     setIsFilterMenuOpen(false);
   };
 
   // Get current filter label
   const getFilterLabel = () => {
-    if (filterOrganizacionAsociadaId === null) {
+    if (filterMode === 'all') {
       return t('map.filter.all');
     }
-    if (filterOrganizacionAsociadaId === 'own') {
+    if (filterMode === 'own') {
       return t('map.filter.own');
     }
-    const relacion = organizacionesRelacionadas.find(
-      (r) => r.organizacionAId === filterOrganizacionAsociadaId || r.organizacionBId === filterOrganizacionAsociadaId
-    );
-    if (relacion && currentOrganizationId) {
-      // Get the other organization name (the one that's not the current)
-      const orgName = relacion.organizacionAId === currentOrganizationId
-        ? relacion.organizacionBNombre
-        : relacion.organizacionANombre;
-      return orgName || t('map.filter.selectOrganization');
+    if (filterMode === 'organization' && filterOrgId) {
+      const relacion = organizacionesRelacionadas.find(
+        (r) => r.organizacionAId === filterOrgId || r.organizacionBId === filterOrgId
+      );
+
+      if (relacion) {
+        const isA = relacion.organizacionAId === currentOrganizationId;
+        const orgName = isA ? relacion.organizacionBNombre : relacion.organizacionANombre;
+        return orgName || t('map.filter.selectOrganization');
+      }
+      // Fallback si no encontramos la relación (ej: paginación o cache)
+      return t('map.filter.selectOrganization');
     }
-    return t('map.filter.selectOrganization');
+    return t('map.filter.all');
   };
 
   return (
@@ -125,14 +134,14 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       <div className="relative" ref={filterMenuRef}>
         <button
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-          className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg ${filterOrganizacionAsociadaId !== null
+          className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg ${filterMode !== 'all'
             ? 'bg-primary border-primary text-white hover:bg-primary/90'
             : 'bg-surface border-border text-text hover:bg-background'
             }`}
           title={t('map.filter.title')}
         >
-          <Filter size={18} className={filterOrganizacionAsociadaId !== null ? 'text-white' : ''} />
-          <span className={`text-sm font-medium hidden sm:inline max-w-[120px] truncate ${filterOrganizacionAsociadaId !== null ? 'text-white' : ''
+          <Filter size={18} className={filterMode !== 'all' ? 'text-white' : ''} />
+          <span className={`text-sm font-medium hidden sm:inline max-w-[120px] truncate ${filterMode !== 'all' ? 'text-white' : ''
             }`}>
             {getFilterLabel()}
           </span>
@@ -141,8 +150,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         {isFilterMenuOpen && (
           <div className="absolute top-full right-0 mt-2 w-56 bg-surface border border-border rounded-lg shadow-xl overflow-hidden">
             <button
-              onClick={() => handleFilterChange(null)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === null
+              onClick={() => handleFilterClick('all')}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterMode === 'all'
                 ? 'bg-primary text-white font-medium'
                 : 'text-text hover:bg-background'
                 }`}
@@ -150,8 +159,8 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
               {t('map.filter.all')}
             </button>
             <button
-              onClick={() => handleFilterChange('own')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === 'own'
+              onClick={() => handleFilterClick('own')}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterMode === 'own'
                 ? 'bg-primary text-white font-medium'
                 : 'text-text hover:bg-background'
                 }`}
@@ -165,12 +174,13 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
                   // Determine which organization ID to use (the other one, not current)
                   const isA = relacion.organizacionAId === currentOrganizationId;
                   const orgId = isA ? relacion.organizacionBId : relacion.organizacionAId;
+                  // Usamos el nombre que viene de la relación para filtrar en el mapa
                   const orgName = isA ? relacion.organizacionBNombre : relacion.organizacionANombre;
                   return (
                     <button
                       key={relacion.id}
-                      onClick={() => handleFilterChange(orgId)}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterOrganizacionAsociadaId === orgId
+                      onClick={() => handleFilterClick('org', orgId, orgName)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${filterMode === 'organization' && filterOrgId === orgId
                         ? 'bg-primary text-white font-medium'
                         : 'text-text hover:bg-background'
                         }`}

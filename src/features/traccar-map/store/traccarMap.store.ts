@@ -6,23 +6,30 @@ interface LabelConfig {
   showImei: boolean;
   showPatente: boolean;
   showEstado: boolean;
-  showOrganizacionAsociada: boolean;
 }
+
+// Nuevo tipo de filtro compatible
+export type FilterMode = 'all' | 'own' | 'organization';
 
 interface TraccarMapState {
   // Data
   vehicles: VehiclePosition[];
   isLoading: boolean;
   error: string | null;
-  
+
   // UI State
   selectedVehicleId: string | null;
   searchText: string;
   labelConfig: LabelConfig;
-  filterOrganizacionAsociadaId: string | null; // null = todos, "own" = solo propios, GUID = organización específica
+
+  // Filtros (Refactorizado para compatibilidad BE Hall-028)
+  filterMode: FilterMode;
+  filterOrgName: string | null;     // Nombre de la org para filtrar (no ID)
+  filterOrgId: string | null;       // ID de la org para UI (dropdown active state)
+
   mapStyle: MapStyle;
   viewport: MapViewport;
-  
+
   // Actions
   setVehicles: (vehicles: VehiclePosition[]) => void;
   setLoading: (loading: boolean) => void;
@@ -31,8 +38,13 @@ interface TraccarMapState {
   setSearchText: (text: string) => void;
   toggleLabelField: (field: keyof Omit<LabelConfig, 'enabled'>) => void;
   setLabelConfig: (config: Partial<LabelConfig>) => void;
-  setFilterOrganizacionAsociadaId: (id: string | null) => void;
-  clearFilter: () => void;
+
+  // Filtros Actions
+  setFilterAll: () => void;
+  setFilterOwn: () => void;
+  setFilterByOrg: (orgId: string, orgName: string) => void;
+  clearFilter: () => void; // Alias de setFilterAll
+
   setMapStyle: (style: MapStyle) => void;
   setViewport: (viewport: MapViewport) => void;
   resetState: () => void;
@@ -49,7 +61,6 @@ const initialLabelConfig: LabelConfig = {
   showImei: false,
   showPatente: true,
   showEstado: false,
-  showOrganizacionAsociada: false,
 };
 
 const initialState = {
@@ -59,14 +70,16 @@ const initialState = {
   selectedVehicleId: null,
   searchText: '',
   labelConfig: initialLabelConfig,
-  filterOrganizacionAsociadaId: null,
+  filterMode: 'all' as FilterMode,
+  filterOrgName: null,
+  filterOrgId: null,
   mapStyle: 'streets' as MapStyle,
   viewport: DEFAULT_VIEWPORT,
 };
 
 export const useTraccarMapStore = create<TraccarMapState>((set) => ({
   ...initialState,
-  
+
   setVehicles: (vehicles) => set({ vehicles }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
@@ -84,8 +97,13 @@ export const useTraccarMapStore = create<TraccarMapState>((set) => ({
       ...config,
     },
   })),
-  setFilterOrganizacionAsociadaId: (id) => set({ filterOrganizacionAsociadaId: id }),
-  clearFilter: () => set({ filterOrganizacionAsociadaId: null }),
+
+  // Nuevas acciones de filtro
+  setFilterAll: () => set({ filterMode: 'all', filterOrgName: null, filterOrgId: null }),
+  setFilterOwn: () => set({ filterMode: 'own', filterOrgName: null, filterOrgId: null }),
+  setFilterByOrg: (orgId, orgName) => set({ filterMode: 'organization', filterOrgId: orgId, filterOrgName: orgName }),
+  clearFilter: () => set({ filterMode: 'all', filterOrgName: null, filterOrgId: null }),
+
   setMapStyle: (mapStyle) => set({ mapStyle }),
   setViewport: (viewport) => set({ viewport }),
   resetState: () => set(initialState),
@@ -95,21 +113,20 @@ export const useTraccarMapStore = create<TraccarMapState>((set) => ({
 export const useFilteredVehicles = () => {
   const vehicles = useTraccarMapStore((state) => state.vehicles);
   const searchText = useTraccarMapStore((state) => state.searchText);
-  const filterOrganizacionAsociadaId = useTraccarMapStore((state) => state.filterOrganizacionAsociadaId);
-  
+
+  const filterMode = useTraccarMapStore((state) => state.filterMode);
+
+
   let filtered = vehicles;
-  
-  // Apply organization filter
-  if (filterOrganizacionAsociadaId !== null) {
-    if (filterOrganizacionAsociadaId === 'own') {
-      // Solo propios: sin organizacionAsociadaId
-      filtered = filtered.filter((v) => !v.organizacionAsociadaId);
-    } else {
-      // Organización específica
-      filtered = filtered.filter((v) => v.organizacionAsociadaId === filterOrganizacionAsociadaId);
-    }
+
+  // Apply organization filter (Updated Logic)
+  if (filterMode === 'own') {
+    // Solo propios: aquellos que NO son recurso asociado
+    filtered = filtered.filter((v) => !v.esRecursoAsociado);
+    // Por organización específica: ignorar filterOrgName ya que no tenemos el campo
+    // filtered = filtered; 
   }
-  
+
   // Apply search filter
   if (searchText.trim()) {
     const search = searchText.toLowerCase();
@@ -119,7 +136,7 @@ export const useFilteredVehicles = () => {
         (v.patente && v.patente.toLowerCase().includes(search))
     );
   }
-  
+
   return filtered;
 };
 

@@ -281,13 +281,12 @@ export interface VehiculoDto {
   patente: string;
   marca: string | null;
   modelo: string | null;
-  año: number | null;
+  anio: number | null;
   activo: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
   dispositivoActivoId: string | null;
-  organizacionAsociadaId?: string | null;
-  organizacionAsociadaNombre?: string | null;
+  dispositivoActivoNombre?: string | null;
   esRecursoAsociado: boolean;
 }
 
@@ -311,8 +310,6 @@ export interface DispositivoDto {
   estadoConexion: string | null;
   uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
-  organizacionAsociadaId?: string | null;
-  organizacionAsociadaNombre?: string | null;
   esRecursoAsociado: boolean;
 }
 
@@ -337,7 +334,7 @@ export interface VehiculoMarketplaceDto {
   patente: string;
   marca: string | null;
   modelo: string | null;
-  año: number | null;
+  anio: number | null;
   activo: boolean;
 
   // Datos de la publicación (null si no publicado)
@@ -349,6 +346,12 @@ export interface VehiculoMarketplaceDto {
   descripcion: string | null;
   destacado: boolean;
   fechaPublicacion: string | null; // ISO 8601
+
+  /**
+   * Indica si la publicación tiene un vehículo operativo asociado.
+   * Si es false, es una publicación independiente (solo para venta).
+   */
+  tieneVehiculoAsociado: boolean;
 }
 
 /**
@@ -370,4 +373,30 @@ export interface EditarPublicacionRequest {
   kilometraje: number;
   descripcion: string | null;
   estado: EstadoPublicacion;
+}
+
+/**
+ * Request para crear un vehículo directamente en el marketplace
+ */
+export interface CreateVehiculoMarketplaceRequest {
+  patente: string;
+  marca?: string | null;
+  modelo?: string | null;
+  anio?: number | null;
+  precio?: number | null;
+  moneda?: string;
+  kilometraje?: number;
+  descripcion?: string | null;
+  estado?: EstadoPublicacion;
+  vehiculoId?: string | null;
+}
+
+/**
+ * Request para vincular un vehículo del marketplace a un vehículo/dispositivo/conductor
+ */
+export interface VincularVehiculoMarketplaceRequest {
+  vehiculoId?: string | null;
+  dispositivoId?: string | null;
+  conductorId?: string | null;
+  motivoCambio?: string | null;
 }

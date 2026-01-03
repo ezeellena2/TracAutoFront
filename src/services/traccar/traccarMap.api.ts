@@ -21,8 +21,6 @@ interface VehiclePositionApiDto {
   velocidad: number;
   lastUpdateUtc: string;
   estado: string | null;
-  organizacionAsociadaId?: string | null;
-  organizacionAsociadaNombre?: string | null;
 }
 
 /**
@@ -39,8 +37,6 @@ function mapToVehiclePosition(dto: VehiclePositionApiDto): VehiclePosition {
     velocidad: dto.velocidad,
     lastUpdate: new Date(dto.lastUpdateUtc),
     estado: (dto.estado as VehiclePosition['estado']) ?? 'unknown',
-    organizacionAsociadaId: dto.organizacionAsociadaId ?? undefined,
-    organizacionAsociadaNombre: dto.organizacionAsociadaNombre ?? undefined,
   };
 }
 
