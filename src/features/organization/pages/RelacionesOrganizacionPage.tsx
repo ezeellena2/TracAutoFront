@@ -9,6 +9,8 @@ import { useAuthStore } from '@/store';
 import { CrearRelacionModal } from '../components/CrearRelacionModal';
 import { RelacionesTable } from '../components/RelacionesTable';
 import { AsignarRecursosModal } from '../components/AsignarRecursosModal';
+import { GestionarExclusionesModal } from '../components/GestionarExclusionesModal';
+// OrganizacionRelacionDto already imported above
 
 export function RelacionesOrganizacionPage() {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ export function RelacionesOrganizacionPage() {
   const [relacionToDelete, setRelacionToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [relacionToAssignResources, setRelacionToAssignResources] = useState<string | null>(null);
+  const [relacionToManageExclusions, setRelacionToManageExclusions] = useState<OrganizacionRelacionDto | null>(null); // Store full object for name access
   const { can } = usePermissions();
 
   // Permisos específicos para acciones de relaciones (solo Admin)
@@ -183,6 +186,10 @@ export function RelacionesOrganizacionPage() {
               organizacionActualId={organizacionId}
               onDelete={handleDelete}
               onAssignResources={(relacionId) => setRelacionToAssignResources(relacionId)}
+              onManageExclusions={(relacionId) => {
+                const relacion = relaciones.find(r => r.id === relacionId);
+                if (relacion) setRelacionToManageExclusions(relacion);
+              }}
               actionMenuOpen={actionMenuOpen}
               setActionMenuOpen={setActionMenuOpen}
               relacionToDelete={relacionToDelete}
@@ -219,6 +226,21 @@ export function RelacionesOrganizacionPage() {
           onSuccess={loadRelaciones}
           relacionId={relacionToAssignResources}
           organizacionActualId={organizacionId}
+        />
+      )}
+
+      {relacionToManageExclusions && (
+        <GestionarExclusionesModal
+          isOpen={relacionToManageExclusions !== null}
+          onClose={() => setRelacionToManageExclusions(null)}
+          relacionId={relacionToManageExclusions.id}
+          // Si yo soy A, la otra es B. Si soy B, la otra es A.
+          organizacionContrariaNombre={
+            relacionToManageExclusions.organizacionAId === organizacionId
+              ? relacionToManageExclusions.organizacionBNombre
+              : relacionToManageExclusions.organizacionANombre
+          }
+          esOutbound={true} // Por ahora siempre "Outbound" (lo que yo excluyo) desde este botón
         />
       )}
     </div>

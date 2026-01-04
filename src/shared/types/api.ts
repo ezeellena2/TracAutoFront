@@ -169,6 +169,36 @@ export interface OrganizacionRelacionDto {
   modificadoPorUsuarioId?: string | null;
 }
 
+export enum TipoRecurso {
+  Vehiculo = 1,
+  Conductor = 2,
+  DispositivoTraccar = 3,
+}
+
+export interface ResourceExclusionDto {
+  id: string;
+  organizacionRelacionId: string;
+  fromOrganizacionId: string;
+  toOrganizacionId: string;
+  resourceType: TipoRecurso;
+  resourceId: string;
+  resourceName?: string; // Nombre del recurso para mostrar en UI
+  activo: boolean;
+  motivo?: string | null;
+  fechaCreacion: string;
+}
+
+export interface AddResourceExclusionsCommand {
+  toOrganizacionId: string;
+  resourceType: TipoRecurso;
+  resourceIds: string[];
+  motivo?: string | null;
+}
+
+export interface RemoveResourceExclusionsCommand {
+  exclusionIds: string[];
+}
+
 export interface OrganizacionDto {
   id: string;
   nombre: string;

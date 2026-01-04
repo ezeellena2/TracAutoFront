@@ -37,6 +37,17 @@
     "saving": "Saving...",
     "assign": "Assign"
   },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear",
+    "show": "Show filters",
+    "hide": "Hide filters",
+    "placeholder": {
+      "text": "Filter...",
+      "select": "All"
+    },
+    "noResults": "No results found with active filters."
+  },
   "header": {
     "darkMode": "Dark mode",
     "lightMode": "Light mode",
@@ -107,6 +118,8 @@
     "assignDevice": "Assign Device",
     "changeDevice": "Change Device",
     "unassignDevice": "Unassign Device",
+    "selectDevice": "Select Device",
+    "assignDescription": "Select the device you want to link to this vehicle. If the device is already assigned to another vehicle, it will be automatically reassigned.",
     "form": {
       "type": "Type",
       "licensePlate": "License Plate",

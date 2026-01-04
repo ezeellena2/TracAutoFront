@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
-import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { VehiculoDto, CreateVehiculoRequest, TipoVehiculo } from '../types';
 import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
@@ -15,18 +15,28 @@ export function VehiclesPage() {
   const culture = localization.culture;
   const timeZoneId = localization.timeZoneId;
   const { getErrorMessage } = useErrorHandler();
-  // Data state - ahora guardamos ListaPaginada completa
+  // Data state
   const [vehiclesData, setVehiclesData] = useState<ListaPaginada<VehiculoDto> | null>(null);
   const [devices, setDevices] = useState<DispositivoDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Hook de paginación reutilizable
+  // Pagination hook
   const {
     setNumeroPagina,
     setTamanoPagina,
     params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
+
+  // Filters hook
+  const {
+    filters,
+    setFilter,
+    toggleFilters,
+    showFilters,
+    clearFilters,
+    queryParams: filterParams
+  } = useTableFilters();
 
   // Create modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -37,7 +47,6 @@ export function VehiclesPage() {
     marca: '',
     modelo: '',
     anio: undefined,
-
   });
   const [createDeviceId, setCreateDeviceId] = useState(''); // Device to assign on create
   const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
@@ -53,7 +62,6 @@ export function VehiclesPage() {
     modelo: '',
     anio: undefined as number | undefined,
     activo: true,
-
   });
 
   // Delete modal
@@ -72,13 +80,13 @@ export function VehiclesPage() {
   const canCreate = can('vehiculos:crear');
   const canDelete = can('vehiculos:eliminar');
 
-  // Load data - usa parámetros de paginación dinámicos
+  // Load data
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const [vehiculosResult, devicesResult] = await Promise.all([
-        vehiculosApi.getVehiculos(paginationParams),
+        vehiculosApi.getVehiculos({ ...paginationParams, ...filterParams }),
         dispositivosApi.getDispositivos({ tamanoPagina: 50 }), // Dispositivos sin paginar (para select)
       ]);
       setVehiclesData(vehiculosResult);
@@ -88,13 +96,13 @@ export function VehiclesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams]);
+  }, [paginationParams, filterParams]);
 
   useEffect(() => {
     void loadData();
   }, [loadData]);
 
-  // Ajustar automáticamente si la página actual excede el total de páginas
+  // Adjust page if out of bounds
   useEffect(() => {
     if (
       vehiclesData &&
@@ -124,8 +132,6 @@ export function VehiclesPage() {
         ...createForm,
         patente: createForm.patente.trim().toUpperCase(),
         marca: createForm.marca?.trim() || undefined,
-
-
       });
 
       // 2. If device selected, assign it
@@ -142,7 +148,6 @@ export function VehiclesPage() {
         toast.success(t('vehicles.success.created'));
       }
 
-      setIsCreateModalOpen(false);
       setIsCreateModalOpen(false);
       setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', anio: undefined });
       setCreateDeviceId('');
@@ -180,7 +185,6 @@ export function VehiclesPage() {
         modelo: editForm.modelo?.trim() || undefined,
         anio: editForm.anio,
         activo: editForm.activo,
-
       });
       toast.success(t('vehicles.success.updated'));
       setIsEditModalOpen(false);
@@ -227,23 +231,20 @@ export function VehiclesPage() {
 
     const currentDeviceId = vehicleToAssign.dispositivoActivoId || '';
 
-    // P0 Fix: No-op detection - don't call API if nothing changed
     if (selectedDeviceId === currentDeviceId) {
       setIsAssignModalOpen(false);
       setVehicleToAssign(null);
-      return; // No changes, just close modal
+      return;
     }
 
     setIsAssigning(true);
     try {
       if (selectedDeviceId) {
-        // Assign new device (backend handles closing previous if any)
         await vehiculosApi.assignDispositivo(vehicleToAssign.id, {
           dispositivoId: selectedDeviceId,
         });
         toast.success(t('vehicles.success.assigned'));
       } else if (currentDeviceId) {
-        // Unassign current device
         await vehiculosApi.unassignDispositivo(
           vehicleToAssign.id,
           currentDeviceId
@@ -260,10 +261,8 @@ export function VehiclesPage() {
     }
   };
 
-  // Extraer items para compatibilidad (computed desde vehiclesData)
   const vehicles = vehiclesData?.items ?? [];
 
-  // Table helpers
   const getDeviceName = (deviceId: string | null) => {
     if (!deviceId) return null;
     const device = devices.find(d => d.id === deviceId);
@@ -271,7 +270,12 @@ export function VehiclesPage() {
   };
 
   const columns = [
-    { key: 'patente', header: t('vehicles.licensePlate'), sortable: true },
+    {
+      key: 'patente',
+      header: t('vehicles.licensePlate'),
+      sortable: true,
+      filter: { type: 'text' as const, placeholder: t('filters.placeholder.text') }
+    },
     {
       key: 'vehiculo',
       header: t('vehicles.vehicle'),
@@ -279,6 +283,7 @@ export function VehiclesPage() {
         const parts = [v.marca, v.modelo, v.anio].filter(Boolean);
         return parts.length > 0 ? parts.join(' ') : '-';
       },
+      filter: { type: 'text' as const, field: 'marca', placeholder: t('vehicles.form.brand') }
     },
     {
       key: 'dispositivo',
@@ -300,6 +305,7 @@ export function VehiclesPage() {
           {v.activo ? t('common.active') : t('common.inactive')}
         </Badge>
       ),
+      filter: { type: 'boolean' as const }
     },
     {
       key: 'fechaCreacion',
@@ -346,7 +352,6 @@ export function VehiclesPage() {
     },
   ];
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -368,7 +373,6 @@ export function VehiclesPage() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="space-y-6">
@@ -390,8 +394,9 @@ export function VehiclesPage() {
     );
   }
 
-  // Empty state
-  if (vehicles.length === 0) {
+  const hasActiveFilters = Object.keys(filters).length > 0;
+
+  if (vehicles.length === 0 && !hasActiveFilters) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -422,7 +427,7 @@ export function VehiclesPage() {
           </div>
         </Card>
 
-        {/* Create Modal (needed even for empty state) */}
+        {/* Create Modal */}
         <Modal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
@@ -457,8 +462,6 @@ export function VehiclesPage() {
               placeholder={t('vehicles.form.yearPlaceholder')}
             />
 
-
-            {/* Device selector (optional) */}
             <div>
               <label className="block text-sm font-medium text-text mb-2">
                 {t('vehicles.form.deviceOptional')}
@@ -494,10 +497,8 @@ export function VehiclesPage() {
     );
   }
 
-  // Normal render with data
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
@@ -511,7 +512,6 @@ export function VehiclesPage() {
         )}
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <div className="flex items-center gap-4">
@@ -519,7 +519,7 @@ export function VehiclesPage() {
               <Car size={24} className="text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-text">{vehicles.length}</p>
+              <p className="text-2xl font-bold text-text">{vehiclesData?.totalRegistros ?? vehicles.length}</p>
               <p className="text-sm text-text-muted">{t('vehicles.totalVehicles')}</p>
             </div>
           </div>
@@ -531,7 +531,7 @@ export function VehiclesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {vehicles.filter((v) => v.dispositivoActivoId).length}
+                {vehiclesData?.items.filter((v) => v.dispositivoActivoId).length ?? 0}
               </p>
               <p className="text-sm text-text-muted">{t('vehicles.withDevice')}</p>
             </div>
@@ -544,7 +544,7 @@ export function VehiclesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">
-                {vehicles.filter((v) => !v.dispositivoActivoId).length}
+                {vehiclesData?.items.filter((v) => !v.dispositivoActivoId).length ?? 0}
               </p>
               <p className="text-sm text-text-muted">{t('vehicles.withoutDevice')}</p>
             </div>
@@ -552,10 +552,22 @@ export function VehiclesPage() {
         </Card>
       </div>
 
-      {/* Table */}
       <Card padding="none">
-        <Table columns={columns} data={vehicles} keyExtractor={(v) => v.id} />
-        {/* Controles de paginación */}
+        <Table
+          columns={columns}
+          data={vehicles}
+          keyExtractor={(v) => v.id}
+          enableFilters={true}
+          showFilters={showFilters}
+          onToggleFilters={toggleFilters}
+          filters={filters}
+          onFilterChange={(field, value) => {
+            const op = ['activo'].includes(field) ? 'eq' : 'contains';
+            setFilter(field, value, op);
+          }}
+          onClearFilters={clearFilters}
+          emptyMessage={hasActiveFilters ? t('filters.noResults') : t('common.noData')}
+        />
         {vehiclesData && vehiclesData.totalRegistros > 0 && (
           <PaginationControls
             paginaActual={vehiclesData.paginaActual}
@@ -569,7 +581,6 @@ export function VehiclesPage() {
         )}
       </Card>
 
-      {/* Create Modal */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -604,8 +615,6 @@ export function VehiclesPage() {
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
 
-
-          {/* Device selector (optional) */}
           <div>
             <label className="block text-sm font-medium text-text mb-2">
               {t('vehicles.form.deviceOptional')}
@@ -638,7 +647,6 @@ export function VehiclesPage() {
         </div>
       </Modal>
 
-      {/* Edit Modal */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -654,13 +662,13 @@ export function VehiclesPage() {
           />
           <Input
             label={t('vehicles.form.brand')}
-            value={editForm.marca || ''}
+            value={editForm.marca}
             onChange={(e) => setEditForm({ ...editForm, marca: e.target.value })}
             placeholder={t('vehicles.form.brandPlaceholder')}
           />
           <Input
             label={t('vehicles.form.model')}
-            value={editForm.modelo || ''}
+            value={editForm.modelo}
             onChange={(e) => setEditForm({ ...editForm, modelo: e.target.value })}
             placeholder={t('vehicles.form.modelPlaceholder')}
           />
@@ -671,18 +679,16 @@ export function VehiclesPage() {
             onChange={(e) => setEditForm({ ...editForm, anio: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('vehicles.form.yearPlaceholder')}
           />
-
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              id="activo-edit"
+              id="active"
               checked={editForm.activo}
               onChange={(e) => setEditForm({ ...editForm, activo: e.target.checked })}
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
             />
-            <label htmlFor="activo-edit" className="text-sm text-text">
-              {t('vehicles.form.active')}
+            <label htmlFor="active" className="text-sm font-medium text-text">
+              {t('common.active')}
             </label>
           </div>
           <div className="flex justify-end gap-3 pt-4">
@@ -696,25 +702,27 @@ export function VehiclesPage() {
         </div>
       </Modal>
 
-      {/* Assign Device Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title={t('vehicles.deleteTitle')}
+        description={t('vehicles.deleteMessage', { patente: vehicleToDelete?.patente })}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        isLoading={isDeleting}
+      />
+
       <Modal
         isOpen={isAssignModalOpen}
         onClose={() => setIsAssignModalOpen(false)}
-        title={vehicleToAssign?.dispositivoActivoId ? t('vehicles.changeDevice') : t('vehicles.assignDevice')}
+        title={t('vehicles.assignDevice')}
       >
         <div className="space-y-4">
-          {vehicleToAssign && (
-            <div className="p-3 bg-background rounded-lg border border-border">
-              <p className="text-xs text-text-muted mb-1">{t('vehicles.form.vehicleLabel')}</p>
-              <p className="font-medium text-text">
-                {vehicleToAssign.patente} - {vehicleToAssign.marca} {vehicleToAssign.modelo}
-              </p>
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium text-text mb-2">
-              {t('vehicles.form.device')}
+              {t('vehicles.selectDevice')}
             </label>
             <select
               value={selectedDeviceId}
@@ -722,40 +730,26 @@ export function VehiclesPage() {
               className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">{t('vehicles.form.noDevice')}</option>
-              {devices.map((device) => (
+              {devices.filter(d => d.activo).map((device) => (
                 <option key={device.id} value={device.id}>
                   {device.nombre} {device.uniqueId ? `(${device.uniqueId})` : ''}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-text-muted mt-1">
-              {t('vehicles.form.selectDevice')}
+            <p className="text-sm text-text-muted mt-2">
+              {t('vehicles.assignDescription')}
             </p>
           </div>
-
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => setIsAssignModalOpen(false)} disabled={isAssigning}>
               {t('common.cancel')}
             </Button>
             <Button onClick={handleAssignDevice} disabled={isAssigning}>
-              {isAssigning ? t('vehicles.saving') : t('common.save')}
+              {isAssigning ? t('common.saving') : t('common.save')}
             </Button>
           </div>
         </div>
       </Modal>
-
-      {/* Delete Confirmation */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        title={t('vehicles.deleteVehicle')}
-        description={t('vehicles.confirmDelete', { patente: vehicleToDelete?.patente || '' })}
-        confirmText={t('common.delete')}
-        cancelText={t('common.cancel')}
-        variant="danger"
-        isLoading={isDeleting}
-      />
     </div>
   );
 }

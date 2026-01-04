@@ -5,3 +5,4 @@ export { useLocalization } from './useLocalization';
 export * from './useCurrencies';
 export { useErrorHandler } from './useErrorHandler';
 export type { ProblemDetails, ParsedError } from './useErrorHandler';
+export * from './useTableFilters';

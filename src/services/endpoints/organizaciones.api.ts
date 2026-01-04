@@ -5,9 +5,9 @@
 
 import { apiClient } from '../http/apiClient';
 import { useAuthStore } from '@/store';
-import { 
-  OrganizacionDto, 
-  ListaPaginada, 
+import {
+  OrganizacionDto,
+  ListaPaginada,
   PaginacionParams,
   UsuarioOrganizacionDto,
   CambiarRolRequest,
@@ -53,7 +53,7 @@ export async function getUsuariosOrganizacion(
 ): Promise<ListaPaginada<UsuarioOrganizacionDto>> {
   const orgId = getOrganizationId();
   const { numeroPagina = 1, tamanoPagina = 10 } = params;
-  
+
   const response = await apiClient.get<ListaPaginada<UsuarioOrganizacionDto>>(
     `${ORGANIZACIONES_BASE}/${orgId}/usuarios`,
     { params: { numeroPagina, tamanoPagina } }
@@ -65,11 +65,11 @@ export async function getUsuariosOrganizacion(
  * Cambia el rol de un usuario en la organización actual
  */
 export async function cambiarRolUsuario(
-  userId: string, 
+  userId: string,
   nuevoRol: 'Admin' | 'Operador' | 'Analista'
 ): Promise<void> {
   const orgId = getOrganizationId();
-  
+
   await apiClient.put<void>(
     `${ORGANIZACIONES_BASE}/${orgId}/usuarios/${userId}/rol`,
     { nuevoRol } as CambiarRolRequest
@@ -81,7 +81,7 @@ export async function cambiarRolUsuario(
  */
 export async function removerUsuario(userId: string): Promise<void> {
   const orgId = getOrganizationId();
-  
+
   await apiClient.delete(`${ORGANIZACIONES_BASE}/${orgId}/usuarios/${userId}`);
 }
 
@@ -139,14 +139,14 @@ export async function getCurrentOrganizationPreferences(): Promise<LocalizationP
  * Excluye la organización actual y las organizaciones ya vinculadas
  */
 export async function getOrganizacionesDisponiblesParaVincular(
-  params: PaginacionParams & { 
-    tipoFiltro?: number; 
-    filtroNombre?: string 
+  params: PaginacionParams & {
+    tipoFiltro?: number;
+    filtroNombre?: string
   } = {}
 ): Promise<ListaPaginada<OrganizacionDto>> {
   const orgId = getOrganizationId();
   const { numeroPagina = 1, tamanoPagina = 50, tipoFiltro, filtroNombre } = params;
-  
+
   const response = await apiClient.get<ListaPaginada<OrganizacionDto>>(
     `${ORGANIZACIONES_BASE}/${orgId}/relaciones/disponibles`,
     { params: { numeroPagina, tamanoPagina, tipoFiltro, filtroNombre } }
@@ -164,7 +164,7 @@ export async function crearRelacionOrganizacion(
   asignacionAutomaticaRecursos?: boolean
 ): Promise<OrganizacionRelacionDto> {
   const orgId = getOrganizationId();
-  
+
   const response = await apiClient.post<OrganizacionRelacionDto>(
     `${ORGANIZACIONES_BASE}/${orgId}/relaciones`,
     {
@@ -185,7 +185,7 @@ export async function listarRelacionesOrganizacion(
 ): Promise<ListaPaginada<OrganizacionRelacionDto>> {
   const orgId = getOrganizationId();
   const { numeroPagina = 1, tamanoPagina = 10, soloActivas } = params;
-  
+
   const response = await apiClient.get<ListaPaginada<OrganizacionRelacionDto>>(
     `${ORGANIZACIONES_BASE}/${orgId}/relaciones`,
     { params: { numeroPagina, tamanoPagina, soloActivas } }
@@ -200,7 +200,7 @@ export async function eliminarRelacionOrganizacion(
   relacionId: string
 ): Promise<void> {
   const orgId = getOrganizationId();
-  
+
   await apiClient.delete(`${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}`);
 }
 
@@ -216,7 +216,7 @@ export async function asignarRecursosARelacion(
   }
 ): Promise<void> {
   const orgId = getOrganizationId();
-  
+
   await apiClient.post(
     `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/asignar-recursos`,
     recursos
@@ -236,4 +236,57 @@ export const organizacionesApi = {
   listarRelacionesOrganizacion,
   eliminarRelacionOrganizacion,
   asignarRecursosARelacion,
+
+  // Exclusiones
+  getExclusiones,
+  addExclusiones,
+  removeExclusiones,
 };
+
+/**
+ * Obtiene las exclusiones de recursos de una relación
+ * @param relacionId ID de la relación
+ * @param direction "outbound" (lo que excluyo) o "inbound" (lo que me excluyen)
+ */
+export async function getExclusiones(
+  relacionId: string,
+  direction: 'outbound' | 'inbound' = 'outbound'
+): Promise<import('@/shared/types/api').ResourceExclusionDto[]> {
+  const orgId = getOrganizationId();
+
+  const response = await apiClient.get<import('@/shared/types/api').ResourceExclusionDto[]>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    { params: { direction } }
+  );
+  return response.data;
+}
+
+/**
+ * Agrega exclusiones de recursos a una relación
+ */
+export async function addExclusiones(
+  relacionId: string,
+  command: import('@/shared/types/api').AddResourceExclusionsCommand
+): Promise<void> {
+  const orgId = getOrganizationId();
+
+  await apiClient.post(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    command
+  );
+}
+
+/**
+ * Elimina exclusiones de recursos de una relación
+ */
+export async function removeExclusiones(
+  relacionId: string,
+  command: import('@/shared/types/api').RemoveResourceExclusionsCommand
+): Promise<void> {
+  const orgId = getOrganizationId();
+
+  await apiClient.delete(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    { data: command }
+  );
+}

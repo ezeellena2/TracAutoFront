@@ -38,6 +38,17 @@
     "optional": "opcional",
     "assign": "Asignar"
   },
+  "filters": {
+    "title": "Filtros",
+    "clear": "Limpiar",
+    "show": "Mostrar filtros",
+    "hide": "Ocultar filtros",
+    "placeholder": {
+      "text": "Filtrar...",
+      "select": "Todos"
+    },
+    "noResults": "No se encontraron resultados con los filtros activos."
+  },
   "header": {
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro",
@@ -109,6 +120,8 @@
     "assignDevice": "Asignar Dispositivo",
     "changeDevice": "Cambiar Dispositivo",
     "unassignDevice": "Desasignar Dispositivo",
+    "selectDevice": "Seleccionar Dispositivo",
+    "assignDescription": "Seleccione el dispositivo que desea vincular a este vehículo. Si el dispositivo ya está asignado a otro vehículo, se reasignará automáticamente.",
     "form": {
       "type": "Tipo",
       "licensePlate": "Patente",
@@ -450,15 +463,24 @@
     "totalSold": "Vendidos",
     "licensePlate": "PATENTE",
     "vehicle": "VEHÍCULO",
-    "status": "ESTADO",
     "price": "PRECIO",
     "mileage": "KILOMETRAJE",
     "publicationDate": "FECHA PUBLICACIÓN",
-    "actions": "ACCIONES",
-    "consultPrice": "Consultar precio",
-    "noPublications": "No hay publicaciones",
-    "creating": "Creando...",
-    "linking": "Vinculando...",
+    "statusColumn": "ESTADO",
+    "actionsColumn": "ACCIONES",
+    "actions": {
+      "consultPrice": "Consultar precio",
+      "noPublications": "No hay publicaciones",
+      "creating": "Creando...",
+      "linking": "Vinculando...",
+      "publish": "Publicar",
+      "edit": "Editar",
+      "pause": "Pausar",
+      "reactivate": "Reactivar",
+      "markAsSold": "Marcar como Vendido",
+      "saveDraft": "Guardar Borrador",
+      "viewPublication": "Ver Publicación"
+    },
     "table": {
       "licensePlate": "PATENTE",
       "vehicle": "VEHÍCULO",
@@ -520,15 +542,6 @@
       "linkExistingVehicle": "Vincular vehículo existente",
       "createNewVehicle": "Crear nuevo vehículo (sin vincular)",
       "linkExistingVehicleHelp": "Opcional: Selecciona un vehículo operativo existente para vincularlo a esta publicación. Si no seleccionas ninguno, se creará una publicación independiente."
-    },
-    "actions": {
-      "publish": "Publicar",
-      "edit": "Editar",
-      "pause": "Pausar",
-      "reactivate": "Reactivar",
-      "markAsSold": "Marcar como Vendido",
-      "saveDraft": "Guardar Borrador",
-      "viewPublication": "Ver Publicación"
     },
     "confirmations": {
       "publishTitle": "¿Publicar vehículo?",
@@ -606,7 +619,7 @@
       "enableLabels": "Mostrar etiquetas",
       "showImei": "IMEI",
       "showPatente": "Patente",
-      "showEstado": "Estado",
+      "showEstado": "Estado"
     },
     "filter": {
       "title": "Filtrar por Organización",
@@ -776,6 +789,14 @@
       "noConnection": "Sin conexión a internet. Verifica tu red e intenta nuevamente.",
       "connectionLost": "Se perdió la conexión. Verifica tu red e intenta nuevamente."
     },
+    "exclusions": {
+      "manageTitle": "Gestionar Exclusiones",
+      "titleOutbound": "Gestionar Exclusiones (Compartido por mí)",
+      "titleInbound": "Exclusiones Activas (Compartido por ellos)",
+      "addTitle": "Agregar nueva exclusión",
+      "activeList": "Exclusiones Activas",
+      "confirmAdd": "Confirmar Exclusiones"
+    },
     "relations": {
       "title": "Relaciones entre Organizaciones",
       "subtitle": "Gestiona las relaciones con otras organizaciones",
@@ -825,92 +846,139 @@
     }
   },
   "errors": {
-    "unexpected": "Ha ocurrido un error inesperado",
-    "client": "Error del cliente",
-    "Auth.CredencialesInvalidas": "Email o contraseña incorrectos",
-    "Auth.EmailNoVerificado": "Debe verificar su email antes de iniciar sesión",
-    "Auth.CuentaBloqueada": "La cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos",
-    "Auth.CodigoInvalido": "El código de verificación es inválido o ha expirado",
-    "Auth.CodigoEmailInvalido": "El código de verificación de email es inválido",
-    "Auth.CodigoTelefonoInvalido": "El código de verificación de teléfono es inválido",
-    "Auth.CodigoTelefonoRequerido": "Se requiere el código de verificación de teléfono",
-    "Auth.TokenInvalido": "El token de autenticación es inválido o ha expirado",
-    "Auth.TokenExpirado": "El token de autenticación ha expirado",
-    "Auth.CooldownEmail": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por email",
-    "Auth.CooldownSms": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por SMS",
-    "Auth.EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
-    "Auth.CodigoEmailRequerido": "El código de verificación de email es requerido",
-    "Usuario.NoEncontrado": "Usuario no encontrado",
-    "Usuario.EmailDuplicado": "Ya existe un usuario con este email",
-    "Usuario.Inactivo": "El usuario está deshabilitado",
-    "Usuario.SinOrganizacion": "El usuario no tiene organización asignada",
-    "Usuario.SinPermisos": "No tiene permisos para realizar esta acción",
-    "Usuario.MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas",
-    "Usuario.EsDuenio": "No se puede cambiar el rol del dueño de la organización",
-    "Usuario.NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización",
-    "Usuario.NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización",
-    "Usuario.ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación",
-    "Usuario.CuentaYaVerificada": "La cuenta ya está verificada",
-    "Usuario.CuentaInactiva": "La cuenta de usuario está inactiva",
-    "Usuario.SinTelefono": "El usuario no tiene número de teléfono registrado",
-    "Usuario.CreacionFallida": "Error al crear el usuario: {{param0}}",
-    "Usuario.ActualizacionFallida": "Error al actualizar el usuario: {{param0}}",
-    "Usuario.NoAutenticado": "El usuario no está autenticado",
-    "Organizacion.NoEncontrada": "Organización no encontrada",
-    "Organizacion.CuitDuplicado": "Ya existe una empresa con este CUIT",
-    "Organizacion.Inactiva": "La organización está inactiva",
-    "Organizacion.AccesoDenegado": "No tiene acceso a esta organización",
-    "Organizacion.RelacionNoEncontrada": "No existe una relación activa entre las organizaciones especificadas",
-    "Organizacion.RelacionDuplicada": "Ya existe una relación activa entre las organizaciones especificadas",
-    "Organizacion.OrganizacionIdMismatch": "El orgId del path debe coincidir con uno de los IDs en la relación (OrganizacionAId o OrganizacionBId)",
-    "Invitacion.NoEncontrada": "Invitación no encontrada",
-    "Invitacion.TokenInvalido": "El token de invitación es inválido",
-    "Invitacion.Expirada": "La invitación ha expirado",
-    "Invitacion.YaAceptada": "Esta invitación ya fue aceptada",
-    "Invitacion.Cancelada": "Esta invitación fue cancelada",
-    "Invitacion.EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
-    "Invitacion.UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
-    "Invitacion.RolInvalido": "El rol asignado no es válido. Debe ser: Admin, Operador o Analista",
-    "Invitacion.NoReenviable": "No se puede reenviar una invitación con estado {{param0}}",
-    "Dispositivo.NoEncontrado": "Dispositivo no encontrado",
-    "Dispositivo.YaExiste": "Ya existe un dispositivo vinculado con este TraccarDeviceId en la organización",
-    "Vehiculo.NoEncontrado": "Vehículo no encontrado",
-    "Vehiculo.PatenteDuplicada": "Ya existe un vehículo con esta patente en la organización",
-    "Vehiculo.VehiculoInactivo": "No se puede asignar un dispositivo a un vehículo desactivado",
-    "Vehiculo.OrganizacionNoCoincide": "El vehículo y el dispositivo deben pertenecer a la misma organización",
-    "Vehiculo.DispositivoYaAsignado": "El dispositivo ya está asignado a otro vehículo",
-    "Vehiculo.AsignacionNoEncontrada": "Asignación no encontrada",
-    "Conductor.NoEncontrado": "Conductor no encontrado",
-    "Conductor.TieneAsignacionesActivas": "No se puede eliminar el conductor porque tiene asignaciones activas",
-    "Conductor.OrganizacionNoCoincide": "El conductor y el vehículo/dispositivo deben pertenecer a la misma organización",
-    "Conductor.VehiculoInactivo": "No se puede asignar un conductor a un vehículo desactivado",
-    "Conductor.DispositivoInactivo": "No se puede asignar un conductor a un dispositivo desactivado",
-    "Conductor.ConductorInactivo": "No se puede asignar un conductor inactivo",
-    "Conductor.AsignacionNoEncontrada": "Asignación de conductor no encontrada",
-    "Seguridad.IntentoAccesoTenantCruzado": "Intento de acceso a datos de otra organización detectado",
-    "Seguridad.ContextoNoAutenticado": "Se requiere autenticación para esta operación",
-    "Seguridad.ModificacionOrganizacionNoPermitida": "La modificación de OrganizacionId no está permitida",
-    "Replay.RangoInvalido": "El rango de fechas es inválido. La fecha de inicio debe ser anterior a la fecha de fin",
-    "Replay.DispositivoSinTraccar": "El dispositivo no tiene un identificador de Traccar configurado",
-    "Replay.RangoExcedido": "El rango solicitado excede el máximo permitido ({{param0}} {{param1}}). Por favor seleccione un rango más corto",
-    "Replay.TimezoneUnavailable": "No se pudo determinar la zona horaria para calcular el rango",
-    "Replay.InvalidLocalDate": "Formato de fecha local inválido. Use 'YYYY-MM-DD' o 'YYYY-MM-DDTHH:mm'",
-    "Replay.MissingDateRange": "Se requiere From/To o FromLocalDate/ToLocalDate cuando Preset es null o 'custom'",
-    "Replay.TraccarUnavailable": "Servicio de posiciones temporalmente no disponible",
-    "TraccarDb.Unavailable": "Servicio de posiciones temporalmente no disponible",
-    "General.ErrorInterno": "Ha ocurrido un error interno del servidor",
-    "General.OperacionNoPermitida": "No tiene permisos para realizar esta operación",
-    "General.ErrorInesperado": "Ha ocurrido un error inesperado: {{param0}}",
-    "Archivo.NoEncontrado": "Archivo no encontrado",
-    "Archivo.TamanoExcedido": "El archivo excede el tamaño máximo permitido",
-    "Archivo.TipoNoPermitido": "El tipo de archivo no está permitido",
-    "Archivo.ErrorAlmacenamiento": "Error al almacenar el archivo en el sistema",
-    "Archivo.NombreInvalido": "El nombre del archivo es inválido",
-    "Paginacion.PaginaFueraDeRango": "La página solicitada ({{param0}}) excede el total de páginas disponibles ({{param1}})",
-    "Recursos.NoEncontrados": "Los siguientes recursos no existen, están inactivos o no pertenecen a su organización: {{param0}}",
-    "Tenancy.EntityCreationWithoutAuth": "ITenantEntity '{{param0}}' no puede crearse sin contexto autenticado.",
-    "Tenancy.CrossTenantWrite": "Intento de escritura cross-tenant detectado: entidad OrganizacionId={{param0}}, token OrganizacionId={{param1}}",
-    "Tenancy.OrganizacionIdModificationNotAllowed": "Modificación de OrganizacionId no permitida: original={{param0}}, nuevo={{param1}}",
-    "Tenancy.SelfAssociationNotAllowed": "No se puede asociar un recurso a su propia organización: OrganizacionId={{param0}}, OrganizacionAsociadaId={{param1}}"
+    "default": "Ha ocurrido un error inesperado.",
+    "unexpected": "Ha ocurrido un error inesperado.",
+    "network": "Error de conexión. Verifique su conexión a internet.",
+    "timeout": "La solicitud ha expirado. Intente nuevamente.",
+    "client": "Error del cliente de aplicación.",
+    "HTTP_400": "Datos inválidos. Verifique la información ingresada.",
+    "HTTP_401": "Credenciales incorrectas o sesión expirada.",
+    "HTTP_403": "No tiene permisos para realizar esta acción.",
+    "HTTP_404": "Recurso no encontrado.",
+    "HTTP_409": "Conflict: El recurso ya existe o hay un estado inválido.",
+    "HTTP_429": "Demasiadas solicitudes. Espere un momento.",
+    "HTTP_500": "Error interno del servidor. Intente más tarde.",
+    "Auth": {
+      "CredencialesInvalidas": "Email o contraseña incorrectos",
+      "EmailNoVerificado": "Debe verificar su email antes de iniciar sesión",
+      "CuentaBloqueada": "La cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos",
+      "CodigoInvalido": "El código de verificación es inválido o ha expirado",
+      "CodigoEmailInvalido": "El código de verificación de email es inválido",
+      "CodigoTelefonoInvalido": "El código de verificación de teléfono es inválido",
+      "CodigoTelefonoRequerido": "Se requiere el código de verificación de teléfono",
+      "TokenInvalido": "El token de autenticación es inválido o ha expirado",
+      "TokenExpirado": "El token de autenticación ha expirado",
+      "CooldownEmail": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por email",
+      "CooldownSms": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por SMS",
+      "EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
+      "CodigoEmailRequerido": "El código de verificación de email es requerido",
+      "SesionExpirada": "La sesión ha expirado"
+    },
+    "Usuario": {
+      "NoEncontrado": "Usuario no encontrado",
+      "EmailDuplicado": "Ya existe un usuario con este email",
+      "Inactivo": "El usuario está deshabilitado",
+      "SinOrganizacion": "El usuario no tiene organización asignada",
+      "SinPermisos": "No tiene permisos para realizar esta acción",
+      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas",
+      "EsDuenio": "No se puede cambiar el rol del dueño de la organización",
+      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización",
+      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización",
+      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación",
+      "CuentaYaVerificada": "La cuenta ya está verificada",
+      "CuentaInactiva": "La cuenta de usuario está inactiva",
+      "SinTelefono": "El usuario no tiene número de teléfono registrado",
+      "CreacionFallida": "Error al crear el usuario: {{param0}}",
+      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}",
+      "NoAutenticado": "El usuario no está autenticado"
+    },
+    "Organizacion": {
+      "NoEncontrada": "Organización no encontrada",
+      "CuitDuplicado": "Ya existe una empresa con este CUIT",
+      "Inactiva": "La organización está inactiva",
+      "AccesoDenegado": "No tiene acceso a esta organización",
+      "RelacionNoEncontrada": "No existe una relación activa entre las organizaciones especificadas",
+      "RelacionDuplicada": "Ya existe una relación activa entre las organizaciones especificadas",
+      "OrganizacionIdMismatch": "El orgId del path debe coincidir con uno de los IDs en la relación"
+    },
+    "Invitacion": {
+      "NoEncontrada": "Invitación no encontrada",
+      "TokenInvalido": "El token de invitación es inválido",
+      "Expirada": "La invitación ha expirado",
+      "YaAceptada": "Esta invitación ya fue aceptada",
+      "Cancelada": "Esta invitación fue cancelada",
+      "EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
+      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
+      "RolInvalido": "El rol asignado no es válido",
+      "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}"
+    },
+    "Dispositivo": {
+      "NoEncontrado": "Dispositivo no encontrado",
+      "YaExiste": "Ya existe un dispositivo vinculado con este TraccarDeviceId en la organización"
+    },
+    "Vehiculo": {
+      "NoEncontrado": "Vehículo no encontrado",
+      "PatenteDuplicada": "Ya existe un vehículo con esta patente en la organización",
+      "VehiculoInactivo": "No se puede asignar un dispositivo a un vehículo desactivado",
+      "OrganizacionNoCoincide": "El vehículo y el dispositivo deben pertenecer a la misma organización",
+      "DispositivoYaAsignado": "El dispositivo ya está asignado a otro vehículo",
+      "AsignacionNoEncontrada": "Asignación no encontrada"
+    },
+    "Conductor": {
+      "NoEncontrado": "Conductor no encontrado",
+      "TieneAsignacionesActivas": "No se puede eliminar el conductor porque tiene asignaciones activas",
+      "OrganizacionNoCoincide": "El conductor y el vehículo/dispositivo deben pertenecer a la misma organización",
+      "VehiculoInactivo": "No se puede asignar un conductor a un vehículo desactivado",
+      "DispositivoInactivo": "No se puede asignar un conductor a un dispositivo desactivado",
+      "ConductorInactivo": "No se puede asignar un conductor inactivo",
+      "AsignacionNoEncontrada": "Asignación de conductor no encontrada"
+    },
+    "Seguridad": {
+      "IntentoAccesoTenantCruzado": "Intento de acceso a datos de otra organización detectado",
+      "ContextoNoAutenticado": "Se requiere autenticación para esta operación",
+      "ModificacionOrganizacionNoPermitida": "La modificación de OrganizacionId no está permitida"
+    },
+    "Replay": {
+      "RangoInvalido": "El rango de fechas es inválido. Inicio > Fin",
+      "DispositivoSinTraccar": "El dispositivo no tiene un identificador de Traccar configurado",
+      "RangoExcedido": "El rango solicitado excede el máximo permitido ({{param0}} {{param1}})",
+      "TimezoneUnavailable": "No se pudo determinar la zona horaria",
+      "InvalidLocalDate": "Formato de fecha local inválido",
+      "MissingDateRange": "Se requiere rango de fechas",
+      "TraccarUnavailable": "Servicio de posiciones no disponible"
+    },
+    "TraccarDb": {
+      "Unavailable": "Servicio de posiciones temporalmente no disponible"
+    },
+    "General": {
+      "ErrorInterno": "Ha ocurrido un error interno del servidor",
+      "OperacionNoPermitida": "No tiene permisos para realizar esta operación",
+      "ErrorInesperado": "Ha ocurrido un error inesperado: {{param0}}"
+    },
+    "Archivo": {
+      "NoEncontrado": "Archivo no encontrado",
+      "TamanoExcedido": "El archivo excede el tamaño máximo permitido",
+      "TipoNoPermitido": "El tipo de archivo no está permitido",
+      "ErrorAlmacenamiento": "Error al almacenar el archivo",
+      "NombreInvalido": "El nombre del archivo es inválido"
+    },
+    "Paginacion": {
+      "PaginaFueraDeRango": "La página solicitada ({{param0}}) excede el total ({{param1}})"
+    },
+    "Recursos": {
+      "NoEncontrados": "Recursos no encontrados o inactivos: {{param0}}"
+    },
+    "Tenancy": {
+      "EntityCreationWithoutAuth": "Error de tenancy (Creación sin Auth): {{param0}}",
+      "CrossTenantWrite": "Error de tenancy (Escritura cruzada): Org={{param0}} vs Token={{param1}}",
+      "OrganizacionIdModificationNotAllowed": "Error de tenancy (Modificación OrgId): {{param0}} -> {{param1}}",
+      "SelfAssociationNotAllowed": "Error de tenancy (Auto-asociación): {{param0}}"
+    },
+    "Marketplace": {
+      "OrganizacionNoEsConcesionaria": "Solo concesionarias pueden acceder al Marketplace",
+      "PublicacionNoEncontrada": "Publicación no encontrada",
+      "VehiculoYaPublicado": "Este vehículo ya está publicado",
+      "VehiculoNoPublicado": "Este vehículo no está publicado"
+    }
   }
 }

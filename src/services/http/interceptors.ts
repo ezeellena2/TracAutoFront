@@ -23,34 +23,37 @@ type ApiErrorResponse = ProblemDetails | ValidationError;
 /**
  * Extrae mensaje de error legible del response del backend
  */
+/**
+ * Extrae mensaje de error legible del response del backend
+ */
 function extractErrorMessage(data: ApiErrorResponse | undefined, status: number): string {
   if (!data) {
     return getDefaultMessage(status);
   }
 
-  // ProblemDetails format
-  if ('detail' in data && data.detail) {
-    return data.detail;
-  }
-  
-  if ('title' in data && data.title) {
-    return data.title;
+  // Si tiene código explícito (backend standard), retornarlo.
+  // El hook useErrorHandler lo traducirá como errors.Codigo
+  if ('code' in data && data.code) {
+    return data.code;
   }
 
-  // Validation errors format  
+  // Backwards compatibility: si tiene extension 'code' (ProblemDetails older style)
+  if ('extensions' in data && (data as any).extensions?.code) {
+    return (data as any).extensions.code;
+  }
+
+  // ProblemDetails standard errors (sin código específico)
+  if (status >= 400 && status < 600) {
+    return getDefaultMessage(status);
+  }
+
+  // Validation errors format fallback
   if ('errors' in data && data.errors) {
     const firstError = Object.values(data.errors)[0];
     if (firstError && firstError.length > 0) {
+      // Si el error de validación es un código, devolverlo tal cual.
+      // Si es texto libre, retornarlo (aunque no se traducirá).
       return firstError[0];
-    }
-  }
-
-  // Verificar message solo en ValidationError (no en ProblemDetails)
-  // ProblemDetails tiene 'status', ValidationError no lo tiene
-  if ('message' in data && !('status' in data)) {
-    const msg = (data as ValidationError).message;
-    if (msg && typeof msg === 'string') {
-      return msg;
     }
   }
 
@@ -63,49 +66,42 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
  * Fallback: detectar por title o detail (acotado, sin depender de texto largo)
  */
 function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean {
-  if (!data) return false;
-  
+  if (!data) { return false; }
+
   // Preferido: detectar por campo code (cuando backend lo agregue)
   if (data.code === 'TENANCY_VIOLATION' || data.code === 'TenancyViolation') {
     return true;
   }
-  
+
   // Fallback: detectar por title (acotado, sin depender de texto largo)
   const title = data.title?.toLowerCase() || '';
   if (title.includes('tenant') || title.includes('organización')) {
     return true;
   }
-  
+
   // Fallback adicional: detectar por detail (solo si contiene palabras clave específicas)
   const detail = data.detail?.toLowerCase() || '';
   if (detail.includes('otra organización') || detail.includes('cross-tenant')) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
  * Mensajes por defecto según código HTTP
+ * Retorna KEYS de traducción, no texto hardcodeado.
  */
 function getDefaultMessage(status: number): string {
   switch (status) {
-    case 400:
-      return 'Datos inválidos. Verifique la información ingresada.';
-    case 401:
-      return 'Credenciales incorrectas o sesión expirada.';
-    case 403:
-      return 'No tiene permisos para realizar esta acción.';
-    case 404:
-      return 'Recurso no encontrado.';
-    case 409:
-      return 'El recurso ya existe o hay un conflicto.';
-    case 429:
-      return 'Demasiadas solicitudes. Intente nuevamente en unos segundos.';
-    case 500:
-      return 'Error interno del servidor. Intente más tarde.';
-    default:
-      return 'Error de conexión. Verifique su conexión a internet.';
+    case 400: return 'HTTP_400';
+    case 401: return 'HTTP_401';
+    case 403: return 'HTTP_403';
+    case 404: return 'HTTP_404';
+    case 409: return 'HTTP_409';
+    case 429: return 'HTTP_429';
+    case 500: return 'HTTP_500';
+    default: return 'network'; // o 'unexpected'
   }
 }
 
@@ -197,28 +193,28 @@ export function setupInterceptors(client: AxiosInstance): void {
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const state = useAuthStore.getState();
-      
+
       // Agregar JWT si existe
       if (state.token && config.headers) {
         config.headers.Authorization = `Bearer ${state.token}`;
       }
-      
+
       // REMOVER: Header X-Organization-Id (redundante, backend lo obtiene del token)
       // if (state.organizationId && config.headers) {
       //   config.headers['X-Organization-Id'] = state.organizationId;
       // }
-      
+
       // Sanitizar body si es JSON (POST/PUT/PATCH)
-      if (config.data && 
-          (config.method === 'post' || config.method === 'put' || config.method === 'patch') &&
-          typeof config.data === 'object' &&
-          !(config.data instanceof FormData) &&
-          !(config.data instanceof Blob) &&
-          !(config.data instanceof File) &&
-          !Array.isArray(config.data)) {
+      if (config.data &&
+        (config.method === 'post' || config.method === 'put' || config.method === 'patch') &&
+        typeof config.data === 'object' &&
+        !(config.data instanceof FormData) &&
+        !(config.data instanceof Blob) &&
+        !(config.data instanceof File) &&
+        !Array.isArray(config.data)) {
         config.data = sanitizePayload(config.data);
       }
-      
+
       return config;
     },
     (error) => Promise.reject(error)
@@ -230,7 +226,7 @@ export function setupInterceptors(client: AxiosInstance): void {
     async (error: AxiosError<ApiErrorResponse>) => {
       const status = error.response?.status || 0;
       const originalConfig = error.config as RetryableConfig | undefined;
-      
+
       // Log mínimo (sin PII)
       console.warn('[API Error]', { status, url: error.config?.url });
 
@@ -273,7 +269,7 @@ export function setupInterceptors(client: AxiosInstance): void {
       if (status === 403) {
         const data = error.response?.data as ProblemDetails | undefined;
         const isTenancy = isTenancyViolation(data);
-        
+
         if (isTenancy) {
           // Tenancy violation: mensaje específico + logout + redirección
           toast.error(
@@ -290,8 +286,11 @@ export function setupInterceptors(client: AxiosInstance): void {
 
       // Extraer mensaje de error legible para otros errores
       const message = extractErrorMessage(error.response?.data, status);
-
-      return Promise.reject(new Error(message));
+      const err = new Error(message);
+      // Adjuntar el mensaje como código para que useErrorHandler intente traducirlo
+      (err as any).code = message;
+      (err as any).status = status;
+      return Promise.reject(err);
     }
   );
 }

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Trash2, Share2 } from 'lucide-react';
+import { Trash2, Share2, Shield } from 'lucide-react';
 import { Table, Badge, ActionMenu, ConfirmationModal } from '@/shared/ui';
 import { OrganizacionRelacionDto } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
@@ -10,6 +10,7 @@ interface RelacionesTableProps {
   organizacionActualId: string;
   onDelete: (relacionId: string) => void;
   onAssignResources?: (relacionId: string) => void;
+  onManageExclusions?: (relacionId: string) => void;
   actionMenuOpen: string | null;
   setActionMenuOpen: (id: string | null) => void;
   relacionToDelete: string | null;
@@ -22,6 +23,7 @@ export function RelacionesTable({
   organizacionActualId,
   onDelete,
   onAssignResources,
+  onManageExclusions,
   actionMenuOpen,
   setActionMenuOpen,
   relacionToDelete,
@@ -40,7 +42,7 @@ export function RelacionesTable({
         const otraOrgNombre = relacion.organizacionAId === organizacionActualId
           ? relacion.organizacionBNombre
           : relacion.organizacionANombre;
-        
+
         return (
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
@@ -65,8 +67,8 @@ export function RelacionesTable({
       header: t('organization.relations.table.autoAssignment'),
       render: (relacion: OrganizacionRelacionDto) => (
         <Badge variant={relacion.asignacionAutomaticaRecursos ? 'success' : 'default'}>
-          {relacion.asignacionAutomaticaRecursos 
-            ? t('organization.relations.table.automatic') 
+          {relacion.asignacionAutomaticaRecursos
+            ? t('organization.relations.table.automatic')
             : t('organization.relations.table.manual')}
         </Badge>
       ),
@@ -115,6 +117,23 @@ export function RelacionesTable({
                 {t('organization.relations.assign.title')}
               </button>
             )}
+
+            {/* Manage Exclusions Button */}
+            {onManageExclusions && (
+              <button
+                className="w-full px-3 py-2 text-left text-sm text-text hover:bg-background flex items-center gap-2"
+                onClick={() => {
+                  setActionMenuOpen(null);
+                  if (relacion.activa && onManageExclusions) {
+                    onManageExclusions(relacion.id);
+                  }
+                }}
+                disabled={!relacion.activa}
+              >
+                <Shield size={14} />
+                {t('organization.exclusions.manageTitle', 'Gestionar Exclusiones')}
+              </button>
+            )}
             <button
               className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
               onClick={() => {
@@ -136,12 +155,12 @@ export function RelacionesTable({
 
   return (
     <>
-      <Table 
-        columns={columns} 
+      <Table
+        columns={columns}
         data={relaciones}
         keyExtractor={(r) => r.id}
       />
-      
+
       <ConfirmationModal
         isOpen={relacionToDelete !== null}
         onClose={() => setRelacionToDelete(null)}

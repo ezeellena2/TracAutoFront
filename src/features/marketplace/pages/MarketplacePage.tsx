@@ -218,7 +218,7 @@ export function MarketplacePage() {
     },
     {
       key: 'estado',
-      header: t('marketplace.status'),
+      header: t('marketplace.statusColumn'),
       render: (v: VehiculoMarketplaceDto) => getEstadoBadge(v.estadoPublicacion),
     },
     {
@@ -242,7 +242,7 @@ export function MarketplacePage() {
     },
     {
       key: 'actions',
-      header: t('marketplace.actions'),
+      header: t('marketplace.actionsColumn'),
       render: (v: VehiculoMarketplaceDto) => (
         <div className="flex items-center gap-1">
           {!v.tieneVehiculoAsociado && (

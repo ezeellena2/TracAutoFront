@@ -66,14 +66,10 @@ export function useErrorHandler() {
     (code: string, args?: Record<string, unknown>): string => {
       // Try errors.{code} first (e.g., errors.Replay.RangoExcedido)
       const key = `errors.${code}`;
-      const translated = t(key, { defaultValue: '', ...args }) as string;
-      
-      if (translated && translated !== key) {
-        return translated;
-      }
-      
-      // Fallback to unexpected error
-      return t('errors.unexpected', { defaultValue: 'An unexpected error occurred' });
+      // Use code as fallback if translation is missing (e.g. for raw validation messages)
+      const translated = t(key, { defaultValue: code, ...args }) as string;
+
+      return translated;
     },
     [t]
   );
@@ -139,7 +135,7 @@ export function useErrorHandler() {
           // Take first error message per field
           const firstMessage = messages[0];
           // Try to translate if it looks like an error code
-          fieldErrors[field] = firstMessage?.includes('.') 
+          fieldErrors[field] = firstMessage?.includes('.')
             ? translateCode(firstMessage)
             : firstMessage;
         }
