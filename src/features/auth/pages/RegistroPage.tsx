@@ -15,7 +15,7 @@ export function RegistroPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuthStore();
-  
+
   // Verificar si viene en modo verificación desde LoginPage
   const state = location.state as {
     modoVerificacion?: boolean;
@@ -33,11 +33,11 @@ export function RegistroPage() {
   const [error, setError] = useState('');
   const [resendSuccess, setResendSuccess] = useState('');
   const [successData, setSuccessData] = useState<{
-    usuarioId: string; 
+    usuarioId: string;
     organizacionId: string;
     nombreOrganizacion: string;
   } | null>(null);
-  
+
   // Form fields
   const [formData, setFormData] = useState({
     nombreEmpresa: '',
@@ -50,7 +50,7 @@ export function RegistroPage() {
     confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Verification
   const [codigoEmail, setCodigoEmail] = useState('');
   const [codigoTelefono, setCodigoTelefono] = useState('');
@@ -82,14 +82,14 @@ export function RegistroPage() {
   const validarCuit = (cuit: string): boolean => {
     // Normalizar: remover guiones y espacios
     const cuitNormalizado = cuit.replace(/[^\d]/g, '');
-    
+
     if (cuitNormalizado.length !== 11) return false;
-    
+
     // Validar tipos válidos (primeros 2 dígitos)
     const tipo = parseInt(cuitNormalizado.substring(0, 2), 10);
     const tiposValidos = [20, 23, 24, 27, 30, 33, 34];
     if (!tiposValidos.includes(tipo)) return false;
-    
+
     // Calcular dígito verificador (módulo 11)
     const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
     let suma = 0;
@@ -99,7 +99,7 @@ export function RegistroPage() {
     const resto = 11 - (suma % 11);
     const digitoCalculado = resto === 11 ? 0 : (resto === 10 ? 9 : resto);
     const digitoReal = parseInt(cuitNormalizado[10], 10);
-    
+
     return digitoCalculado === digitoReal;
   };
 
@@ -114,7 +114,7 @@ export function RegistroPage() {
 
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validaciones
     if (!formData.cuit || !validarCuit(formData.cuit)) {
       setError(t('auth.errors.invalidCuit'));
@@ -130,12 +130,30 @@ export function RegistroPage() {
       setError(t('auth.errors.passwordMismatch'));
       return;
     }
-    
+
     if (formData.password.length < 8) {
       setError(t('auth.errors.passwordMinLength'));
       return;
     }
-    
+
+    // P0-FIX: Validación completa de password (coincide con backend)
+    if (!/[A-Z]/.test(formData.password)) {
+      setError(t('auth.errors.passwordUppercase'));
+      return;
+    }
+    if (!/[a-z]/.test(formData.password)) {
+      setError(t('auth.errors.passwordLowercase'));
+      return;
+    }
+    if (!/[0-9]/.test(formData.password)) {
+      setError(t('auth.errors.passwordNumber'));
+      return;
+    }
+    if (!/[^a-zA-Z0-9]/.test(formData.password)) {
+      setError(t('auth.errors.passwordSpecial'));
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -149,7 +167,7 @@ export function RegistroPage() {
         nombreCompleto: formData.nombreCompleto,
         telefono: formData.telefono || undefined,
       });
-      
+
       setSuccessData({
         usuarioId: response.usuarioId,
         organizacionId: response.organizacionId,
@@ -166,9 +184,9 @@ export function RegistroPage() {
 
   const handleVerificar = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!successData) return;
-    
+
     setIsLoading(true);
     setError('');
 
@@ -178,7 +196,7 @@ export function RegistroPage() {
         codigoEmail: codigoEmail,
         codigoTelefono: codigoTelefono || undefined,
       });
-      
+
       // Verificación exitosa - auto-login con el token recibido
       login(
         {
@@ -191,10 +209,10 @@ export function RegistroPage() {
         },
         response.token
       );
-      
+
       // Redirigir al dashboard
       navigate('/', { replace: true });
-      
+
     } catch (err) {
       const message = err instanceof Error ? err.message : t('auth.errors.verifyError');
       setError(message);
@@ -205,7 +223,7 @@ export function RegistroPage() {
 
   const handleReenviarCodigo = async (canal: 'email' | 'sms') => {
     if (!successData || isResending) return;
-    
+
     setIsResending(canal);
     setError('');
     setResendSuccess('');
@@ -216,7 +234,7 @@ export function RegistroPage() {
         canal: canal === 'email' ? 1 : 2,
       });
       setResendSuccess(
-        canal === 'email' 
+        canal === 'email'
           ? t('auth.success.codeResentEmail')
           : t('auth.success.codeResentSms')
       );
@@ -245,7 +263,7 @@ export function RegistroPage() {
         {/* Card */}
         <div className="bg-surface rounded-2xl border border-border p-8">
           {/* Back button */}
-          <Link 
+          <Link
             to="/login"
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text mb-6"
           >
@@ -375,9 +393,9 @@ export function RegistroPage() {
                   </div>
                 )}
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   size="lg"
                   disabled={isLoading}
                 >
@@ -451,9 +469,9 @@ export function RegistroPage() {
                   </div>
                 )}
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   size="lg"
                   disabled={isLoading}
                 >
@@ -469,7 +487,7 @@ export function RegistroPage() {
 
                 {/* Botones de reenvío */}
                 <div className="flex flex-wrap gap-3 justify-center pt-2">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => handleReenviarCodigo('email')}
                     disabled={isResending !== null}
@@ -485,7 +503,7 @@ export function RegistroPage() {
                   {formData.telefono && (
                     <>
                       <span className="text-text-muted">|</span>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleReenviarCodigo('sms')}
                         disabled={isResending !== null}
