@@ -101,6 +101,9 @@ export interface VerificacionCuentaResponse {
 }
 
 export interface ReenviarCodigoResponse {
+  usuarioId: string;
+  organizacionId: string;
+  nombreOrganizacion: string;
   mensaje: string;
   enviadoPorEmail: boolean;
   enviadoPorSms: boolean;

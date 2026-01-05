@@ -149,6 +149,8 @@
       "editVehicle": "Editar vehículo",
       "deleteVehicle": "Eliminar vehículo"
     },
+    "deleteTitle": "Eliminar vehículo",
+    "deleteMessage": "¿Está seguro de eliminar el vehículo con patente \"{{patente}}\"? Esta acción marcará el vehículo como inactivo.",
     "types": {
       "auto": "Auto",
       "moto": "Moto",
@@ -723,12 +725,16 @@
       "registerError": "Error al registrar empresa",
       "verifyError": "Error al verificar cuenta",
       "resendError": "Error al reenviar código",
+      "resendCodeError": "Error al reenviar código de verificación",
       "googleNotAvailable": "Login con Google estará disponible próximamente"
     },
     "success": {
       "codeResentEmail": "Código reenviado a su correo electrónico",
-      "codeResentSms": "Código reenviado a su teléfono"
-    }
+      "codeResentSms": "Código reenviado a su teléfono",
+      "resendCodeSuccess": "Código de verificación reenviado exitosamente"
+    },
+    "resendVerificationCode": "Reenviar código de verificación",
+    "resendingCode": "Reenviando código..."
   },
   "organization": {
     "title": "Empresa · Apariencia / Branding",

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2 } from 'lucide-react';
+import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2, Mail } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
 import { useAuthStore } from '@/store';
 import { authService } from '@/services/auth.service';
+import { authApi } from '@/services/endpoints';
+import { CanalEnvio } from '@/shared/types/api';
 
 /**
  * Página de Login B2B Empresarial
@@ -26,6 +28,8 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [emailNoVerificado, setEmailNoVerificado] = useState(false);
+  const [isReenviandoCodigo, setIsReenviandoCodigo] = useState(false);
 
   // Mostrar mensaje de éxito si viene de verificación
   useEffect(() => {
@@ -55,6 +59,8 @@ export function LoginPage() {
     
     setIsLoading(true);
     setError('');
+    setEmailNoVerificado(false);
+    setSuccessMessage('');
 
     const result = await authService.login(email, password, rememberMe);
     
@@ -64,11 +70,29 @@ export function LoginPage() {
       navigate(from, { replace: true });
     } else {
       // Manejar errores específicos
-      if (result.error?.includes('no verificado') || result.error?.includes('EmailNoVerificado')) {
+      const errorMessage = result.error?.toLowerCase() || '';
+      const originalError = result.error || '';
+      
+      // Detectar si el error es de email no verificado
+      // El backend puede devolver: "Auth.EmailNoVerificado" o el mensaje traducido
+      const isEmailNoVerificado = 
+        originalError.includes('Auth.EmailNoVerificado') ||
+        originalError.includes('EmailNoVerificado') ||
+        errorMessage.includes('emailnoverificado') || 
+        errorMessage.includes('email no verificado') ||
+        errorMessage.includes('no verificado') ||
+        errorMessage.includes('verificar su email') ||
+        errorMessage.includes('debe verificar su email') ||
+        errorMessage.includes('verificar su correo');
+      
+      if (isEmailNoVerificado) {
+        setEmailNoVerificado(true);
         setError(t('auth.errors.accountNotVerified'));
-      } else if (result.error?.includes('bloqueada') || result.error?.includes('CuentaBloqueada')) {
+      } else if (errorMessage.includes('bloqueada') || errorMessage.includes('cuentabloqueada')) {
+        setEmailNoVerificado(false);
         setError(t('auth.errors.accountBlocked'));
       } else {
+        setEmailNoVerificado(false);
         setError(result.error || t('auth.errors.authError'));
       }
     }
@@ -79,6 +103,39 @@ export function LoginPage() {
   const handleGoogleLogin = async () => {
     setError(t('auth.errors.googleNotAvailable'));
     // TODO: Implementar OAuth con Google SDK
+  };
+
+  const handleReenviarCodigo = async () => {
+    if (!email) {
+      setError(t('auth.errors.completeFields'));
+      return;
+    }
+
+    setIsReenviandoCodigo(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const resultado = await authApi.reenviarCodigo({
+        email,
+        canal: CanalEnvio.Email,
+      });
+
+      // Navegar a la página de verificación con los datos necesarios
+      navigate('/registro', {
+        state: {
+          modoVerificacion: true,
+          email,
+          usuarioId: resultado.usuarioId,
+          organizacionId: resultado.organizacionId,
+          nombreOrganizacion: resultado.nombreOrganizacion,
+        },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t('auth.errors.resendCodeError');
+      setError(message);
+      setIsReenviandoCodigo(false);
+    }
   };
 
   return (
@@ -154,7 +211,31 @@ export function LoginPage() {
 
             {error && (
               <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
-                {error}
+                <div>{error}</div>
+                {emailNoVerificado && (
+                  <div className="mt-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReenviarCodigo}
+                      disabled={isReenviandoCodigo || isLoading}
+                      className="w-full"
+                    >
+                      {isReenviandoCodigo ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin mr-2" />
+                          {t('auth.resendingCode')}
+                        </>
+                      ) : (
+                        <>
+                          <Mail size={16} className="mr-2" />
+                          {t('auth.resendVerificationCode')}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 

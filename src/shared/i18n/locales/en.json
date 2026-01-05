@@ -147,6 +147,8 @@
       "editVehicle": "Edit vehicle",
       "deleteVehicle": "Delete vehicle"
     },
+    "deleteTitle": "Delete vehicle",
+    "deleteMessage": "Are you sure you want to delete the vehicle with license plate \"{{patente}}\"? This action will mark the vehicle as inactive.",
     "types": {
       "auto": "Car",
       "moto": "Motorcycle",
@@ -718,12 +720,16 @@
       "registerError": "Error registering company",
       "verifyError": "Error verifying account",
       "resendError": "Error resending code",
+      "resendCodeError": "Error resending verification code",
       "googleNotAvailable": "Google login will be available soon"
     },
     "success": {
       "codeResentEmail": "Code resent to your email",
-      "codeResentSms": "Code resent to your phone"
-    }
+      "codeResentSms": "Code resent to your phone",
+      "resendCodeSuccess": "Verification code resent successfully"
+    },
+    "resendVerificationCode": "Resend verification code",
+    "resendingCode": "Resending code..."
   },
   "organization": {
     "title": "Company · Appearance / Branding",

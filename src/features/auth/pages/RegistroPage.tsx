@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
 import { authApi } from '@/services/endpoints';
@@ -13,9 +13,21 @@ import { useAuthStore } from '@/store';
 export function RegistroPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuthStore();
   
-  const [step, setStep] = useState<'datos' | 'verificacion'>('datos');
+  // Verificar si viene en modo verificación desde LoginPage
+  const state = location.state as {
+    modoVerificacion?: boolean;
+    email?: string;
+    usuarioId?: string;
+    organizacionId?: string;
+    nombreOrganizacion?: string;
+  } | null;
+
+  const [step, setStep] = useState<'datos' | 'verificacion'>(
+    state?.modoVerificacion ? 'verificacion' : 'datos'
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState<'email' | 'sms' | null>(null);
   const [error, setError] = useState('');
@@ -42,6 +54,24 @@ export function RegistroPage() {
   // Verification
   const [codigoEmail, setCodigoEmail] = useState('');
   const [codigoTelefono, setCodigoTelefono] = useState('');
+
+  // Inicializar datos si viene en modo verificación
+  useEffect(() => {
+    if (state?.modoVerificacion && state.email && state.usuarioId && state.organizacionId) {
+      setFormData(prev => ({
+        ...prev,
+        email: state.email || '',
+      }));
+      setSuccessData({
+        usuarioId: state.usuarioId,
+        organizacionId: state.organizacionId,
+        nombreOrganizacion: state.nombreOrganizacion || '',
+      });
+      setStep('verificacion');
+      // Limpiar el state para que no se aplique de nuevo
+      window.history.replaceState({}, document.title);
+    }
+  }, [state]);
 
   const updateField = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
