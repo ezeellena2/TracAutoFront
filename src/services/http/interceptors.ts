@@ -22,13 +22,18 @@ type ApiErrorResponse = ProblemDetails | ValidationError;
 
 /**
  * Extrae mensaje de error legible del response del backend
- */
-/**
- * Extrae mensaje de error legible del response del backend
+ * Prioriza: detail (mensaje descriptivo) > code (código de error) > mensaje por defecto
  */
 function extractErrorMessage(data: ApiErrorResponse | undefined, status: number): string {
   if (!data) {
     return getDefaultMessage(status);
+  }
+
+  // ProblemDetails: priorizar 'detail' si tiene mensaje descriptivo
+  if ('detail' in data && data.detail && typeof data.detail === 'string' && data.detail.trim()) {
+    // Si el detail contiene información útil (no solo el código), usarlo
+    // Esto es especialmente útil para errores como "General.ErrorInesperado" que incluyen el mensaje
+    return data.detail;
   }
 
   // Si tiene código explícito (backend standard), retornarlo.
