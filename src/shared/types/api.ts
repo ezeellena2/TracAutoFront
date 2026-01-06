@@ -192,14 +192,14 @@ export interface ResourceExclusionDto {
 }
 
 export interface AddResourceExclusionsCommand {
-  toOrganizacionId: string;
   resourceType: TipoRecurso;
   resourceIds: string[];
   motivo?: string | null;
 }
 
 export interface RemoveResourceExclusionsCommand {
-  exclusionIds: string[];
+  resourceType: TipoRecurso;
+  resourceIds: string[];
 }
 
 export interface OrganizacionDto {

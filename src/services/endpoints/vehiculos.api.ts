@@ -20,6 +20,8 @@ const VEHICULOS_BASE = 'vehiculos';
 export interface GetVehiculosParams extends PaginacionParams {
   soloActivos?: boolean;
   filtroPatente?: string;
+  /** Si es true, solo retorna vehículos propios (excluye compartidos/asociados) */
+  soloPropios?: boolean;
 }
 
 /**
@@ -29,7 +31,7 @@ export interface GetVehiculosParams extends PaginacionParams {
 export async function getVehiculos(
   params: GetVehiculosParams = {}
 ): Promise<ListaPaginada<VehiculoDto>> {
-  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente } = params;
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente, soloPropios } = params;
   
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
@@ -41,6 +43,9 @@ export async function getVehiculos(
   }
   if (filtroPatente) {
     queryParams.filtroPatente = filtroPatente;
+  }
+  if (soloPropios !== undefined) {
+    queryParams.soloPropios = soloPropios;
   }
   
   const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, { 

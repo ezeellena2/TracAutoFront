@@ -105,27 +105,29 @@ export function GestionarExclusionesModal({
             const tipo = parseInt(activeTab) as TipoRecurso;
             let results: (VehiculoDto | ConductorDto | DispositivoDto)[] = [];
 
-            // Nota: Buscamos recursos PROPIOS para poder excluirlos
+            // Nota: Buscamos recursos PROPIOS para poder excluirlos (soloPropios: true)
             switch (tipo) {
                 case TipoRecurso.Vehiculo:
                     const vData = await vehiculosApi.getVehiculos({
                         filtroPatente: searchTerm,
-                        tamanoPagina: 20
+                        tamanoPagina: 20,
+                        soloPropios: true // Solo mostrar vehículos propios, no compartidos
                     });
                     results = vData.items;
                     break;
                 case TipoRecurso.Conductor:
                     const cData = await conductoresApi.listar({
                         buscar: searchTerm,
-                        tamanoPagina: 20
+                        tamanoPagina: 20,
+                        soloPropios: true // Solo mostrar conductores propios, no compartidos
                     });
                     results = cData.items;
                     break;
                 case TipoRecurso.DispositivoTraccar:
-                    // La API de dispositivos no soporta filtro por nombre en backend actualmente
-                    // Cargamos una página y filtramos localmente como fallback temporal
+                    // Filtrar localmente por nombre ya que el backend no soporta filtro por nombre aún
                     const dData = await dispositivosApi.getDispositivos({
-                        tamanoPagina: 50
+                        tamanoPagina: 50,
+                        soloPropios: true // Solo mostrar dispositivos propios, no compartidos
                     });
                     results = dData.items.filter(d =>
                         d.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -155,10 +157,9 @@ export function GestionarExclusionesModal({
             setError(null);
 
             const command: AddResourceExclusionsCommand = {
-                toOrganizacionId: organizacionContrariaNombre,
                 resourceType: parseInt(activeTab),
                 resourceIds: Array.from(selectedResources),
-                motivo: motivoExclusion
+                motivo: motivoExclusion || undefined
             };
 
             await organizacionesApi.addExclusiones(relacionId, command);
@@ -175,11 +176,12 @@ export function GestionarExclusionesModal({
         }
     };
 
-    const handleRemoveExclusion = async (exclusionId: string) => {
+    const handleRemoveExclusion = async (exclusion: ResourceExclusionDto) => {
         try {
             setIsSubmitting(true);
             const command: RemoveResourceExclusionsCommand = {
-                exclusionIds: [exclusionId]
+                resourceType: exclusion.resourceType,
+                resourceIds: [exclusion.resourceId]
             };
             await organizacionesApi.removeExclusiones(relacionId, command);
             await loadExclusiones();
@@ -224,7 +226,7 @@ export function GestionarExclusionesModal({
                 <Button
                     variant="ghost"
                     style={{ color: 'red' }} // Tailwind error color fallback
-                    onClick={() => handleRemoveExclusion(exclusion.id)}
+                    onClick={() => handleRemoveExclusion(exclusion)}
                     disabled={isSubmitting}
                 >
                     <X size={16} />

@@ -18,6 +18,8 @@ const DISPOSITIVOS_BASE = 'dispositivos';
  */
 export interface GetDispositivosParams extends PaginacionParams {
   soloActivos?: boolean;
+  /** Si es true, solo retorna dispositivos propios (excluye compartidos/asociados) */
+  soloPropios?: boolean;
 }
 
 /**
@@ -29,7 +31,7 @@ export interface GetDispositivosParams extends PaginacionParams {
 export async function getDispositivos(
   params: GetDispositivosParams = {}
 ): Promise<ListaPaginada<DispositivoDto>> {
-  const { numeroPagina = 1, tamanoPagina = 10, soloActivos } = params;
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, soloPropios } = params;
 
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
@@ -38,6 +40,10 @@ export async function getDispositivos(
 
   if (soloActivos !== undefined) {
     queryParams.soloActivos = soloActivos;
+  }
+
+  if (soloPropios !== undefined) {
+    queryParams.soloPropios = soloPropios;
   }
 
   const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, {

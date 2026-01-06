@@ -18,6 +18,8 @@ const BASE = 'conductores';
 export interface GetConductoresParams extends PaginacionParams {
   soloActivos?: boolean;
   buscar?: string;
+  /** Si es true, solo retorna conductores propios (excluye compartidos/asociados) */
+  soloPropios?: boolean;
 }
 
 export const conductoresApi = {
@@ -27,17 +29,20 @@ export const conductoresApi = {
   listar: async (
     params: GetConductoresParams = {}
   ): Promise<ListaPaginada<ConductorDto>> => {
-    const { numeroPagina = 1, tamanoPagina = 10, soloActivos, buscar } = params;
+    const { numeroPagina = 1, tamanoPagina = 10, soloActivos, buscar, soloPropios } = params;
     
-    const queryParams: Record<string, string | number> = {
+    const queryParams: Record<string, string | number | boolean> = {
       numeroPagina,
       tamanoPagina,
     };
     if (soloActivos !== undefined) {
-      queryParams.soloActivos = soloActivos.toString();
+      queryParams.soloActivos = soloActivos;
     }
     if (buscar) {
       queryParams.buscar = buscar;
+    }
+    if (soloPropios !== undefined) {
+      queryParams.soloPropios = soloPropios;
     }
     const response = await apiClient.get<ListaPaginada<ConductorDto>>(BASE, { params: queryParams });
     return response.data;

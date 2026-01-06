@@ -255,7 +255,7 @@ export async function getExclusiones(
   const orgId = getOrganizationId();
 
   const response = await apiClient.get<import('@/shared/types/api').ResourceExclusionDto[]>(
-    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/sharing/exclusions`,
     { params: { direction } }
   );
   return response.data;
@@ -271,7 +271,7 @@ export async function addExclusiones(
   const orgId = getOrganizationId();
 
   await apiClient.post(
-    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/sharing/exclusions`,
     command
   );
 }
@@ -286,7 +286,7 @@ export async function removeExclusiones(
   const orgId = getOrganizationId();
 
   await apiClient.delete(
-    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/exclusiones`,
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/sharing/exclusions`,
     { data: command }
   );
 }
