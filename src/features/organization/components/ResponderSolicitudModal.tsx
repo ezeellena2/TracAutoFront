@@ -69,7 +69,7 @@ export function ResponderSolicitudModal({
 
                 <div className="mb-6">
                     <p className="text-text mb-2">
-                        La organización <strong>{solicitud.organizacionANombre}</strong> desea vincularse con su organización.
+                        La organización <strong>{solicitud.solicitanteOrganizacionNombre}</strong> desea vincularse con su organización.
                     </p>
                     <div className="bg-background-secondary p-3 rounded-lg border border-border">
                         <p className="text-sm text-text-muted">
@@ -91,7 +91,7 @@ export function ResponderSolicitudModal({
                         </span>
                     </label>
                     <p className="text-xs text-text-muted mt-1 ml-6">
-                        Si marca esta opción, sus vehículos, conductores y dispositivos serán visibles para {solicitud.organizacionANombre}.
+                        Si marca esta opción, sus vehículos, conductores y dispositivos serán visibles para {solicitud.solicitanteOrganizacionNombre}.
                     </p>
                 </div>
 

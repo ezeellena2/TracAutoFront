@@ -20,7 +20,7 @@ export function CrearRelacionModal({
 }: CrearRelacionModalProps) {
   const { t } = useTranslation();
   const { getErrorMessage } = useErrorHandler();
-  const [organizacionBId, setOrganizacionBId] = useState('');
+  const [organizacionDestinoId, setOrganizacionDestinoId] = useState('');
   const [compartirRecursos, setCompartirRecursos] = useState(true);
   const [organizaciones, setOrganizaciones] = useState<OrganizacionDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,12 +61,12 @@ export function CrearRelacionModal({
         : [];
 
       await organizacionesApi.solicitarVinculacion({
-        organizacionDestinoId: organizacionBId,
+        organizacionDestinoId: organizacionDestinoId,
         recursosACompartir: recursos
       });
 
       toast.success(t('organization.relations.success.requestSent', 'Solicitud enviada exitosamente'));
-      setOrganizacionBId('');
+      setOrganizacionDestinoId('');
       setCompartirRecursos(true);
       setFiltroNombre('');
       onSuccess();
@@ -79,7 +79,7 @@ export function CrearRelacionModal({
   };
 
   const handleClose = () => {
-    setOrganizacionBId('');
+    setOrganizacionDestinoId('');
     setCompartirRecursos(true);
     setFiltroNombre('');
     onClose();
@@ -120,8 +120,8 @@ export function CrearRelacionModal({
               </div>
             ) : (
               <select
-                value={organizacionBId}
-                onChange={(e) => setOrganizacionBId(e.target.value)}
+                value={organizacionDestinoId}
+                onChange={(e) => setOrganizacionDestinoId(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background text-text focus:ring-2 focus:ring-primary focus:border-transparent"
                 required
               >
@@ -173,7 +173,7 @@ export function CrearRelacionModal({
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !organizacionBId}
+              disabled={isLoading || !organizacionDestinoId}
             >
               {isLoading ? t('common.sending', 'Enviando...') : t('organization.relations.create.submit', 'Enviar Solicitud')}
             </Button>
