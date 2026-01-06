@@ -165,11 +165,13 @@ export interface OrganizacionRelacionDto {
   organizacionBNombre: string;
   tipoRelacion?: string | null;
   activa: boolean;
-  asignacionAutomaticaRecursos: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
   creadoPorUsuarioId?: string | null;
   modificadoPorUsuarioId?: string | null;
+  estado: string;
+  estadoId: number;
+  esSolicitante: boolean;
 }
 
 export enum TipoRecurso {
@@ -200,6 +202,39 @@ export interface AddResourceExclusionsCommand {
 export interface RemoveResourceExclusionsCommand {
   resourceType: TipoRecurso;
   resourceIds: string[];
+}
+
+// ==================== Solicitudes Vinculacion DTOs ====================
+
+export enum EstadoSolicitudVinculacion {
+  Pendiente = 1,
+  Aceptada = 2,
+  Rechazada = 3,
+  Cancelada = 4,
+  Finalizada = 5
+}
+
+export interface SolicitudVinculacionDto {
+  id: string; // RelacionId
+  organizacionSolicitanteId: string;
+  organizacionSolicitanteNombre: string;
+  organizacionDestinoId: string;
+  organizacionDestinoNombre: string;
+  estado: EstadoSolicitudVinculacion;
+  fechaSolicitud: string;
+  fechaRespuesta?: string | null;
+  mensaje?: string | null;
+}
+
+export interface SolicitarVinculacionRequest {
+  organizacionDestinoId: string;
+  recursosACompartir?: TipoRecurso[] | null;
+}
+
+export interface ResponderSolicitudVinculacionRequest {
+  relacionId: string;
+  aceptar: boolean;
+  recursosACompartir?: TipoRecurso[] | null;
 }
 
 export interface OrganizacionDto {

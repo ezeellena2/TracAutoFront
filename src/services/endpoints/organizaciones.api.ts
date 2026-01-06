@@ -155,29 +155,6 @@ export async function getOrganizacionesDisponiblesParaVincular(
 }
 
 /**
- * Crea una relación entre dos organizaciones
- */
-export async function crearRelacionOrganizacion(
-  organizacionAId: string,
-  organizacionBId: string,
-  tipoRelacion?: string,
-  asignacionAutomaticaRecursos?: boolean
-): Promise<OrganizacionRelacionDto> {
-  const orgId = getOrganizationId();
-
-  const response = await apiClient.post<OrganizacionRelacionDto>(
-    `${ORGANIZACIONES_BASE}/${orgId}/relaciones`,
-    {
-      organizacionAId,
-      organizacionBId,
-      tipoRelacion,
-      asignacionAutomaticaRecursos
-    }
-  );
-  return response.data;
-}
-
-/**
  * Lista las relaciones de una organización con paginación
  */
 export async function listarRelacionesOrganizacion(
@@ -223,6 +200,53 @@ export async function asignarRecursosARelacion(
   );
 }
 
+/**
+ * Solicita vinculación con otra organización
+ */
+export async function solicitarVinculacion(
+  req: import('@/shared/types/api').SolicitarVinculacionRequest
+): Promise<string> {
+  const orgId = getOrganizationId();
+
+  const response = await apiClient.post<string>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/solicitar`,
+    {
+      organizacionDestinoId: req.organizacionDestinoId,
+      recursosACompartir: req.recursosACompartir
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Responde a una solicitud de vinculación (Aceptar/Rechazar)
+ */
+export async function responderSolicitudVinculacion(
+  req: import('@/shared/types/api').ResponderSolicitudVinculacionRequest
+): Promise<void> {
+  const orgId = getOrganizationId();
+
+  await apiClient.post(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${req.relacionId}/responder`,
+    {
+      aceptar: req.aceptar,
+      recursosACompartir: req.recursosACompartir
+    }
+  );
+}
+
+/**
+ * Obtiene solicitudes de vinculación pendientes
+ */
+export async function obtenerSolicitudesPendientes(): Promise<import('@/shared/types/api').OrganizacionRelacionDto[]> {
+  const orgId = getOrganizationId();
+
+  const response = await apiClient.get<import('@/shared/types/api').OrganizacionRelacionDto[]>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/pendientes`
+  );
+  return response.data;
+}
+
 export const organizacionesApi = {
   getOrganizaciones,
   getOrganizacionById,
@@ -232,10 +256,14 @@ export const organizacionesApi = {
   updateOrganizacionTheme,
   getCurrentOrganizationPreferences,
   getOrganizacionesDisponiblesParaVincular,
-  crearRelacionOrganizacion,
   listarRelacionesOrganizacion,
   eliminarRelacionOrganizacion,
   asignarRecursosARelacion,
+
+  // Solicitudes
+  solicitarVinculacion,
+  responderSolicitudVinculacion,
+  obtenerSolicitudesPendientes,
 
   // Exclusiones
   getExclusiones,
