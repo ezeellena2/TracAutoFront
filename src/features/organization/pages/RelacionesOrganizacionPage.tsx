@@ -72,6 +72,17 @@ export function RelacionesOrganizacionPage() {
     }
   }, [loadData, organizacionId]);
 
+  // Auto-ajustar página si excede el total (ej: después de eliminar registros)
+  useEffect(() => {
+    if (
+      relacionesData &&
+      relacionesData.totalPaginas > 0 &&
+      relacionesData.paginaActual > relacionesData.totalPaginas
+    ) {
+      setNumeroPagina(relacionesData.totalPaginas);
+    }
+  }, [relacionesData, setNumeroPagina]);
+
   const handleDelete = async (relacionId: string) => {
     // Confirmation handled by RelacionesTable -> ConfirmationModal
     try {
