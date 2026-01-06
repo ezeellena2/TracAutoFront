@@ -8,7 +8,7 @@ import { useLocalization } from '@/hooks';
 interface RelacionesTableProps {
   relaciones: OrganizacionRelacionDto[];
   organizacionActualId: string;
-  onDelete: (relacionId: string) => void;
+  onDelete?: (relacionId: string) => void;
   onAssignResources?: (relacionId: string) => void;
   onManageExclusions?: (relacionId: string) => void;
   actionMenuOpen: string | null;
@@ -16,6 +16,7 @@ interface RelacionesTableProps {
   relacionToDelete: string | null;
   setRelacionToDelete: (id: string | null) => void;
   isDeleting: boolean;
+  isLoading?: boolean;
 }
 
 export function RelacionesTable({
@@ -29,6 +30,7 @@ export function RelacionesTable({
   relacionToDelete,
   setRelacionToDelete,
   isDeleting,
+  isLoading,
 }: RelacionesTableProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
@@ -39,9 +41,9 @@ export function RelacionesTable({
       header: t('organization.relations.table.organization'),
       render: (relacion: OrganizacionRelacionDto) => {
         // Determinar qué organización mostrar (la otra, no la actual)
-        const otraOrgNombre = relacion.organizacionAId === organizacionActualId
-          ? relacion.organizacionBNombre
-          : relacion.organizacionANombre;
+        const otraOrgNombre = relacion.solicitanteOrganizacionId === organizacionActualId
+          ? relacion.destinoOrganizacionNombre
+          : relacion.solicitanteOrganizacionNombre;
 
         return (
           <div className="flex items-center gap-2">
@@ -60,17 +62,6 @@ export function RelacionesTable({
         <span className="text-text-muted">
           {relacion.tipoRelacion || t('organization.relations.table.noType')}
         </span>
-      ),
-    },
-    {
-      key: 'asignacionAutomatica',
-      header: t('organization.relations.table.autoAssignment'),
-      render: (relacion: OrganizacionRelacionDto) => (
-        <Badge variant={relacion.asignacionAutomaticaRecursos ? 'success' : 'default'}>
-          {relacion.asignacionAutomaticaRecursos
-            ? t('organization.relations.table.automatic')
-            : t('organization.relations.table.manual')}
-        </Badge>
       ),
     },
     {
@@ -102,7 +93,7 @@ export function RelacionesTable({
             onToggle={() => setActionMenuOpen(isOpen ? null : relacion.id)}
             onClose={() => setActionMenuOpen(null)}
           >
-            {!relacion.asignacionAutomaticaRecursos && onAssignResources && (
+            {onAssignResources && (
               <button
                 className="w-full px-3 py-2 text-left text-sm text-text hover:bg-background flex items-center gap-2"
                 onClick={() => {
@@ -134,19 +125,21 @@ export function RelacionesTable({
                 {t('organization.exclusions.manageTitle', 'Gestionar Exclusiones')}
               </button>
             )}
-            <button
-              className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-              onClick={() => {
-                setActionMenuOpen(null);
-                if (relacion.activa) {
-                  setRelacionToDelete(relacion.id);
-                }
-              }}
-              disabled={!relacion.activa}
-            >
-              <Trash2 size={14} />
-              {t('organization.relations.actions.delete')}
-            </button>
+            {onDelete && (
+              <button
+                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                onClick={() => {
+                  setActionMenuOpen(null);
+                  if (relacion.activa) {
+                    setRelacionToDelete(relacion.id);
+                  }
+                }}
+                disabled={!relacion.activa}
+              >
+                <Trash2 size={14} />
+                {t('organization.relations.actions.delete')}
+              </button>
+            )}
           </ActionMenu>
         );
       },
@@ -159,13 +152,14 @@ export function RelacionesTable({
         columns={columns}
         data={relaciones}
         keyExtractor={(r) => r.id}
+        isLoading={isLoading}
       />
 
       <ConfirmationModal
         isOpen={relacionToDelete !== null}
         onClose={() => setRelacionToDelete(null)}
         onConfirm={() => {
-          if (relacionToDelete) {
+          if (relacionToDelete && onDelete) {
             onDelete(relacionToDelete);
           }
         }}

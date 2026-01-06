@@ -5,26 +5,23 @@ import { Modal, Input, Button } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
 import { toast } from '@/store';
 import { useErrorHandler } from '@/hooks';
-import { OrganizacionDto } from '@/shared/types/api';
+import { OrganizacionDto, TipoRecurso } from '@/shared/types/api';
 
 interface CrearRelacionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  organizacionActualId: string;
 }
 
-export function CrearRelacionModal({ 
-  isOpen, 
-  onClose, 
-  onSuccess,
-  organizacionActualId 
+export function CrearRelacionModal({
+  isOpen,
+  onClose,
+  onSuccess
 }: CrearRelacionModalProps) {
   const { t } = useTranslation();
   const { getErrorMessage } = useErrorHandler();
   const [organizacionBId, setOrganizacionBId] = useState('');
-  const [tipoRelacion, setTipoRelacion] = useState('');
-  const [asignacionAutomaticaRecursos, setAsignacionAutomaticaRecursos] = useState(true);
+  const [compartirRecursos, setCompartirRecursos] = useState(true);
   const [organizaciones, setOrganizaciones] = useState<OrganizacionDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOrgs, setIsLoadingOrgs] = useState(false);
@@ -58,16 +55,19 @@ export function CrearRelacionModal({
     setIsLoading(true);
 
     try {
-      await organizacionesApi.crearRelacionOrganizacion(
-        organizacionActualId,
-        organizacionBId,
-        tipoRelacion || undefined,
-        asignacionAutomaticaRecursos
-      );
-      toast.success(t('organization.relations.success.created'));
+      // Si "compartir recursos" está marcado, ofrecemos compartir todos los tipos
+      const recursos = compartirRecursos
+        ? [TipoRecurso.Vehiculo, TipoRecurso.Conductor, TipoRecurso.DispositivoTraccar]
+        : [];
+
+      await organizacionesApi.solicitarVinculacion({
+        organizacionDestinoId: organizacionBId,
+        recursosACompartir: recursos
+      });
+
+      toast.success(t('organization.relations.success.requestSent', 'Solicitud enviada exitosamente'));
       setOrganizacionBId('');
-      setTipoRelacion('');
-      setAsignacionAutomaticaRecursos(true);
+      setCompartirRecursos(true);
       setFiltroNombre('');
       onSuccess();
       onClose();
@@ -80,8 +80,7 @@ export function CrearRelacionModal({
 
   const handleClose = () => {
     setOrganizacionBId('');
-    setTipoRelacion('');
-    setAsignacionAutomaticaRecursos(true);
+    setCompartirRecursos(true);
     setFiltroNombre('');
     onClose();
   };
@@ -91,7 +90,7 @@ export function CrearRelacionModal({
       <div className="p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-text">
-            {t('organization.relations.create.title')}
+            {t('organization.relations.create.title', 'Nueva Vinculación')}
           </h2>
           <button onClick={handleClose} className="text-text-muted hover:text-text">
             <X size={20} />
@@ -141,21 +140,8 @@ export function CrearRelacionModal({
                 {t('organization.relations.create.noOrganizations')}
               </p>
             )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">
-              {t('organization.relations.create.relationType')} ({t('common.optional')})
-            </label>
-            <Input
-              type="text"
-              value={tipoRelacion}
-              onChange={(e) => setTipoRelacion(e.target.value)}
-              placeholder={t('organization.relations.create.relationTypePlaceholder')}
-              maxLength={100}
-            />
-            <p className="text-xs text-text-muted mt-1">
-              {t('organization.relations.create.relationTypeHelp')}
+            <p className="text-xs text-text-muted mt-2">
+              Seleccione la organización con la que desea compartir o recibir recursos. Se enviará una solicitud a sus administradores.
             </p>
           </div>
 
@@ -163,16 +149,16 @@ export function CrearRelacionModal({
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={asignacionAutomaticaRecursos}
-                onChange={(e) => setAsignacionAutomaticaRecursos(e.target.checked)}
+                checked={compartirRecursos}
+                onChange={(e) => setCompartirRecursos(e.target.checked)}
                 className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
               />
               <span className="text-sm font-medium text-text">
-                {t('organization.relations.create.autoAssignResources')}
+                {t('organization.relations.create.autoShare', 'Ofrecer compartir mis recursos automáticamente')}
               </span>
             </label>
             <p className="text-xs text-text-muted mt-1 ml-6">
-              {t('organization.relations.create.autoAssignResourcesHelp')}
+              Si se marca, se ofrecerá acceso a sus vehículos, conductores y dispositivos a la otra organización.
             </p>
           </div>
 
@@ -189,7 +175,7 @@ export function CrearRelacionModal({
               type="submit"
               disabled={isLoading || !organizacionBId}
             >
-              {isLoading ? t('common.loading') : t('common.create')}
+              {isLoading ? t('common.sending', 'Enviando...') : t('organization.relations.create.submit', 'Enviar Solicitud')}
             </Button>
           </div>
         </form>
@@ -197,4 +183,3 @@ export function CrearRelacionModal({
     </Modal>
   );
 }
-
