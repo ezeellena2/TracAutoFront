@@ -114,12 +114,12 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
     }
     if (filterMode === 'organization' && filterOrgId) {
       const relacion = organizacionesRelacionadas.find(
-        (r) => r.organizacionAId === filterOrgId || r.organizacionBId === filterOrgId
+        (r) => r.solicitanteOrganizacionId === filterOrgId || r.destinoOrganizacionId === filterOrgId
       );
 
       if (relacion) {
-        const isA = relacion.organizacionAId === currentOrganizationId;
-        const orgName = isA ? relacion.organizacionBNombre : relacion.organizacionANombre;
+        const isSolicitante = relacion.solicitanteOrganizacionId === currentOrganizationId;
+        const orgName = isSolicitante ? relacion.destinoOrganizacionNombre : relacion.solicitanteOrganizacionNombre;
         return orgName || t('map.filter.selectOrganization');
       }
       // Fallback si no encontramos la relación (ej: paginación o cache)
@@ -172,10 +172,10 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
                 <div className="border-t border-border my-1" />
                 {organizacionesRelacionadas.map((relacion) => {
                   // Determine which organization ID to use (the other one, not current)
-                  const isA = relacion.organizacionAId === currentOrganizationId;
-                  const orgId = isA ? relacion.organizacionBId : relacion.organizacionAId;
+                  const isSolicitante = relacion.solicitanteOrganizacionId === currentOrganizationId;
+                  const orgId = isSolicitante ? relacion.destinoOrganizacionId : relacion.solicitanteOrganizacionId;
                   // Usamos el nombre que viene de la relación para filtrar en el mapa
-                  const orgName = isA ? relacion.organizacionBNombre : relacion.organizacionANombre;
+                  const orgName = isSolicitante ? relacion.destinoOrganizacionNombre : relacion.solicitanteOrganizacionNombre;
                   return (
                     <button
                       key={relacion.id}

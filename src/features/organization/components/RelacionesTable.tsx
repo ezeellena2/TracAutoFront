@@ -41,9 +41,9 @@ export function RelacionesTable({
       header: t('organization.relations.table.organization'),
       render: (relacion: OrganizacionRelacionDto) => {
         // Determinar qué organización mostrar (la otra, no la actual)
-        const otraOrgNombre = relacion.organizacionAId === organizacionActualId
-          ? relacion.organizacionBNombre
-          : relacion.organizacionANombre;
+        const otraOrgNombre = relacion.solicitanteOrganizacionId === organizacionActualId
+          ? relacion.destinoOrganizacionNombre
+          : relacion.solicitanteOrganizacionNombre;
 
         return (
           <div className="flex items-center gap-2">

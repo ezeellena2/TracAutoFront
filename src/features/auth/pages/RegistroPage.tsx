@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
-import { authApi } from '@/services/endpoints';
-import { useAuthStore } from '@/store';
+import { authApi, organizacionesApi } from '@/services/endpoints';
+import { useAuthStore, useTenantStore } from '@/store';
 
 /**
  * Página de Registro de Empresa B2B
@@ -14,7 +14,7 @@ export function RegistroPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuthStore();
+  // const { login } = useAuthStore(); // Removed: accessed directly via getState() to ensure latest state and consistency
 
   // Verificar si viene en modo verificación desde LoginPage
   const state = location.state as {
@@ -198,7 +198,7 @@ export function RegistroPage() {
       });
 
       // Verificación exitosa - auto-login con el token recibido
-      login(
+      useAuthStore.getState().login(
         {
           id: successData.usuarioId,
           nombre: formData.nombreCompleto,
@@ -209,6 +209,22 @@ export function RegistroPage() {
         },
         response.token
       );
+
+      // P0-FIX: Cargar datos de la organización en tenantStore para que se muestre el nombre/branding
+      try {
+        const orgDto = await organizacionesApi.getOrganizacionById(successData.organizacionId);
+        useTenantStore.getState().setOrganizationFromDto(orgDto);
+      } catch (orgError) {
+        console.error('Error loading organization details after verify:', orgError);
+        // Fallback local si falla el fetch (mejor que nada)
+        useTenantStore.getState().setOrganization({
+          id: successData.organizacionId,
+          name: successData.nombreOrganizacion,
+          tipoOrganizacion: formData.tipoOrganizacion,
+          logo: '',
+          theme: {}
+        });
+      }
 
       // Redirigir al dashboard
       navigate('/', { replace: true });

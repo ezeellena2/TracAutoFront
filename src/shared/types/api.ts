@@ -158,11 +158,12 @@ export interface OrganizacionThemeDto {
 }
 
 export interface OrganizacionRelacionDto {
+
   id: string;
-  organizacionAId: string;
-  organizacionANombre: string;
-  organizacionBId: string;
-  organizacionBNombre: string;
+  solicitanteOrganizacionId: string;
+  solicitanteOrganizacionNombre: string;
+  destinoOrganizacionId: string;
+  destinoOrganizacionNombre: string;
   tipoRelacion?: string | null;
   activa: boolean;
   fechaCreacion: string;

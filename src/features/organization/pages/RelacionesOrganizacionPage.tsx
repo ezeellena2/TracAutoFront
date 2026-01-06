@@ -127,7 +127,7 @@ export function RelacionesOrganizacionPage() {
         {canManage && (
           <Button onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
             <Link2 size={20} />
-            {t('organization.relations.create')}
+            {t('organization.relations.create.title')}
           </Button>
         )}
       </div>
@@ -155,7 +155,7 @@ export function RelacionesOrganizacionPage() {
                         {req.esSolicitante ? 'Enviada' : 'Recibida'}
                       </span>
                       <h4 className="font-medium text-text mt-1">
-                        {req.esSolicitante ? req.organizacionBNombre : req.organizacionANombre}
+                        {req.esSolicitante ? req.destinoOrganizacionNombre : req.solicitanteOrganizacionNombre}
                       </h4>
                     </div>
                     {req.esSolicitante ? (
@@ -252,8 +252,8 @@ export function RelacionesOrganizacionPage() {
           relacionId={relacionToManageExclusions.id}
           organizacionContrariaNombre={ // FIXED: organizacionContrariaNombre
             relacionToManageExclusions.esSolicitante
-              ? relacionToManageExclusions.organizacionBNombre
-              : relacionToManageExclusions.organizacionANombre
+              ? relacionToManageExclusions.destinoOrganizacionNombre
+              : relacionToManageExclusions.solicitanteOrganizacionNombre
           }
           esOutbound={true} // DEFAULT: true (Managing my exclusions)
         />
