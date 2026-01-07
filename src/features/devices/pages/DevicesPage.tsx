@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
+import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2 } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
@@ -217,6 +217,38 @@ export function DevicesPage() {
       render: (d: DispositivoDto) => (
         d.activo ? <Badge variant="success">{t('common.active')}</Badge> : <Badge variant="error">{t('common.inactive')}</Badge>
       )
+    },
+    {
+      key: 'compartidoCon',
+      header: t('devices.sharing'),
+      render: (d: DispositivoDto) => {
+        // Si es recurso asociado, mostrar badge indicando que viene de otra org
+        if (d.esRecursoAsociado) {
+          return (
+            <Badge variant="warning">
+              {t('devices.table.associated')}
+            </Badge>
+          );
+        }
+        // Si está compartido con otras organizaciones
+        if (d.compartidoCon?.estaCompartido) {
+          const { cantidadOrganizaciones, organizaciones } = d.compartidoCon;
+          const nombresOrgs = organizaciones.map(o => o.nombre).join(', ');
+          const titulo = cantidadOrganizaciones > 3
+            ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
+            : nombresOrgs;
+          return (
+            <span title={titulo} className="flex items-center gap-1">
+              <Share2 size={14} className="text-primary" />
+              <Badge variant="info">
+                {cantidadOrganizaciones}
+              </Badge>
+            </span>
+          );
+        }
+        // No compartido
+        return <span className="text-text-muted">—</span>;
+      },
     },
     {
       key: 'ultimaActualizacionUtc',

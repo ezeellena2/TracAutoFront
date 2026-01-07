@@ -64,6 +64,11 @@ export function useDriversPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [conductorToDelete, setConductorToDelete] = useState<ConductorDto | null>(null);
 
+  // Reactivate modal
+  const [isReactivateModalOpen, setIsReactivateModalOpen] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [conductorToReactivate, setConductorToReactivate] = useState<ConductorDto | null>(null);
+
   // Assignment modals
   const [isAssignVehicleModalOpen, setIsAssignVehicleModalOpen] = useState(false);
   const [isAssignDeviceModalOpen, setIsAssignDeviceModalOpen] = useState(false);
@@ -217,6 +222,30 @@ export function useDriversPage() {
       toast.error(getErrorMessage(e));
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Reactivate handlers
+  const handleOpenReactivate = (conductor: ConductorDto) => {
+    setConductorToReactivate(conductor);
+    setIsReactivateModalOpen(true);
+    setActionMenuOpen(null);
+  };
+
+  const handleReactivate = async () => {
+    if (!conductorToReactivate) return;
+
+    setIsReactivating(true);
+    try {
+      await conductoresApi.reactivar(conductorToReactivate.id);
+      toast.success(t('drivers.success.reactivated'));
+      setIsReactivateModalOpen(false);
+      setConductorToReactivate(null);
+      await loadData();
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsReactivating(false);
     }
   };
 
@@ -424,6 +453,8 @@ export function useDriversPage() {
     setIsEditModalOpen,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
+    isReactivateModalOpen,
+    setIsReactivateModalOpen,
     isAssignVehicleModalOpen,
     setIsAssignVehicleModalOpen,
     isAssignDeviceModalOpen,
@@ -439,6 +470,7 @@ export function useDriversPage() {
     isCreating,
     isUpdating,
     isDeleting,
+    isReactivating,
     isAssigningVehicle,
     isAssigningDevice,
     isLoadingAssignments,
@@ -454,6 +486,7 @@ export function useDriversPage() {
     editForm,
     setEditForm,
     conductorToDelete,
+    conductorToReactivate,
     conductorForAssignment,
     selectedVehicleId,
     setSelectedVehicleId,
@@ -467,6 +500,8 @@ export function useDriversPage() {
     handleUpdate,
     handleOpenDelete,
     handleDelete,
+    handleOpenReactivate,
+    handleReactivate,
     handleOpenAssignVehicle,
     handleAssignVehicle,
     handleOpenAssignDevice,

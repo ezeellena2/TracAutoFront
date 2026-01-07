@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash2, Car, Smartphone, List } from 'lucide-react';
+import { Edit, Trash2, Car, Smartphone, List, RefreshCw, Share2 } from 'lucide-react';
 import { Table, Badge, ActionMenu } from '@/shared/ui';
 import type { ConductorDto } from '../types';
 
@@ -14,6 +14,7 @@ interface DriversTableProps {
   onAssignVehicle: (conductor: ConductorDto) => void;
   onAssignDevice: (conductor: ConductorDto) => void;
   onDelete: (conductor: ConductorDto) => void;
+  onReactivate: (conductor: ConductorDto) => void;
   formatDate: (dateStr: string) => string;
 }
 
@@ -28,6 +29,7 @@ export function DriversTable({
   onAssignVehicle,
   onAssignDevice,
   onDelete,
+  onReactivate,
   formatDate,
 }: DriversTableProps) {
   const { t } = useTranslation();
@@ -64,6 +66,38 @@ export function DriversTable({
       ),
     },
     {
+      key: 'compartidoCon',
+      header: t('drivers.sharing'),
+      render: (c: ConductorDto) => {
+        // Si es recurso asociado, mostrar badge indicando que viene de otra org
+        if (c.esRecursoAsociado) {
+          return (
+            <Badge variant="warning">
+              {t('drivers.table.associated')}
+            </Badge>
+          );
+        }
+        // Si está compartido con otras organizaciones
+        if (c.compartidoCon?.estaCompartido) {
+          const { cantidadOrganizaciones, organizaciones } = c.compartidoCon;
+          const nombresOrgs = organizaciones.map(o => o.nombre).join(', ');
+          const titulo = cantidadOrganizaciones > 3
+            ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
+            : nombresOrgs;
+          return (
+            <span title={titulo} className="flex items-center gap-1">
+              <Share2 size={14} className="text-primary" />
+              <Badge variant="info">
+                {cantidadOrganizaciones}
+              </Badge>
+            </span>
+          );
+        }
+        // No compartido
+        return <span className="text-text-muted">—</span>;
+      },
+    },
+    {
       key: 'asignaciones',
       header: t('drivers.assignments'),
       render: () => (
@@ -86,6 +120,7 @@ export function DriversTable({
         if (!canEdit && !canDelete) return null;
 
         const isOpen = actionMenuOpen === c.id;
+        const isActive = c.activo;
 
         return (
           <ActionMenu
@@ -94,7 +129,8 @@ export function DriversTable({
             onClose={() => onActionMenuToggle(null)}
           >
             <div className="flex flex-col">
-              {canEdit && (
+              {/* Conductor ACTIVO: mostrar todas las acciones normales */}
+              {isActive && canEdit && (
                 <>
                   <button
                     onClick={() => {
@@ -141,7 +177,8 @@ export function DriversTable({
                   </button>
                 </>
               )}
-              {canDelete && (
+              {/* Conductor ACTIVO: mostrar eliminar */}
+              {isActive && canDelete && (
                 <>
                   <div className="border-t border-border my-1" />
                   <button
@@ -155,6 +192,19 @@ export function DriversTable({
                     {t('drivers.delete')}
                   </button>
                 </>
+              )}
+              {/* Conductor INACTIVO: solo mostrar Reactivar */}
+              {!isActive && canEdit && (
+                <button
+                  onClick={() => {
+                    onActionMenuToggle(null);
+                    onReactivate(c);
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                >
+                  <RefreshCw size={14} />
+                  {t('drivers.reactivate')}
+                </button>
               )}
             </div>
           </ActionMenu>

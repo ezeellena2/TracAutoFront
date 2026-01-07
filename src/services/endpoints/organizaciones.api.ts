@@ -269,6 +269,9 @@ export const organizacionesApi = {
   getExclusiones,
   addExclusiones,
   removeExclusiones,
+
+  // Recursos Compartibles
+  getRecursosCompartibles,
 };
 
 /**
@@ -317,4 +320,42 @@ export async function removeExclusiones(
     `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/sharing/exclusions`,
     { data: command }
   );
+}
+
+/**
+ * Obtiene recursos propios con su estado de comparticion para una relacion especifica.
+ * Devuelve recursos con estado: Disponible, YaCompartido o Excluido.
+ * Soporta paginacion, busqueda y filtro por estado.
+ *
+ * @param relacionId ID de la relacion
+ * @param params Parametros de consulta (resourceType requerido)
+ */
+export async function getRecursosCompartibles(
+  relacionId: string,
+  params: import('@/shared/types/api').GetRecursosCompartiblesParams
+): Promise<import('@/shared/types/api').RecursosCompartiblesResponse> {
+  const orgId = getOrganizationId();
+
+  const queryParams: Record<string, string | number> = {
+    resourceType: params.resourceType,
+  };
+
+  if (params.numeroPagina !== undefined) {
+    queryParams.numeroPagina = params.numeroPagina;
+  }
+  if (params.tamanoPagina !== undefined) {
+    queryParams.tamanoPagina = params.tamanoPagina;
+  }
+  if (params.buscar) {
+    queryParams.buscar = params.buscar;
+  }
+  if (params.estado !== undefined) {
+    queryParams.estado = params.estado;
+  }
+
+  const response = await apiClient.get<import('@/shared/types/api').RecursosCompartiblesResponse>(
+    `${ORGANIZACIONES_BASE}/${orgId}/relaciones/${relacionId}/sharing/recursos`,
+    { params: queryParams }
+  );
+  return response.data;
 }

@@ -344,6 +344,27 @@ export enum TipoVehiculo {
   Auto = 1,
 }
 
+/**
+ * Resumen minimo de una organizacion para mostrar en UI
+ */
+export interface OrganizacionResumenDto {
+  id: string;
+  nombre: string;
+}
+
+/**
+ * Informacion resumida de comparticion de un recurso.
+ * Indica con cuantas organizaciones esta compartido y cuales son.
+ */
+export interface RecursoSharingInfoDto {
+  /** Indica si el recurso esta compartido con al menos una organizacion */
+  estaCompartido: boolean;
+  /** Cantidad de organizaciones con las que esta compartido */
+  cantidadOrganizaciones: number;
+  /** Lista de organizaciones con las que esta compartido (limitada a las primeras 3) */
+  organizaciones: OrganizacionResumenDto[];
+}
+
 export interface VehiculoDto {
   id: string;
   tipo: TipoVehiculo;
@@ -357,6 +378,12 @@ export interface VehiculoDto {
   dispositivoActivoId: string | null;
   dispositivoActivoNombre?: string | null;
   esRecursoAsociado: boolean;
+  /**
+   * Informacion de comparticion del recurso.
+   * Solo se incluye para recursos propios (esRecursoAsociado = false).
+   * Indica con cuantas y cuales organizaciones esta compartido este vehiculo.
+   */
+  compartidoCon?: RecursoSharingInfoDto | null;
 }
 
 // ==================== Dispositivos DTOs ====================
@@ -380,6 +407,12 @@ export interface DispositivoDto {
   uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
   esRecursoAsociado: boolean;
+  /**
+   * Informacion de comparticion del recurso.
+   * Solo se incluye para recursos propios (esRecursoAsociado = false).
+   * Indica con cuantas y cuales organizaciones esta compartido este dispositivo.
+   */
+  compartidoCon?: RecursoSharingInfoDto | null;
 }
 
 // ==================== Marketplace DTOs ====================
@@ -468,4 +501,70 @@ export interface VincularVehiculoMarketplaceRequest {
   dispositivoId?: string | null;
   conductorId?: string | null;
   motivoCambio?: string | null;
+}
+
+// ==================== Recursos Compartibles DTOs ====================
+
+/**
+ * Estado de comparticion de un recurso para una relacion especifica
+ */
+export enum EstadoComparticion {
+  /** Recurso disponible para compartir (no tiene asignacion ni exclusion activa) */
+  Disponible = 0,
+  /** Recurso ya compartido (tiene asignacion activa en esta relacion) */
+  YaCompartido = 1,
+  /** Recurso excluido (tiene exclusion activa en esta relacion) */
+  Excluido = 2,
+}
+
+/**
+ * DTO para representar un recurso con su estado de comparticion para una relacion especifica
+ */
+export interface RecursoCompartibleDto {
+  /** ID del recurso (vehiculo, conductor o dispositivo) */
+  id: string;
+  /** Nombre principal del recurso (Patente, NombreCompleto, Alias) */
+  nombre: string;
+  /** Descripcion secundaria (Marca+Modelo, DNI, TraccarDeviceId) */
+  descripcion: string | null;
+  /** Estado de comparticion para esta relacion */
+  estado: EstadoComparticion;
+  /** ID de la asignacion (solo si estado == YaCompartido) */
+  asignacionId: string | null;
+  /** Fecha en que se compartio (solo si estado == YaCompartido) */
+  fechaCompartido: string | null;
+  /** ID de la exclusion (solo si estado == Excluido) */
+  exclusionId: string | null;
+  /** Motivo de la exclusion (solo si estado == Excluido) */
+  motivoExclusion: string | null;
+}
+
+/**
+ * Respuesta paginada de recursos compartibles con contadores por estado
+ */
+export interface RecursosCompartiblesResponse {
+  items: RecursoCompartibleDto[];
+  totalRegistros: number;
+  paginaActual: number;
+  totalPaginas: number;
+  tamanoPagina: number;
+  /** Total de recursos disponibles para compartir */
+  totalDisponibles: number;
+  /** Total de recursos ya compartidos */
+  totalYaCompartidos: number;
+  /** Total de recursos excluidos */
+  totalExcluidos: number;
+  tipoRecurso: TipoRecurso;
+  relacionId: string;
+}
+
+/**
+ * Parametros para obtener recursos compartibles
+ */
+export interface GetRecursosCompartiblesParams {
+  resourceType: TipoRecurso;
+  numeroPagina?: number;
+  tamanoPagina?: number;
+  buscar?: string;
+  estado?: EstadoComparticion;
 }

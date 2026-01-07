@@ -106,6 +106,7 @@
     "vehicle": "VEHÍCULO",
     "device": "DISPOSITIVO",
     "status": "ESTADO",
+    "sharing": "COMPARTIDO",
     "created": "CREADO",
     "actions": "ACCIONES",
     "createVehicle": "Agregar Vehículo",
@@ -147,7 +148,8 @@
       "changeDevice": "Cambiar dispositivo",
       "assignDevice": "Asignar dispositivo",
       "editVehicle": "Editar vehículo",
-      "deleteVehicle": "Eliminar vehículo"
+      "deleteVehicle": "Eliminar vehículo",
+      "associated": "Asociado"
     },
     "deleteTitle": "Eliminar vehículo",
     "deleteMessage": "¿Está seguro de eliminar el vehículo con patente \"{{patente}}\"? Esta acción marcará el vehículo como inactivo.",
@@ -194,6 +196,7 @@
     "vehicle": "VEHÍCULO",
     "connection": "CONEXIÓN",
     "status": "ESTADO",
+    "sharing": "COMPARTIDO",
     "lastUpdate": "ÚLTIMA ACTUALIZACIÓN",
     "actions": "ACCIONES",
     "createDevice": "Agregar Dispositivo",
@@ -224,6 +227,9 @@
       "aliasLabel": "Alias",
       "active": "Dispositivo activo",
       "imeiLabel": "IMEI / ID Traccar"
+    },
+    "table": {
+      "associated": "Asociado"
     },
     "errors": {
       "loadFailed": "No se pudo cargar la lista de dispositivos",
@@ -366,6 +372,7 @@
     "email": "EMAIL",
     "phone": "TELÉFONO",
     "status": "ESTADO",
+    "sharing": "COMPARTIDO",
     "assignments": "ASIGNACIONES",
     "created": "CREADO",
     "actions": "ACCIONES",
@@ -385,6 +392,10 @@
     "edit": "Editar",
     "delete": "Eliminar",
     "confirmDelete": "¿Estás seguro de que deseas eliminar al conductor \"{{name}}\"? Esta acción no se puede deshacer.",
+    "confirmDeleteSoftDelete": "¿Estás seguro de que deseas desactivar al conductor \"{{name}}\"? El conductor quedará inactivo pero podrás reactivarlo más tarde.",
+    "reactivate": "Reactivar",
+    "reactivateDriver": "Reactivar Conductor",
+    "confirmReactivate": "¿Estás seguro de que deseas reactivar al conductor \"{{name}}\"?",
     "confirmUnassignVehicle": "¿Estás seguro de desasignar el vehículo \"{{name}}\" de este conductor?",
     "confirmUnassignDevice": "¿Estás seguro de desasignar el dispositivo \"{{name}}\" de este conductor?",
     "form": {
@@ -398,6 +409,9 @@
       "emailPlaceholder": "juan@example.com",
       "phoneLabel": "Teléfono",
       "phonePlaceholder": "+54 11 1234-5678"
+    },
+    "table": {
+      "associated": "Asociado"
     },
     "assignmentsModal": {
       "title": "Asignaciones - {{name}}",
@@ -431,7 +445,8 @@
     "success": {
       "created": "Conductor creado correctamente",
       "updated": "Conductor actualizado correctamente",
-      "deleted": "Conductor eliminado correctamente",
+      "deleted": "Conductor desactivado correctamente",
+      "reactivated": "Conductor reactivado correctamente",
       "vehicleAssigned": "Vehículo asignado correctamente",
       "deviceAssigned": "Dispositivo asignado correctamente",
       "vehicleUnassigned": "Vehículo desasignado correctamente",

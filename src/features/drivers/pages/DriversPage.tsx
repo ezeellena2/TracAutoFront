@@ -42,6 +42,8 @@ export function DriversPage() {
     setIsEditModalOpen,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
+    isReactivateModalOpen,
+    setIsReactivateModalOpen,
     isAssignVehicleModalOpen,
     setIsAssignVehicleModalOpen,
     isAssignDeviceModalOpen,
@@ -55,6 +57,7 @@ export function DriversPage() {
 
     // Loading states
     isDeleting,
+    isReactivating,
     isUnassigningVehicle,
     isUnassigningDevice,
     isLoadingAssignments,
@@ -62,6 +65,7 @@ export function DriversPage() {
     // Form states
     editingConductor,
     conductorToDelete,
+    conductorToReactivate,
     conductorForAssignment,
     assignmentToUnassign,
 
@@ -69,6 +73,8 @@ export function DriversPage() {
     handleOpenEdit,
     handleOpenDelete,
     handleDelete,
+    handleOpenReactivate,
+    handleReactivate,
     handleOpenAssignVehicle,
     handleOpenAssignDevice,
     handleOpenViewAssignments,
@@ -172,6 +178,7 @@ export function DriversPage() {
               onAssignVehicle={handleOpenAssignVehicle}
               onAssignDevice={handleOpenAssignDevice}
               onDelete={handleOpenDelete}
+              onReactivate={handleOpenReactivate}
               formatDate={formatDate}
             />
           </Card>
@@ -268,11 +275,26 @@ export function DriversPage() {
         }}
         onConfirm={handleDelete}
         title={t('drivers.deleteDriver')}
-        description={t('drivers.confirmDelete', { name: conductorToDelete?.nombreCompleto })}
+        description={t('drivers.confirmDeleteSoftDelete', { name: conductorToDelete?.nombreCompleto })}
         confirmText={t('drivers.delete')}
         cancelText={t('common.cancel')}
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      <ConfirmationModal
+        isOpen={isReactivateModalOpen}
+        onClose={() => {
+          setIsReactivateModalOpen(false);
+          setActionMenuOpen(null);
+        }}
+        onConfirm={handleReactivate}
+        title={t('drivers.reactivateDriver')}
+        description={t('drivers.confirmReactivate', { name: conductorToReactivate?.nombreCompleto })}
+        confirmText={t('drivers.reactivate')}
+        cancelText={t('common.cancel')}
+        variant="info"
+        isLoading={isReactivating}
       />
 
       <ConfirmationModal

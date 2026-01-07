@@ -1,3 +1,5 @@
+import type { RecursoSharingInfoDto } from '@/shared/types/api';
+
 export interface ConductorDto {
   id: string;
   nombreCompleto: string;
@@ -8,6 +10,12 @@ export interface ConductorDto {
   fechaCreacion: string;
   fechaActualizacion: string;
   esRecursoAsociado: boolean;
+  /**
+   * Informacion de comparticion del recurso.
+   * Solo se incluye para recursos propios (esRecursoAsociado = false).
+   * Indica con cuantas y cuales organizaciones esta compartido este conductor.
+   */
+  compartidoCon?: RecursoSharingInfoDto | null;
 }
 
 export interface ConductorVehiculoAsignacionDto {

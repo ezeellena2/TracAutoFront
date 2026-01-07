@@ -80,6 +80,14 @@ export const conductoresApi = {
   },
 
   /**
+   * Reactiva un conductor previamente eliminado (soft delete)
+   */
+  reactivar: async (id: string): Promise<ConductorDto> => {
+    const response = await apiClient.post<ConductorDto>(`${BASE}/${id}/reactivar`);
+    return response.data;
+  },
+
+  /**
    * Asigna un conductor a un vehículo
    */
   asignarVehiculo: async (

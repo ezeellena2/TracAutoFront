@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink } from 'lucide-react';
+import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2 } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
@@ -306,6 +306,38 @@ export function VehiclesPage() {
         </Badge>
       ),
       filter: { type: 'boolean' as const }
+    },
+    {
+      key: 'compartidoCon',
+      header: t('vehicles.sharing'),
+      render: (v: VehiculoDto) => {
+        // Si es recurso asociado, mostrar badge indicando que viene de otra org
+        if (v.esRecursoAsociado) {
+          return (
+            <Badge variant="warning">
+              {t('vehicles.table.associated')}
+            </Badge>
+          );
+        }
+        // Si está compartido con otras organizaciones
+        if (v.compartidoCon?.estaCompartido) {
+          const { cantidadOrganizaciones, organizaciones } = v.compartidoCon;
+          const nombresOrgs = organizaciones.map(o => o.nombre).join(', ');
+          const titulo = cantidadOrganizaciones > 3
+            ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
+            : nombresOrgs;
+          return (
+            <span title={titulo} className="flex items-center gap-1">
+              <Share2 size={14} className="text-primary" />
+              <Badge variant="info">
+                {cantidadOrganizaciones}
+              </Badge>
+            </span>
+          );
+        }
+        // No compartido
+        return <span className="text-text-muted">—</span>;
+      },
     },
     {
       key: 'fechaCreacion',

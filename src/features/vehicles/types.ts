@@ -2,6 +2,8 @@
  * Vehiculos API Types - aligned with backend TracAuto.Application.Vehiculos
  */
 
+import type { RecursoSharingInfoDto } from '@/shared/types/api';
+
 /** Tipo de vehículo - matches TipoVehiculo enum in backend */
 export enum TipoVehiculo {
   Auto = 1,
@@ -19,7 +21,14 @@ export interface VehiculoDto {
   fechaCreacion: string;
   fechaActualizacion: string;
   dispositivoActivoId: string | null;
+  dispositivoActivoNombre?: string | null;
   esRecursoAsociado: boolean;
+  /**
+   * Informacion de comparticion del recurso.
+   * Solo se incluye para recursos propios (esRecursoAsociado = false).
+   * Indica con cuantas y cuales organizaciones esta compartido este vehiculo.
+   */
+  compartidoCon?: RecursoSharingInfoDto | null;
 }
 
 /** Request to create a vehicle */
