@@ -6,6 +6,8 @@ import { organizacionesApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useErrorHandler } from '@/hooks';
 import { OrganizacionRelacionDto, ListaPaginada } from '@/shared/types/api';
 import { useAuthStore } from '@/store';
+import { useLocalizationStore } from '@/store/localization.store';
+import { formatDate } from '@/shared/utils/dateFormatter';
 import { CrearRelacionModal } from '../components/CrearRelacionModal';
 import { RelacionesTable } from '../components/RelacionesTable';
 import { AsignarRecursosModal } from '../components/AsignarRecursosModal';
@@ -16,6 +18,9 @@ export function RelacionesOrganizacionPage() {
   const { t } = useTranslation();
   const { getErrorMessage } = useErrorHandler();
   const organizacionId = useAuthStore((state) => state.organizationId);
+  const { preferences } = useLocalizationStore();
+  const culture = preferences?.culture ?? 'es-AR';
+  const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
 
   // Datos
   const [relacionesData, setRelacionesData] = useState<ListaPaginada<OrganizacionRelacionDto> | null>(null);
@@ -166,7 +171,7 @@ export function RelacionesOrganizacionPage() {
                   </div>
 
                   <div className="text-sm text-text-muted">
-                    {new Date(req.fechaCreacion).toLocaleDateString()}
+                    {formatDate(req.fechaCreacion, culture, timeZoneId)}
                   </div>
 
                   {!req.esSolicitante && canManage && (

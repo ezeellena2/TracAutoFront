@@ -15,6 +15,7 @@ interface DriversTableProps {
   onAssignDevice: (conductor: ConductorDto) => void;
   onDelete: (conductor: ConductorDto) => void;
   onReactivate: (conductor: ConductorDto) => void;
+  onShare?: (conductor: ConductorDto) => void;
   formatDate: (dateStr: string) => string;
 }
 
@@ -30,6 +31,7 @@ export function DriversTable({
   onAssignDevice,
   onDelete,
   onReactivate,
+  onShare,
   formatDate,
 }: DriversTableProps) {
   const { t } = useTranslation();
@@ -85,16 +87,28 @@ export function DriversTable({
             ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
             : nombresOrgs;
           return (
-            <span title={titulo} className="flex items-center gap-1">
+            <button
+              onClick={() => onShare?.(c)}
+              title={titulo}
+              className="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <Share2 size={14} className="text-primary" />
               <Badge variant="info">
                 {cantidadOrganizaciones}
               </Badge>
-            </span>
+            </button>
           );
         }
-        // No compartido
-        return <span className="text-text-muted">—</span>;
+        // No compartido - clickeable para abrir modal
+        return (
+          <button
+            onClick={() => onShare?.(c)}
+            className="text-text-muted hover:text-primary transition-colors cursor-pointer"
+            title={t('drivers.table.manageSharing')}
+          >
+            —
+          </button>
+        );
       },
     },
     {
@@ -152,6 +166,18 @@ export function DriversTable({
                     <List size={14} />
                     {t('drivers.viewAssignments')}
                   </button>
+                  {!c.esRecursoAsociado && onShare && (
+                    <button
+                      onClick={() => {
+                        onActionMenuToggle(null);
+                        onShare(c);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-primary"
+                    >
+                      <Share2 size={14} />
+                      {t('drivers.manageSharing')}
+                    </button>
+                  )}
                   <div className="px-3 py-2 text-xs font-medium text-text-muted border-b border-border">
                     {t('drivers.assign')}
                   </div>

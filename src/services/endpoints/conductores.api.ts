@@ -8,7 +8,12 @@ import type {
   AsignarVehiculoRequest,
   AsignarDispositivoRequest,
 } from '@/features/drivers/types';
-import type { ListaPaginada, PaginacionParams } from '@/shared/types/api';
+import type { 
+  ListaPaginada, 
+  PaginacionParams,
+  RecursoSharingStatusDto,
+  ActualizarComparticionRequest,
+} from '@/shared/types/api';
 
 const BASE = 'conductores';
 
@@ -163,6 +168,32 @@ export const conductoresApi = {
       { params }
     );
     return response.data;
+  },
+
+  // ========================================
+  // FUNCIONES DE COMPARTICIÓN
+  // ========================================
+
+  /**
+   * Obtiene el estado de compartición de un conductor.
+   * Muestra todas las relaciones activas y si el conductor está compartido/excluido en cada una.
+   */
+  getSharingStatus: async (conductorId: string): Promise<RecursoSharingStatusDto> => {
+    const response = await apiClient.get<RecursoSharingStatusDto>(
+      `${BASE}/${conductorId}/sharing`
+    );
+    return response.data;
+  },
+
+  /**
+   * Actualiza el estado de compartición de un conductor.
+   * Permite compartir, descompartir y excluir el conductor en múltiples relaciones.
+   */
+  updateSharingStatus: async (
+    conductorId: string,
+    request: ActualizarComparticionRequest
+  ): Promise<void> => {
+    await apiClient.put(`${BASE}/${conductorId}/sharing`, request);
   },
 };
 

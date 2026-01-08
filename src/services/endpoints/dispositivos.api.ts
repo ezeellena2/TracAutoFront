@@ -9,7 +9,13 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { DispositivoDto, ListaPaginada, PaginacionParams } from '@/shared/types/api';
+import { 
+  DispositivoDto, 
+  ListaPaginada, 
+  PaginacionParams,
+  RecursoSharingStatusDto,
+  ActualizarComparticionRequest,
+} from '@/shared/types/api';
 
 const DISPOSITIVOS_BASE = 'dispositivos';
 
@@ -99,6 +105,32 @@ export async function deleteDispositivo(id: string): Promise<void> {
   await apiClient.delete(`${DISPOSITIVOS_BASE}/${id}`);
 }
 
+// ========================================
+// FUNCIONES DE COMPARTICIÓN
+// ========================================
+
+/**
+ * Obtiene el estado de compartición de un dispositivo.
+ * Muestra todas las relaciones activas y si el dispositivo está compartido/excluido en cada una.
+ */
+export async function getSharingStatus(dispositivoId: string): Promise<RecursoSharingStatusDto> {
+  const response = await apiClient.get<RecursoSharingStatusDto>(
+    `${DISPOSITIVOS_BASE}/${dispositivoId}/sharing`
+  );
+  return response.data;
+}
+
+/**
+ * Actualiza el estado de compartición de un dispositivo.
+ * Permite compartir, descompartir y excluir el dispositivo en múltiples relaciones.
+ */
+export async function updateSharingStatus(
+  dispositivoId: string,
+  request: ActualizarComparticionRequest
+): Promise<void> {
+  await apiClient.put(`${DISPOSITIVOS_BASE}/${dispositivoId}/sharing`, request);
+}
+
 /**
  * Objeto API exportado (patrón consistente con otros endpoints)
  */
@@ -107,4 +139,6 @@ export const dispositivosApi = {
   createDispositivo,
   updateDispositivo,
   deleteDispositivo,
+  getSharingStatus,
+  updateSharingStatus,
 };

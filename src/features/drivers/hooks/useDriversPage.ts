@@ -409,23 +409,26 @@ export function useDriversPage() {
     }
   };
 
-  // Table helpers
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+  // Table helpers - Use formatters from dateFormatter module with store preferences
+  // These are kept as local functions for backwards compatibility with DriversTable prop interface
+  const formatDateFn = (dateStr: string) => {
+    // Import lazily to avoid circular dependencies issues - 
+    // consumers should prefer importing from @/shared/utils/dateFormatter directly
+    const { formatDate } = require('@/shared/utils/dateFormatter');
+    const { useLocalizationStore } = require('@/store/localization.store');
+    const preferences = useLocalizationStore.getState().preferences;
+    const culture = preferences?.culture ?? 'es-AR';
+    const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
+    return formatDate(dateStr, culture, timeZoneId);
   };
 
-  const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatDateTimeFn = (dateStr: string) => {
+    const { formatDateTime } = require('@/shared/utils/dateFormatter');
+    const { useLocalizationStore } = require('@/store/localization.store');
+    const preferences = useLocalizationStore.getState().preferences;
+    const culture = preferences?.culture ?? 'es-AR';
+    const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
+    return formatDateTime(dateStr, culture, timeZoneId);
   };
 
   return {
@@ -519,8 +522,8 @@ export function useDriversPage() {
     setActionMenuOpen,
 
     // Helpers
-    formatDate,
-    formatDateTime,
+    formatDate: formatDateFn,
+    formatDateTime: formatDateTimeFn,
   };
 }
 

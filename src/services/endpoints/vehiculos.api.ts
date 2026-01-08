@@ -10,7 +10,12 @@ import type {
   UpdateVehiculoRequest,
   AssignDispositivoRequest,
 } from '@/features/vehicles/types';
-import type { ListaPaginada, PaginacionParams } from '@/shared/types/api';
+import type { 
+  ListaPaginada, 
+  PaginacionParams,
+  RecursoSharingStatusDto,
+  ActualizarComparticionRequest,
+} from '@/shared/types/api';
 
 const VEHICULOS_BASE = 'vehiculos';
 
@@ -115,6 +120,32 @@ export async function unassignDispositivo(
   );
 }
 
+// ========================================
+// FUNCIONES DE COMPARTICIÓN
+// ========================================
+
+/**
+ * Obtiene el estado de compartición de un vehículo.
+ * Muestra todas las relaciones activas y si el vehículo está compartido/excluido en cada una.
+ */
+export async function getSharingStatus(vehiculoId: string): Promise<RecursoSharingStatusDto> {
+  const response = await apiClient.get<RecursoSharingStatusDto>(
+    `${VEHICULOS_BASE}/${vehiculoId}/sharing`
+  );
+  return response.data;
+}
+
+/**
+ * Actualiza el estado de compartición de un vehículo.
+ * Permite compartir, descompartir y excluir el vehículo en múltiples relaciones.
+ */
+export async function updateSharingStatus(
+  vehiculoId: string,
+  request: ActualizarComparticionRequest
+): Promise<void> {
+  await apiClient.put(`${VEHICULOS_BASE}/${vehiculoId}/sharing`, request);
+}
+
 /** Grouped API exports */
 export const vehiculosApi = {
   getVehiculos,
@@ -124,4 +155,6 @@ export const vehiculosApi = {
   deleteVehiculo,
   assignDispositivo,
   unassignDispositivo,
+  getSharingStatus,
+  updateSharingStatus,
 };

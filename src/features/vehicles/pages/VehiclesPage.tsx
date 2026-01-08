@@ -6,8 +6,9 @@ import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { VehiculoDto, CreateVehiculoRequest, TipoVehiculo } from '../types';
-import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
+import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
+import { GestionarComparticionModal } from '@/features/organization';
 
 export function VehiclesPage() {
   const { t } = useTranslation();
@@ -74,6 +75,9 @@ export function VehiclesPage() {
   const [isAssigning, setIsAssigning] = useState(false);
   const [vehicleToAssign, setVehicleToAssign] = useState<VehiculoDto | null>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
+
+  // Sharing modal
+  const [vehicleToShare, setVehicleToShare] = useState<VehiculoDto | null>(null);
 
   const { can } = usePermissions();
   const canEdit = can('vehiculos:editar');
@@ -327,16 +331,28 @@ export function VehiclesPage() {
             ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
             : nombresOrgs;
           return (
-            <span title={titulo} className="flex items-center gap-1">
+            <button
+              onClick={() => setVehicleToShare(v)}
+              title={titulo}
+              className="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <Share2 size={14} className="text-primary" />
               <Badge variant="info">
                 {cantidadOrganizaciones}
               </Badge>
-            </span>
+            </button>
           );
         }
-        // No compartido
-        return <span className="text-text-muted">—</span>;
+        // No compartido - clickeable para abrir modal
+        return (
+          <button
+            onClick={() => setVehicleToShare(v)}
+            className="text-text-muted hover:text-primary transition-colors cursor-pointer"
+            title={t('vehicles.table.manageSharing')}
+          >
+            —
+          </button>
+        );
       },
     },
     {
@@ -349,6 +365,17 @@ export function VehiclesPage() {
       header: t('vehicles.actions'),
       render: (v: VehiculoDto) => (
         <div className="flex items-center gap-1">
+          {/* Botón de compartición - solo para recursos propios */}
+          {canEdit && !v.esRecursoAsociado && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setVehicleToShare(v)}
+              title={t('vehicles.table.manageSharing')}
+            >
+              <Share2 size={16} className="text-primary" />
+            </Button>
+          )}
           {canEdit && (
             <>
               <Button
@@ -782,6 +809,18 @@ export function VehiclesPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal de Gestión de Compartición */}
+      {vehicleToShare && (
+        <GestionarComparticionModal
+          isOpen={!!vehicleToShare}
+          onClose={() => setVehicleToShare(null)}
+          resourceId={vehicleToShare.id}
+          resourceType={1 as TipoRecurso} // TipoRecurso.Vehiculo
+          resourceName={vehicleToShare.patente}
+          onSuccess={loadData}
+        />
+      )}
     </div>
   );
 }

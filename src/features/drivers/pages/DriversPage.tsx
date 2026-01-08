@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, Plus, AlertCircle } from 'lucide-react';
 import { Card, Button, ConfirmationModal, PaginationControls } from '@/shared/ui';
@@ -10,6 +11,9 @@ import { EditDriverModal } from '../components/EditDriverModal';
 import { AssignVehicleModal } from '../components/AssignVehicleModal';
 import { AssignDeviceModal } from '../components/AssignDeviceModal';
 import { ViewAssignmentsModal } from '../components/ViewAssignmentsModal';
+import { GestionarComparticionModal } from '@/features/organization';
+import type { TipoRecurso } from '@/shared/types/api';
+import type { ConductorDto } from '../types';
 
 export function DriversPage() {
   const { t } = useTranslation();
@@ -17,6 +21,9 @@ export function DriversPage() {
   const canEdit = can('conductores:editar');
   const canCreate = can('conductores:crear');
   const canDelete = can('conductores:eliminar');
+
+  // Sharing modal state
+  const [conductorToShare, setConductorToShare] = useState<ConductorDto | null>(null);
 
   const {
     // Data
@@ -179,6 +186,7 @@ export function DriversPage() {
               onAssignDevice={handleOpenAssignDevice}
               onDelete={handleOpenDelete}
               onReactivate={handleOpenReactivate}
+              onShare={setConductorToShare}
               formatDate={formatDate}
             />
           </Card>
@@ -326,6 +334,18 @@ export function DriversPage() {
         variant="warning"
         isLoading={isUnassigningDevice}
       />
+
+      {/* Modal de Gestión de Compartición */}
+      {conductorToShare && (
+        <GestionarComparticionModal
+          isOpen={!!conductorToShare}
+          onClose={() => setConductorToShare(null)}
+          resourceId={conductorToShare.id}
+          resourceType={2 as TipoRecurso} // TipoRecurso.Conductor
+          resourceName={conductorToShare.nombreCompleto}
+          onSuccess={loadData}
+        />
+      )}
     </div>
   );
 }

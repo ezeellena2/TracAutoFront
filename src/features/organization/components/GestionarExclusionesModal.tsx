@@ -23,6 +23,8 @@ import {
     DispositivoDto
 } from '@/shared/types/api';
 import { ConductorDto } from '@/features/drivers/types';
+import { useLocalizationStore } from '@/store/localization.store';
+import { formatDate } from '@/shared/utils/dateFormatter';
 
 interface GestionarExclusionesModalProps {
     isOpen: boolean;
@@ -41,6 +43,9 @@ export function GestionarExclusionesModal({
 }: GestionarExclusionesModalProps) {
     const { t } = useTranslation();
     const { getErrorMessage } = useErrorHandler();
+    const { preferences } = useLocalizationStore();
+    const culture = preferences?.culture ?? 'es-AR';
+    const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
 
     // Estado para exclusiones activas
     const [exclusiones, setExclusiones] = useState<ResourceExclusionDto[]>([]);
@@ -205,9 +210,18 @@ export function GestionarExclusionesModal({
     const getResourceName = (res: any, type: TipoRecurso) => {
         switch (type) {
             case TipoRecurso.Vehiculo: return `${res.patente} ${res.marca || ''} ${res.modelo || ''}`.trim();
-            case TipoRecurso.Conductor: return `${res.apellido}, ${res.nombre}`;
-            case TipoRecurso.DispositivoTraccar: return res.nombre || res.uniqueId;
+            case TipoRecurso.Conductor: return res.nombreCompleto || 'Sin nombre';
+            case TipoRecurso.DispositivoTraccar: return res.nombre || res.uniqueId || 'Sin nombre';
             default: return 'Desconocido';
+        }
+    };
+
+    const getSearchPlaceholder = () => {
+        switch (activeTab) {
+            case String(TipoRecurso.Vehiculo): return t('common.searchPlaceholder.vehicle', 'Buscar por patente, marca, modelo...');
+            case String(TipoRecurso.Conductor): return t('common.searchPlaceholder.driver', 'Buscar por nombre, DNI...');
+            case String(TipoRecurso.DispositivoTraccar): return t('common.searchPlaceholder.device', 'Buscar por alias, ID...');
+            default: return t('common.search', 'Buscar...');
         }
     };
 
@@ -219,7 +233,7 @@ export function GestionarExclusionesModal({
                     <span className="text-xs text-text-muted italic">{exclusion.motivo}</span>
                 )}
                 <span className="text-xs text-text-muted">
-                    Excluido el {new Date(exclusion.fechaCreacion).toLocaleDateString()}
+                    Excluido el {formatDate(exclusion.fechaCreacion, culture, timeZoneId)}
                 </span>
             </div>
             {esOutbound && (
@@ -311,7 +325,7 @@ export function GestionarExclusionesModal({
                                             <Search size={16} />
                                         </div>
                                         <Input
-                                            placeholder={t('common.search', 'Buscar...')}
+                                            placeholder={getSearchPlaceholder()}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             className="pl-9 w-full"

@@ -568,3 +568,77 @@ export interface GetRecursosCompartiblesParams {
   buscar?: string;
   estado?: EstadoComparticion;
 }
+
+// ==================== Sharing Status DTOs (Individual Resource) ====================
+
+/**
+ * Estado de compartición de un recurso con todas las relaciones disponibles.
+ * Muestra qué relaciones tienen este recurso compartido, excluido o disponible.
+ */
+export interface RecursoSharingStatusDto {
+  /** ID del recurso consultado */
+  resourceId: string;
+  /** Tipo de recurso (Vehiculo, Conductor, DispositivoTraccar) */
+  resourceType: TipoRecurso;
+  /** Nombre del recurso para mostrar en UI */
+  resourceName: string;
+  /** Lista de relaciones con su estado de compartición para este recurso */
+  relaciones: RelacionSharingItemDto[];
+}
+
+/**
+ * Estado de compartición de un recurso para una relación específica.
+ */
+export interface RelacionSharingItemDto {
+  /** ID de la relación entre organizaciones */
+  relacionId: string;
+  /** ID de la organización destino (con la que se comparte) */
+  organizacionDestinoId: string;
+  /** Nombre de la organización destino */
+  organizacionDestinoNombre: string;
+  /** Indica si el recurso está compartido con esta relación */
+  estaCompartido: boolean;
+  /** Indica si el recurso está excluido en esta relación */
+  estaExcluido: boolean;
+  /** Fecha en que se compartió el recurso (si está compartido) */
+  fechaCompartido?: string | null;
+  /** Fecha en que se excluyó el recurso (si está excluido) */
+  fechaExcluido?: string | null;
+  /** Motivo de la exclusión (si está excluido) */
+  motivoExclusion?: string | null;
+  /** ID de la asignación activa (si está compartido) */
+  asignacionId?: string | null;
+  /** ID de la exclusión activa (si está excluido) */
+  exclusionId?: string | null;
+}
+
+/**
+ * Estado deseado para un recurso en una relación.
+ */
+export enum EstadoComparticionDeseado {
+  /** El recurso no está ni compartido ni excluido (disponible) */
+  Disponible = 0,
+  /** El recurso está compartido (visible para la otra organización) */
+  Compartido = 1,
+  /** El recurso está excluido (no visible, deny) */
+  Excluido = 2,
+}
+
+/**
+ * Cambio de estado de compartición para una relación específica.
+ */
+export interface CambioComparticionRelacion {
+  /** ID de la relación */
+  relacionId: string;
+  /** Nuevo estado deseado para el recurso en esta relación */
+  nuevoEstado: EstadoComparticionDeseado;
+  /** Motivo de la exclusión (solo aplica si nuevoEstado == Excluido) */
+  motivoExclusion?: string | null;
+}
+
+/**
+ * Request para actualizar el estado de compartición de un recurso.
+ */
+export interface ActualizarComparticionRequest {
+  cambios: CambioComparticionRelacion[];
+}

@@ -5,8 +5,9 @@ import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, Pagination
 import { dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
-import type { DispositivoDto, ListaPaginada } from '@/shared/types/api';
+import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
+import { GestionarComparticionModal } from '@/features/organization';
 
 export function DevicesPage() {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ export function DevicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Hook de paginación reutilizable
+  // Hook de paginaciรณn reutilizable
   const {
     setNumeroPagina,
     setTamanoPagina,
@@ -42,6 +43,10 @@ export function DevicesPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<DispositivoDto | null>(null);
+  
+  // Sharing modal
+  const [deviceToShare, setDeviceToShare] = useState<DispositivoDto | null>(null);
+
   const { can } = usePermissions();
 
   const loadDevices = useCallback(async () => {
@@ -75,7 +80,7 @@ export function DevicesPage() {
     void loadDevices();
   }, [loadDevices]);
 
-  // Ajustar automáticamente si la página actual excede el total de páginas
+  // Ajustar automรกticamente si la pรกgina actual excede el total de pรกginas
   useEffect(() => {
     if (
       devicesData &&
@@ -238,16 +243,28 @@ export function DevicesPage() {
             ? `${nombresOrgs} (+${cantidadOrganizaciones - 3} ${t('common.more')})`
             : nombresOrgs;
           return (
-            <span title={titulo} className="flex items-center gap-1">
+            <button
+              onClick={() => setDeviceToShare(d)}
+              title={titulo}
+              className="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <Share2 size={14} className="text-primary" />
               <Badge variant="info">
                 {cantidadOrganizaciones}
               </Badge>
-            </span>
+            </button>
           );
         }
-        // No compartido
-        return <span className="text-text-muted">—</span>;
+        // No compartido - clickeable para abrir modal
+        return (
+          <button
+            onClick={() => setDeviceToShare(d)}
+            className="text-text-muted hover:text-primary transition-colors cursor-pointer"
+            title={t('devices.table.manageSharing')}
+          >
+            —
+          </button>
+        );
       },
     },
     {
@@ -266,6 +283,17 @@ export function DevicesPage() {
 
         return (
           <div className="flex items-center gap-2">
+            {/* Botón de compartición - solo para recursos propios */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeviceToShare(d)}
+                title={t('devices.table.manageSharing')}
+              >
+                <Share2 size={16} className="text-primary" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -364,7 +392,7 @@ export function DevicesPage() {
           </div>
         </Card>
 
-        {/* Modal de creación */}
+        {/* Modal de creaciรณn */}
         <Modal
           isOpen={isCreateModalOpen}
           onClose={() => {
@@ -492,7 +520,7 @@ export function DevicesPage() {
           data={devices}
           keyExtractor={(d) => d.id}
         />
-        {/* Controles de paginación */}
+        {/* Controles de paginaciรณn */}
         {devicesData && devicesData.totalRegistros > 0 && (
           <PaginationControls
             paginaActual={devicesData.paginaActual}
@@ -506,7 +534,7 @@ export function DevicesPage() {
         )}
       </Card>
 
-      {/* Modal de creación */}
+      {/* Modal de creaciรณn */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => {
@@ -554,7 +582,7 @@ export function DevicesPage() {
         </div>
       </Modal>
 
-      {/* Modal de edición */}
+      {/* Modal de ediciรณn */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => {
@@ -627,6 +655,18 @@ export function DevicesPage() {
         variant="danger"
         isLoading={isDeleting}
       />
+
+      {/* Modal de Gestión de Compartición */}
+      {deviceToShare && (
+        <GestionarComparticionModal
+          isOpen={!!deviceToShare}
+          onClose={() => setDeviceToShare(null)}
+          resourceId={deviceToShare.id}
+          resourceType={3 as TipoRecurso} // TipoRecurso.DispositivoTraccar
+          resourceName={deviceToShare.nombre}
+          onSuccess={loadDevices}
+        />
+      )}
     </div>
   );
 }
