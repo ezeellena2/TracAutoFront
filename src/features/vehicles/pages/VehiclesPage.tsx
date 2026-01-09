@@ -7,6 +7,7 @@ import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, 
 import { toast } from '@/store/toast.store';
 import type { VehiculoDto, CreateVehiculoRequest, TipoVehiculo } from '../types';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
+import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
 import { GestionarComparticionModal } from '@/features/organization';
 
@@ -318,9 +319,16 @@ export function VehiclesPage() {
         // Si es recurso asociado, mostrar badge indicando que viene de otra org
         if (v.esRecursoAsociado) {
           return (
-            <Badge variant="warning">
-              {t('vehicles.table.associated')}
-            </Badge>
+            <div className="flex flex-col gap-1 items-start">
+              <Badge variant="warning">
+                {t('vehicles.table.associated')}
+              </Badge>
+              {v.permisoAcceso === NivelPermisoCompartido.GestionOperativa ? (
+                <Badge variant="success">{t('permissions.operational')}</Badge>
+              ) : (
+                <Badge variant="default">{t('permissions.readOnly')}</Badge>
+              )}
+            </div>
           );
         }
         // Si está compartido con otras organizaciones
@@ -383,20 +391,25 @@ export function VehiclesPage() {
                 size="sm"
                 onClick={() => handleOpenAssign(v)}
                 title={v.dispositivoActivoId ? t('vehicles.table.changeDevice') : t('vehicles.table.assignDevice')}
+                disabled={v.esRecursoAsociado && v.permisoAcceso !== NivelPermisoCompartido.GestionOperativa}
               >
                 {v.dispositivoActivoId ? <Unlink size={16} /> : <Link size={16} />}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleOpenEdit(v)}
-                title={t('vehicles.table.editVehicle')}
-              >
-                <Edit size={16} />
-              </Button>
+              {/* Editar solo permitido para recursos propios */}
+              {!v.esRecursoAsociado && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleOpenEdit(v)}
+                  title={t('vehicles.table.editVehicle')}
+                >
+                  <Edit size={16} />
+                </Button>
+              )}
             </>
           )}
-          {canDelete && (
+          {/* Eliminar solo permitido para recursos propios */}
+          {canDelete && !v.esRecursoAsociado && (
             <Button
               variant="ghost"
               size="sm"

@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
 import { VehicleMarker } from './VehicleMarker';
 import { MapToolbar } from './MapToolbar';
+import { GeofenceLayer } from './GeofenceLayer';
 import { MAP_TILES } from '../types';
 
 // Fix for default marker icons in webpack/vite builds
@@ -43,7 +44,7 @@ function MapController() {
 export function MapView() {
   const mapRef = useRef<L.Map | null>(null);
   const vehicles = useFilteredVehicles();
-  const { selectedVehicleId, vehicles: allVehicles, mapStyle } = useTraccarMapStore();
+  const { selectedVehicleId, vehicles: allVehicles, mapStyle, showGeofences } = useTraccarMapStore();
 
   const tileConfig = MAP_TILES[mapStyle];
 
@@ -91,6 +92,12 @@ export function MapView() {
         />
         
         <MapController />
+        
+        {/* Geofences de turnos activos */}
+        <GeofenceLayer 
+          visible={showGeofences} 
+          vehiculoIds={vehicles.map(v => v.id)}
+        />
         
         {vehicles.map((vehicle) => (
           <VehicleMarker key={vehicle.id} vehicle={vehicle} />

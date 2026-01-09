@@ -1,4 +1,4 @@
-import type { RecursoSharingInfoDto } from '@/shared/types/api';
+import type { RecursoSharingInfoDto, NivelPermisoCompartido } from '@/shared/types/api';
 
 export interface ConductorDto {
   id: string;
@@ -16,6 +16,7 @@ export interface ConductorDto {
    * Indica con cuantas y cuales organizaciones esta compartido este conductor.
    */
   compartidoCon?: RecursoSharingInfoDto | null;
+  permisoAcceso?: NivelPermisoCompartido;
 }
 
 export interface ConductorVehiculoAsignacionDto {

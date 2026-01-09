@@ -190,6 +190,7 @@ export async function asignarRecursosARelacion(
     vehiculoIds?: string[];
     conductorIds?: string[];
     dispositivoIds?: string[];
+    permiso?: import('@/shared/types/api').NivelPermisoCompartido | null;
   }
 ): Promise<void> {
   const orgId = getOrganizationId();

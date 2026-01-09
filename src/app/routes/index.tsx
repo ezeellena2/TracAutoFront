@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainLayout } from '@/app/layouts';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -15,6 +15,10 @@ import { BrandingPage, RelacionesOrganizacionPage } from '@/features/organizatio
 import { TraccarMapPage } from '@/features/traccar-map';
 import { ReplayPage } from '@/features/replay';
 import { MarketplacePage } from '@/features/marketplace';
+import { TurnosTaxiPage } from '@/features/turnos-taxi';
+
+// Error pages
+import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
 
 const router = createBrowserRouter([
   {
@@ -81,11 +85,20 @@ const router = createBrowserRouter([
         path: 'configuracion/empresa/relaciones',
         element: <RelacionesOrganizacionPage />,
       },
+      {
+        path: 'turnos-taxi',
+        element: <TurnosTaxiPage />,
+      },
     ],
+  },
+  // Error pages
+  {
+    path: '/error',
+    element: <ServerErrorPage />,
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: <NotFoundPage />,
   },
 ]);
 

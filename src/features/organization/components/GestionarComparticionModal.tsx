@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Share2, Check, X, Shield, Loader2, Building2 } from 'lucide-react';
+import { Share2, Check, Shield, Loader2, Building2 } from 'lucide-react';
 import { Modal, Button, Badge } from '@/shared/ui';
 import { useErrorHandler } from '@/hooks';
+import { useLocalizationStore } from '@/store/localization.store';
+import { formatDate } from '@/shared/utils/dateFormatter';
 import {
     TipoRecurso,
     RecursoSharingStatusDto,
     RelacionSharingItemDto,
     EstadoComparticionDeseado,
     CambioComparticionRelacion,
+    NivelPermisoCompartido,
 } from '@/shared/types/api';
 import { vehiculosApi, conductoresApi, dispositivosApi } from '@/services/endpoints';
 
@@ -27,6 +30,8 @@ interface RelacionConEstadoLocal extends RelacionSharingItemDto {
     estadoLocal: EstadoLocal;
     estadoOriginal: EstadoLocal;
     modificado: boolean;
+    permisoGestion: boolean;  // true = GestionOperativa, false = SoloLectura
+    permisoOriginal: boolean;
 }
 
 /**
@@ -43,8 +48,10 @@ export function GestionarComparticionModal({
 }: GestionarComparticionModalProps) {
     const { t } = useTranslation();
     const { getErrorMessage } = useErrorHandler();
+    const { preferences } = useLocalizationStore();
+    const culture = preferences?.culture ?? 'es-AR';
+    const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
 
-    const [sharingStatus, setSharingStatus] = useState<RecursoSharingStatusDto | null>(null);
     const [relaciones, setRelaciones] = useState<RelacionConEstadoLocal[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -80,16 +87,19 @@ export function GestionarComparticionModal({
                     throw new Error('Tipo de recurso no soportado');
             }
 
-            setSharingStatus(data);
+
 
             // Convertir a estado local con tracking de cambios
             const relacionesConEstado: RelacionConEstadoLocal[] = data.relaciones.map((rel) => {
                 const estadoOriginal = getEstadoFromDto(rel);
+                const permisoOriginal = (rel as any).permiso === NivelPermisoCompartido.GestionOperativa;
                 return {
                     ...rel,
                     estadoLocal: estadoOriginal,
                     estadoOriginal,
                     modificado: false,
+                    permisoGestion: permisoOriginal,
+                    permisoOriginal,
                 };
             });
             setRelaciones(relacionesConEstado);
@@ -123,10 +133,31 @@ export function GestionarComparticionModal({
                 if (rel.relacionId !== relacionId) return rel;
 
                 const nuevoEstado = cycleEstado(rel.estadoLocal);
+                const cambioEstado = nuevoEstado !== rel.estadoOriginal;
+                const cambioPermiso = rel.permisoGestion !== rel.permisoOriginal;
                 return {
                     ...rel,
                     estadoLocal: nuevoEstado,
-                    modificado: nuevoEstado !== rel.estadoOriginal,
+                    modificado: cambioEstado || cambioPermiso,
+                };
+            })
+        );
+    };
+
+    // Toggle permiso de gestión
+    const handleTogglePermiso = (relacionId: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Evitar que cicle el estado
+        setRelaciones((prev) =>
+            prev.map((rel) => {
+                if (rel.relacionId !== relacionId) return rel;
+
+                const nuevoPermiso = !rel.permisoGestion;
+                const cambioEstado = rel.estadoLocal !== rel.estadoOriginal;
+                const cambioPermiso = nuevoPermiso !== rel.permisoOriginal;
+                return {
+                    ...rel,
+                    permisoGestion: nuevoPermiso,
+                    modificado: cambioEstado || cambioPermiso,
                 };
             })
         );
@@ -138,10 +169,13 @@ export function GestionarComparticionModal({
             .filter((rel) => rel.modificado)
             .map((rel) => ({
                 relacionId: rel.relacionId,
-                nuevoEstado: 
+                nuevoEstado:
                     rel.estadoLocal === 'compartido' ? EstadoComparticionDeseado.Compartido :
-                    rel.estadoLocal === 'excluido' ? EstadoComparticionDeseado.Excluido :
-                    EstadoComparticionDeseado.Disponible,
+                        rel.estadoLocal === 'excluido' ? EstadoComparticionDeseado.Excluido :
+                            EstadoComparticionDeseado.Disponible,
+                permiso: rel.estadoLocal === 'compartido'
+                    ? (rel.permisoGestion ? NivelPermisoCompartido.GestionOperativa : NivelPermisoCompartido.SoloLectura)
+                    : null,
             }));
 
         if (cambios.length === 0) {
@@ -303,7 +337,7 @@ export function GestionarComparticionModal({
                                             </div>
                                             {rel.estadoLocal === 'compartido' && rel.fechaCompartido && (
                                                 <div className="text-xs text-text-muted">
-                                                    Desde {new Date(rel.fechaCompartido).toLocaleDateString()}
+                                                    Desde {formatDate(rel.fechaCompartido, culture, timeZoneId)}
                                                 </div>
                                             )}
                                             {rel.estadoLocal === 'excluido' && rel.motivoExclusion && (
@@ -314,6 +348,21 @@ export function GestionarComparticionModal({
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        {/* Checkbox de permiso de gestión (solo visible si compartido) */}
+                                        {rel.estadoLocal === 'compartido' && (
+                                            <label
+                                                className="flex items-center gap-1 text-xs text-text-muted cursor-pointer hover:text-text"
+                                                onClick={(e) => handleTogglePermiso(rel.relacionId, e)}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={rel.permisoGestion}
+                                                    onChange={() => { }}
+                                                    className="w-3.5 h-3.5 accent-primary rounded"
+                                                />
+                                                <span>Gestión</span>
+                                            </label>
+                                        )}
                                         {getEstadoBadge(rel.estadoLocal)}
                                         {rel.modificado && (
                                             <span className="text-xs text-primary font-medium">

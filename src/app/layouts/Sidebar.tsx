@@ -14,6 +14,7 @@ import {
   UserCircle,
   Link2,
   ShoppingCart,
+  Clock,
   X
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
@@ -48,6 +49,7 @@ const navItems: NavItem[] = [
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
+  { path: '/turnos-taxi', labelKey: 'sidebar.turnosTaxi', icon: Clock, requiredPermission: 'vehiculos:ver' },
   {
     labelKey: 'sidebar.organization',
     icon: Building,

@@ -27,6 +27,9 @@ interface TraccarMapState {
   filterOrgName: string | null;     // Nombre de la org para filtrar (no ID)
   filterOrgId: string | null;       // ID de la org para UI (dropdown active state)
 
+  // Geofences de turnos activos
+  showGeofences: boolean;
+
   mapStyle: MapStyle;
   viewport: MapViewport;
 
@@ -44,6 +47,10 @@ interface TraccarMapState {
   setFilterOwn: () => void;
   setFilterByOrg: (orgId: string, orgName: string) => void;
   clearFilter: () => void; // Alias de setFilterAll
+
+  // Geofences Actions
+  toggleGeofences: () => void;
+  setShowGeofences: (show: boolean) => void;
 
   setMapStyle: (style: MapStyle) => void;
   setViewport: (viewport: MapViewport) => void;
@@ -73,6 +80,7 @@ const initialState = {
   filterMode: 'all' as FilterMode,
   filterOrgName: null,
   filterOrgId: null,
+  showGeofences: false,
   mapStyle: 'streets' as MapStyle,
   viewport: DEFAULT_VIEWPORT,
 };
@@ -103,6 +111,10 @@ export const useTraccarMapStore = create<TraccarMapState>((set) => ({
   setFilterOwn: () => set({ filterMode: 'own', filterOrgName: null, filterOrgId: null }),
   setFilterByOrg: (orgId, orgName) => set({ filterMode: 'organization', filterOrgId: orgId, filterOrgName: orgName }),
   clearFilter: () => set({ filterMode: 'all', filterOrgName: null, filterOrgId: null }),
+
+  // Geofences actions
+  toggleGeofences: () => set((state) => ({ showGeofences: !state.showGeofences })),
+  setShowGeofences: (showGeofences) => set({ showGeofences }),
 
   setMapStyle: (mapStyle) => set({ mapStyle }),
   setViewport: (viewport) => set({ viewport }),

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { ToastContainer } from '@/shared/ui';
+import { ToastContainer, ErrorBoundary } from '@/shared/ui';
 import { useSidebarStore, useAuthStore, useLocalizationStore } from '@/store';
 
 export function MainLayout() {
@@ -39,7 +39,9 @@ export function MainLayout() {
           <Header />
         </div>
         <main className="p-4 md:p-6">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
       {/* Notificaciones Toast globales */}

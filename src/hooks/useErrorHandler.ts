@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * ProblemDetails response from backend
- * RFC 7807 compliant
+ * RFC 7807 compliant with TracAuto extensions
  */
 export interface ProblemDetails {
   type?: string;
@@ -20,6 +20,8 @@ export interface ProblemDetails {
   instance?: string;
   // TracAuto extensions
   code?: string;
+  traceId?: string;
+  timestamp?: string;
   retryAfter?: number;
   errors?: Record<string, string[]>; // FluentValidation errors
 }
@@ -34,6 +36,10 @@ export interface ParsedError {
   code: string;
   /** HTTP status code */
   status: number;
+  /** Trace ID for error correlation and support tickets */
+  traceId?: string;
+  /** Timestamp of when the error occurred */
+  timestamp?: string;
   /** Retry-after in seconds (for rate limiting) */
   retryAfter?: number;
   /** Field-level validation errors (translated) */
@@ -145,6 +151,8 @@ export function useErrorHandler() {
         message,
         code,
         status: problemDetails.status ?? 500,
+        traceId: problemDetails.traceId,
+        timestamp: problemDetails.timestamp,
         retryAfter: problemDetails.retryAfter,
         fieldErrors,
       };

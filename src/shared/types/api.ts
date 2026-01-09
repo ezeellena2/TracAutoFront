@@ -384,6 +384,7 @@ export interface VehiculoDto {
    * Indica con cuantas y cuales organizaciones esta compartido este vehiculo.
    */
   compartidoCon?: RecursoSharingInfoDto | null;
+  permisoAcceso?: NivelPermisoCompartido;
 }
 
 // ==================== Dispositivos DTOs ====================
@@ -413,6 +414,7 @@ export interface DispositivoDto {
    * Indica con cuantas y cuales organizaciones esta compartido este dispositivo.
    */
   compartidoCon?: RecursoSharingInfoDto | null;
+  permisoAcceso?: NivelPermisoCompartido;
 }
 
 // ==================== Marketplace DTOs ====================
@@ -625,6 +627,16 @@ export enum EstadoComparticionDeseado {
 }
 
 /**
+ * Nivel de permiso para recursos compartidos.
+ */
+export enum NivelPermisoCompartido {
+  /** Solo puede ver el recurso (lectura) */
+  SoloLectura = 0,
+  /** Puede ver y gestionar operativamente el recurso (asignar/desasignar) */
+  GestionOperativa = 1,
+}
+
+/**
  * Cambio de estado de compartición para una relación específica.
  */
 export interface CambioComparticionRelacion {
@@ -634,6 +646,8 @@ export interface CambioComparticionRelacion {
   nuevoEstado: EstadoComparticionDeseado;
   /** Motivo de la exclusión (solo aplica si nuevoEstado == Excluido) */
   motivoExclusion?: string | null;
+  /** Nivel de permiso (solo aplica si nuevoEstado == Compartido) */
+  permiso?: NivelPermisoCompartido | null;
 }
 
 /**

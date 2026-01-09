@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Focus, Crosshair, Tag, Tags, Layers, Moon, Sun, Satellite, Map, Filter } from 'lucide-react';
+import { Focus, Crosshair, Tag, Tags, Layers, Moon, Sun, Satellite, Map, Filter, MapPin, MapPinOff } from 'lucide-react';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
 import { MapStyle } from '../types';
 import { LabelConfigMenu } from './LabelConfigMenu';
@@ -41,7 +41,10 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
     // New Filter Actions
     setFilterAll,
     setFilterOwn,
-    setFilterByOrg
+    setFilterByOrg,
+    // Geofences
+    showGeofences,
+    toggleGeofences,
   } = useTraccarMapStore();
   const vehicles = useFilteredVehicles();
 
@@ -194,6 +197,26 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
           </div>
         )}
       </div>
+
+      {/* Geofences Toggle */}
+      <button
+        onClick={toggleGeofences}
+        className={`
+          flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg
+          ${showGeofences
+            ? 'bg-primary border-primary text-white hover:bg-primary/90'
+            : 'bg-surface border-border text-text hover:bg-background'
+          }
+        `}
+        title={showGeofences ? t('map.hideGeofences', 'Ocultar zonas') : t('map.showGeofences', 'Mostrar zonas')}
+        aria-label={showGeofences ? t('map.hideGeofences', 'Ocultar zonas de turnos activos') : t('map.showGeofences', 'Mostrar zonas de turnos activos')}
+        aria-pressed={showGeofences}
+      >
+        {showGeofences ? <MapPin size={18} /> : <MapPinOff size={18} />}
+        <span className="text-sm font-medium hidden sm:inline">
+          {t('map.geofences', 'Zonas')}
+        </span>
+      </button>
 
       {/* Map Style Selector */}
       <div className="relative" ref={styleMenuRef}>

@@ -6,6 +6,7 @@ import { dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
+import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
 import { GestionarComparticionModal } from '@/features/organization';
 
@@ -43,7 +44,7 @@ export function DevicesPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<DispositivoDto | null>(null);
-  
+
   // Sharing modal
   const [deviceToShare, setDeviceToShare] = useState<DispositivoDto | null>(null);
 
@@ -230,9 +231,16 @@ export function DevicesPage() {
         // Si es recurso asociado, mostrar badge indicando que viene de otra org
         if (d.esRecursoAsociado) {
           return (
-            <Badge variant="warning">
-              {t('devices.table.associated')}
-            </Badge>
+            <div className="flex flex-col gap-1 items-start">
+              <Badge variant="warning">
+                {t('devices.table.associated')}
+              </Badge>
+              {d.permisoAcceso === NivelPermisoCompartido.GestionOperativa ? (
+                <Badge variant="success">{t('permissions.operational')}</Badge>
+              ) : (
+                <Badge variant="default">{t('permissions.readOnly')}</Badge>
+              )}
+            </div>
           );
         }
         // Si está compartido con otras organizaciones
@@ -294,22 +302,28 @@ export function DevicesPage() {
                 <Share2 size={16} className="text-primary" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleOpenEdit(d)}
-              title={t('devices.editDevice')}
-            >
-              <Edit size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleOpenDelete(d)}
-              title={t('devices.deleteDevice')}
-            >
-              <Trash2 size={16} className="text-error" />
-            </Button>
+            {/* Edit - Solo Owner */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleOpenEdit(d)}
+                title={t('devices.editDevice')}
+              >
+                <Edit size={16} />
+              </Button>
+            )}
+            {/* Delete - Solo Owner */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleOpenDelete(d)}
+                title={t('devices.deleteDevice')}
+              >
+                <Trash2 size={16} className="text-error" />
+              </Button>
+            )}
           </div>
         );
       }

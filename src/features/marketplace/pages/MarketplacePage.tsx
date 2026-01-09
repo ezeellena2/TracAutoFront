@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart, Plus, Edit, Link2, AlertCircle, Pause, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Plus, Edit, Link2, AlertCircle, Pause, CheckCircle, Eye, Play } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls } from '@/shared/ui';
 import { marketplaceApi, vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
+import { useTenantStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import type {
   VehiculoMarketplaceDto,
   CreateVehiculoMarketplaceRequest,
   VincularVehiculoMarketplaceRequest,
+  EditarPublicacionRequest,
   ListaPaginada,
   VehiculoDto,
   DispositivoDto
@@ -18,6 +20,7 @@ import { formatDate } from '@/shared/utils';
 
 export function MarketplacePage() {
   const { t } = useTranslation();
+  const { currentOrganization } = useTenantStore();
   const localization = useLocalization();
   const culture = localization.culture;
   const timeZoneId = localization.timeZoneId;
@@ -53,6 +56,30 @@ export function MarketplacePage() {
     vehiculoId: null, // Opcional: vincular a vehículo existente
   });
   const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
+
+  type ConfirmStatusChange = {
+    item: VehiculoMarketplaceDto;
+    estado: EstadoPublicacion;
+    titulo: string;
+    mensaje: string;
+  };
+
+  // Editar/publicar publicaci?n
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSavingPublication, setIsSavingPublication] = useState(false);
+  const [editingItem, setEditingItem] = useState<VehiculoMarketplaceDto | null>(null);
+  const [editForm, setEditForm] = useState<EditarPublicacionRequest>({
+    precio: null,
+    moneda: 'ARS',
+    kilometraje: 0,
+    descripcion: '',
+    estado: EstadoPublicacion.Pausado,
+  });
+  const [confirmStatusChange, setConfirmStatusChange] = useState<ConfirmStatusChange | null>(null);
+
+  // Preview de publicaci?n
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewItem, setPreviewItem] = useState<VehiculoMarketplaceDto | null>(null);
 
   // Vincular vehículo modal
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -184,25 +211,141 @@ export function MarketplacePage() {
     }
   };
 
-  // Extraer items
-  const items = marketplaceData?.items ?? [];
-
-  // Helper para estado de publicación
-  const getEstadoBadge = (estado: EstadoPublicacion | null) => {
-    if (!estado) return null;
-    const variants: Record<EstadoPublicacion, 'default' | 'success' | 'warning' | 'error'> = {
-      [EstadoPublicacion.Borrador]: 'default',
-      [EstadoPublicacion.Publicado]: 'success',
-      [EstadoPublicacion.Pausado]: 'warning',
-      [EstadoPublicacion.Vendido]: 'error',
-    };
+  const getEstadoLabel = (estado: EstadoPublicacion) => {
     const labels: Record<EstadoPublicacion, string> = {
       [EstadoPublicacion.Borrador]: t('marketplace.status.draft'),
       [EstadoPublicacion.Publicado]: t('marketplace.status.published'),
       [EstadoPublicacion.Pausado]: t('marketplace.status.paused'),
       [EstadoPublicacion.Vendido]: t('marketplace.status.sold'),
     };
-    return <Badge variant={variants[estado]}>{labels[estado]}</Badge>;
+    return labels[estado];
+  };
+
+  const getEstadosPermitidos = (estadoActual: EstadoPublicacion | null) => {
+    if (estadoActual === null) return [EstadoPublicacion.Publicado];
+
+    switch (estadoActual) {
+      case EstadoPublicacion.Borrador:
+        return [EstadoPublicacion.Borrador, EstadoPublicacion.Publicado, EstadoPublicacion.Pausado];
+      case EstadoPublicacion.Publicado:
+        return [EstadoPublicacion.Publicado, EstadoPublicacion.Pausado, EstadoPublicacion.Vendido];
+      case EstadoPublicacion.Pausado:
+        return [EstadoPublicacion.Pausado, EstadoPublicacion.Publicado, EstadoPublicacion.Vendido];
+      case EstadoPublicacion.Vendido:
+        return [EstadoPublicacion.Vendido];
+      default:
+        return [EstadoPublicacion.Publicado];
+    }
+  };
+
+  const buildEditPayloadFromItem = (item: VehiculoMarketplaceDto, estado: EstadoPublicacion): EditarPublicacionRequest => ({
+    precio: item.precio ?? null,
+    moneda: item.moneda ?? 'ARS',
+    kilometraje: item.kilometraje ?? 0,
+    descripcion: item.descripcion ?? null,
+    estado,
+  });
+
+  const handleOpenEdit = (item: VehiculoMarketplaceDto, estadoForzado?: EstadoPublicacion) => {
+    setEditingItem(item);
+    setEditForm({
+      precio: item.precio ?? null,
+      moneda: item.moneda ?? 'ARS',
+      kilometraje: item.kilometraje ?? 0,
+      descripcion: item.descripcion ?? '',
+      estado: estadoForzado ?? item.estadoPublicacion ?? EstadoPublicacion.Pausado,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSavePublication = async () => {
+    if (!editingItem) return;
+
+    setIsSavingPublication(true);
+    try {
+      if (!editingItem.publicacionId) {
+        await marketplaceApi.publicarVehiculo(editingItem.vehiculoId, {
+          precio: editForm.precio,
+          moneda: editForm.moneda ?? 'ARS',
+          kilometraje: editForm.kilometraje,
+          descripcion: editForm.descripcion ?? null,
+        });
+        toast.success(t('marketplace.success.published'));
+      } else {
+        await marketplaceApi.editarPublicacion(editingItem.publicacionId, editForm);
+        toast.success(t('marketplace.success.updated'));
+      }
+      setIsEditModalOpen(false);
+      setEditingItem(null);
+      await loadData();
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsSavingPublication(false);
+    }
+  };
+
+  const handleOpenPreview = (item: VehiculoMarketplaceDto) => {
+    setPreviewItem(item);
+    setIsPreviewModalOpen(true);
+  };
+
+  const requestStatusChange = (item: VehiculoMarketplaceDto, estado: EstadoPublicacion) => {
+    if (!item.publicacionId) {
+      if (estado === EstadoPublicacion.Publicado) {
+        handleOpenEdit(item, EstadoPublicacion.Publicado);
+        return;
+      }
+      toast.error(t('marketplace.errors.noPublication'));
+      return;
+    }
+
+    const titulo = estado === EstadoPublicacion.Pausado
+      ? t('marketplace.confirmations.pauseTitle')
+      : t('marketplace.confirmations.markAsSoldTitle');
+    const mensaje = estado === EstadoPublicacion.Pausado
+      ? t('marketplace.confirmations.pauseMessage', { patente: item.patente })
+      : t('marketplace.confirmations.markAsSoldMessage', { patente: item.patente });
+    setConfirmStatusChange({ item, estado, titulo, mensaje });
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!confirmStatusChange) return;
+    setIsSavingPublication(true);
+    try {
+      await marketplaceApi.editarPublicacion(
+        confirmStatusChange.item.publicacionId!,
+        buildEditPayloadFromItem(confirmStatusChange.item, confirmStatusChange.estado)
+      );
+      const successKey = confirmStatusChange.estado === EstadoPublicacion.Pausado
+        ? 'marketplace.success.paused'
+        : 'marketplace.success.markedAsSold';
+      toast.success(t(successKey));
+      setConfirmStatusChange(null);
+      await loadData();
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsSavingPublication(false);
+    }
+  };
+
+  // Extraer items
+  const items = marketplaceData?.items ?? [];
+
+  const estadoOptions = editingItem ? getEstadosPermitidos(editingItem.estadoPublicacion ?? null) : [];
+  const isEstadoLocked = editingItem ? !editingItem.publicacionId : false;
+
+  // Helper para estado de publicación
+  const getEstadoBadge = (estado: EstadoPublicacion | null) => {
+    if (!estado) return <Badge variant="default">{t('marketplace.table.notPublished')}</Badge>;
+    const variants: Record<EstadoPublicacion, 'default' | 'success' | 'warning' | 'error'> = {
+      [EstadoPublicacion.Borrador]: 'default',
+      [EstadoPublicacion.Publicado]: 'success',
+      [EstadoPublicacion.Pausado]: 'warning',
+      [EstadoPublicacion.Vendido]: 'error',
+    };
+    return <Badge variant={variants[estado]}>{getEstadoLabel(estado)}</Badge>;
   };
 
   // Columnas de la tabla
@@ -225,7 +368,7 @@ export function MarketplacePage() {
       key: 'precio',
       header: t('marketplace.price'),
       render: (v: VehiculoMarketplaceDto) => {
-        if (!v.precio) return <span className="text-text-muted">{t('marketplace.consultPrice')}</span>;
+        if (!v.precio) return <span className="text-text-muted">{t('marketplace.table.consultPrice')}</span>;
         return `${v.moneda || 'ARS'} ${v.precio.toLocaleString(culture)}`;
       },
     },
@@ -245,6 +388,14 @@ export function MarketplacePage() {
       header: t('marketplace.actionsColumn'),
       render: (v: VehiculoMarketplaceDto) => (
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleOpenPreview(v)}
+            title={t('marketplace.actions.preview')}
+          >
+            <Eye size={16} />
+          </Button>
           {!v.tieneVehiculoAsociado && (
             <Button
               variant="ghost"
@@ -255,11 +406,44 @@ export function MarketplacePage() {
               <Link2 size={16} />
             </Button>
           )}
-          {v.publicacionId && (
+          {(v.estadoPublicacion === EstadoPublicacion.Borrador ||
+            v.estadoPublicacion === EstadoPublicacion.Pausado ||
+            !v.publicacionId) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleOpenEdit(v, EstadoPublicacion.Publicado)}
+                title={t('marketplace.actions.publish')}
+              >
+                <Play size={16} />
+              </Button>
+            )}
+          {v.estadoPublicacion === EstadoPublicacion.Publicado && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {/* TODO: Editar publicación */ }}
+              onClick={() => requestStatusChange(v, EstadoPublicacion.Pausado)}
+              title={t('marketplace.actions.pause')}
+            >
+              <Pause size={16} />
+            </Button>
+          )}
+          {(v.estadoPublicacion === EstadoPublicacion.Publicado ||
+            v.estadoPublicacion === EstadoPublicacion.Pausado) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => requestStatusChange(v, EstadoPublicacion.Vendido)}
+                title={t('marketplace.actions.markAsSold')}
+              >
+                <CheckCircle size={16} />
+              </Button>
+            )}
+          {v.publicacionId && v.estadoPublicacion !== EstadoPublicacion.Vendido && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleOpenEdit(v)}
               title={t('marketplace.editPublication')}
             >
               <Edit size={16} />
@@ -531,7 +715,7 @@ export function MarketplacePage() {
         <Table
           data={items}
           columns={columns}
-          keyExtractor={(v) => v.vehiculoId}
+          keyExtractor={(v) => v.publicacionId || v.vehiculoId}
           emptyMessage={t('marketplace.noPublications')}
         />
       </Card>
@@ -614,6 +798,153 @@ export function MarketplacePage() {
             </Button>
             <Button onClick={handleCreate} disabled={isCreating}>
               {isCreating ? t('marketplace.creating') : t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit/Publish Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title={editingItem?.publicacionId ? t('marketplace.editPublication') : t('marketplace.publishVehicle')}
+      >
+        {editingItem && (
+          <div className="space-y-4">
+            <div className="p-3 bg-background rounded-lg border border-border">
+              <p className="text-xs text-text-muted mb-1">{t('marketplace.form.vehicleToLink')}</p>
+              <p className="font-medium text-text">
+                {editingItem.patente} - {editingItem.marca} {editingItem.modelo}
+              </p>
+            </div>
+
+            <Input
+              label={t('marketplace.form.price')}
+              type="number"
+              value={editForm.precio?.toString() || ''}
+              onChange={(e) => setEditForm({ ...editForm, precio: e.target.value ? Number(e.target.value) : null })}
+              placeholder={t('marketplace.form.pricePlaceholder')}
+              helperText={t('marketplace.form.priceHelper')}
+            />
+            <Input
+              label={t('marketplace.form.mileage')}
+              type="number"
+              value={editForm.kilometraje.toString()}
+              onChange={(e) => setEditForm({ ...editForm, kilometraje: Number(e.target.value) || 0 })}
+              placeholder={t('marketplace.form.mileagePlaceholder')}
+            />
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                {t('marketplace.form.description')}
+              </label>
+              <textarea
+                value={editForm.descripcion || ''}
+                onChange={(e) => setEditForm({ ...editForm, descripcion: e.target.value })}
+                placeholder={t('marketplace.form.descriptionPlaceholder')}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
+                rows={4}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                {t('marketplace.form.publicationStatus')}
+              </label>
+              <select
+                value={editForm.estado}
+                onChange={(e) => setEditForm({ ...editForm, estado: Number(e.target.value) as EstadoPublicacion })}
+                disabled={isEstadoLocked}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+              >
+                {estadoOptions.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {getEstadoLabel(estado)}
+                  </option>
+                ))}
+              </select>
+              {isEstadoLocked && (
+                <p className="text-xs text-text-muted mt-1">
+                  {t('marketplace.form.estadoLocked')}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isSavingPublication}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleSavePublication} disabled={isSavingPublication}>
+                {isSavingPublication ? t('common.saving') : t('common.save')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Preview Modal */}
+      <Modal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        title={t('marketplace.preview.title')}
+      >
+        {previewItem && (
+          <div className="space-y-6">
+            <div className="p-4 rounded-lg border border-border bg-background">
+              <p className="text-xs text-text-muted mb-3">{t('marketplace.preview.listing')}</p>
+              <div className="flex gap-4">
+                <div className="w-24 h-20 rounded-md bg-surface border border-border flex items-center justify-center text-text-muted text-xs">
+                  {t('marketplace.preview.photoPlaceholder')}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-text">
+                      {[previewItem.marca, previewItem.modelo].filter(Boolean).join(' ') || t('marketplace.preview.vehicleFallback')}
+                    </h3>
+                    {previewItem.estadoPublicacion && (
+                      <Badge variant="default">{getEstadoLabel(previewItem.estadoPublicacion)}</Badge>
+                    )}
+                  </div>
+                  <p className="text-text-muted text-sm mt-1">{previewItem.patente}</p>
+                  <p className="text-text mt-2">
+                    {previewItem.precio
+                      ? `${previewItem.moneda || 'ARS'} ${previewItem.precio.toLocaleString(culture)}`
+                      : t('marketplace.table.consultPrice')}
+                  </p>
+                  <p className="text-text-muted text-sm">
+                    {previewItem.kilometraje.toLocaleString(culture)} km
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg border border-border bg-background">
+              <p className="text-xs text-text-muted mb-3">{t('marketplace.preview.detail')}</p>
+              <p className="text-text mb-2">
+                {previewItem.descripcion || t('marketplace.preview.noDescription')}
+              </p>
+              <div className="text-sm text-text-muted space-y-1">
+                <p>{t('marketplace.preview.seller')}: {currentOrganization?.name || t('marketplace.preview.sellerFallback')}</p>
+                <p>{t('marketplace.preview.year')}: {previewItem.anio || '-'}</p>
+                <p>{t('marketplace.preview.status')}: {previewItem.estadoPublicacion ? getEstadoLabel(previewItem.estadoPublicacion) : t('marketplace.table.notPublished')}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Confirm Status Modal */}
+      <Modal
+        isOpen={!!confirmStatusChange}
+        onClose={() => setConfirmStatusChange(null)}
+        title={confirmStatusChange?.titulo || ''}
+      >
+        <div className="space-y-4">
+          <p className="text-text">{confirmStatusChange?.mensaje}</p>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setConfirmStatusChange(null)} disabled={isSavingPublication}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleConfirmStatusChange} disabled={isSavingPublication}>
+              {isSavingPublication ? t('common.saving') : t('common.confirm')}
             </Button>
           </div>
         </div>

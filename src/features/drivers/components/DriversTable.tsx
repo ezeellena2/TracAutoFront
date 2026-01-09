@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Edit, Trash2, Car, Smartphone, List, RefreshCw, Share2 } from 'lucide-react';
 import { Table, Badge, ActionMenu } from '@/shared/ui';
+import { NivelPermisoCompartido } from '@/shared/types/api';
 import type { ConductorDto } from '../types';
 
 interface DriversTableProps {
@@ -74,9 +75,16 @@ export function DriversTable({
         // Si es recurso asociado, mostrar badge indicando que viene de otra org
         if (c.esRecursoAsociado) {
           return (
-            <Badge variant="warning">
-              {t('drivers.table.associated')}
-            </Badge>
+            <div className="flex flex-col gap-1 items-start">
+              <Badge variant="warning">
+                {t('drivers.table.associated')}
+              </Badge>
+              {c.permisoAcceso === NivelPermisoCompartido.GestionOperativa ? (
+                <Badge variant="success">{t('permissions.operational')}</Badge>
+              ) : (
+                <Badge variant="default">{t('permissions.readOnly')}</Badge>
+              )}
+            </div>
           );
         }
         // Si está compartido con otras organizaciones
@@ -146,16 +154,19 @@ export function DriversTable({
               {/* Conductor ACTIVO: mostrar todas las acciones normales */}
               {isActive && canEdit && (
                 <>
-                  <button
-                    onClick={() => {
-                      onActionMenuToggle(null);
-                      onEdit(c);
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
-                  >
-                    <Edit size={14} />
-                    {t('drivers.edit')}
-                  </button>
+
+                  {!c.esRecursoAsociado && (
+                    <button
+                      onClick={() => {
+                        onActionMenuToggle(null);
+                        onEdit(c);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
+                    >
+                      <Edit size={14} />
+                      {t('drivers.edit')}
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       onActionMenuToggle(null);
@@ -181,6 +192,7 @@ export function DriversTable({
                   <div className="px-3 py-2 text-xs font-medium text-text-muted border-b border-border">
                     {t('drivers.assign')}
                   </div>
+                  {(!c.esRecursoAsociado || c.permisoAcceso === NivelPermisoCompartido.GestionOperativa) && (
                   <button
                     onClick={() => {
                       onActionMenuToggle(null);
@@ -201,38 +213,38 @@ export function DriversTable({
                     <Smartphone size={14} />
                     {t('drivers.assignDevice')}
                   </button>
-                </>
-              )}
-              {/* Conductor ACTIVO: mostrar eliminar */}
-              {isActive && canDelete && (
-                <>
-                  <div className="border-t border-border my-1" />
-                  <button
-                    onClick={() => {
-                      onActionMenuToggle(null);
-                      onDelete(c);
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                  >
-                    <Trash2 size={14} />
-                    {t('drivers.delete')}
-                  </button>
-                </>
-              )}
-              {/* Conductor INACTIVO: solo mostrar Reactivar */}
-              {!isActive && canEdit && (
-                <button
-                  onClick={() => {
-                    onActionMenuToggle(null);
-                    onReactivate(c);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
-                >
-                  <RefreshCw size={14} />
-                  {t('drivers.reactivate')}
-                </button>
-              )}
-            </div>
+                  )}
+
+                  {/* Conductor ACTIVO: mostrar eliminar (solo propios) */}
+                  {isActive && canDelete && !c.esRecursoAsociado && (
+                    <>
+                      <div className="border-t border-border my-1" />
+                      <button
+                        onClick={() => {
+                          onActionMenuToggle(null);
+                          onDelete(c);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <Trash2 size={14} />
+                        {t('drivers.delete')}
+                      </button>
+                    </>
+                  )}
+                  {/* Conductor INACTIVO: solo mostrar Reactivar */}
+                  {!isActive && canEdit && (
+                    <button
+                      onClick={() => {
+                        onActionMenuToggle(null);
+                        onReactivate(c);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                    >
+                      <RefreshCw size={14} />
+                      {t('drivers.reactivate')}
+                    </button>
+                  )}
+                </div>
           </ActionMenu>
         );
       },

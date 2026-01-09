@@ -36,7 +36,35 @@
     "creating": "Creando...",
     "saving": "Guardando...",
     "optional": "opcional",
-    "assign": "Asignar"
+    "assign": "Asignar",
+    "goBack": "Volver",
+    "goHome": "Ir al Inicio",
+    "retry": "Reintentar",
+    "copy": "Copiar",
+    "offline": "Sin conexión",
+    "online": "Conectado",
+    "reconnecting": "Reconectando..."
+  },
+  "errorPages": {
+    "notFound": {
+      "title": "Página no encontrada",
+      "message": "La página que buscás no existe o fue movida."
+    },
+    "serverError": {
+      "title": "Error del servidor",
+      "message": "Ocurrió un error inesperado. Nuestro equipo ya fue notificado."
+    },
+    "referenceId": "ID de referencia",
+    "referenceHint": "Usá este código si contactás a soporte"
+  },
+  "offline": {
+    "title": "Sin conexión",
+    "message": "No hay conexión a internet. Algunas funciones no están disponibles."
+  },
+  "rateLimit": {
+    "title": "Demasiadas solicitudes",
+    "message": "Por favor esperá {{seconds}} segundos antes de intentar nuevamente.",
+    "retryIn": "Reintentar en {{seconds}}s"
   },
   "filters": {
     "title": "Filtros",
@@ -62,6 +90,7 @@
     "devices": "Dispositivos",
     "vehicles": "Vehículos",
     "drivers": "Conductores",
+    "turnosTaxi": "Turnos Taxi",
     "events": "Eventos",
     "users": "Usuarios",
     "organization": "Organización",
@@ -496,7 +525,8 @@
       "reactivate": "Reactivar",
       "markAsSold": "Marcar como Vendido",
       "saveDraft": "Guardar Borrador",
-      "viewPublication": "Ver Publicación"
+      "viewPublication": "Ver Publicación",
+      "preview": "Vista previa"
     },
     "table": {
       "licensePlate": "PATENTE",
@@ -546,6 +576,7 @@
       "descriptionPlaceholder": "Detalles del vehículo: estado, equipamiento, historial...",
       "descriptionHelper": "Máx. 4000 caracteres",
       "publicationStatus": "Estado de Publicación",
+      "estadoLocked": "El estado se define al publicar la publicacion.",
       "vehicleInfo": "Información del Vehículo",
       "vehicleToLink": "Vehículo a vincular",
       "existingVehicle": "Vehículo existente",
@@ -559,6 +590,18 @@
       "linkExistingVehicle": "Vincular vehículo existente",
       "createNewVehicle": "Crear nuevo vehículo (sin vincular)",
       "linkExistingVehicleHelp": "Opcional: Selecciona un vehículo operativo existente para vincularlo a esta publicación. Si no seleccionas ninguno, se creará una publicación independiente."
+    },
+    "preview": {
+      "title": "Preview de publicacion",
+      "listing": "Vista en listado",
+      "detail": "Vista de detalle",
+      "photoPlaceholder": "Sin foto",
+      "vehicleFallback": "Vehiculo",
+      "noDescription": "Sin descripcion disponible.",
+      "seller": "Vendedor",
+      "sellerFallback": "Concesionaria",
+      "year": "Anio",
+      "status": "Estado"
     },
     "confirmations": {
       "publishTitle": "¿Publicar vehículo?",
@@ -578,6 +621,7 @@
     "errors": {
       "publishFailed": "Error al publicar vehículo",
       "updateFailed": "Error al actualizar publicación",
+      "noPublication": "El vehiculo aun no tiene una publicacion asociada.",
       "notConcesionaria": "El marketplace solo está disponible para concesionarias",
       "loadFailed": "Error al cargar publicaciones"
     },
@@ -587,6 +631,89 @@
     "emptyTitle": "Sin publicaciones",
     "emptyDescription": "No hay vehículos publicados en el marketplace.",
     "emptyFiltered": "No se encontraron vehículos con los filtros aplicados."
+  },
+  "turnosTaxi": {
+    "titulo": "Turnos de Taxi",
+    "subtitulo": "Gestiona los turnos y zonas de operación de tus vehículos",
+    "nuevoTurno": "Nuevo Turno",
+    "crearTurno": "Crear Turno",
+    "editarTurno": "Editar Turno",
+    "nombre": "Nombre",
+    "nombrePlaceholder": "Ej: Turno Mañana, Turno Noche...",
+    "horario": "Horario",
+    "horaInicio": "Hora inicio",
+    "horaFin": "Hora fin",
+    "dias": "Días",
+    "dia": "Día",
+    "hora": "Hora",
+    "diasActivos": "Días activos",
+    "todosDias": "Todos",
+    "lunesViernes": "L-V",
+    "finSemana": "S-D",
+    "geofences": "Zonas geográficas",
+    "zonas": "zonas",
+    "estado": "Estado",
+    "activo": "Activo",
+    "inactivo": "Inactivo",
+    "enCurso": "En curso",
+    "turnoActivo": "Turno activo",
+    "vehiculo": "Vehículo",
+    "todosVehiculos": "Todos los vehículos",
+    "soloActivos": "Solo activos",
+    "todos": "Todos",
+    "seleccionadas": "seleccionadas",
+    "sinTurnos": "No hay turnos configurados",
+    "crearPrimero": "Crea tu primer turno para empezar",
+    "sinGeofences": "No hay zonas geográficas vinculadas",
+    "vincularDesdeTraccar": "Vincule zonas desde la sección de Geofences",
+    "totalTurnos": "Total Turnos",
+    "turnosActivos": "Turnos Activos",
+    "enCursoAhora": "En Curso Ahora",
+    "conGeofence": "Con Zona Asignada",
+    "confirmarEliminar": "Eliminar Turno",
+    "confirmarEliminarMsg": "¿Estás seguro de que deseas eliminar el turno \"{{nombre}}\"? Esta acción no se puede deshacer.",
+    "buscarPlaceholder": "Buscar por nombre...",
+    "horasIguales": "La hora de fin debe ser diferente a la de inicio",
+    "minUnDia": "Debe seleccionar al menos un día",
+    "creadoExito": "Turno creado exitosamente",
+    "actualizadoExito": "Turno actualizado exitosamente",
+    "eliminadoExito": "Turno eliminado exitosamente",
+    "errorCargar": "Error al cargar turnos",
+    "errorCargarGeofences": "Error al cargar zonas geográficas",
+    "duplicar": "Duplicar",
+    "duplicarTurno": "Duplicar Turno",
+    "confirmarDuplicarMsg": "¿Deseas crear una copia del turno \"{{nombre}}\"?",
+    "vistaTabla": "Tabla",
+    "vistaTimeline": "Timeline",
+    "simuladorHora": "Simulador de hora",
+    "velocidad": "Velocidad",
+    "horaSimulada": "Hora simulada",
+    "resetHoraActual": "Volver a hora actual",
+    "alertaCruceMedianoche": "Este turno cruza la medianoche",
+    "alertaCruceMedianocheDesc": "El turno comenzará el día seleccionado y terminará al día siguiente. Por ejemplo, si selecciona \"Lunes\" con horario 22:00-06:00, el turno irá desde el lunes a las 22:00 hasta el martes a las 06:00.",
+    "alertaSolapamiento": "Posible solapamiento detectado",
+    "alertaSolapamientoDesc": "Este turno podría solaparse con otros turnos del mismo vehículo. Verifique que no haya conflictos de horario.",
+    "turnoTodosLosDias": "Este turno estará activo todos los días de la semana",
+    "turnoCruzaMedianocheInfo": "El turno se extenderá al día siguiente para cada día seleccionado",
+    "seleccionarDias": "Seleccionar días de la semana",
+    "atajosRapidos": "Atajos rápidos",
+    "seleccionarTodos": "Seleccionar todos los días",
+    "seleccionarLunesViernes": "Seleccionar lunes a viernes",
+    "seleccionarFinSemana": "Seleccionar sábado y domingo",
+    "accionesTurno": "Acciones del turno {{nombre}}",
+    "tablaTurnos": "Tabla de turnos de taxi"
+  },
+  "geofences": {
+    "titulo": "Zonas Geográficas",
+    "subtitulo": "Gestiona las zonas geográficas vinculadas desde Traccar",
+    "vincular": "Vincular Geofence",
+    "desvincular": "Desvincular",
+    "alias": "Alias",
+    "stale": "No disponible en Traccar",
+    "creadoExito": "Zona vinculada exitosamente",
+    "actualizadoExito": "Zona actualizada exitosamente",
+    "eliminadoExito": "Zona desvinculada exitosamente",
+    "errorCargar": "Error al cargar zonas"
   },
   "replay": {
     "device": "Dispositivo",
@@ -660,7 +787,10 @@
     "noVehiclesAvailable": "No hay vehículos disponibles",
     "now": "Ahora",
     "minutesAgo": "Hace {{minutes}} min",
-    "hoursAgo": "Hace {{hours}}h"
+    "hoursAgo": "Hace {{hours}}h",
+    "geofences": "Zonas",
+    "showGeofences": "Mostrar zonas de turnos activos",
+    "hideGeofences": "Ocultar zonas de turnos activos"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -1003,7 +1133,9 @@
       "OrganizacionNoEsConcesionaria": "Solo concesionarias pueden acceder al Marketplace",
       "PublicacionNoEncontrada": "Publicación no encontrada",
       "VehiculoYaPublicado": "Este vehículo ya está publicado",
-      "VehiculoNoPublicado": "Este vehículo no está publicado"
+      "VehiculoNoPublicado": "Este vehículo no está publicado",
+      "PublicacionInactiva": "No se puede modificar una publicacion vendida",
+      "TransicionEstadoInvalida": "Transicion de estado invalida"
     }
   }
 }

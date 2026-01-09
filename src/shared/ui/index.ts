@@ -15,3 +15,6 @@ export { PaginationControls } from './PaginationControls';
 export type { PaginationControlsProps } from './PaginationControls';
 export { LanguageSwitcher } from './LanguageSwitcher';
 export { PWAInstallPrompt } from './PWAInstallPrompt';
+export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+export { OfflineIndicator } from './OfflineIndicator';
+export { RateLimitCountdown } from './RateLimitCountdown';

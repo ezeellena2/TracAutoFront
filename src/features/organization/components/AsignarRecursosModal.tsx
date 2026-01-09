@@ -10,6 +10,7 @@ import {
   EstadoComparticion,
   RecursoCompartibleDto,
   RecursosCompartiblesResponse,
+  NivelPermisoCompartido,
 } from '@/shared/types/api';
 
 interface AsignarRecursosModalProps {
@@ -37,6 +38,7 @@ export function AsignarRecursosModal({
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [permisoGestion, setPermisoGestion] = useState(false);
 
   // Estado de datos
   const [isLoading, setIsLoading] = useState(false);
@@ -101,6 +103,7 @@ export function AsignarRecursosModal({
         [TipoRecurso.DispositivoTraccar]: new Set(),
       });
       setError(null);
+      setPermisoGestion(false);
     }
   }, [isOpen]);
 
@@ -156,6 +159,7 @@ export function AsignarRecursosModal({
         dispositivoIds: selectedByType[TipoRecurso.DispositivoTraccar].size > 0
           ? Array.from(selectedByType[TipoRecurso.DispositivoTraccar])
           : undefined,
+        permiso: permisoGestion ? NivelPermisoCompartido.GestionOperativa : NivelPermisoCompartido.SoloLectura,
       });
 
       toast.success(t('organization.relations.assign.success', 'Recursos compartidos correctamente'));
@@ -404,10 +408,21 @@ export function AsignarRecursosModal({
 
           {/* Footer */}
           <div className="flex justify-between items-center pt-4 border-t border-border">
-            <div className="text-sm text-text-muted">
-              {getTotalSelected() > 0 && (
-                <span>{getTotalSelected()} {t('organization.relations.assign.resourcesSelected', 'recursos seleccionados')}</span>
-              )}
+            <div className="flex flex-col gap-2">
+              <div className="text-sm text-text-muted">
+                {getTotalSelected() > 0 && (
+                  <span>{getTotalSelected()} {t('organization.relations.assign.resourcesSelected', 'recursos seleccionados')}</span>
+                )}
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-text">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                  checked={permisoGestion}
+                  onChange={(e) => setPermisoGestion(e.target.checked)}
+                />
+                <span>Permitir gestión operativa de los recursos</span>
+              </label>
             </div>
             <div className="flex gap-3">
               <Button
