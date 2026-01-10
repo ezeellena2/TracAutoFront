@@ -49,7 +49,7 @@ const navItems: NavItem[] = [
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
-  { path: '/turnos-taxi', labelKey: 'sidebar.turnosTaxi', icon: Clock, requiredPermission: 'vehiculos:ver' },
+  { path: '/turnos-taxi', labelKey: 'sidebar.turnosTaxi', icon: Clock, requiredOrganizationType: TipoOrganizacion.FlotaPrivada },
   {
     labelKey: 'sidebar.organization',
     icon: Building,
@@ -77,10 +77,6 @@ export function Sidebar() {
 
   // Filtrar items según permisos del usuario y tipo de organización
   const visibleNavItems = useMemo(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Sidebar.tsx:77',message:'[HYP-C/E] Sidebar render - currentOrganization estado',data:{currentOrg:currentOrganization?{id:currentOrganization.id,name:currentOrganization.name,tipoOrganizacion:currentOrganization.tipoOrganizacion}:null,esNull:!currentOrganization},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-
     return navItems.filter(item => {
       // Validar permiso
       const hasPermission = !item.requiredPermission || can(item.requiredPermission);
@@ -88,12 +84,6 @@ export function Sidebar() {
       // Validar tipo de organización
       const hasOrganizationType = !item.requiredOrganizationType ||
         (currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
-
-      // #region agent log
-      if (item.path === '/marketplace') {
-        fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Sidebar.tsx:84',message:'[HYP-D] Marketplace filter - comparación de tipos',data:{currentTipoOrg:currentOrganization?.tipoOrganizacion,requiredTipoOrg:item.requiredOrganizationType,comparacion:currentOrganization?.tipoOrganizacion===item.requiredOrganizationType,hasPermission,hasOrganizationType,visible:hasPermission&&hasOrganizationType},timestamp:Date.now(),sessionId:'debug-marketplace',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      }
-      // #endregion
 
       return hasPermission && hasOrganizationType;
     });

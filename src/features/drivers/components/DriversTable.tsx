@@ -193,29 +193,33 @@ export function DriversTable({
                     {t('drivers.assign')}
                   </div>
                   {(!c.esRecursoAsociado || c.permisoAcceso === NivelPermisoCompartido.GestionOperativa) && (
-                  <button
-                    onClick={() => {
-                      onActionMenuToggle(null);
-                      onAssignVehicle(c);
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
-                  >
-                    <Car size={14} />
-                    {t('drivers.assignVehicle')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      onActionMenuToggle(null);
-                      onAssignDevice(c);
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
-                  >
-                    <Smartphone size={14} />
-                    {t('drivers.assignDevice')}
-                  </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          onActionMenuToggle(null);
+                          onAssignVehicle(c);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
+                      >
+                        <Car size={14} />
+                        {t('drivers.assignVehicle')}
+                      </button>
+                      <button
+                        onClick={() => {
+                          onActionMenuToggle(null);
+                          onAssignDevice(c);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
+                      >
+                        <Smartphone size={14} />
+                        {t('drivers.assignDevice')}
+                      </button>
+                    </>
                   )}
+                </>
+              )}
 
-                  {/* Conductor ACTIVO: mostrar eliminar (solo propios) */}
+              {/* Conductor ACTIVO: mostrar eliminar (solo propios) */}
                   {isActive && canDelete && !c.esRecursoAsociado && (
                     <>
                       <div className="border-t border-border my-1" />

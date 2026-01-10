@@ -20,13 +20,13 @@ export const turnosTaxiApi = {
    * Lista turnos de taxi con paginación y filtros
    */
   listar: async (params: ListTurnosTaxiParams = {}): Promise<ListaPaginada<TurnoTaxiDto>> => {
-    const { 
-      numeroPagina = 1, 
-      tamanoPagina = 10, 
-      vehiculoId, 
+    const {
+      numeroPagina = 1,
+      tamanoPagina = 10,
+      vehiculoId,
       vehiculoIds,
-      soloActivos, 
-      buscar 
+      soloActivos,
+      buscar
     } = params;
 
     const queryParams: Record<string, string | number | boolean> = {
@@ -51,8 +51,8 @@ export const turnosTaxiApi = {
       url = `${BASE}?${vehiculoIdsParams}`;
     }
 
-    const response = await apiClient.get<ListaPaginada<TurnoTaxiDto>>(url, { 
-      params: vehiculoIds?.length ? undefined : queryParams 
+    const response = await apiClient.get<ListaPaginada<TurnoTaxiDto>>(url, {
+      params: vehiculoIds?.length ? undefined : queryParams
     });
     return response.data;
   },
@@ -70,17 +70,17 @@ export const turnosTaxiApi = {
    */
   obtenerActivos: async (params: GetTurnosActivosParams = {}): Promise<TurnoActivoDto[]> => {
     const { vehiculoIds, atUtc } = params;
-    
+
     let url = `${BASE}/activos`;
     const queryParts: string[] = [];
-    
+
     if (vehiculoIds && vehiculoIds.length > 0) {
       vehiculoIds.forEach(id => queryParts.push(`vehiculoIds=${id}`));
     }
     if (atUtc) {
       queryParts.push(`atUtc=${encodeURIComponent(atUtc)}`);
     }
-    
+
     if (queryParts.length > 0) {
       url = `${url}?${queryParts.join('&')}`;
     }
@@ -110,5 +110,14 @@ export const turnosTaxiApi = {
    */
   eliminar: async (id: string): Promise<void> => {
     await apiClient.delete(`${BASE}/${id}`);
+  },
+
+  /**
+   * Duplica un turno existente
+   */
+  duplicar: async (id: string, nuevoNombre?: string): Promise<TurnoTaxiDto> => {
+    const params = nuevoNombre ? { nuevoNombre } : undefined;
+    const response = await apiClient.post<TurnoTaxiDto>(`${BASE}/${id}/duplicar`, null, { params });
+    return response.data;
   },
 };

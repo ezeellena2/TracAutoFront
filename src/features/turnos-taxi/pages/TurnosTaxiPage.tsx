@@ -10,7 +10,7 @@ import { TurnosTaxiTable, TurnosTaxiFilters, TurnoTaxiModal, TurnosTimeline, Sim
 import type { DiaSemana } from '../types';
 import { useTurnosTaxi } from '../hooks/useTurnosTaxi';
 import { useTurnosTaxiStore } from '../store/turnosTaxi.store';
-import type { TurnoTaxiDto, CreateTurnoTaxiCommand } from '../types';
+import type { TurnoTaxiDto } from '../types';
 
 export function TurnosTaxiPage() {
   const { t } = useTranslation();
@@ -43,15 +43,15 @@ export function TurnosTaxiPage() {
     setFiltros,
     setPagina,
     handleSubmitModal,
-    crearTurno,
+    duplicarTurno,
     eliminarTurno,
     fetchGeofenceVinculos,
   } = useTurnosTaxi();
-  
+
   const { tamanoPagina } = useTurnosTaxiStore();
-  
-  const handlePageSizeChange = useCallback((size: number) => {
-    console.log('Page size changed to:', size);
+
+  const handlePageSizeChange = useCallback((_size: number) => {
+    // TODO: Implement page size change
   }, []);
 
   // Calcular KPIs
@@ -72,26 +72,17 @@ export function TurnosTaxiPage() {
     setVehiculoSeleccionado(vehiculo || { id: turno.vehiculoId, patente: turno.vehiculoPatente });
     openEditModal(turno);
   }, [openEditModal, vehiculos]);
-  
+
   const handleDuplicate = useCallback((turno: TurnoTaxiDto) => {
     setTurnoADuplicar(turno);
   }, []);
-  
+
   const handleConfirmDuplicate = useCallback(async () => {
     if (!turnoADuplicar) return;
-    
-    const command: CreateTurnoTaxiCommand = {
-      vehiculoId: turnoADuplicar.vehiculoId,
-      nombre: `${turnoADuplicar.nombre} (copia)`,
-      horaInicioLocal: turnoADuplicar.horaInicioLocal,
-      horaFinLocal: turnoADuplicar.horaFinLocal,
-      diasActivos: turnoADuplicar.diasActivos,
-      geofenceIds: turnoADuplicar.geofences.map(g => g.id),
-    };
-    
-    await crearTurno(command);
+
+    await duplicarTurno(turnoADuplicar);
     setTurnoADuplicar(null);
-  }, [turnoADuplicar, crearTurno]);
+  }, [turnoADuplicar, duplicarTurno]);
 
   const handleSimuladorChange = useCallback((hora: string, dia: DiaSemana) => {
     setHoraSimulada(hora);
@@ -117,7 +108,7 @@ export function TurnosTaxiPage() {
             {t('turnosTaxi.subtitulo', 'Gestiona los turnos y zonas de operación de tus vehículos')}
           </p>
         </div>
-        
+
         <Button variant="primary" onClick={handleOpenCreate}>
           + {t('turnosTaxi.nuevoTurno', 'Nuevo Turno')}
         </Button>
@@ -161,32 +152,30 @@ export function TurnosTaxiPage() {
             />
           </div>
         </Card>
-        
+
         {/* Selector de vista y simulador */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 bg-surface border border-border rounded-lg p-1">
             <button
               onClick={() => setVistaActual('tabla')}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                vistaActual === 'tabla' 
-                  ? 'bg-primary text-white' 
-                  : 'text-text-muted hover:text-text'
-              }`}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${vistaActual === 'tabla'
+                ? 'bg-primary text-white'
+                : 'text-text-muted hover:text-text'
+                }`}
             >
               📋 {t('turnosTaxi.vistaTabla', 'Tabla')}
             </button>
             <button
               onClick={() => setVistaActual('timeline')}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                vistaActual === 'timeline' 
-                  ? 'bg-primary text-white' 
-                  : 'text-text-muted hover:text-text'
-              }`}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${vistaActual === 'timeline'
+                ? 'bg-primary text-white'
+                : 'text-text-muted hover:text-text'
+                }`}
             >
               📅 {t('turnosTaxi.vistaTimeline', 'Timeline')}
             </button>
           </div>
-          
+
           <SimuladorHora
             isActive={simuladorActivo}
             onActiveChange={setSimuladorActivo}
@@ -255,7 +244,7 @@ export function TurnosTaxiPage() {
         confirmText={t('common.eliminar', 'Eliminar')}
         variant="danger"
       />
-      
+
       {/* Modal Confirmación Duplicar */}
       <ConfirmationModal
         isOpen={!!turnoADuplicar}

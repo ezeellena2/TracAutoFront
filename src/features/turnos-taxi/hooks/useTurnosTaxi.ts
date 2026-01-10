@@ -8,10 +8,10 @@ import { useTurnosTaxiStore } from '../store/turnosTaxi.store';
 import { turnosTaxiApi, geofenceVinculosApi } from '../api';
 import { vehiculosApi } from '@/services/endpoints/vehiculos.api';
 import { useToastStore } from '@/store/toast.store';
-import type { 
-  TurnoTaxiDto, 
-  CreateTurnoTaxiCommand, 
-  UpdateTurnoTaxiCommand 
+import type {
+  TurnoTaxiDto,
+  CreateTurnoTaxiCommand,
+  UpdateTurnoTaxiCommand
 } from '../types';
 
 export interface VehiculoSimple {
@@ -28,11 +28,11 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
   const { autoLoad = true } = options;
   const { t } = useTranslation();
   const toast = useToastStore();
-  
+
   // Estado local para vehículos
   const [vehiculos, setVehiculos] = useState<VehiculoSimple[]>([]);
   const [isLoadingVehiculos, setIsLoadingVehiculos] = useState(false);
-  
+
   const {
     turnos,
     turnosActivos,
@@ -75,10 +75,10 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
     setIsLoadingVehiculos(true);
     try {
       // Obtener todos los vehículos activos (sin paginación para el selector)
-      const result = await vehiculosApi.getVehiculos({ 
-        soloActivos: true, 
+      const result = await vehiculosApi.getVehiculos({
+        soloActivos: true,
         tamanoPagina: 100,
-        soloPropios: true 
+        soloPropios: true
       });
       setVehiculos(result.items.map(v => ({ id: v.id, patente: v.patente })));
     } catch (err) {
@@ -91,7 +91,7 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
   const fetchTurnos = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await turnosTaxiApi.listar({
         numeroPagina: paginaActual,
@@ -100,7 +100,7 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
         soloActivos: filtros.soloActivos,
         buscar: filtros.buscar,
       });
-      
+
       setTurnos(result.items, {
         paginaActual: result.paginaActual,
         totalPaginas: result.totalPaginas,
@@ -116,7 +116,7 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
 
   const fetchTurnosActivos = useCallback(async (vehiculoIds?: string[]) => {
     setLoadingActivos(true);
-    
+
     try {
       const result = await turnosTaxiApi.obtenerActivos({ vehiculoIds });
       setTurnosActivos(result);
@@ -128,7 +128,7 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
 
   const fetchGeofenceVinculos = useCallback(async () => {
     setLoadingGeofences(true);
-    
+
     try {
       const result = await geofenceVinculosApi.listar(true);
       setGeofenceVinculos(result);
@@ -179,6 +179,19 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
       throw err;
     }
   }, [removeTurno, toast, t]);
+
+  const duplicarTurno = useCallback(async (turno: TurnoTaxiDto) => {
+    try {
+      const nuevoTurno = await turnosTaxiApi.duplicar(turno.id);
+      addTurno(nuevoTurno);
+      toast.success(t('turnosTaxi.creadoExito', 'Turno creado exitosamente'));
+      return nuevoTurno;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al duplicar turno';
+      toast.error(message);
+      throw err;
+    }
+  }, [addTurno, toast, t]);
 
   const handleSubmitModal = useCallback(async (data: CreateTurnoTaxiCommand | UpdateTurnoTaxiCommand) => {
     if (modal.mode === 'create') {
@@ -245,6 +258,7 @@ export function useTurnosTaxi(options: UseTurnosTaxiOptions = {}) {
     crearTurno,
     actualizarTurno,
     eliminarTurno,
+    duplicarTurno,
     handleSubmitModal,
 
     // UI Actions

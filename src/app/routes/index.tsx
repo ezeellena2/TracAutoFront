@@ -16,6 +16,8 @@ import { TraccarMapPage } from '@/features/traccar-map';
 import { ReplayPage } from '@/features/replay';
 import { MarketplacePage } from '@/features/marketplace';
 import { TurnosTaxiPage } from '@/features/turnos-taxi';
+import { OrganizationTypeGuard } from '@/shared/components/OrganizationTypeGuard';
+import { TipoOrganizacion } from '@/shared/types/api';
 
 // Error pages
 import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
@@ -87,7 +89,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'turnos-taxi',
-        element: <TurnosTaxiPage />,
+        element: (
+          <OrganizationTypeGuard allowedTypes={[TipoOrganizacion.FlotaPrivada]}>
+            <TurnosTaxiPage />
+          </OrganizationTypeGuard>
+        ),
       },
     ],
   },
