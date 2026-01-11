@@ -5,11 +5,26 @@ import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, Pagination
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
-import type { VehiculoDto, CreateVehiculoRequest, TipoVehiculo } from '../types';
+import { useTenantStore } from '@/store';
+import type { 
+  VehiculoDto, 
+  CreateVehiculoRequest, 
+  TipoVehiculo,
+  VehiculoAseguradoraCreateData,
+  VehiculoAlquilerCreateData,
+  VehiculoTaxiCreateData,
+  VehiculoOtrosCreateData,
+} from '../types';
+import { TipoExtensionVehiculo } from '../types';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
-import { NivelPermisoCompartido } from '@/shared/types/api';
+import { NivelPermisoCompartido, TipoOrganizacion } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
 import { GestionarComparticionModal } from '@/features/organization';
+import { shouldShowExtensionForm, getExtensionTypeForOrgType } from '../utils/extensionHelpers';
+import { AseguradoraExtensionForm } from '../components/AseguradoraExtensionForm';
+import { AlquilerExtensionForm } from '../components/AlquilerExtensionForm';
+import { TaxiExtensionForm } from '../components/TaxiExtensionForm';
+import { OtrosExtensionForm } from '../components/OtrosExtensionForm';
 
 export function VehiclesPage() {
   const { t } = useTranslation();
@@ -40,6 +55,12 @@ export function VehiclesPage() {
     queryParams: filterParams
   } = useTableFilters();
 
+  // Get current organization type
+  const { currentOrganization } = useTenantStore();
+  const orgType = currentOrganization?.tipoOrganizacion;
+  const showExtensionForm = shouldShowExtensionForm(orgType);
+  const extensionType = getExtensionTypeForOrgType(orgType);
+
   // Create modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -50,8 +71,13 @@ export function VehiclesPage() {
     modelo: '',
     anio: undefined,
   });
+  // Extension data state - can be any extension type
+  const [extensionDataAseguradora, setExtensionDataAseguradora] = useState<VehiculoAseguradoraCreateData>({});
+  const [extensionDataAlquiler, setExtensionDataAlquiler] = useState<VehiculoAlquilerCreateData>({ categoriaId: '' });
+  const [extensionDataTaxi, setExtensionDataTaxi] = useState<VehiculoTaxiCreateData>({});
+  const [extensionDataOtros, setExtensionDataOtros] = useState<VehiculoOtrosCreateData>({ tipoContexto: '' });
   const [createDeviceId, setCreateDeviceId] = useState(''); // Device to assign on create
-  const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
+  const [createErrors, setCreateErrors] = useState<{ patente?: string; categoriaId?: string; tipoContexto?: string }>({});
 
   // Edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -118,12 +144,69 @@ export function VehiclesPage() {
     }
   }, [vehiclesData, setNumeroPagina]);
 
+  // Helper function to reset extension data
+  const resetExtensionData = () => {
+    setExtensionDataAseguradora({});
+    setExtensionDataAlquiler({ categoriaId: '' });
+    setExtensionDataTaxi({});
+    setExtensionDataOtros({ tipoContexto: '' });
+  };
+
+  // Helper function to render extension form
+  const renderExtensionForm = () => {
+    if (!showExtensionForm) return null;
+
+    switch (extensionType) {
+      case TipoExtensionVehiculo.Aseguradora:
+        return (
+          <AseguradoraExtensionForm
+            value={extensionDataAseguradora}
+            onChange={setExtensionDataAseguradora}
+          />
+        );
+      case TipoExtensionVehiculo.Alquiler:
+        return (
+          <AlquilerExtensionForm
+            value={extensionDataAlquiler}
+            onChange={setExtensionDataAlquiler}
+            errors={{ categoriaId: createErrors.categoriaId }}
+          />
+        );
+      case TipoExtensionVehiculo.Taxi:
+        return (
+          <TaxiExtensionForm
+            value={extensionDataTaxi}
+            onChange={setExtensionDataTaxi}
+          />
+        );
+      case TipoExtensionVehiculo.Otros:
+        return (
+          <OtrosExtensionForm
+            value={extensionDataOtros}
+            onChange={setExtensionDataOtros}
+            errors={{ tipoContexto: createErrors.tipoContexto }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   // Create handlers
   const handleCreate = async () => {
-    const errors: { patente?: string } = {};
+    const errors: { patente?: string; categoriaId?: string; tipoContexto?: string } = {};
     if (!createForm.patente.trim()) {
       errors.patente = t('vehicles.form.required');
     }
+
+    // Validate required fields for extensions
+    if (extensionType === TipoExtensionVehiculo.Alquiler && !extensionDataAlquiler.categoriaId) {
+      errors.categoriaId = t('vehicles.form.required');
+    }
+    if (extensionType === TipoExtensionVehiculo.Otros && !extensionDataOtros.tipoContexto) {
+      errors.tipoContexto = t('vehicles.form.required');
+    }
+
     if (Object.keys(errors).length > 0) {
       setCreateErrors(errors);
       return;
@@ -132,12 +215,60 @@ export function VehiclesPage() {
     setIsCreating(true);
     setCreateErrors({});
     try {
-      // 1. Create vehicle
-      const newVehicle = await vehiculosApi.createVehiculo({
+      // Prepare extension data
+      const extensionesSolicitadas = showExtensionForm
+        ? extensionType
+        : TipoExtensionVehiculo.Ninguno;
+
+      const requestData: CreateVehiculoRequest = {
         ...createForm,
         patente: createForm.patente.trim().toUpperCase(),
         marca: createForm.marca?.trim() || undefined,
-      });
+        extensionesSolicitadas,
+      };
+
+      // Add extension-specific data if needed
+      if (extensionesSolicitadas === TipoExtensionVehiculo.Aseguradora) {
+        requestData.datosAseguradora = {
+          ...extensionDataAseguradora,
+          numeroPoliza: extensionDataAseguradora.numeroPoliza || undefined,
+          companiaAseguradora: extensionDataAseguradora.companiaAseguradora || undefined,
+          tipoCobertura: extensionDataAseguradora.tipoCobertura || undefined,
+          valorAsegurado: extensionDataAseguradora.valorAsegurado || undefined,
+          fechaInicioCobertura: extensionDataAseguradora.fechaInicioCobertura || undefined,
+          fechaVencimientoPoliza: extensionDataAseguradora.fechaVencimientoPoliza || undefined,
+        };
+      } else if (extensionesSolicitadas === TipoExtensionVehiculo.Alquiler) {
+        requestData.datosAlquiler = {
+          ...extensionDataAlquiler,
+          categoriaId: extensionDataAlquiler.categoriaId,
+          sucursalBaseId: extensionDataAlquiler.sucursalBaseId || undefined,
+          estado: extensionDataAlquiler.estado || undefined,
+          disponibleDesdeUtc: extensionDataAlquiler.disponibleDesdeUtc || undefined,
+          disponibleHastaUtc: extensionDataAlquiler.disponibleHastaUtc || undefined,
+          kilometrosMaxDia: extensionDataAlquiler.kilometrosMaxDia || undefined,
+          notas: extensionDataAlquiler.notas || undefined,
+        };
+      } else if (extensionesSolicitadas === TipoExtensionVehiculo.Taxi) {
+        requestData.datosTaxi = {
+          ...extensionDataTaxi,
+          numeroLicencia: extensionDataTaxi.numeroLicencia || undefined,
+          numeroInterno: extensionDataTaxi.numeroInterno || undefined,
+          habilitadoParaServicio: extensionDataTaxi.habilitadoParaServicio ?? true,
+          vencimientoVTV: extensionDataTaxi.vencimientoVTV || undefined,
+          vencimientoSeguro: extensionDataTaxi.vencimientoSeguro || undefined,
+        };
+      } else if (extensionesSolicitadas === TipoExtensionVehiculo.Otros) {
+        requestData.datosOtros = {
+          ...extensionDataOtros,
+          tipoContexto: extensionDataOtros.tipoContexto,
+          descripcion: extensionDataOtros.descripcion || undefined,
+          metadatosJson: extensionDataOtros.metadatosJson || undefined,
+        };
+      }
+
+      // 1. Create vehicle
+      const newVehicle = await vehiculosApi.createVehiculo(requestData);
 
       // 2. If device selected, assign it
       if (createDeviceId) {
@@ -155,6 +286,7 @@ export function VehiclesPage() {
 
       setIsCreateModalOpen(false);
       setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', anio: undefined });
+      resetExtensionData();
       setCreateDeviceId('');
       await loadData();
     } catch (e) {
@@ -502,7 +634,11 @@ export function VehiclesPage() {
         {/* Create Modal */}
         <Modal
           isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            resetExtensionData();
+            setCreateDeviceId('');
+          }}
           title={t('vehicles.createVehicle')}
         >
           <div className="space-y-4">
@@ -534,6 +670,8 @@ export function VehiclesPage() {
               placeholder={t('vehicles.form.yearPlaceholder')}
             />
 
+            {renderExtensionForm()}
+
             <div>
               <label className="block text-sm font-medium text-text mb-2">
                 {t('vehicles.form.deviceOptional')}
@@ -556,7 +694,7 @@ export function VehiclesPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); }} disabled={isCreating}>
+              <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); resetExtensionData(); }} disabled={isCreating}>
                 {t('common.cancel')}
               </Button>
               <Button onClick={handleCreate} disabled={isCreating}>
@@ -655,7 +793,11 @@ export function VehiclesPage() {
 
       <Modal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          resetExtensionData();
+          setCreateDeviceId('');
+        }}
         title={t('vehicles.createVehicle')}
       >
         <div className="space-y-4">
@@ -679,13 +821,15 @@ export function VehiclesPage() {
             onChange={(e) => setCreateForm({ ...createForm, modelo: e.target.value })}
             placeholder={t('vehicles.form.modelPlaceholder')}
           />
-          <Input
-            label={t('vehicles.form.year')}
-            type="number"
-            value={createForm.anio?.toString() || ''}
-            onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
-            placeholder={t('vehicles.form.yearPlaceholder')}
-          />
+            <Input
+              label={t('vehicles.form.year')}
+              type="number"
+              value={createForm.anio?.toString() || ''}
+              onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder={t('vehicles.form.yearPlaceholder')}
+            />
+
+          {renderExtensionForm()}
 
           <div>
             <label className="block text-sm font-medium text-text mb-2">
@@ -709,7 +853,7 @@ export function VehiclesPage() {
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); }} disabled={isCreating}>
+            <Button variant="outline" onClick={() => { setIsCreateModalOpen(false); setCreateDeviceId(''); resetExtensionData(); }} disabled={isCreating}>
               {t('common.cancel')}
             </Button>
             <Button onClick={handleCreate} disabled={isCreating}>

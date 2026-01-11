@@ -9,6 +9,17 @@ export enum TipoVehiculo {
   Auto = 1,
 }
 
+/** Tipo de extensión de vehículo - matches TipoExtensionVehiculo enum in backend (bitmask) */
+export enum TipoExtensionVehiculo {
+  Ninguno = 0,
+  Marketplace = 1,
+  Alquiler = 2,
+  Taxi = 4,
+  Aseguradora = 8,
+  FlotaPrivada = 16,
+  Otros = 32,
+}
+
 /** DTO for vehicle from backend */
 export interface VehiculoDto {
   id: string;
@@ -32,6 +43,53 @@ export interface VehiculoDto {
   permisoAcceso?: NivelPermisoCompartido;
 }
 
+/** Datos para crear extensión Marketplace */
+export interface VehiculoMarketplaceCreateData {
+  precio?: number;
+  moneda?: string;
+  kilometraje?: number;
+  descripcion?: string;
+  estado?: number; // EstadoPublicacion enum
+  destacado?: boolean;
+}
+
+/** Datos para crear extensión Alquiler */
+export interface VehiculoAlquilerCreateData {
+  categoriaId: string;
+  sucursalBaseId?: string;
+  estado?: number; // EstadoVehiculoAlquiler enum
+  disponibleDesdeUtc?: string;
+  disponibleHastaUtc?: string;
+  kilometrosMaxDia?: number;
+  notas?: string;
+}
+
+/** Datos para crear extensión Taxi */
+export interface VehiculoTaxiCreateData {
+  numeroLicencia?: string;
+  numeroInterno?: string;
+  habilitadoParaServicio?: boolean;
+  vencimientoVTV?: string;
+  vencimientoSeguro?: string;
+}
+
+/** Datos para crear extensión Aseguradora */
+export interface VehiculoAseguradoraCreateData {
+  numeroPoliza?: string;
+  fechaInicioCobertura?: string;
+  fechaVencimientoPoliza?: string;
+  companiaAseguradora?: string;
+  valorAsegurado?: number;
+  tipoCobertura?: string;
+}
+
+/** Datos para crear extensión Otros */
+export interface VehiculoOtrosCreateData {
+  tipoContexto: string;
+  descripcion?: string;
+  metadatosJson?: string;
+}
+
 /** Request to create a vehicle */
 export interface CreateVehiculoRequest {
   tipo: TipoVehiculo;
@@ -39,6 +97,12 @@ export interface CreateVehiculoRequest {
   marca?: string;
   modelo?: string;
   anio?: number;
+  extensionesSolicitadas?: TipoExtensionVehiculo;
+  datosMarketplace?: VehiculoMarketplaceCreateData;
+  datosAlquiler?: VehiculoAlquilerCreateData;
+  datosTaxi?: VehiculoTaxiCreateData;
+  datosAseguradora?: VehiculoAseguradoraCreateData;
+  datosOtros?: VehiculoOtrosCreateData;
 }
 
 /** Request to update a vehicle */

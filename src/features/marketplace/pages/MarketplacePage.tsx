@@ -631,7 +631,7 @@ export function MarketplacePage() {
                 {t('common.cancel')}
               </Button>
               <Button onClick={handleCreate} disabled={isCreating}>
-                {isCreating ? t('marketplace.creating') : t('common.save')}
+                {isCreating ? t('marketplace.actions.creating') : t('common.save')}
               </Button>
             </div>
           </div>

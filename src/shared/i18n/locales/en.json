@@ -142,6 +142,58 @@
       "active": "Active vehicle",
       "vehicleLabel": "Vehicle"
     },
+    "extensions": {
+      "insurance": {
+        "title": "Insurance Information",
+        "description": "Complete vehicle insurance information (optional)",
+        "policyNumber": "Policy Number",
+        "policyNumberPlaceholder": "Ex: POL-123456",
+        "insuranceCompany": "Insurance Company",
+        "insuranceCompanyPlaceholder": "Ex: ABC Insurance",
+        "coverageType": "Coverage Type",
+        "coverageTypePlaceholder": "Ex: Comprehensive, Liability",
+        "insuredValue": "Insured Value",
+        "insuredValuePlaceholder": "Ex: 5000000",
+        "coverageStartDate": "Coverage Start Date",
+        "policyExpiryDate": "Policy Expiry Date"
+      },
+      "rental": {
+        "title": "Rental Information",
+        "description": "Complete vehicle rental information",
+        "categoryId": "Rental Category",
+        "categoryIdPlaceholder": "Category ID (required)",
+        "baseBranchId": "Base Branch",
+        "baseBranchIdPlaceholder": "Base branch ID (optional)",
+        "maxKmPerDay": "Max Kilometers Per Day",
+        "maxKmPerDayPlaceholder": "Ex: 200",
+        "availableFrom": "Available From",
+        "availableUntil": "Available Until",
+        "notes": "Notes",
+        "notesPlaceholder": "Additional notes about the vehicle"
+      },
+      "taxi": {
+        "title": "Taxi Information",
+        "description": "Complete vehicle taxi service information (optional)",
+        "licenseNumber": "License Number",
+        "licenseNumberPlaceholder": "Ex: LIC-12345",
+        "internalNumber": "Internal Number",
+        "internalNumberPlaceholder": "Ex: INT-001",
+        "enabledForService": "Enabled for Service",
+        "vtvExpiry": "VTV Expiry",
+        "insuranceExpiry": "Insurance Expiry"
+      },
+      "others": {
+        "title": "Additional Information",
+        "description": "Complete additional vehicle information",
+        "contextType": "Context Type",
+        "contextTypePlaceholder": "Ex: CorporateFleet, PrivateVehicle",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Additional context description",
+        "metadataJson": "Metadata JSON",
+        "metadataJsonPlaceholder": "{}",
+        "metadataJsonHint": "Additional metadata in JSON format (optional)"
+      }
+    },
     "table": {
       "unassigned": "Unassigned",
       "changeDevice": "Change device",

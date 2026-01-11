@@ -172,6 +172,58 @@
       "active": "Vehículo activo",
       "vehicleLabel": "Vehículo"
     },
+    "extensions": {
+      "insurance": {
+        "title": "Información de Seguro",
+        "description": "Complete los datos del seguro del vehículo (opcional)",
+        "policyNumber": "Número de Póliza",
+        "policyNumberPlaceholder": "Ej: POL-123456",
+        "insuranceCompany": "Compañía Aseguradora",
+        "insuranceCompanyPlaceholder": "Ej: Seguros ABC",
+        "coverageType": "Tipo de Cobertura",
+        "coverageTypePlaceholder": "Ej: Todo Riesgo, Responsabilidad Civil",
+        "insuredValue": "Valor Asegurado",
+        "insuredValuePlaceholder": "Ej: 5000000",
+        "coverageStartDate": "Fecha de Inicio de Cobertura",
+        "policyExpiryDate": "Fecha de Vencimiento de Póliza"
+      },
+      "rental": {
+        "title": "Información de Alquiler",
+        "description": "Complete los datos del vehículo para alquiler",
+        "categoryId": "Categoría de Alquiler",
+        "categoryIdPlaceholder": "ID de categoría (requerido)",
+        "baseBranchId": "Sucursal Base",
+        "baseBranchIdPlaceholder": "ID de sucursal base (opcional)",
+        "maxKmPerDay": "Kilómetros Máximos por Día",
+        "maxKmPerDayPlaceholder": "Ej: 200",
+        "availableFrom": "Disponible Desde",
+        "availableUntil": "Disponible Hasta",
+        "notes": "Notas",
+        "notesPlaceholder": "Notas adicionales sobre el vehículo"
+      },
+      "taxi": {
+        "title": "Información de Taxi",
+        "description": "Complete los datos del vehículo para servicio de taxi (opcional)",
+        "licenseNumber": "Número de Licencia",
+        "licenseNumberPlaceholder": "Ej: LIC-12345",
+        "internalNumber": "Número Interno",
+        "internalNumberPlaceholder": "Ej: INT-001",
+        "enabledForService": "Habilitado para Servicio",
+        "vtvExpiry": "Vencimiento VTV",
+        "insuranceExpiry": "Vencimiento Seguro"
+      },
+      "others": {
+        "title": "Información Adicional",
+        "description": "Complete los datos adicionales del vehículo",
+        "contextType": "Tipo de Contexto",
+        "contextTypePlaceholder": "Ej: FlotaCorporativa, VehículoPrivado",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Descripción adicional del contexto",
+        "metadataJson": "Metadatos JSON",
+        "metadataJsonPlaceholder": "{}",
+        "metadataJsonHint": "Metadatos adicionales en formato JSON (opcional)"
+      }
+    },
     "table": {
       "unassigned": "Sin asignar",
       "changeDevice": "Cambiar dispositivo",
