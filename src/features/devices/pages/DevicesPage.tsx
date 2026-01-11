@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
 import { dispositivosApi } from '@/services/endpoints';
-import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
 import { GestionarComparticionModal } from '@/features/organization';
+
+const deviceFiltersConfig: FilterConfig[] = [
+  { key: 'soloActivos', label: 'Solo Activos / Active Only', type: 'boolean' },
+];
 
 export function DevicesPage() {
   const { t } = useTranslation();
@@ -19,12 +23,20 @@ export function DevicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Hook de paginaciรณn reutilizable
+  // Hook de paginación reutilizable
   const {
     setNumeroPagina,
     setTamanoPagina,
     params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
+
+  // Filters hook
+  const {
+    filters,
+    setFilter,
+    clearFilters
+  } = useTableFilters({ soloActivos: 'true' });
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -58,7 +70,15 @@ export function DevicesPage() {
       if (import.meta.env.DEV) {
         console.log('[DevicesPage] Loading devices...');
       }
-      const result = await dispositivosApi.getDispositivos(paginationParams);
+      // Prepare params
+      const backendParams: any = {
+        ...paginationParams,
+      };
+      if (filters.soloActivos !== undefined) {
+        backendParams.soloActivos = filters.soloActivos === 'true';
+      }
+
+      const result = await dispositivosApi.getDispositivos(backendParams);
       setDevicesData(result);
       if (import.meta.env.DEV) {
         console.log('[DevicesPage] Devices loaded:', result.items, 'Total:', result.totalRegistros);
@@ -71,7 +91,7 @@ export function DevicesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams]);
+  }, [paginationParams, filters]);
 
   // Extraer items para compatibilidad
   const devices = devicesData?.items ?? [];
@@ -80,6 +100,7 @@ export function DevicesPage() {
   useEffect(() => {
     void loadDevices();
   }, [loadDevices]);
+
 
   // Ajustar automรกticamente si la pรกgina actual excede el total de pรกginas
   useEffect(() => {
@@ -472,6 +493,13 @@ export function DevicesPage() {
           </Button>
         )}
       </div>
+
+      <AdvancedFilterBar
+        config={deviceFiltersConfig}
+        filters={filters}
+        onFilterChange={setFilter}
+        onClearFilters={clearFilters}
+      />
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -13,6 +13,8 @@
     "confirm": "Confirmar",
     "yes": "Sí",
     "no": "No",
+    "all": "Todos",
+    "apply": "Aplicar",
     "and": "y",
     "actions": "Acciones",
     "status": "Estado",
@@ -112,7 +114,10 @@
       "text": "Filtrar...",
       "select": "Todos"
     },
-    "noResults": "No se encontraron resultados con los filtros activos."
+    "noResults": "No se encontraron resultados con los filtros activos.",
+    "noFiltersActive": "No hay filtros activos",
+    "clearAll": "Limpiar todo",
+    "description": "Utilice los siguientes campos para filtrar los resultados de la tabla."
   },
   "header": {
     "darkMode": "Modo oscuro",

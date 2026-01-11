@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, Plus, AlertCircle } from 'lucide-react';
-import { Card, Button, ConfirmationModal, PaginationControls } from '@/shared/ui';
-import { usePermissions } from '@/hooks';
+import { Card, Button, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
+import { usePermissions, useTableFilters } from '@/hooks';
 import { useDriversPage } from '../hooks/useDriversPage';
-import { DriversFilters } from '../components/DriversFilters';
 import { DriversTable } from '../components/DriversTable';
 import { CreateDriverModal } from '../components/CreateDriverModal';
 import { EditDriverModal } from '../components/EditDriverModal';
@@ -15,12 +14,24 @@ import { GestionarComparticionModal } from '@/features/organization';
 import type { TipoRecurso } from '@/shared/types/api';
 import type { ConductorDto } from '../types';
 
+const driverFiltersConfig: FilterConfig[] = [
+  { key: 'buscar', label: 'Buscar / Search', type: 'text', placeholder: 'Nombre, DNI...' },
+  { key: 'soloActivos', label: 'Solo Activos / Active Only', type: 'boolean' },
+];
+
 export function DriversPage() {
   const { t } = useTranslation();
   const { can } = usePermissions();
   const canEdit = can('conductores:editar');
   const canCreate = can('conductores:crear');
   const canDelete = can('conductores:eliminar');
+
+  // Filters hook
+  const {
+    filters,
+    setFilter,
+    clearFilters
+  } = useTableFilters({ soloActivos: 'true' });
 
   // Sharing modal state
   const [conductorToShare, setConductorToShare] = useState<ConductorDto | null>(null);
@@ -34,11 +45,6 @@ export function DriversPage() {
     isLoading,
     error,
 
-    // Filters
-    buscar,
-    setBuscar,
-    soloActivos,
-    setSoloActivos,
     setNumeroPagina,
     setTamanoPagina,
 
@@ -98,7 +104,7 @@ export function DriversPage() {
     // Helpers
     formatDate,
     formatDateTime,
-  } = useDriversPage();
+  } = useDriversPage({ filters });
 
   const conductores = conductoresData?.items ?? [];
 
@@ -163,11 +169,11 @@ export function DriversPage() {
       </div>
 
       {/* Filters */}
-      <DriversFilters
-        buscar={buscar}
-        onBuscarChange={setBuscar}
-        soloActivos={soloActivos}
-        onSoloActivosChange={setSoloActivos}
+      <AdvancedFilterBar
+        config={driverFiltersConfig}
+        filters={filters}
+        onFilterChange={setFilter}
+        onClearFilters={clearFilters}
       />
 
       {/* Table */}
@@ -208,7 +214,7 @@ export function DriversPage() {
             <User size={48} className="text-text-muted mb-4" />
             <h3 className="text-lg font-semibold text-text mb-2">{t('drivers.empty')}</h3>
             <p className="text-text-muted text-center max-w-md mb-4">
-              {buscar || soloActivos
+              {Object.keys(filters).length > 0
                 ? t('drivers.emptyFiltered')
                 : t('drivers.emptyDescription')}
             </p>

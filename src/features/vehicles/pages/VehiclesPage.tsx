@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
 import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -14,6 +14,14 @@ import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
 import { GestionarComparticionModal } from '@/features/organization';
 import { CreateVehicleModal } from '../components/CreateVehicleModal';
+
+const vehicleFiltersConfig: FilterConfig[] = [
+  { key: 'patente', label: 'Patente / License Plate', type: 'text', placeholder: 'AA000AA' },
+  { key: 'marca', label: 'Marca / Brand', type: 'text' },
+  { key: 'modelo', label: 'Modelo / Model', type: 'text' },
+  { key: 'anio', label: 'Año / Year', type: 'number' },
+  { key: 'activo', label: 'Estado / Status', type: 'boolean' },
+];
 
 export function VehiclesPage() {
   const { t } = useTranslation();
@@ -38,8 +46,6 @@ export function VehiclesPage() {
   const {
     filters,
     setFilter,
-    toggleFilters,
-    showFilters,
     clearFilters,
     queryParams: filterParams
   } = useTableFilters();
@@ -229,7 +235,6 @@ export function VehiclesPage() {
       key: 'patente',
       header: t('vehicles.licensePlate'),
       sortable: true,
-      filter: { type: 'text' as const, placeholder: t('filters.placeholder.text') }
     },
     {
       key: 'vehiculo',
@@ -238,7 +243,6 @@ export function VehiclesPage() {
         const parts = [v.marca, v.modelo, v.anio].filter(Boolean);
         return parts.length > 0 ? parts.join(' ') : '-';
       },
-      filter: { type: 'text' as const, field: 'marca', placeholder: t('vehicles.form.brand') }
     },
     {
       key: 'dispositivo',
@@ -261,7 +265,6 @@ export function VehiclesPage() {
           {v.activo ? t('common.active') : t('common.inactive')}
         </Badge>
       ),
-      filter: { type: 'boolean' as const }
     },
     {
       key: 'compartidoCon',
@@ -516,20 +519,22 @@ export function VehiclesPage() {
         </Card>
       </div>
 
+      <AdvancedFilterBar
+        config={vehicleFiltersConfig}
+        filters={filters}
+        onFilterChange={(key, value) => {
+          const op = ['activo', 'anio'].includes(key) ? 'eq' : 'contains';
+          setFilter(key, value, op);
+        }}
+        onClearFilters={clearFilters}
+      />
+
       <Card padding="none">
         <Table
           columns={columns}
           data={vehicles}
           keyExtractor={(v) => v.id}
-          enableFilters={true}
-          showFilters={showFilters}
-          onToggleFilters={toggleFilters}
-          filters={filters}
-          onFilterChange={(field, value) => {
-            const op = ['activo'].includes(field) ? 'eq' : 'contains';
-            setFilter(field, value, op);
-          }}
-          onClearFilters={clearFilters}
+          enableFilters={false}
           emptyMessage={hasActiveFilters ? t('filters.noResults') : t('common.noData')}
         />
         {vehiclesData && vehiclesData.totalRegistros > 0 && (
@@ -658,18 +663,16 @@ export function VehiclesPage() {
       </Modal>
 
       {/* Modal de Gestión de Compartición */}
-      {
-        vehicleToShare && (
-          <GestionarComparticionModal
-            isOpen={!!vehicleToShare}
-            onClose={() => setVehicleToShare(null)}
-            resourceId={vehicleToShare.id}
-            resourceType={1 as TipoRecurso} // TipoRecurso.Vehiculo
-            resourceName={vehicleToShare.patente}
-            onSuccess={loadData}
-          />
-        )
-      }
-    </div >
+      {vehicleToShare && (
+        <GestionarComparticionModal
+          isOpen={!!vehicleToShare}
+          onClose={() => setVehicleToShare(null)}
+          resourceId={vehicleToShare.id}
+          resourceType={1 as TipoRecurso} // TipoRecurso.Vehiculo
+          resourceName={vehicleToShare.patente}
+          onSuccess={loadData}
+        />
+      )}
+    </div>
   );
 }

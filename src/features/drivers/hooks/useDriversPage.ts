@@ -12,7 +12,12 @@ import type {
 import type { ListaPaginada, DispositivoDto } from '@/shared/types/api';
 import type { VehiculoDto } from '@/features/vehicles/types';
 
-export function useDriversPage() {
+
+export interface UseDriversPageProps {
+  filters?: Record<string, any>;
+}
+
+export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   const { t } = useTranslation();
   // Error handling
   const { getErrorMessage } = useErrorHandler();
@@ -23,10 +28,6 @@ export function useDriversPage() {
   const [dispositivos, setDispositivos] = useState<DispositivoDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Filtros
-  const [buscar, setBuscar] = useState('');
-  const [soloActivos, setSoloActivos] = useState<boolean | null>(null);
 
   // Hook de paginación
   const {
@@ -103,12 +104,19 @@ export function useDriversPage() {
     setIsLoading(true);
     setError(null);
     try {
+      // Map Unified Filters to Backend Params
+      const backendParams: any = {
+        ...paginationParams,
+      };
+
+      if (filters.buscar) backendParams.buscar = filters.buscar;
+      // Handle soloActivos specifically as boolean
+      if (filters.soloActivos !== undefined && filters.soloActivos !== '') {
+        backendParams.soloActivos = filters.soloActivos === 'true' || filters.soloActivos === true;
+      }
+
       const [conductoresResult, vehiculosResult, dispositivosResult] = await Promise.all([
-        conductoresApi.listar({
-          ...paginationParams,
-          soloActivos: soloActivos ?? undefined,
-          buscar: buscar.trim() || undefined,
-        }),
+        conductoresApi.listar(backendParams),
         vehiculosApi.getVehiculos({ tamanoPagina: 100 }),
         dispositivosApi.getDispositivos({ tamanoPagina: 100 }),
       ]);
@@ -120,7 +128,7 @@ export function useDriversPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, soloActivos, buscar]);
+  }, [paginationParams, filters]);
 
   useEffect(() => {
     void loadData();
@@ -440,11 +448,7 @@ export function useDriversPage() {
     isLoading,
     error,
 
-    // Filters
-    buscar,
-    setBuscar,
-    soloActivos,
-    setSoloActivos,
+    // Filters exposed for simple UI if needed, but primary logic is now external
     paginationParams,
     setNumeroPagina,
     setTamanoPagina,
