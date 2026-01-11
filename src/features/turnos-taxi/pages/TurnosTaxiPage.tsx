@@ -102,39 +102,39 @@ export function TurnosTaxiPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t('turnosTaxi.titulo', 'Turnos de Taxi')}
+            {t('turnosTaxi.titulo')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t('turnosTaxi.subtitulo', 'Gestiona los turnos y zonas de operación de tus vehículos')}
+            {t('turnosTaxi.subtitulo')}
           </p>
         </div>
 
         <Button variant="primary" onClick={handleOpenCreate}>
-          + {t('turnosTaxi.nuevoTurno', 'Nuevo Turno')}
+          + {t('turnosTaxi.nuevoTurno')}
         </Button>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <KPICard
-          title={t('turnosTaxi.totalTurnos', 'Total Turnos')}
+          title={t('turnosTaxi.totalTurnos')}
           value={totalRegistros}
           icon={Calendar}
         />
         <KPICard
-          title={t('turnosTaxi.turnosActivos', 'Turnos Activos')}
+          title={t('turnosTaxi.turnosActivos')}
           value={turnosActivos.length}
           icon={CheckCircle}
           color="success"
         />
         <KPICard
-          title={t('turnosTaxi.enCursoAhora', 'En Curso Ahora')}
+          title={t('turnosTaxi.enCursoAhora')}
           value={turnosEnCurso.length}
           icon={Car}
           color="primary"
         />
         <KPICard
-          title={t('turnosTaxi.conGeofence', 'Con Zona Asignada')}
+          title={t('turnosTaxi.conGeofence')}
           value={turnosConGeofence.length}
           icon={MapPin}
         />
@@ -163,7 +163,7 @@ export function TurnosTaxiPage() {
                 : 'text-text-muted hover:text-text'
                 }`}
             >
-              📋 {t('turnosTaxi.vistaTabla', 'Tabla')}
+              📋 {t('turnosTaxi.vistaTabla')}
             </button>
             <button
               onClick={() => setVistaActual('timeline')}
@@ -172,7 +172,7 @@ export function TurnosTaxiPage() {
                 : 'text-text-muted hover:text-text'
                 }`}
             >
-              📅 {t('turnosTaxi.vistaTimeline', 'Timeline')}
+              📅 {t('turnosTaxi.vistaTimeline')}
             </button>
           </div>
 
@@ -239,9 +239,9 @@ export function TurnosTaxiPage() {
         isOpen={!!turnoAEliminar}
         onClose={() => setTurnoAEliminar(null)}
         onConfirm={handleConfirmDelete}
-        title={t('turnosTaxi.confirmarEliminar', 'Eliminar Turno')}
-        description={t('turnosTaxi.confirmarEliminarMsg', '¿Estás seguro de que deseas eliminar el turno "{{nombre}}"? Esta acción no se puede deshacer.', { nombre: turnoAEliminar?.nombre })}
-        confirmText={t('common.eliminar', 'Eliminar')}
+        title={t('turnosTaxi.confirmarEliminar')}
+        description={t('turnosTaxi.confirmarEliminarMsg', { nombre: turnoAEliminar?.nombre })}
+        confirmText={t('common.delete')}
         variant="danger"
       />
 
@@ -250,9 +250,9 @@ export function TurnosTaxiPage() {
         isOpen={!!turnoADuplicar}
         onClose={() => setTurnoADuplicar(null)}
         onConfirm={handleConfirmDuplicate}
-        title={t('turnosTaxi.duplicarTurno', 'Duplicar Turno')}
-        description={t('turnosTaxi.confirmarDuplicarMsg', '¿Deseas crear una copia del turno "{{nombre}}"?', { nombre: turnoADuplicar?.nombre })}
-        confirmText={t('turnosTaxi.duplicar', 'Duplicar')}
+        title={t('turnosTaxi.duplicarTurno')}
+        description={t('turnosTaxi.confirmarDuplicarMsg', { nombre: turnoADuplicar?.nombre })}
+        confirmText={t('turnosTaxi.duplicar')}
         variant="info"
       />
     </div>

@@ -141,7 +141,7 @@ export function CrearRelacionModal({
               </p>
             )}
             <p className="text-xs text-text-muted mt-2">
-              Seleccione la organización con la que desea compartir o recibir recursos. Se enviará una solicitud a sus administradores.
+              {t('organization.relations.create.description')}
             </p>
           </div>
 
@@ -158,7 +158,7 @@ export function CrearRelacionModal({
               </span>
             </label>
             <p className="text-xs text-text-muted mt-1 ml-6">
-              Si se marca, se ofrecerá acceso a sus vehículos, conductores y dispositivos a la otra organización.
+              {t('organization.relations.create.autoShareDescription')}
             </p>
           </div>
 

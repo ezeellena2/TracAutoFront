@@ -215,11 +215,11 @@ export function GestionarComparticionModal({
     const getEstadoBadge = (estado: EstadoLocal) => {
         switch (estado) {
             case 'compartido':
-                return <Badge variant="success">Compartido</Badge>;
+                return <Badge variant="success">{t('organization.sharing.statusShared')}</Badge>;
             case 'excluido':
-                return <Badge variant="error">Excluido</Badge>;
+                return <Badge variant="error">{t('organization.sharing.statusExcluded')}</Badge>;
             default:
-                return <Badge variant="default">Disponible</Badge>;
+                return <Badge variant="default">{t('organization.sharing.statusAvailable')}</Badge>;
         }
     };
 
@@ -276,18 +276,23 @@ export function GestionarComparticionModal({
                 </div>
 
                 {/* Leyenda de estados */}
-                <div className="flex flex-wrap gap-3 text-sm">
-                    <div className="flex items-center gap-1.5">
-                        <Badge variant="default">Disponible</Badge>
-                        <span className="text-text-muted">- No compartido</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <Badge variant="success">Compartido</Badge>
-                        <span className="text-text-muted">- Visible para la otra org</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <Badge variant="error">Excluido</Badge>
-                        <span className="text-text-muted">- Bloqueado</span>
+                <div className="bg-ground border border-border rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-text mb-3">
+                        {t('organization.sharing.statusLegend', 'Estados de compartición')}
+                    </h5>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3 p-2 rounded hover:bg-surface-hover transition-colors">
+                            <Badge variant="default">{t('organization.sharing.statusAvailable')}</Badge>
+                            <span className="text-sm text-text-muted flex-1">{t('organization.sharing.statusAvailableDesc')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded hover:bg-surface-hover transition-colors">
+                            <Badge variant="success">{t('organization.sharing.statusShared')}</Badge>
+                            <span className="text-sm text-text-muted flex-1">{t('organization.sharing.statusSharedDesc')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded hover:bg-surface-hover transition-colors">
+                            <Badge variant="error">{t('organization.sharing.statusExcluded')}</Badge>
+                            <span className="text-sm text-text-muted flex-1">{t('organization.sharing.statusExcludedDesc')}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -303,7 +308,9 @@ export function GestionarComparticionModal({
                         <span>{t('organization.sharing.relations', 'Relaciones')}</span>
                         {relaciones.length > 0 && (
                             <span className="text-text-muted font-normal">
-                                {relaciones.length} {relaciones.length === 1 ? 'relación' : 'relaciones'}
+                                {relaciones.length} {relaciones.length === 1 
+                                    ? t('organization.sharing.relation') 
+                                    : t('organization.sharing.relations_plural')}
                             </span>
                         )}
                     </h4>
@@ -337,7 +344,7 @@ export function GestionarComparticionModal({
                                             </div>
                                             {rel.estadoLocal === 'compartido' && rel.fechaCompartido && (
                                                 <div className="text-xs text-text-muted">
-                                                    Desde {formatDate(rel.fechaCompartido, culture, timeZoneId)}
+                                                    {t('organization.sharing.since')} {formatDate(rel.fechaCompartido, culture, timeZoneId)}
                                                 </div>
                                             )}
                                             {rel.estadoLocal === 'excluido' && rel.motivoExclusion && (
@@ -360,13 +367,13 @@ export function GestionarComparticionModal({
                                                     onChange={() => { }}
                                                     className="w-3.5 h-3.5 accent-primary rounded"
                                                 />
-                                                <span>Gestión</span>
+                                                <span>{t('organization.sharing.management')}</span>
                                             </label>
                                         )}
                                         {getEstadoBadge(rel.estadoLocal)}
                                         {rel.modificado && (
                                             <span className="text-xs text-primary font-medium">
-                                                (modificado)
+                                                {t('organization.sharing.modified')}
                                             </span>
                                         )}
                                     </div>

@@ -45,7 +45,7 @@ export function ResponderSolicitudModal({
                 ? 'organization.relations.success.accepted'
                 : 'organization.relations.success.rejected';
 
-            toast.success(t(messageKey, aceptar ? 'Solicitud aceptada' : 'Solicitud rechazada'));
+            toast.success(t(messageKey));
             onSuccess();
             onClose();
         } catch (err) {
@@ -69,11 +69,17 @@ export function ResponderSolicitudModal({
 
                 <div className="mb-6">
                     <p className="text-text mb-2">
-                        La organización <strong>{solicitud.solicitanteOrganizacionNombre}</strong> desea vincularse con su organización.
+                        {t('organization.relations.respond.organizationWantsToLink', {
+                            name: solicitud.solicitanteOrganizacionNombre
+                        }).split('<strong>')[0]}
+                        <strong>{solicitud.solicitanteOrganizacionNombre}</strong>
+                        {t('organization.relations.respond.organizationWantsToLink', {
+                            name: solicitud.solicitanteOrganizacionNombre
+                        }).split('</strong>')[1]}
                     </p>
                     <div className="bg-background-secondary p-3 rounded-lg border border-border">
                         <p className="text-sm text-text-muted">
-                            Al aceptar, se establecerá una relación que permitirá compartir recursos según la configuración de cada parte.
+                            {t('organization.relations.respond.acceptDescription')}
                         </p>
                     </div>
                 </div>
@@ -91,7 +97,9 @@ export function ResponderSolicitudModal({
                         </span>
                     </label>
                     <p className="text-xs text-text-muted mt-1 ml-6">
-                        Si marca esta opción, sus vehículos, conductores y dispositivos serán visibles para {solicitud.solicitanteOrganizacionNombre}.
+                        {t('organization.relations.respond.shareResourcesDescription', {
+                            name: solicitud.solicitanteOrganizacionNombre
+                        })}
                     </p>
                 </div>
 

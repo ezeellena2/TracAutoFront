@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link2, Inbox, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Link2, Inbox, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { Card, Button, PaginationControls } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useErrorHandler } from '@/hooks';
@@ -49,6 +49,12 @@ export function RelacionesOrganizacionPage() {
   const { can } = usePermissions();
   const canManage = can('usuarios:editar'); // TODO: Permission for relations?
 
+  // Ref for error handler to avoid dependency in useCallback
+  const getErrorMessageRef = useRef(getErrorMessage);
+  useEffect(() => {
+    getErrorMessageRef.current = getErrorMessage;
+  }, [getErrorMessage]);
+
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -65,28 +71,24 @@ export function RelacionesOrganizacionPage() {
       setRelacionesData(relResult);
       setPendingRequests(pendingResult);
     } catch (err) {
-      setError(getErrorMessage(err));
+      setError(getErrorMessageRef.current(err));
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, getErrorMessage]);
-
-  useEffect(() => {
-    if (organizacionId) {
-      loadData();
-    }
-  }, [loadData, organizacionId]);
+  }, [paginationParams]); // getErrorMessage removed from dependencies
 
   // Auto-ajustar página si excede el total (ej: después de eliminar registros)
+  const totalPaginas = relacionesData?.totalPaginas ?? 0;
+  const paginaActual = relacionesData?.paginaActual ?? 1;
+
   useEffect(() => {
     if (
-      relacionesData &&
-      relacionesData.totalPaginas > 0 &&
-      relacionesData.paginaActual > relacionesData.totalPaginas
+      totalPaginas > 0 &&
+      paginaActual > totalPaginas
     ) {
-      setNumeroPagina(relacionesData.totalPaginas);
+      setNumeroPagina(totalPaginas);
     }
-  }, [relacionesData, setNumeroPagina]);
+  }, [totalPaginas, paginaActual, setNumeroPagina]);
 
   const handleDelete = async (relacionId: string) => {
     // Confirmation handled by RelacionesTable -> ConfirmationModal
@@ -148,7 +150,7 @@ export function RelacionesOrganizacionPage() {
         <div className="space-y-3">
           <h3 className="text-lg font-semibold text-text flex items-center gap-2">
             <Inbox size={20} className="text-primary" />
-            Solicitudes Pendientes
+            {t('organization.relations.pendingRequests.title')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingRequests.map((req) => (
@@ -157,7 +159,9 @@ export function RelacionesOrganizacionPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="text-xs font-semibold text-warning uppercase tracking-wider">
-                        {req.esSolicitante ? 'Enviada' : 'Recibida'}
+                        {req.esSolicitante
+                          ? t('organization.relations.pendingRequests.sent')
+                          : t('organization.relations.pendingRequests.received')}
                       </span>
                       <h4 className="font-medium text-text mt-1">
                         {req.esSolicitante ? req.destinoOrganizacionNombre : req.solicitanteOrganizacionNombre}
@@ -180,12 +184,24 @@ export function RelacionesOrganizacionPage() {
                       className="w-full"
                       onClick={() => setRelacionToRespond(req)}
                     >
-                      Gestionar Solicitud
+                      {t('organization.relations.pendingRequests.manageRequest')}
                     </Button>
                   )}
                   {req.esSolicitante && (
-                    <div className="text-xs text-text-muted italic text-center py-1">
-                      Esperando respuesta...
+                    <div className="space-y-2">
+                      <div className="text-xs text-text-muted italic text-center">
+                        {t('organization.relations.pendingRequests.waitingResponse')}
+                      </div>
+                      {canManage && (
+                        <Button
+                          variant="outline"
+                          className="w-full !text-red-600 !border-red-600 hover:!bg-red-50"
+                          onClick={() => setRelacionToDelete(req.id)}
+                        >
+                          <Trash2 size={16} className="mr-2" />
+                          {t('organization.relations.pendingRequests.cancelRequest')}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

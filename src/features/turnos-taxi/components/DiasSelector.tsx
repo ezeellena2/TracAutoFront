@@ -75,14 +75,14 @@ export function DiasSelector({
       className={`flex flex-col gap-2 ${className}`}
       role="group"
       aria-labelledby={showLabel ? labelId : undefined}
-      aria-label={!showLabel ? t('turnosTaxi.diasActivos', 'Días activos') : undefined}
+      aria-label={!showLabel ? t('turnosTaxi.diasActivos') : undefined}
     >
       {showLabel && (
         <label 
           id={labelId}
           className="text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          {t('turnosTaxi.diasActivos', 'Días activos')}
+          {t('turnosTaxi.diasActivos')}
         </label>
       )}
       
@@ -91,7 +91,7 @@ export function DiasSelector({
         className="flex items-center gap-1"
         role="listbox"
         aria-multiselectable="true"
-        aria-label={t('turnosTaxi.seleccionarDias', 'Seleccionar días de la semana')}
+        aria-label={t('turnosTaxi.seleccionarDias')}
       >
         {DIAS_ORDEN.map((dia) => {
           const isSelected = value.includes(dia);
@@ -129,32 +129,32 @@ export function DiasSelector({
 
       {/* Shortcuts */}
       {!disabled && (
-        <div className="flex gap-2 text-xs" role="group" aria-label={t('turnosTaxi.atajosRapidos', 'Atajos rápidos')}>
+        <div className="flex gap-2 text-xs" role="group" aria-label={t('turnosTaxi.atajosRapidos')}>
           <button
             type="button"
             onClick={selectAll}
-            aria-label={t('turnosTaxi.seleccionarTodos', 'Seleccionar todos los días')}
+            aria-label={t('turnosTaxi.seleccionarTodos')}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:underline"
           >
-            {t('turnosTaxi.todosDias', 'Todos')}
+            {t('turnosTaxi.todosDias')}
           </button>
           <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">|</span>
           <button
             type="button"
             onClick={selectWeekdays}
-            aria-label={t('turnosTaxi.seleccionarLunesViernes', 'Seleccionar lunes a viernes')}
+            aria-label={t('turnosTaxi.seleccionarLunesViernes')}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:underline"
           >
-            {t('turnosTaxi.lunesViernes', 'L-V')}
+            {t('turnosTaxi.lunesViernes')}
           </button>
           <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">|</span>
           <button
             type="button"
             onClick={selectWeekend}
-            aria-label={t('turnosTaxi.seleccionarFinSemana', 'Seleccionar sábado y domingo')}
+            aria-label={t('turnosTaxi.seleccionarFinSemana')}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:underline"
           >
-            {t('turnosTaxi.finSemana', 'S-D')}
+            {t('turnosTaxi.finSemana')}
           </button>
         </div>
       )}

@@ -59,12 +59,12 @@ export function GeofenceSelector({
     return (
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {t('turnosTaxi.geofences', 'Zonas geográficas')} 
-          <span className="text-gray-400 font-normal ml-1">({t('common.opcional', 'opcional')})</span>
+          {t('turnosTaxi.geofences')} 
+          <span className="text-gray-400 font-normal ml-1">({t('common.opcional')})</span>
         </label>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-          {t('common.cargando', 'Cargando...')}
+          {t('common.cargando')}
         </div>
       </div>
     );
@@ -89,7 +89,7 @@ export function GeofenceSelector({
             onClick={onRefresh}
             disabled={disabled}
             className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            title={t('common.refrescar', 'Refrescar')}
+            title={t('common.refrescar')}
           >
             🔄
           </button>
@@ -118,8 +118,8 @@ export function GeofenceSelector({
             >
               <span className="text-sm text-gray-700 dark:text-gray-300">
                 {value.length > 0 
-                  ? `${value.length} de ${disponibles.length} zonas seleccionadas`
-                  : `${disponibles.length} zonas disponibles`
+                  ? t('common.zonesSelectedCount', { count: value.length, total: disponibles.length })
+                  : `${disponibles.length} ${t('common.zonesAvailable')}`
                 }
               </span>
               <span className="text-gray-400">{isExpanded ? '▲' : '▼'}</span>
@@ -136,7 +136,7 @@ export function GeofenceSelector({
                     disabled={disabled}
                     className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
                   >
-                    {t('common.seleccionarTodos', 'Seleccionar todos')}
+                    {t('common.seleccionarTodos')}
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
@@ -145,7 +145,7 @@ export function GeofenceSelector({
                     disabled={disabled}
                     className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400"
                   >
-                    {t('common.limpiar', 'Limpiar')}
+                    {t('common.limpiar')}
                   </button>
                 </div>
 

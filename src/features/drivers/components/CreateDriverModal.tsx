@@ -68,7 +68,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
-      <div className="p-6 max-w-md w-full">
+      <div className="p-6 max-w-lg w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-text">{t('drivers.createDriver')}</h2>
           <button onClick={handleClose} className="text-text-muted hover:text-text">
@@ -77,33 +77,46 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label={t('drivers.form.fullNameLabel')}
-            value={form.nombreCompleto}
-            onChange={(e) => setForm({ ...form, nombreCompleto: e.target.value })}
-            placeholder={t('drivers.form.fullNamePlaceholder')}
-            error={errors.nombreCompleto}
-            required
-          />
-          <Input
-            label={t('drivers.form.dniLabel')}
-            value={form.dni || ''}
-            onChange={(e) => setForm({ ...form, dni: e.target.value })}
-            placeholder={t('drivers.form.dniPlaceholder')}
-          />
-          <Input
-            label={t('drivers.form.emailLabel')}
-            type="email"
-            value={form.email || ''}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder={t('drivers.form.emailPlaceholder')}
-          />
-          <Input
-            label={t('drivers.form.phoneLabel')}
-            value={form.telefono || ''}
-            onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-            placeholder={t('drivers.form.phonePlaceholder')}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Input
+                label={t('drivers.form.fullNameLabel')}
+                value={form.nombreCompleto}
+                onChange={(e) => setForm({ ...form, nombreCompleto: e.target.value })}
+                placeholder={t('drivers.form.fullNamePlaceholder')}
+                error={errors.nombreCompleto}
+                required
+              />
+            </div>
+
+            <div className="md:col-span-1">
+              <Input
+                label={t('drivers.form.dniLabel')}
+                value={form.dni || ''}
+                onChange={(e) => setForm({ ...form, dni: e.target.value })}
+                placeholder={t('drivers.form.dniPlaceholder')}
+              />
+            </div>
+
+            <div className="md:col-span-1">
+              <Input
+                label={t('drivers.form.emailLabel')}
+                type="email"
+                value={form.email || ''}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder={t('drivers.form.emailPlaceholder')}
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <Input
+                label={t('drivers.form.phoneLabel')}
+                value={form.telefono || ''}
+                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                placeholder={t('drivers.form.phonePlaceholder')}
+              />
+            </div>
+          </div>
 
 
           <div className="flex gap-3 pt-2">

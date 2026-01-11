@@ -91,23 +91,23 @@ export function TurnoTaxiModal({
     const newErrors: Record<string, string> = {};
 
     if (!form.nombre.trim()) {
-      newErrors.nombre = t('validation.requerido', 'Este campo es requerido');
+      newErrors.nombre = t('common.required');
     }
 
     if (!form.horaInicioLocal) {
-      newErrors.horaInicioLocal = t('validation.requerido', 'Este campo es requerido');
+      newErrors.horaInicioLocal = t('common.required');
     }
 
     if (!form.horaFinLocal) {
-      newErrors.horaFinLocal = t('validation.requerido', 'Este campo es requerido');
+      newErrors.horaFinLocal = t('common.required');
     }
 
     if (form.horaInicioLocal === form.horaFinLocal) {
-      newErrors.horaFinLocal = t('turnosTaxi.horasIguales', 'La hora de fin debe ser diferente a la de inicio');
+      newErrors.horaFinLocal = t('turnosTaxi.horasIguales');
     }
 
     if (form.diasActivos.length === 0) {
-      newErrors.diasActivos = t('turnosTaxi.minUnDia', 'Debe seleccionar al menos un día');
+      newErrors.diasActivos = t('turnosTaxi.minUnDia');
     }
 
     setErrors(newErrors);
@@ -169,8 +169,8 @@ export function TurnoTaxiModal({
       isOpen={isOpen}
       onClose={onClose}
       title={mode === 'create' 
-        ? t('turnosTaxi.crearTurno', 'Crear Turno') 
-        : t('turnosTaxi.editarTurno', 'Editar Turno')
+        ? t('turnosTaxi.crearTurno') 
+        : t('turnosTaxi.editarTurno')
       }
       size="lg"
     >
@@ -179,7 +179,7 @@ export function TurnoTaxiModal({
         {vehiculoPatente && (
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {t('turnosTaxi.vehiculo', 'Vehículo')}:
+              {t('turnosTaxi.vehiculo')}:
             </span>
             <span className="ml-2 font-medium text-gray-900 dark:text-white">
               {vehiculoPatente}
@@ -189,10 +189,10 @@ export function TurnoTaxiModal({
 
         {/* Nombre del turno */}
         <Input
-          label={t('turnosTaxi.nombre', 'Nombre del turno')}
+          label={t('turnosTaxi.nombre')}
           value={form.nombre}
           onChange={(e) => updateField('nombre', e.target.value)}
-          placeholder={t('turnosTaxi.nombrePlaceholder', 'Ej: Turno Mañana, Turno Noche...')}
+          placeholder={t('turnosTaxi.nombrePlaceholder')}
           error={errors.nombre}
           disabled={isSubmitting}
         />
@@ -204,8 +204,8 @@ export function TurnoTaxiModal({
             endValue={form.horaFinLocal}
             onStartChange={(v) => updateField('horaInicioLocal', v)}
             onEndChange={(v) => updateField('horaFinLocal', v)}
-            startLabel={t('turnosTaxi.horaInicio', 'Hora inicio')}
-            endLabel={t('turnosTaxi.horaFin', 'Hora fin')}
+            startLabel={t('turnosTaxi.horaInicio')}
+            endLabel={t('turnosTaxi.horaFin')}
             disabled={isSubmitting}
             startError={errors.horaInicioLocal}
             endError={errors.horaFinLocal}
@@ -257,7 +257,7 @@ export function TurnoTaxiModal({
               className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label htmlFor="activo" className="text-sm text-gray-700 dark:text-gray-300">
-              {t('turnosTaxi.turnoActivo', 'Turno activo')}
+              {t('turnosTaxi.turnoActivo')}
             </label>
           </div>
         )}
@@ -270,7 +270,7 @@ export function TurnoTaxiModal({
             onClick={onClose}
             disabled={isSubmitting}
           >
-            {t('common.cancelar', 'Cancelar')}
+            {t('common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -278,8 +278,8 @@ export function TurnoTaxiModal({
             isLoading={isSubmitting}
           >
             {mode === 'create' 
-              ? t('common.crear', 'Crear') 
-              : t('common.guardar', 'Guardar')
+              ? t('common.create') 
+              : t('common.save')
             }
           </Button>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 /**
  * Opciones de tamaño de página permitidas
@@ -100,7 +100,7 @@ export function usePaginationParams(
 
   // Efecto para validar si la página actual excede el total (ej: al eliminar registros)
   // Se usa useEffect porque totalPaginas puede cambiar asíncronamente
-  useMemo(() => {
+  useEffect(() => {
     if (totalPaginas !== undefined && totalPaginas > 0 && numeroPagina > totalPaginas) {
       setNumeroPaginaState(totalPaginas);
     }

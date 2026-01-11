@@ -421,7 +421,7 @@ export function AsignarRecursosModal({
                   checked={permisoGestion}
                   onChange={(e) => setPermisoGestion(e.target.checked)}
                 />
-                <span>Permitir gestión operativa de los recursos</span>
+                <span>{t('organization.relations.assign.allowOperationalManagement')}</span>
               </label>
             </div>
             <div className="flex gap-3">

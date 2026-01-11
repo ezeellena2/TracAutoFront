@@ -99,7 +99,7 @@ export function SimuladorHora({
       >
         <Clock size={16} className="text-text-muted" />
         <span className="text-text-muted">
-          {t('turnosTaxi.simuladorHora', 'Simulador de hora')}
+          {t('turnosTaxi.simuladorHora')}
         </span>
       </button>
     );
@@ -110,7 +110,7 @@ export function SimuladorHora({
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium text-text flex items-center gap-2">
           <Clock size={16} className="text-primary" />
-          {t('turnosTaxi.simuladorHora', 'Simulador de hora')}
+          {t('turnosTaxi.simuladorHora')}
         </h3>
         <button
           onClick={() => {
@@ -119,7 +119,7 @@ export function SimuladorHora({
           }}
           className="text-xs text-text-muted hover:text-text"
         >
-          ✕ {t('common.close', 'Cerrar')}
+          ✕ {t('common.close')}
         </button>
       </div>
 
@@ -127,7 +127,7 @@ export function SimuladorHora({
         {/* Selector de día */}
         <div>
           <label className="block text-xs text-text-muted mb-1">
-            {t('turnosTaxi.dia', 'Día')}
+            {t('turnosTaxi.dia')}
           </label>
           <select
             value={dia}
@@ -145,7 +145,7 @@ export function SimuladorHora({
         {/* Selector de hora */}
         <div>
           <label className="block text-xs text-text-muted mb-1">
-            {t('turnosTaxi.hora', 'Hora')}
+            {t('turnosTaxi.hora')}
           </label>
           <input
             type="time"
@@ -158,7 +158,7 @@ export function SimuladorHora({
         {/* Velocidad */}
         <div>
           <label className="block text-xs text-text-muted mb-1">
-            {t('turnosTaxi.velocidad', 'Velocidad')}
+            {t('turnosTaxi.velocidad')}
           </label>
           <select
             value={speed}
@@ -186,7 +186,7 @@ export function SimuladorHora({
             variant="ghost"
             size="sm"
             onClick={resetToNow}
-            title={t('turnosTaxi.resetHoraActual', 'Volver a hora actual')}
+            title={t('turnosTaxi.resetHoraActual')}
           >
             <RotateCcw size={16} />
           </Button>
@@ -196,7 +196,7 @@ export function SimuladorHora({
       {/* Indicador de hora simulada */}
       <div className="mt-3 px-3 py-2 bg-primary/10 rounded text-sm">
         <span className="text-primary font-medium">
-          {t('turnosTaxi.horaSimulada', 'Hora simulada')}: {DIAS_LABELS_LARGOS[dia]} {hora}
+          {t('turnosTaxi.horaSimulada')}: {DIAS_LABELS_LARGOS[dia]} {hora}
         </span>
       </div>
     </div>

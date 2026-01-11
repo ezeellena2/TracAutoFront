@@ -23,12 +23,10 @@ export function AlertaCruceMedianoche({ className = '' }: AlertBaseProps) {
       <Clock size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
       <div>
         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-          {t('turnosTaxi.alertaCruceMedianoche', 'Este turno cruza la medianoche')}
+          {t('turnosTaxi.alertaCruceMedianoche')}
         </p>
         <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-          {t('turnosTaxi.alertaCruceMedianocheDesc', 
-            'El turno comenzará el día seleccionado y terminará al día siguiente. Por ejemplo, si selecciona "Lunes" con horario 22:00-06:00, el turno irá desde el lunes a las 22:00 hasta el martes a las 06:00.'
-          )}
+          {t('turnosTaxi.alertaCruceMedianocheDesc')}
         </p>
       </div>
     </div>
@@ -50,12 +48,10 @@ export function AlertaSolapamiento({ turnosConflicto = [], className = '' }: Ale
       <AlertTriangle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
       <div>
         <p className="text-sm font-medium text-red-800 dark:text-red-200">
-          {t('turnosTaxi.alertaSolapamiento', 'Posible solapamiento detectado')}
+          {t('turnosTaxi.alertaSolapamiento')}
         </p>
         <p className="text-xs text-red-700 dark:text-red-300 mt-1">
-          {t('turnosTaxi.alertaSolapamientoDesc', 
-            'Este turno podría solaparse con otros turnos del mismo vehículo. Verifique que no haya conflictos de horario.'
-          )}
+          {t('turnosTaxi.alertaSolapamientoDesc')}
         </p>
         {turnosConflicto.length > 0 && (
           <ul className="mt-2 text-xs text-red-600 dark:text-red-400 space-y-1">
@@ -84,7 +80,7 @@ export function InfoDiasActivos({ diasCount, cruzaMedianoche, className = '' }: 
     return (
       <div className={`flex items-center gap-2 text-xs text-green-600 dark:text-green-400 ${className}`}>
         <Info size={14} />
-        <span>{t('turnosTaxi.turnoTodosLosDias', 'Este turno estará activo todos los días de la semana')}</span>
+        <span>{t('turnosTaxi.turnoTodosLosDias')}</span>
       </div>
     );
   }
@@ -94,9 +90,7 @@ export function InfoDiasActivos({ diasCount, cruzaMedianoche, className = '' }: 
       <div className={`flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 ${className}`}>
         <Clock size={14} />
         <span>
-          {t('turnosTaxi.turnoCruzaMedianocheInfo', 
-            'El turno se extenderá al día siguiente para cada día seleccionado'
-          )}
+          {t('turnosTaxi.turnoCruzaMedianocheInfo')}
         </span>
       </div>
     );
@@ -119,7 +113,7 @@ export function TurnoStatusBadge({ estaActivoAhora, activo }: TurnoStatusBadgePr
   if (!activo) {
     return (
       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-        {t('turnosTaxi.inactivo', 'Inactivo')}
+        {t('turnosTaxi.inactivo')}
       </span>
     );
   }
@@ -128,14 +122,14 @@ export function TurnoStatusBadge({ estaActivoAhora, activo }: TurnoStatusBadgePr
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-        {t('turnosTaxi.enCurso', 'En curso')}
+        {t('turnosTaxi.enCurso')}
       </span>
     );
   }
   
   return (
     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-      {t('turnosTaxi.activo', 'Activo')}
+      {t('turnosTaxi.activo')}
     </span>
   );
 }
@@ -173,7 +167,7 @@ export function TurnoTooltipContent({
         <div>⏰ {horario}</div>
         <div>📅 {dias}</div>
         {geofencesCount > 0 && (
-          <div>📍 {geofencesCount} {t('turnosTaxi.zonas', 'zonas')}</div>
+          <div>📍 {geofencesCount} {t('turnosTaxi.zonas')}</div>
         )}
       </div>
     </div>

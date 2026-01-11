@@ -210,9 +210,9 @@ export function GestionarExclusionesModal({
     const getResourceName = (res: any, type: TipoRecurso) => {
         switch (type) {
             case TipoRecurso.Vehiculo: return `${res.patente} ${res.marca || ''} ${res.modelo || ''}`.trim();
-            case TipoRecurso.Conductor: return res.nombreCompleto || 'Sin nombre';
-            case TipoRecurso.DispositivoTraccar: return res.nombre || res.uniqueId || 'Sin nombre';
-            default: return 'Desconocido';
+            case TipoRecurso.Conductor: return res.nombreCompleto || t('organization.exclusions.withoutName');
+            case TipoRecurso.DispositivoTraccar: return res.nombre || res.uniqueId || t('organization.exclusions.withoutName');
+            default: return t('organization.exclusions.unknown');
         }
     };
 
@@ -228,12 +228,12 @@ export function GestionarExclusionesModal({
     const renderExclusionItem = (exclusion: ResourceExclusionDto) => (
         <div key={exclusion.id} className="flex items-center justify-between p-3 bg-ground border border-border rounded-md mb-2">
             <div className="flex flex-col">
-                <span className="font-medium text-text">{exclusion.resourceName || 'Recurso sin nombre'}</span>
+                <span className="font-medium text-text">{exclusion.resourceName || t('organization.exclusions.resourceWithoutName')}</span>
                 {exclusion.motivo && (
                     <span className="text-xs text-text-muted italic">{exclusion.motivo}</span>
                 )}
                 <span className="text-xs text-text-muted">
-                    Excluido el {formatDate(exclusion.fechaCreacion, culture, timeZoneId)}
+                    {t('organization.exclusions.excludedOn')} {formatDate(exclusion.fechaCreacion, culture, timeZoneId)}
                 </span>
             </div>
             {esOutbound && (
@@ -271,11 +271,11 @@ export function GestionarExclusionesModal({
                     <div className="text-sm">
                         <p className="font-semibold text-text">
                             {esOutbound
-                                ? `Estás gestionando qué recursos NO puede ver ${organizacionContrariaNombre}.`
-                                : `Estos son los recursos que ${organizacionContrariaNombre} ha decidido NO compartir contigo.`}
+                                ? t('organization.exclusions.outboundDescription', { name: organizacionContrariaNombre })
+                                : t('organization.exclusions.inboundDescription', { name: organizacionContrariaNombre })}
                         </p>
                         <p className="text-text-muted mt-1">
-                            Las exclusiones tienen prioridad sobre la asignación automática. (Deny {'>'} Allow).
+                            {t('organization.exclusions.priorityNote')}
                         </p>
                     </div>
                 </div>

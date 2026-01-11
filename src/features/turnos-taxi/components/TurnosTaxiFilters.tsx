@@ -31,7 +31,7 @@ export function TurnosTaxiFilters({
       {/* Búsqueda por nombre */}
       <div className="flex-1 min-w-[200px]">
         <Input
-          placeholder={t('turnosTaxi.buscarPlaceholder', 'Buscar por nombre...')}
+          placeholder={t('turnosTaxi.buscarPlaceholder')}
           value={filtros.buscar || ''}
           onChange={(e) => onFiltrosChange({ buscar: e.target.value || undefined })}
         />
@@ -40,7 +40,7 @@ export function TurnosTaxiFilters({
       {/* Filtro por vehículo */}
       <div className="w-48">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t('turnosTaxi.vehiculo', 'Vehículo')}
+          {t('turnosTaxi.vehiculo')}
         </label>
         <select
           value={filtros.vehiculoId || ''}
@@ -52,7 +52,7 @@ export function TurnosTaxiFilters({
             text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
           "
         >
-          <option value="">{t('turnosTaxi.todosVehiculos', 'Todos los vehículos')}</option>
+          <option value="">{t('turnosTaxi.todosVehiculos')}</option>
           {vehiculos.map((v) => (
             <option key={v.id} value={v.id}>
               {v.patente}
@@ -64,7 +64,7 @@ export function TurnosTaxiFilters({
       {/* Filtro por estado */}
       <div className="w-40">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {t('turnosTaxi.estado', 'Estado')}
+          {t('turnosTaxi.estado')}
         </label>
         <select
           value={filtros.soloActivos === undefined ? '' : filtros.soloActivos ? 'activos' : 'todos'}
@@ -84,8 +84,8 @@ export function TurnosTaxiFilters({
             text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
           "
         >
-          <option value="activos">{t('turnosTaxi.soloActivos', 'Solo activos')}</option>
-          <option value="">{t('turnosTaxi.todos', 'Todos')}</option>
+          <option value="activos">{t('turnosTaxi.soloActivos')}</option>
+          <option value="">{t('turnosTaxi.todos')}</option>
         </select>
       </div>
     </div>

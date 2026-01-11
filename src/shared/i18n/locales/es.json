@@ -43,7 +43,44 @@
     "copy": "Copiar",
     "offline": "Sin conexión",
     "online": "Conectado",
-    "reconnecting": "Reconectando..."
+    "reconnecting": "Reconectando...",
+    "vehicle": "Vehículo",
+    "driver": "Conductor",
+    "device": "Dispositivo",
+    "vehicles": "Vehículos",
+    "drivers": "Conductores",
+    "devices": "Dispositivos",
+    "more": "más",
+    "noData": "No hay datos",
+    "clear": "Limpiar",
+    "searchPlaceholder": {
+      "vehicle": "Buscar por patente, marca, modelo...",
+      "driver": "Buscar por nombre, DNI...",
+      "device": "Buscar por alias, ID..."
+    },
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "sending": "Enviando...",
+    "required": "Este campo es requerido",
+    "verDetalles": "Ver detalles",
+    "editar": "Editar",
+    "cargando": "Cargando...",
+    "opcional": "opcional",
+    "refrescar": "Refrescar",
+    "seleccionarTodos": "Seleccionar todos",
+    "limpiar": "Limpiar",
+    "close": "Cerrar",
+    "zonesSelected": "zonas seleccionadas",
+    "zonesAvailable": "zonas disponibles",
+    "ofZonesSelected": "de {{total}} zonas seleccionadas",
+    "zonesSelectedCount": "{{count}} de {{total}} zonas seleccionadas",
+    "error": {
+      "noOrganization": "No se pudo determinar la organización actual"
+    }
+  },
+  "permissions": {
+    "operational": "Gestión Operativa",
+    "readOnly": "Solo Lectura"
   },
   "errorPages": {
     "notFound": {
@@ -170,7 +207,10 @@
       "modelPlaceholder": "Ranger",
       "yearPlaceholder": "2024",
       "active": "Vehículo activo",
-      "vehicleLabel": "Vehículo"
+      "vehicleLabel": "Vehículo",
+      "vehicleData": "Datos del Vehículo",
+      "extensionData": "Datos de Extensión",
+      "deviceConfiguration": "Configuración de Dispositivo"
     },
     "extensions": {
       "insurance": {
@@ -230,7 +270,8 @@
       "assignDevice": "Asignar dispositivo",
       "editVehicle": "Editar vehículo",
       "deleteVehicle": "Eliminar vehículo",
-      "associated": "Asociado"
+      "associated": "Asociado",
+      "manageSharing": "Gestionar compartición"
     },
     "deleteTitle": "Eliminar vehículo",
     "deleteMessage": "¿Está seguro de eliminar el vehículo con patente \"{{patente}}\"? Esta acción marcará el vehículo como inactivo.",
@@ -1002,7 +1043,32 @@
       "titleInbound": "Exclusiones Activas (Compartido por ellos)",
       "addTitle": "Agregar nueva exclusión",
       "activeList": "Exclusiones Activas",
-      "confirmAdd": "Confirmar Exclusiones"
+      "confirmAdd": "Confirmar Exclusiones",
+      "outboundDescription": "Estás gestionando qué recursos NO puede ver {{name}}.",
+      "inboundDescription": "Estos son los recursos que {{name}} ha decidido NO compartir contigo.",
+      "priorityNote": "Las exclusiones tienen prioridad sobre la asignación automática. (Deny > Allow).",
+      "excludedOn": "Excluido el",
+      "resourceWithoutName": "Recurso sin nombre",
+      "unknown": "Desconocido",
+      "withoutName": "Sin nombre"
+    },
+    "sharing": {
+      "title": "Gestionar Compartición",
+      "description": "Haz click en cada relación para cambiar el estado de compartición. Los cambios se guardarán al presionar \"Guardar\".",
+      "statusLegend": "Estados de compartición",
+      "relations": "Relaciones",
+      "noRelations": "No hay relaciones activas con policies para compartir este tipo de recurso.",
+      "statusAvailable": "Disponible",
+      "statusAvailableDesc": "No compartido - El recurso no está compartido con esta organización",
+      "statusShared": "Compartido",
+      "statusSharedDesc": "Visible para la otra org - La organización puede ver y usar este recurso",
+      "statusExcluded": "Excluido",
+      "statusExcludedDesc": "Bloqueado - El recurso está explícitamente excluido de esta relación",
+      "management": "Gestión",
+      "modified": "(modificado)",
+      "relation": "relación",
+      "relations_plural": "relaciones",
+      "since": "Desde"
     },
     "relations": {
       "title": "Relaciones entre Organizaciones",
@@ -1019,7 +1085,9 @@
         "relationTypePlaceholder": "Ej: Aseguradora-Concesionaria",
         "relationTypeHelp": "Descripción opcional del tipo de relación",
         "autoAssignResources": "Asignación automática de recursos",
-        "autoAssignResourcesHelp": "Si está habilitado, todos los recursos se compartirán automáticamente cuando solo haya 1 relación activa"
+        "autoAssignResourcesHelp": "Si está habilitado, todos los recursos se compartirán automáticamente cuando solo haya 1 relación activa",
+        "description": "Seleccione la organización con la que desea compartir o recibir recursos. Se enviará una solicitud a sus administradores.",
+        "autoShareDescription": "Si se marca, se ofrecerá acceso a sus vehículos, conductores y dispositivos a la otra organización."
       },
       "table": {
         "organization": "Organización",
@@ -1045,10 +1113,36 @@
         "noVehicles": "No hay vehículos disponibles",
         "noDevices": "No hay dispositivos disponibles",
         "noResourcesSelected": "Debe seleccionar al menos un recurso",
-        "success": "Recursos asignados correctamente"
+        "success": "Recursos asignados correctamente",
+        "allowOperationalManagement": "Permitir gestión operativa de los recursos",
+        "resourcesSelected": "recursos seleccionados"
       },
       "success": {
-        "created": "Relación creada correctamente"
+        "created": "Relación creada correctamente",
+        "requestSent": "Solicitud enviada exitosamente"
+      },
+      "respond": {
+        "title": "Responder Solicitud",
+        "shareResources": "Compartir mis recursos a esta organización",
+        "organizationWantsToLink": "La organización <strong>{{name}}</strong> desea vincularse con su organización.",
+        "acceptDescription": "Al aceptar, se establecerá una relación que permitirá compartir recursos según la configuración de cada parte.",
+        "shareResourcesDescription": "Si marca esta opción, sus vehículos, conductores y dispositivos serán visibles para {{name}}."
+      },
+      "success": {
+        "accepted": "Solicitud aceptada",
+        "rejected": "Solicitud rechazada"
+      },
+      "pendingRequests": {
+        "title": "Solicitudes Pendientes",
+        "sent": "ENVIADA",
+        "received": "RECIBIDA",
+        "manageRequest": "Gestionar Solicitud",
+        "waitingResponse": "Esperando respuesta...",
+        "cancelRequest": "Cancelar Solicitud"
+      },
+      "create": {
+        "autoShare": "Ofrecer compartir mis recursos automáticamente",
+        "submit": "Enviar Solicitud"
       }
     }
   },
