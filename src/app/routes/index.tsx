@@ -16,6 +16,7 @@ import { TraccarMapPage } from '@/features/traccar-map';
 import { ReplayPage } from '@/features/replay';
 import { MarketplacePage } from '@/features/marketplace';
 import { TurnosTaxiPage } from '@/features/turnos-taxi';
+import { ImportsPage } from '@/features/imports';
 import { OrganizationTypeGuard } from '@/shared/components/OrganizationTypeGuard';
 import { TipoOrganizacion } from '@/shared/types/api';
 
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
             <TurnosTaxiPage />
           </OrganizationTypeGuard>
         ),
+      },
+      {
+        path: 'importaciones',
+        element: <ImportsPage />,
       },
     ],
   },

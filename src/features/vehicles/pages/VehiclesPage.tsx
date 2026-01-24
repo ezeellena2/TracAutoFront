@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
-import { vehiculosApi, dispositivosApi } from '@/services/endpoints';
+import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { vehiculosApi, dispositivosApi, reportesApi } from '@/services/endpoints';
+import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type {
@@ -12,6 +13,7 @@ import type {
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
+import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
 import { CreateVehicleModal } from '../components/CreateVehicleModal';
 
@@ -79,6 +81,14 @@ export function VehiclesPage() {
 
   // Sharing modal
   const [vehicleToShare, setVehicleToShare] = useState<VehiculoDto | null>(null);
+
+  // Import modals
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
+
+  // Export state
+  const [isExporting, setIsExporting] = useState(false);
 
   const { can } = usePermissions();
   const canEdit = can('vehiculos:editar');
@@ -219,6 +229,44 @@ export function VehiclesPage() {
       toast.error(getErrorMessage(e));
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  // Import handler
+  const handleImportVehicles = async (file: File) => {
+    try {
+      const results = await reportesApi.importVehiculosExcel(file);
+      setImportResults(results);
+      setIsImportResultsModalOpen(true);
+      await loadData();
+      if (results.filasConErrores === 0) {
+        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+      } else {
+        toast.success(
+          t('imports.results.importedCount', {
+            defaultValue: 'Se importaron {{count}} filas',
+            count: results.filasExitosas,
+          })
+        );
+      }
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+      throw e;
+    }
+  };
+
+  // Export handler
+  const handleExportVehicles = async () => {
+    setIsExporting(true);
+    try {
+      // Exportar todos los vehículos (el backend puede filtrar después si es necesario)
+      const blob = await reportesApi.exportVehiculosExcel(false);
+      downloadBlob(blob, 'vehiculos.xlsx');
+      toast.success(t('imports.exportSuccess', { defaultValue: 'Vehículos exportados exitosamente' }));
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -431,10 +479,20 @@ export function VehiclesPage() {
             <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
           </div>
           {canCreate && (
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              <Plus size={16} className="mr-2" />
-              {t('vehicles.createVehicle')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting}>
+                <Download size={16} className="mr-2" />
+                {t('imports.export', { defaultValue: 'Exportar' })}
+              </Button>
+              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                <Upload size={16} className="mr-2" />
+                {t('imports.import', { defaultValue: 'Importar' })}
+              </Button>
+              <Button onClick={() => setIsCreateModalOpen(true)}>
+                <Plus size={16} className="mr-2" />
+                {t('vehicles.createVehicle')}
+              </Button>
+            </div>
           )}
         </div>
         <Card>
@@ -472,10 +530,20 @@ export function VehiclesPage() {
           <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
         </div>
         {canCreate && (
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus size={16} className="mr-2" />
-            {t('vehicles.createVehicle')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportVehicles}>
+              <Download size={16} className="mr-2" />
+              {t('imports.export', { defaultValue: 'Exportar' })}
+            </Button>
+            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+              <Upload size={16} className="mr-2" />
+              {t('imports.import', { defaultValue: 'Importar' })}
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus size={16} className="mr-2" />
+              {t('vehicles.createVehicle')}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -671,6 +739,32 @@ export function VehiclesPage() {
           resourceType={1 as TipoRecurso} // TipoRecurso.Vehiculo
           resourceName={vehicleToShare.patente}
           onSuccess={loadData}
+        />
+      )}
+
+      {/* Import Modal */}
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportVehicles}
+        title={t('imports.importVehicles', { defaultValue: 'Importar Vehículos' })}
+        onDownloadTemplate={async () => {
+          const blob = await reportesApi.downloadTemplateVehiculosExcel();
+          downloadBlob(blob, 'template_vehiculos.xlsx');
+        }}
+        templateLabel={t('imports.downloadVehicleTemplate', { defaultValue: 'Template de Vehículos' })}
+      />
+
+      {/* Import Results Modal */}
+      {importResults && (
+        <ImportResultsModal
+          isOpen={isImportResultsModalOpen}
+          onClose={() => {
+            setIsImportResultsModalOpen(false);
+            setImportResults(null);
+          }}
+          results={importResults}
+          tipoImportacion={t('imports.importVehicles', { defaultValue: 'Vehículos' })}
         />
       )}
     </div>

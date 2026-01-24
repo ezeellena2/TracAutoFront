@@ -2,6 +2,8 @@ export { Button } from './Button';
 export { Input } from './Input';
 export { Card, CardHeader } from './Card';
 export { Modal } from './Modal';
+export { ImportExcelModal } from './ImportExcelModal';
+export { ImportResultsModal } from './ImportResultsModal';
 export { Table } from './Table';
 export { Badge } from './Badge';
 export { ActionMenu } from './ActionMenu';

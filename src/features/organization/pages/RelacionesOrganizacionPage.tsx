@@ -262,7 +262,10 @@ export function RelacionesOrganizacionPage() {
           onClose={() => setRelacionToAssignResources(null)}
           relacionId={relacionToAssignResources}
           organizacionActualId={organizacionId} // FIXED: organizacionActualId
-          onSuccess={() => { }}
+          onSuccess={() => {
+            // P1.4 FIX: Recargar datos después de asignación exitosa
+            loadData();
+          }}
         />
       )}
 

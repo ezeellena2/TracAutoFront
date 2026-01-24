@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Input, Button } from '@/shared/ui';
 import { vehiculosApi } from '@/services/endpoints';
 import { useErrorHandler } from '@/hooks';
@@ -22,7 +23,8 @@ interface CreateVehicleModalProps {
 
 export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: CreateVehicleModalProps) {
     const { t } = useTranslation();
-    const { getErrorMessage } = useErrorHandler();
+    const navigate = useNavigate();
+    const { parseError, getErrorMessage } = useErrorHandler();
 
     // Organization Context
     const { currentOrganization } = useTenantStore();
@@ -157,7 +159,18 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
             onSuccess();
             onClose();
         } catch (e) {
-            toast.error(getErrorMessage(e));
+            const parsedError = parseError(e);
+            
+            // Para errores graves (500+), redirigir a la página de error
+            if (parsedError.status >= 500) {
+                navigate('/error', {
+                    state: { traceId: parsedError.traceId },
+                });
+                return;
+            }
+            
+            // Para otros errores (validación, conflictos, etc.), mostrar toast
+            toast.error(parsedError.message);
         } finally {
             setIsCreating(false);
         }

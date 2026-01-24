@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { X, Search, Check, Share2, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Modal, Button, Input, Badge } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
@@ -31,7 +32,8 @@ export function AsignarRecursosModal({
   relacionId,
 }: AsignarRecursosModalProps) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const navigate = useNavigate();
+  const { parseError, getErrorMessage } = useErrorHandler();
 
   // Estado de UI
   const [activeTab, setActiveTab] = useState<TipoRecurso>(TipoRecurso.Vehiculo);
@@ -166,7 +168,18 @@ export function AsignarRecursosModal({
       onSuccess();
       onClose();
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      const parsedError = parseError(err);
+      
+      // Para errores graves (500+), redirigir a la página de error
+      if (parsedError.status >= 500) {
+        navigate('/error', {
+          state: { traceId: parsedError.traceId },
+        });
+        return;
+      }
+      
+      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      toast.error(parsedError.message);
     } finally {
       setIsSubmitting(false);
     }

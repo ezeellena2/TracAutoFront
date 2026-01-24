@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Plus, AlertCircle } from 'lucide-react';
-import { Card, Button, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
-import { usePermissions, useTableFilters } from '@/hooks';
+import { User, Plus, AlertCircle, UserCheck, UserX, Upload, Download } from 'lucide-react';
+import { Card, Button, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { reportesApi } from '@/services/endpoints';
+import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
+import { usePermissions, useTableFilters, useErrorHandler } from '@/hooks';
+import { toast } from '@/store/toast.store';
+import { downloadBlob } from '@/shared/utils/fileUtils';
 import { useDriversPage } from '../hooks/useDriversPage';
 import { DriversTable } from '../components/DriversTable';
 import { CreateDriverModal } from '../components/CreateDriverModal';
@@ -21,6 +25,7 @@ const driverFiltersConfig: FilterConfig[] = [
 
 export function DriversPage() {
   const { t } = useTranslation();
+  const { getErrorMessage } = useErrorHandler();
   const { can } = usePermissions();
   const canEdit = can('conductores:editar');
   const canCreate = can('conductores:crear');
@@ -31,10 +36,18 @@ export function DriversPage() {
     filters,
     setFilter,
     clearFilters
-  } = useTableFilters({ soloActivos: 'true' });
+  } = useTableFilters();
 
   // Sharing modal state
   const [conductorToShare, setConductorToShare] = useState<ConductorDto | null>(null);
+
+  // Import modals
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
+
+  // Export state
+  const [isExporting, setIsExporting] = useState(false);
 
   const {
     // Data
@@ -106,6 +119,45 @@ export function DriversPage() {
     formatDateTime,
   } = useDriversPage({ filters });
 
+  // Import handler
+  const handleImportDrivers = async (file: File) => {
+    try {
+      const results = await reportesApi.importConductoresExcel(file);
+      setImportResults(results);
+      setIsImportResultsModalOpen(true);
+      await loadData();
+      if (results.filasConErrores === 0) {
+        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+      } else {
+        toast.success(
+          t('imports.results.importedCount', {
+            defaultValue: 'Se importaron {{count}} filas',
+            count: results.filasExitosas,
+          })
+        );
+      }
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+      throw e;
+    }
+  };
+
+  // Export handler
+  const handleExportDrivers = async () => {
+    setIsExporting(true);
+    try {
+      // Exportar según los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
+      const soloActivos = filters.soloActivos === 'true';
+      const blob = await reportesApi.exportConductoresExcel(soloActivos);
+      downloadBlob(blob, 'conductores.xlsx');
+      toast.success(t('imports.exportSuccess', { defaultValue: 'Conductores exportados exitosamente' }));
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const conductores = conductoresData?.items ?? [];
 
   // Loading state
@@ -152,6 +204,9 @@ export function DriversPage() {
     );
   }
 
+  const hasActiveFilters = Object.keys(filters).length > 0;
+  const showEmptyState = conductores.length === 0 && !hasActiveFilters;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -161,24 +216,88 @@ export function DriversPage() {
           <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
         </div>
         {canCreate && (
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus size={16} className="mr-2" />
-            {t('drivers.addDriver')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportDrivers} isLoading={isExporting}>
+              <Download size={16} className="mr-2" />
+              {t('imports.export', { defaultValue: 'Exportar' })}
+            </Button>
+            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+              <Upload size={16} className="mr-2" />
+              {t('imports.import', { defaultValue: 'Importar' })}
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus size={16} className="mr-2" />
+              {t('drivers.addDriver')}
+            </Button>
+          </div>
         )}
       </div>
 
-      {/* Filters */}
-      <AdvancedFilterBar
-        config={driverFiltersConfig}
-        filters={filters}
-        onFilterChange={setFilter}
-        onClearFilters={clearFilters}
-      />
-
-      {/* Table */}
-      {conductores.length > 0 ? (
+      {showEmptyState ? (
+        <Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <User size={48} className="text-text-muted mb-4" />
+            <h3 className="text-lg font-semibold text-text mb-2">{t('drivers.empty')}</h3>
+            <p className="text-text-muted text-center max-w-md mb-4">
+              {t('drivers.emptyDescription')}
+            </p>
+            {canCreate && (
+              <Button onClick={() => setIsCreateModalOpen(true)}>
+                <Plus size={16} className="mr-2" />
+                {t('drivers.addDriver')}
+              </Button>
+            )}
+          </div>
+        </Card>
+      ) : (
         <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-primary/10">
+                  <User size={24} className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-text">{conductoresData?.totalRegistros ?? conductores.length}</p>
+                  <p className="text-sm text-text-muted">{t('drivers.totalDrivers', { defaultValue: 'Total Conductores' })}</p>
+                </div>
+              </div>
+            </Card>
+            <Card>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-success/10">
+                  <UserCheck size={24} className="text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-text">
+                    {conductoresData?.items.filter((c) => c.activo).length ?? 0}
+                  </p>
+                  <p className="text-sm text-text-muted">{t('drivers.activeDrivers', { defaultValue: 'Activos' })}</p>
+                </div>
+              </div>
+            </Card>
+            <Card>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-error/10">
+                  <UserX size={24} className="text-error" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-text">
+                    {conductoresData?.items.filter((c) => !c.activo).length ?? 0}
+                  </p>
+                  <p className="text-sm text-text-muted">{t('drivers.inactiveDrivers', { defaultValue: 'Inactivos' })}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <AdvancedFilterBar
+            config={driverFiltersConfig}
+            filters={filters}
+            onFilterChange={setFilter}
+            onClearFilters={clearFilters}
+          />
+
           <Card padding="none" className="overflow-visible">
             <DriversTable
               conductores={conductores}
@@ -195,37 +314,19 @@ export function DriversPage() {
               onShare={setConductorToShare}
               formatDate={formatDate}
             />
-          </Card>
-          {conductoresData && conductoresData.totalRegistros > 0 && (
-            <PaginationControls
-              paginaActual={conductoresData.paginaActual}
-              totalPaginas={conductoresData.totalPaginas}
-              tamanoPagina={conductoresData.tamanoPagina}
-              totalRegistros={conductoresData.totalRegistros}
-              onPageChange={setNumeroPagina}
-              onPageSizeChange={setTamanoPagina}
-              disabled={isLoading}
-            />
-          )}
-        </>
-      ) : (
-        <Card>
-          <div className="flex flex-col items-center justify-center py-12">
-            <User size={48} className="text-text-muted mb-4" />
-            <h3 className="text-lg font-semibold text-text mb-2">{t('drivers.empty')}</h3>
-            <p className="text-text-muted text-center max-w-md mb-4">
-              {Object.keys(filters).length > 0
-                ? t('drivers.emptyFiltered')
-                : t('drivers.emptyDescription')}
-            </p>
-            {canCreate && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                {t('drivers.addDriver')}
-              </Button>
+            {conductoresData && conductoresData.totalRegistros > 0 && (
+              <PaginationControls
+                paginaActual={conductoresData.paginaActual}
+                totalPaginas={conductoresData.totalPaginas}
+                tamanoPagina={conductoresData.tamanoPagina}
+                totalRegistros={conductoresData.totalRegistros}
+                onPageChange={setNumeroPagina}
+                onPageSizeChange={setTamanoPagina}
+                disabled={isLoading}
+              />
             )}
-          </div>
-        </Card>
+          </Card>
+        </>
       )}
 
       {/* Modals */}
@@ -350,6 +451,32 @@ export function DriversPage() {
           resourceType={2 as TipoRecurso} // TipoRecurso.Conductor
           resourceName={conductorToShare.nombreCompleto}
           onSuccess={loadData}
+        />
+      )}
+
+      {/* Import Modal */}
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportDrivers}
+        title={t('imports.importDrivers', { defaultValue: 'Importar Conductores' })}
+        onDownloadTemplate={async () => {
+          const blob = await reportesApi.downloadTemplateConductoresExcel();
+          downloadBlob(blob, 'template_conductores.xlsx');
+        }}
+        templateLabel={t('imports.downloadDriverTemplate', { defaultValue: 'Template de Conductores' })}
+      />
+
+      {/* Import Results Modal */}
+      {importResults && (
+        <ImportResultsModal
+          isOpen={isImportResultsModalOpen}
+          onClose={() => {
+            setIsImportResultsModalOpen(false);
+            setImportResults(null);
+          }}
+          results={importResults}
+          tipoImportacion={t('imports.importDrivers', { defaultValue: 'Conductores' })}
         />
       )}
     </div>

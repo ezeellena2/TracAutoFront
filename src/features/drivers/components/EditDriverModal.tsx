@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Modal, Input, Button } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
@@ -16,7 +17,8 @@ interface EditDriverModalProps {
 
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const navigate = useNavigate();
+  const { parseError, getErrorMessage } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',
@@ -50,7 +52,18 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err));
+      const parsedError = parseError(err);
+      
+      // Para errores graves (500+), redirigir a la página de error
+      if (parsedError.status >= 500) {
+        navigate('/error', {
+          state: { traceId: parsedError.traceId },
+        });
+        return;
+      }
+      
+      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      toast.error(parsedError.message);
     } finally {
       setIsLoading(false);
     }

@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2 } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig } from '@/shared/ui';
-import { dispositivosApi } from '@/services/endpoints';
+import { useNavigate } from 'react-router-dom';
+import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download } from 'lucide-react';
+import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { dispositivosApi, reportesApi } from '@/services/endpoints';
+import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
+import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
 
 const deviceFiltersConfig: FilterConfig[] = [
@@ -16,8 +19,9 @@ const deviceFiltersConfig: FilterConfig[] = [
 
 export function DevicesPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { culture, timeZoneId } = useLocalization();
-  const { getErrorMessage } = useErrorHandler();
+  const { parseError, getErrorMessage } = useErrorHandler();
   // Datos paginados
   const [devicesData, setDevicesData] = useState<ListaPaginada<DispositivoDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +63,14 @@ export function DevicesPage() {
 
   // Sharing modal
   const [deviceToShare, setDeviceToShare] = useState<DispositivoDto | null>(null);
+
+  // Import modals
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
+
+  // Export state
+  const [isExporting, setIsExporting] = useState(false);
 
   const { can } = usePermissions();
 
@@ -147,7 +159,18 @@ export function DevicesPage() {
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      const parsedError = parseError(e);
+      
+      // Para errores graves (500+), redirigir a la página de error
+      if (parsedError.status >= 500) {
+        navigate('/error', {
+          state: { traceId: parsedError.traceId },
+        });
+        return;
+      }
+      
+      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      toast.error(parsedError.message);
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error creating device:', e);
       }
@@ -219,6 +242,45 @@ export function DevicesPage() {
       }
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Import handler
+  const handleImportDevices = async (file: File) => {
+    try {
+      const results = await reportesApi.importDispositivosExcel(file);
+      setImportResults(results);
+      setIsImportResultsModalOpen(true);
+      await loadDevices();
+      if (results.filasConErrores === 0) {
+        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+      } else {
+        toast.success(
+          t('imports.results.importedCount', {
+            defaultValue: 'Se importaron {{count}} filas',
+            count: results.filasExitosas,
+          })
+        );
+      }
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+      throw e;
+    }
+  };
+
+  // Export handler
+  const handleExportDevices = async () => {
+    setIsExporting(true);
+    try {
+      // Exportar según los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
+      const soloActivos = filters.soloActivos === 'true';
+      const blob = await reportesApi.exportDispositivosExcel(soloActivos);
+      downloadBlob(blob, 'dispositivos.xlsx');
+      toast.success(t('imports.exportSuccess', { defaultValue: 'Dispositivos exportados exitosamente' }));
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -382,6 +444,18 @@ export function DevicesPage() {
             <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
             <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
+          {canCreate && (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting}>
+                <Download size={16} className="mr-2" />
+                {t('imports.export', { defaultValue: 'Exportar' })}
+              </Button>
+              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                <Upload size={16} className="mr-2" />
+                {t('imports.import', { defaultValue: 'Importar' })}
+              </Button>
+            </div>
+          )}
         </div>
         <Card>
           <div className="flex flex-col items-center justify-center py-12">
@@ -405,10 +479,20 @@ export function DevicesPage() {
             <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
           {canCreate && (
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              <Plus size={16} className="mr-2" />
-              {t('devices.createDevice')}
-            </Button>
+            <>
+              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting}>
+                <Download size={16} className="mr-2" />
+                {t('imports.export', { defaultValue: 'Exportar' })}
+              </Button>
+              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                <Upload size={16} className="mr-2" />
+                {t('imports.import', { defaultValue: 'Importar' })}
+              </Button>
+              <Button onClick={() => setIsCreateModalOpen(true)}>
+                <Plus size={16} className="mr-2" />
+                {t('devices.createDevice')}
+              </Button>
+            </>
           )}
         </div>
         <Card>
@@ -487,10 +571,20 @@ export function DevicesPage() {
           <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
         </div>
         {canCreate && (
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus size={16} className="mr-2" />
-            {t('devices.createDevice')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportDevices}>
+              <Download size={16} className="mr-2" />
+              {t('imports.export', { defaultValue: 'Exportar' })}
+            </Button>
+            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+              <Upload size={16} className="mr-2" />
+              {t('imports.import', { defaultValue: 'Importar' })}
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus size={16} className="mr-2" />
+              {t('devices.createDevice')}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -707,6 +801,32 @@ export function DevicesPage() {
           resourceType={3 as TipoRecurso} // TipoRecurso.DispositivoTraccar
           resourceName={deviceToShare.nombre}
           onSuccess={loadDevices}
+        />
+      )}
+
+      {/* Import Modal */}
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportDevices}
+        title={t('imports.importDevices', { defaultValue: 'Importar Dispositivos' })}
+        onDownloadTemplate={async () => {
+          const blob = await reportesApi.downloadTemplateDispositivosExcel();
+          downloadBlob(blob, 'template_dispositivos.xlsx');
+        }}
+        templateLabel={t('imports.downloadDeviceTemplate', { defaultValue: 'Template de Dispositivos' })}
+      />
+
+      {/* Import Results Modal */}
+      {importResults && (
+        <ImportResultsModal
+          isOpen={isImportResultsModalOpen}
+          onClose={() => {
+            setIsImportResultsModalOpen(false);
+            setImportResults(null);
+          }}
+          results={importResults}
+          tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
         />
       )}
     </div>

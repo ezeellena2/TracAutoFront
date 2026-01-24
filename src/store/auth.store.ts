@@ -7,7 +7,7 @@ interface AuthState {
   user: AuthUser | null;
   token: string | null;
   organizationId: string | null;
-  
+
   // Actions
   login: (user: AuthUser, token: string) => void;
   logout: () => void;
@@ -47,10 +47,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'tracauto-auth',
+      // PR 2.1 FIX: Token excluido de localStorage para prevenir XSS.
+      // El token solo vive en memoria; tras F5 se renueva via refresh_token (HttpOnly cookie).
+      // Ver: OWASP Token Storage Best Practices
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
-        token: state.token,
+        // token: EXCLUIDO - no persistir en localStorage (XSS risk)
         organizationId: state.organizationId,
       }),
     }

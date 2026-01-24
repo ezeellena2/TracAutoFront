@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Modal, Input, Button } from '@/shared/ui';
 import { invitacionesApi } from '@/services/endpoints';
@@ -16,7 +17,8 @@ type RolOption = 'Admin' | 'Operador' | 'Analista';
 
 export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalProps) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const navigate = useNavigate();
+  const { parseError, getErrorMessage } = useErrorHandler();
   const [email, setEmail] = useState('');
   const [rol, setRol] = useState<RolOption>('Analista');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,18 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err));
+      const parsedError = parseError(err);
+      
+      // Para errores graves (500+), redirigir a la página de error
+      if (parsedError.status >= 500) {
+        navigate('/error', {
+          state: { traceId: parsedError.traceId },
+        });
+        return;
+      }
+      
+      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      toast.error(parsedError.message);
     } finally {
       setIsLoading(false);
     }

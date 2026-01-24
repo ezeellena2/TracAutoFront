@@ -15,7 +15,8 @@ import {
   Link2,
   ShoppingCart,
   Clock,
-  X
+  X,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +51,7 @@ const navItems: NavItem[] = [
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
   { path: '/turnos-taxi', labelKey: 'sidebar.turnosTaxi', icon: Clock, requiredOrganizationType: TipoOrganizacion.FlotaPrivada },
+  { path: '/importaciones', labelKey: 'sidebar.imports', icon: FileSpreadsheet },
   {
     labelKey: 'sidebar.organization',
     icon: Building,

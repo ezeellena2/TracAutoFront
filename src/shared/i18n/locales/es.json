@@ -139,7 +139,8 @@
     "organizationLabel": "Organización",
     "organizationAppearance": "Apariencia",
     "organizationRelations": "Relaciones",
-    "marketplace": "Marketplace"
+    "marketplace": "Marketplace",
+    "imports": "Importaciones"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1149,6 +1150,52 @@
         "autoShare": "Ofrecer compartir mis recursos automáticamente",
         "submit": "Enviar Solicitud"
       }
+    }
+  },
+  "imports": {
+    "title": "Importaciones",
+    "importVehicles": "Importar Vehículos",
+    "importDrivers": "Importar Conductores",
+    "importDevices": "Importar Dispositivos",
+    "importVehiclesDesc": "Importa vehículos desde Excel",
+    "importDriversDesc": "Importa conductores desde Excel",
+    "importDevicesDesc": "Importa dispositivos desde Excel",
+    "subtitle": "Importa datos desde archivos Excel",
+    "selectFile": "Seleccionar archivo Excel",
+    "dragAndDrop": "Arrastra y suelta un archivo Excel aquí",
+    "orClickToSelect": "o haz clic para seleccionar",
+    "removeFile": "Remover archivo",
+    "fileTypeError": "Solo se permiten archivos .xlsx",
+    "fileSizeError": "El archivo no puede exceder 10MB",
+    "uploading": "Subiendo...",
+    "uploadError": "Error al subir el archivo",
+    "processing": "Procesando importación...",
+    "import": "Importar",
+    "results": {
+      "title": "Resultados de Importación",
+      "totalRows": "Total de filas",
+      "successfulRows": "Filas exitosas",
+      "errorRows": "Filas con errores",
+      "errors": "Errores",
+      "row": "Fila",
+      "entity": "Entidad",
+      "identifier": "Identificador",
+      "message": "Mensaje",
+      "field": "Campo",
+      "noErrors": "No hay errores",
+      "allSuccess": "Todas las filas se importaron exitosamente",
+      "importedCount": "Se importaron {{count}} filas"
+    },
+    "downloadErrors": "Descargar errores",
+    "history": {
+      "title": "Historial de Importaciones",
+      "date": "Fecha",
+      "type": "Tipo",
+      "totalRows": "Total Filas",
+      "successful": "Exitosas",
+      "errors": "Errores",
+      "status": "Estado",
+      "actions": "Acciones"
     }
   },
   "errors": {
