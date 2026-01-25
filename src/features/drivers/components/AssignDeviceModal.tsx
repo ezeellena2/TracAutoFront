@@ -26,7 +26,7 @@ export function AssignDeviceModal({
 }: AssignDeviceModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 

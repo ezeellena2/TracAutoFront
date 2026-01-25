@@ -18,7 +18,7 @@ interface EditDriverModalProps {
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',

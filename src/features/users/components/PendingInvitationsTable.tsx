@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, RefreshCw, Trash2, Clock } from 'lucide-react';
-import { Table, Badge, Button, Card, CardHeader, ConfirmationModal, PaginationControls } from '@/shared/ui';
+import { Table, Badge, Button, Card, CardHeader, PaginationControls } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { invitacionesApi } from '@/services/endpoints';
 import { usePaginationParams, useErrorHandler, useLocalization } from '@/hooks';
 import { toast } from '@/store';

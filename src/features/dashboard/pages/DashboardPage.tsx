@@ -39,7 +39,11 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
+      <div
+        data-cr-key="dashboard-page-header"
+        data-route="/"
+        data-label="Dashboard - Header"
+      >
         <h1 className="text-2xl font-bold text-text">{t('dashboard.title')}</h1>
         <p className="text-text-muted mt-1">{t('dashboard.subtitle')}</p>
       </div>

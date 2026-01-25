@@ -19,6 +19,8 @@ export function ImportResultsModal({
   tipoImportacion,
 }: ImportResultsModalProps) {
   const { t } = useTranslation();
+  const titleBase = t('imports.results.title', { defaultValue: 'Resultados de Importación' });
+  const title = tipoImportacion ? `${titleBase} - ${tipoImportacion}` : titleBase;
   const { totalFilas, filasExitosas, filasConErrores, errores } = results;
   const hasErrors = errores.length > 0;
 
@@ -68,7 +70,7 @@ export function ImportResultsModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('imports.results.title', { defaultValue: 'Resultados de Importación' })}
+      title={title}
       size="4xl"
     >
       <div className="space-y-6">

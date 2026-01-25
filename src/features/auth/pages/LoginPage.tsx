@@ -19,8 +19,8 @@ export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuthStore();
-  
+  const { isAuthenticated, token } = useAuthStore();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,27 +43,27 @@ export function LoginPage() {
 
   // Redirigir si ya está autenticado
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && token) {
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, token, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       setError(t('auth.errors.completeFields'));
       return;
     }
-    
+
     setIsLoading(true);
     setError('');
     setEmailNoVerificado(false);
     setSuccessMessage('');
 
     const result = await authService.login(email, password, rememberMe);
-    
+
     if (result.success) {
       // Redirigir al dashboard
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
@@ -72,19 +72,19 @@ export function LoginPage() {
       // Manejar errores específicos
       const errorMessage = result.error?.toLowerCase() || '';
       const originalError = result.error || '';
-      
+
       // Detectar si el error es de email no verificado
       // El backend puede devolver: "Auth.EmailNoVerificado" o el mensaje traducido
-      const isEmailNoVerificado = 
+      const isEmailNoVerificado =
         originalError.includes('Auth.EmailNoVerificado') ||
         originalError.includes('EmailNoVerificado') ||
-        errorMessage.includes('emailnoverificado') || 
+        errorMessage.includes('emailnoverificado') ||
         errorMessage.includes('email no verificado') ||
         errorMessage.includes('no verificado') ||
         errorMessage.includes('verificar su email') ||
         errorMessage.includes('debe verificar su email') ||
         errorMessage.includes('verificar su correo');
-      
+
       if (isEmailNoVerificado) {
         setEmailNoVerificado(true);
         setError(t('auth.errors.accountNotVerified'));
@@ -96,7 +96,7 @@ export function LoginPage() {
         setError(result.error || t('auth.errors.authError'));
       }
     }
-    
+
     setIsLoading(false);
   };
 
@@ -239,9 +239,9 @@ export function LoginPage() {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               size="lg"
               disabled={isLoading}
             >
@@ -266,7 +266,7 @@ export function LoginPage() {
             </div>
 
             {/* Google Login Button */}
-            <Button 
+            <Button
               type="button"
               variant="outline"
               className="w-full"

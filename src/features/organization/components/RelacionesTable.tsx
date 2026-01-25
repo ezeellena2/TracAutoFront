@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Trash2, Share2, Shield } from 'lucide-react';
-import { Table, Badge, ActionMenu, ConfirmationModal } from '@/shared/ui';
+import { Table, Badge, ActionMenu } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { OrganizacionRelacionDto } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
 import { useLocalization } from '@/hooks';

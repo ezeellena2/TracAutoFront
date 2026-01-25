@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Eye, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Card, Table, Badge, Button, PaginationControls } from '@/shared/ui';
 import { reportesApi } from '@/services/endpoints';
-import type { ImportacionJobDto, EstadoImportacionJob } from '@/services/endpoints/reportes.api';
+import { type ImportacionJobDto, EstadoImportacionJob } from '@/services/endpoints/reportes.api';
 import type { ListaPaginada } from '@/shared/types/api';
 import { usePaginationParams, useErrorHandler, useLocalization } from '@/hooks';
 import { toast } from '@/store/toast.store';

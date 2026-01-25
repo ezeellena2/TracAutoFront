@@ -1,4 +1,4 @@
-import { useState, useCallback, DragEvent } from 'react';
+import { useState, useCallback, DragEvent, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, X, FileSpreadsheet, AlertCircle, Loader2 } from 'lucide-react';
 import { Modal } from './Modal';
@@ -29,6 +29,7 @@ export function ImportExcelModal({
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileSelect = useCallback((file: File) => {
     setError(null);
@@ -64,6 +65,12 @@ export function ImportExcelModal({
     const file = e.dataTransfer.files?.[0];
     if (file) {
       handleFileSelect(file);
+    }
+  };
+
+  const handleSelectClick = () => {
+    if (!isUploading) {
+      fileInputRef.current?.click();
     }
   };
 
@@ -140,18 +147,19 @@ export function ImportExcelModal({
                 <p className="text-sm text-text-muted mb-4">
                   {t('imports.orClickToSelect', { defaultValue: 'o haz clic para seleccionar' })}
                 </p>
-                <label className="inline-block">
-                  <Button variant="primary" type="button" as="span" disabled={isUploading}>
+                <div className="inline-block">
+                  <Button variant="primary" type="button" onClick={handleSelectClick} disabled={isUploading}>
                     {t('imports.selectFile', { defaultValue: 'Seleccionar archivo' })}
                   </Button>
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept={accept}
                     onChange={handleInputChange}
                     className="hidden"
                     disabled={isUploading}
                   />
-                </label>
+                </div>
               </div>
             </div>
           )}

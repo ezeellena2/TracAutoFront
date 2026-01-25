@@ -6,4 +6,5 @@ export { vehiculosApi } from './vehiculos.api';
 export { conductoresApi } from './conductores.api';
 export { marketplaceApi } from './marketplace.api';
 export { reportesApi } from './reportes.api';
+export { solicitudesCambioApi } from './solicitudesCambio.api';
 export * from './system.api';

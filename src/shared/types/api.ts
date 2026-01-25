@@ -269,6 +269,44 @@ export interface PaginacionParams {
   descendente?: boolean;
 }
 
+// ==================== Solicitudes de Cambio ====================
+
+export type EstadoSolicitudCambio = 0 | 1 | 2 | 3 | 4 | 5; // Draft, NeedsInfo, Ready, Submitted, Exported, Failed
+
+export interface MensajeChatDto {
+  id: string;
+  rol: 'user' | 'assistant';
+  contenido: string;
+  readyForJira: boolean;
+  fechaCreacion: string;
+}
+
+export interface SolicitudCambioDto {
+  id: string;
+  route: string;
+  crKey: string;
+  label: string;
+  estado: EstadoSolicitudCambio;
+  jiraIssueKey?: string | null;
+  jiraIssueUrl?: string | null;
+  readyForJira: boolean;
+  mensajes: MensajeChatDto[];
+  fechaCreacion: string;
+}
+
+export interface CrearSolicitudRequest {
+  route: string;
+  crKey: string;
+  label: string;
+  entityType?: string | null;
+  entityId?: string | null;
+  mensajeInicial?: string | null;
+}
+
+export interface AgregarMensajeRequest {
+  contenido: string;
+}
+
 // ==================== Error Response ====================
 
 export interface ProblemDetails {

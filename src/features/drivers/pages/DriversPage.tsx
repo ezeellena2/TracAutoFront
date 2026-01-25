@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, Plus, AlertCircle, UserCheck, UserX, Upload, Download } from 'lucide-react';
-import { Card, Button, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { Card, Button, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, useTableFilters, useErrorHandler } from '@/hooks';
@@ -210,7 +211,12 @@ export function DriversPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div
+        className="flex items-center justify-between"
+        data-cr-key="conductores-page-header"
+        data-route="/conductores"
+        data-label="Página de Conductores - Header"
+      >
         <div>
           <h1 className="text-2xl font-bold text-text">{t('drivers.title')}</h1>
           <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
@@ -225,7 +231,12 @@ export function DriversPage() {
               <Upload size={16} className="mr-2" />
               {t('imports.import', { defaultValue: 'Importar' })}
             </Button>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              data-cr-key="conductores-page-crear"
+              data-route="/conductores"
+              data-label="Página de Conductores - Botón Crear"
+            >
               <Plus size={16} className="mr-2" />
               {t('drivers.addDriver')}
             </Button>
@@ -298,6 +309,11 @@ export function DriversPage() {
             onClearFilters={clearFilters}
           />
 
+          <div
+            data-cr-key="conductores-table"
+            data-route="/conductores"
+            data-label="Tabla de Conductores"
+          >
           <Card padding="none" className="overflow-visible">
             <DriversTable
               conductores={conductores}
@@ -326,6 +342,7 @@ export function DriversPage() {
               />
             )}
           </Card>
+          </div>
         </>
       )}
 

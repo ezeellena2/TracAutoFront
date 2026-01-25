@@ -23,7 +23,7 @@ export function ResponderSolicitudModal({
 }: ResponderSolicitudModalProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { parseError, getErrorMessage } = useErrorHandler();
+    const { parseError } = useErrorHandler();
     const [isLoading, setIsLoading] = useState(false);
     const [compartirRecursos, setCompartirRecursos] = useState(true);
 

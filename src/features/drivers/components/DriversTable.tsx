@@ -157,11 +157,17 @@ export function DriversTable({
 
                   {!c.esRecursoAsociado && (
                     <button
+                      type="button"
                       onClick={() => {
                         onActionMenuToggle(null);
                         onEdit(c);
                       }}
                       className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
+                      data-cr-key="conductor-table-acciones-editar"
+                      data-route="/conductores"
+                      data-label="Tabla de Conductores - Botón Editar"
+                      data-entity-type="Conductor"
+                      data-entity-id={c.id}
                     >
                       <Edit size={14} />
                       {t('drivers.edit')}

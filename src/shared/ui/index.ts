@@ -22,3 +22,4 @@ export { OfflineIndicator } from './OfflineIndicator';
 export { RateLimitCountdown } from './RateLimitCountdown';
 export * from './Drawer';
 export * from './AdvancedFilter';
+export { PageLoader } from './PageLoader';

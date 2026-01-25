@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trash2, UserPlus, Clock, UserCog } from 'lucide-react';
-import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, ConfirmationModal, PaginationControls } from '@/shared/ui';
+import { ActionMenu, Card, CardHeader, Table, Badge, Button, PermissionGate, PaginationControls } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { organizacionesApi } from '@/services/endpoints';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { UsuarioOrganizacionDto, ListaPaginada } from '@/shared/types/api';

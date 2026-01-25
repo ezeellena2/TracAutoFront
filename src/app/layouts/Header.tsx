@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ChevronDown, Building2, Shield, Moon, Sun } from 'lucide-react';
+import { LogOut, User, ChevronDown, Building2, Shield, Moon, Sun, FileEdit } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
+import { useAuthStore, useTenantStore, useThemeStore, useModoSolicitudStore } from '@/store';
 import { authService } from '@/services/auth.service';
 import { LanguageSwitcher } from '@/shared/ui/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ export function Header() {
   const { user } = useAuthStore();
   const { currentOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode } = useThemeStore();
+  const { activo, toggle } = useModoSolicitudStore();
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -74,8 +75,19 @@ export function Header() {
         )}
       </div>
 
-      {/* User menu */}
-      <div className="relative" ref={dropdownRef}>
+      {/* Modo Solicitud toggle + User menu */}
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={toggle}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${activo ? 'bg-primary text-white' : 'text-text-muted hover:text-text hover:bg-background'}`}
+          title={t('header.modoSolicitud')}
+          aria-pressed={activo}
+        >
+          <FileEdit size={18} />
+          <span className="hidden sm:inline">{t('header.modoSolicitud')}</span>
+        </button>
+        <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-background transition-colors"
@@ -156,6 +168,7 @@ export function Header() {
             </button>
           </div>
         )}
+        </div>
       </div>
     </header>
   );

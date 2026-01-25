@@ -4,12 +4,17 @@ import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ToastContainer, ErrorBoundary } from '@/shared/ui';
-import { useSidebarStore, useAuthStore, useLocalizationStore } from '@/store';
+import { useSidebarStore, useAuthStore, useLocalizationStore, useModoSolicitudStore } from '@/store';
+import { useCrKeyDetection } from '@/hooks';
+import { SolicitudCambioModal } from '@/features/solicitudes-cambio';
 
 export function MainLayout() {
   const { isCollapsed, openMobile } = useSidebarStore();
   const { isAuthenticated } = useAuthStore();
   const { preferences, loadPreferences, isLoading } = useLocalizationStore();
+  const { selectedContext, clearSelection } = useModoSolicitudStore();
+
+  useCrKeyDetection();
 
   // Cargar preferencias de localización una vez post-auth
   useEffect(() => {
@@ -46,6 +51,13 @@ export function MainLayout() {
       </div>
       {/* Notificaciones Toast globales */}
       <ToastContainer />
+
+      {/* Modal chat Modo Solicitud (click en data-cr-key) */}
+      <SolicitudCambioModal
+        isOpen={!!selectedContext}
+        onClose={clearSelection}
+        contexto={selectedContext}
+      />
     </div>
   );
 }

@@ -26,7 +26,7 @@ export function AssignVehicleModal({
 }: AssignVehicleModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 

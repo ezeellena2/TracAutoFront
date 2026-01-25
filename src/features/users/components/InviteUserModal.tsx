@@ -18,7 +18,7 @@ type RolOption = 'Admin' | 'Operador' | 'Analista';
 export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [email, setEmail] = useState('');
   const [rol, setRol] = useState<RolOption>('Analista');
   const [isLoading, setIsLoading] = useState(false);

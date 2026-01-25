@@ -39,3 +39,14 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# AI / Agent Tools
+.agent/
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.github/skills/
+.opencode/
+.windsurf/

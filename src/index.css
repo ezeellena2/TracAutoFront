@@ -128,3 +128,10 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* Modo Solicitud: highlight en elementos con data-cr-key al hover */
+.tracauto-cr-key-highlight {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  cursor: pointer;
+}

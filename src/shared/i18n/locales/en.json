@@ -91,7 +91,9 @@
     "darkMode": "Dark mode",
     "lightMode": "Light mode",
     "logout": "Logout",
-    "language": "Language"
+    "language": "Language",
+    "modoSolicitud": "Request mode",
+    "modoSolicitudPlaceholder": "Request chat (coming soon)"
   },
   "sidebar": {
     "dashboard": "Dashboard",

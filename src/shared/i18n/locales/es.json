@@ -123,7 +123,9 @@
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro",
     "logout": "Cerrar sesión",
-    "language": "Idioma"
+    "language": "Idioma",
+    "modoSolicitud": "Modo Solicitud",
+    "modoSolicitudPlaceholder": "Chat de solicitud (próximamente)"
   },
   "sidebar": {
     "dashboard": "Dashboard",

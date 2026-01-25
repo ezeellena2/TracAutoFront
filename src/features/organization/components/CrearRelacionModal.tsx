@@ -21,7 +21,7 @@ export function CrearRelacionModal({
 }: CrearRelacionModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [organizacionDestinoId, setOrganizacionDestinoId] = useState('');
   const [compartirRecursos, setCompartirRecursos] = useState(true);
   const [organizaciones, setOrganizaciones] = useState<OrganizacionDto[]>([]);

@@ -17,7 +17,7 @@ interface CreateDriverModalProps {
 export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [form, setForm] = useState<CreateConductorCommand>({
     nombreCompleto: '',
     dni: '',

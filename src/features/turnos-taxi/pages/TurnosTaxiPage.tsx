@@ -5,7 +5,8 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, CheckCircle, Car, MapPin } from 'lucide-react';
-import { Card, Button, KPICard, PaginationControls, ConfirmationModal } from '@/shared/ui';
+import { Card, Button, KPICard, PaginationControls } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { TurnosTaxiTable, TurnosTaxiFilters, TurnoTaxiModal, TurnosTimeline, SimuladorHora } from '../components';
 import type { DiaSemana } from '../types';
 import { useTurnosTaxi } from '../hooks/useTurnosTaxi';

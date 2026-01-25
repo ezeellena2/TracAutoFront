@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, ConfirmationModal, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { vehiculosApi, dispositivosApi, reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
@@ -404,6 +405,11 @@ export function VehiclesPage() {
                   size="sm"
                   onClick={() => handleOpenEdit(v)}
                   title={t('vehicles.table.editVehicle')}
+                  data-cr-key="vehiculo-table-acciones-editar"
+                  data-route="/vehiculos"
+                  data-label="Tabla de Vehículos - Botón Editar"
+                  data-entity-type="Vehiculo"
+                  data-entity-id={v.id}
                 >
                   <Edit size={16} />
                 </Button>
@@ -524,7 +530,12 @@ export function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div
+        className="flex items-center justify-between"
+        data-cr-key="vehiculos-page-header"
+        data-route="/vehiculos"
+        data-label="Página de Vehículos - Header"
+      >
         <div>
           <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
           <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
@@ -539,7 +550,12 @@ export function VehiclesPage() {
               <Upload size={16} className="mr-2" />
               {t('imports.import', { defaultValue: 'Importar' })}
             </Button>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              data-cr-key="vehiculos-page-crear"
+              data-route="/vehiculos"
+              data-label="Página de Vehículos - Botón Crear"
+            >
               <Plus size={16} className="mr-2" />
               {t('vehicles.createVehicle')}
             </Button>
@@ -597,7 +613,12 @@ export function VehiclesPage() {
         onClearFilters={clearFilters}
       />
 
-      <Card padding="none">
+      <div
+        data-cr-key="vehiculos-table"
+        data-route="/vehiculos"
+        data-label="Tabla de Vehículos"
+      >
+        <Card padding="none">
         <Table
           columns={columns}
           data={vehicles}
@@ -616,7 +637,8 @@ export function VehiclesPage() {
             disabled={isLoading}
           />
         )}
-      </Card>
+        </Card>
+      </div>
 
       {/* Create Modal */}
       <CreateVehicleModal
