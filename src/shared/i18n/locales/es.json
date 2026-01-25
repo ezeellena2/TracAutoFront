@@ -141,8 +141,114 @@
     "organizationLabel": "Organización",
     "organizationAppearance": "Apariencia",
     "organizationRelations": "Relaciones",
+    "organizationChangeRequests": "Solicitudes de Cambio",
     "marketplace": "Marketplace",
     "imports": "Importaciones"
+  },
+  "organization": {
+    "relations": {
+      "title": "Relaciones entre Organizaciones",
+      "subtitle": "Gestiona las relaciones con otras organizaciones",
+      "create": {
+        "title": "Crear Relación",
+        "searchOrganization": "Buscar Organización",
+        "searchPlaceholder": "Buscar por nombre...",
+        "selectOrganization": "Seleccionar Organización",
+        "selectPlaceholder": "Seleccione una organización...",
+        "description": "Busca y selecciona la organización con la que deseas vincularte.",
+        "autoShare": "Ofrecer compartir mis recursos automáticamente",
+        "autoShareDescription": "Si marcas esta opción, se ofrecerá acceso a tus vehículos, conductores y dispositivos.",
+        "noOrganizations": "No se encontraron organizaciones disponibles.",
+        "submit": "Enviar Solicitud"
+      },
+      "pendingRequests": {
+        "title": "Solicitudes Pendientes",
+        "sent": "ENVIADA",
+        "received": "RECIBIDA",
+        "manageRequest": "Gestionar Solicitud",
+        "waitingResponse": "Esperando respuesta...",
+        "cancelRequest": "Cancelar Solicitud"
+      },
+      "table": {
+        "organization": "Organización",
+        "relationType": "Tipo de Relación",
+        "noType": "Sin tipo definido",
+        "status": "Estado",
+        "createdDate": "Fecha de Creación"
+      },
+      "assign": {
+        "title": "Asignar Recursos"
+      },
+      "actions": {
+        "delete": "Eliminar Relación"
+      },
+      "delete": {
+        "title": "Eliminar Relación",
+        "message": "¿Estás seguro de que deseas eliminar esta relación? Esta acción no se puede deshacer."
+      }
+    },
+    "exclusions": {
+      "manageTitle": "Gestionar Exclusiones"
+    }
+  },
+  "solicitudesCambio": {
+    "title": "Solicitudes de Cambio",
+    "subtitle": "Gestiona las solicitudes de cambio del sistema creadas por usuarios",
+    "table": {
+      "estado": "Estado",
+      "contexto": "Contexto",
+      "route": "Ruta",
+      "crKey": "Clave CR",
+      "label": "Etiqueta",
+      "fechaCreacion": "Fecha de Creación",
+      "jiraIssue": "Ticket Jira",
+      "acciones": "Acciones"
+    },
+    "estados": {
+      "draft": "Borrador",
+      "needsInfo": "Requiere Información",
+      "ready": "Lista",
+      "submitted": "Enviada",
+      "exported": "Exportada",
+      "failed": "Fallida"
+    },
+    "actions": {
+      "verDetalles": "Ver Detalles",
+      "abrirJira": "Abrir en Jira",
+      "abrirChat": "Abrir Chat",
+      "borrar": "Borrar",
+      "nuevaSolicitud": "Nueva Solicitud"
+    },
+    "empty": "No hay solicitudes de cambio",
+    "error": "Error al cargar las solicitudes",
+    "crear": {
+      "title": "Nueva Solicitud de Cambio",
+      "description": "Describe el cambio que deseas solicitar",
+      "placeholder": "Ej: Me gustaría agregar un filtro de búsqueda en la tabla de vehículos...",
+      "crear": "Crear Solicitud",
+      "cancelar": "Cancelar",
+      "success": "Solicitud creada exitosamente"
+    },
+    "borrar": {
+      "title": "Borrar Solicitud",
+      "description": "¿Estás seguro de que deseas borrar esta solicitud?",
+      "descriptionExported": "Esta solicitud ya fue exportada a Jira. ¿Estás seguro de que deseas borrarla? Esto también borrará el ticket de Jira asociado.",
+      "confirmar": "Borrar",
+      "cancelar": "Cancelar",
+      "success": "Solicitud borrada exitosamente",
+      "error": "Error al borrar la solicitud"
+    },
+    "modal": {
+      "loading": "Cargando...",
+      "emptyMessage": "Escribí el cambio que necesitás. El asistente te hará preguntas para generar el ticket.",
+      "inputPlaceholder": "Describí el cambio que necesitás...",
+      "submitted": "Enviado a Jira. El issue se creará en breve. Actualizá la página para ver el enlace.",
+      "ready": "Listo para enviar a Jira.",
+      "sending": "Enviando…",
+      "sendToJira": "Enviar a Jira",
+      "errorLoading": "Error al cargar",
+      "errorSending": "Error al enviar"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1095,7 +1201,9 @@
         "autoAssignResources": "Asignación automática de recursos",
         "autoAssignResourcesHelp": "Si está habilitado, todos los recursos se compartirán automáticamente cuando solo haya 1 relación activa",
         "description": "Seleccione la organización con la que desea compartir o recibir recursos. Se enviará una solicitud a sus administradores.",
-        "autoShareDescription": "Si se marca, se ofrecerá acceso a sus vehículos, conductores y dispositivos a la otra organización."
+        "autoShareDescription": "Si se marca, se ofrecerá acceso a sus vehículos, conductores y dispositivos a la otra organización.",
+        "autoShare": "Ofrecer compartir mis recursos automáticamente",
+        "submit": "Enviar Solicitud"
       },
       "table": {
         "organization": "Organización",
@@ -1116,18 +1224,26 @@
       },
       "assign": {
         "title": "Asignar Recursos",
+        "subtitle": "Selecciona los recursos que deseas compartir",
         "vehicles": "Vehículos",
         "devices": "Dispositivos",
         "noVehicles": "No hay vehículos disponibles",
         "noDevices": "No hay dispositivos disponibles",
+        "noResources": "No hay recursos disponibles",
         "noResourcesSelected": "Debe seleccionar al menos un recurso",
         "success": "Recursos asignados correctamente",
         "allowOperationalManagement": "Permitir gestión operativa de los recursos",
-        "resourcesSelected": "recursos seleccionados"
+        "resourcesSelected": "recursos seleccionados",
+        "available": "Disponible",
+        "shared": "Compartido",
+        "excluded": "Excluido",
+        "share": "Compartir"
       },
       "success": {
         "created": "Relación creada correctamente",
-        "requestSent": "Solicitud enviada exitosamente"
+        "requestSent": "Solicitud enviada exitosamente",
+        "accepted": "Solicitud aceptada",
+        "rejected": "Solicitud rechazada"
       },
       "respond": {
         "title": "Responder Solicitud",
@@ -1136,10 +1252,6 @@
         "acceptDescription": "Al aceptar, se establecerá una relación que permitirá compartir recursos según la configuración de cada parte.",
         "shareResourcesDescription": "Si marca esta opción, sus vehículos, conductores y dispositivos serán visibles para {{name}}."
       },
-      "success": {
-        "accepted": "Solicitud aceptada",
-        "rejected": "Solicitud rechazada"
-      },
       "pendingRequests": {
         "title": "Solicitudes Pendientes",
         "sent": "ENVIADA",
@@ -1147,10 +1259,6 @@
         "manageRequest": "Gestionar Solicitud",
         "waitingResponse": "Esperando respuesta...",
         "cancelRequest": "Cancelar Solicitud"
-      },
-      "create": {
-        "autoShare": "Ofrecer compartir mis recursos automáticamente",
-        "submit": "Enviar Solicitud"
       }
     }
   },
@@ -1168,7 +1276,7 @@
     "orClickToSelect": "o haz clic para seleccionar",
     "removeFile": "Remover archivo",
     "fileTypeError": "Solo se permiten archivos .xlsx",
-    "fileSizeError": "El archivo no puede exceder 10MB",
+    "fileSizeError": "El archivo no puede exceder {{max}}",
     "uploading": "Subiendo...",
     "uploadError": "Error al subir el archivo",
     "processing": "Procesando importación...",

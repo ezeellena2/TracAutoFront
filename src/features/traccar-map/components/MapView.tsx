@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
@@ -7,6 +7,7 @@ import { VehicleMarker } from './VehicleMarker';
 import { MapToolbar } from './MapToolbar';
 import { GeofenceLayer } from './GeofenceLayer';
 import { MAP_TILES } from '../types';
+import { useMapShellContext } from './MapShell';
 
 // Fix for default marker icons in webpack/vite builds
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -37,6 +38,65 @@ function MapController() {
     }
     prevSelectedId.current = selectedVehicleId;
   }, [selectedVehicleId, vehicles, map]);
+
+  return null;
+}
+
+// Component to handle map resize when sidebar collapses/expands
+function MapResizeHandler() {
+  const map = useMap();
+  const { isCollapsed } = useMapShellContext();
+  const prevCollapsed = useRef<boolean>(isCollapsed);
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // Get the map container element
+    const container = map.getContainer();
+    if (container) {
+      containerRef.current = container;
+    }
+  }, [map]);
+
+  useEffect(() => {
+    // Only invalidate size when collapse state actually changes
+    if (prevCollapsed.current !== isCollapsed) {
+      // Multiple attempts to ensure resize happens after DOM updates
+      const timers = [
+        setTimeout(() => map.invalidateSize(), 50),
+        setTimeout(() => map.invalidateSize(), 150),
+        setTimeout(() => map.invalidateSize(), 300),
+      ];
+      prevCollapsed.current = isCollapsed;
+      return () => timers.forEach(timer => clearTimeout(timer));
+    }
+  }, [isCollapsed, map]);
+
+  // Use ResizeObserver to detect container size changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Debounce resize calls
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [map]);
+
+  // Also handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [map]);
 
   return null;
 }
@@ -83,7 +143,7 @@ export function MapView() {
         zoom={11}
         className="w-full h-full"
         ref={mapRef}
-        zoomControl={true}
+        zoomControl={false}
       >
         <TileLayer
           key={mapStyle}
@@ -91,7 +151,11 @@ export function MapView() {
           url={tileConfig.url}
         />
         
+        {/* Custom zoom control positioned to avoid conflicts */}
+        <ZoomControl position="bottomright" />
+        
         <MapController />
+        <MapResizeHandler />
         
         {/* Geofences de turnos activos */}
         <GeofenceLayer 

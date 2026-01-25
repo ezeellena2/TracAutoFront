@@ -160,7 +160,7 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
             onClose();
         } catch (e) {
             const parsedError = parseError(e);
-            
+
             // Para errores graves (500+), redirigir a la página de error
             if (parsedError.status >= 500) {
                 navigate('/error', {
@@ -168,7 +168,7 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
                 });
                 return;
             }
-            
+
             // Para otros errores (validación, conflictos, etc.), mostrar toast
             toast.error(parsedError.message);
         } finally {

@@ -8,8 +8,8 @@ import type {
   AsignarVehiculoRequest,
   AsignarDispositivoRequest,
 } from '@/features/drivers/types';
-import type { 
-  ListaPaginada, 
+import type {
+  ListaPaginada,
   PaginacionParams,
   RecursoSharingStatusDto,
   ActualizarComparticionRequest,
@@ -35,7 +35,7 @@ export const conductoresApi = {
     params: GetConductoresParams = {}
   ): Promise<ListaPaginada<ConductorDto>> => {
     const { numeroPagina = 1, tamanoPagina = 10, soloActivos, buscar, soloPropios } = params;
-    
+
     const queryParams: Record<string, string | number | boolean> = {
       numeroPagina,
       tamanoPagina,
@@ -147,7 +147,8 @@ export const conductoresApi = {
     conductorId: string,
     soloActivos?: boolean
   ): Promise<ConductorVehiculoAsignacionDto[]> => {
-    const params = soloActivos !== undefined ? { soloActivos: soloActivos.toString() } : undefined;
+    // P2.3 FIX: Mantener boolean, el apiClient lo serializa correctamente
+    const params = soloActivos !== undefined ? { soloActivos } : undefined;
     const response = await apiClient.get<ConductorVehiculoAsignacionDto[]>(
       `${BASE}/${conductorId}/asignaciones/vehiculos`,
       { params }

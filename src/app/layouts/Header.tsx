@@ -14,18 +14,48 @@ export function Header() {
   const { activo, toggle } = useModoSolicitudStore();
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownMenuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Calculate dropdown position when opening
+  const handleToggleDropdown = () => {
+    if (!isDropdownOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
+    if (!isDropdownOpen) return;
+
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+      const target = event.target as Node;
+      if (
+        buttonRef.current?.contains(target) ||
+        dropdownMenuRef.current?.contains(target)
+      ) {
+        return;
       }
+      setIsDropdownOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    // Use a small delay to avoid immediate closure
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLogout = async () => {
     await authService.logout();
@@ -45,7 +75,7 @@ export function Header() {
   };
 
   return (
-    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6">
+    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6 relative z-[9999]">
       {/* Organization info */}
       <div className="flex items-center gap-4">
         {currentOrganization && (
@@ -89,7 +119,8 @@ export function Header() {
         </button>
         <div className="relative" ref={dropdownRef}>
         <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          ref={buttonRef}
+          onClick={handleToggleDropdown}
           className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-background transition-colors"
         >
           <div className="text-right hidden sm:block">
@@ -106,7 +137,11 @@ export function Header() {
 
         {/* Dropdown */}
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-surface rounded-xl border border-border shadow-xl py-2 z-50">
+          <div 
+            ref={dropdownMenuRef}
+            className="fixed w-64 max-w-[calc(100vw-2rem)] bg-surface rounded-xl border border-border shadow-xl py-2 z-[10000]"
+            style={{ top: `${dropdownPosition.top}px`, right: `${dropdownPosition.right}px` }}
+          >
             {/* User info */}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center gap-3 mb-2">

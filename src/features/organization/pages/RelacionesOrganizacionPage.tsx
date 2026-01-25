@@ -47,7 +47,7 @@ export function RelacionesOrganizacionPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { can } = usePermissions();
-  const canManage = can('usuarios:editar'); // TODO: Permission for relations?
+  const canManage = can('organizacion:editar');
 
   // Ref for error handler to avoid dependency in useCallback
   const getErrorMessageRef = useRef(getErrorMessage);
@@ -76,6 +76,10 @@ export function RelacionesOrganizacionPage() {
       setIsLoading(false);
     }
   }, [paginationParams]); // getErrorMessage removed from dependencies
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Auto-ajustar página si excede el total (ej: después de eliminar registros)
   const totalPaginas = relacionesData?.totalPaginas ?? 0;
@@ -261,7 +265,6 @@ export function RelacionesOrganizacionPage() {
           isOpen={!!relacionToAssignResources}
           onClose={() => setRelacionToAssignResources(null)}
           relacionId={relacionToAssignResources}
-          organizacionActualId={organizacionId} // FIXED: organizacionActualId
           onSuccess={() => {
             // P1.4 FIX: Recargar datos después de asignación exitosa
             loadData();

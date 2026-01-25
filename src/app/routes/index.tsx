@@ -20,6 +20,7 @@ const DriversPage = lazy(() => import('@/features/drivers/pages/DriversPage').th
 const AcceptInvitationPage = lazy(() => import('@/features/invitations/pages/AcceptInvitationPage').then(m => ({ default: m.AcceptInvitationPage })));
 const BrandingPage = lazy(() => import('@/features/organization/pages/BrandingPage').then(m => ({ default: m.BrandingPage })));
 const RelacionesOrganizacionPage = lazy(() => import('@/features/organization/pages/RelacionesOrganizacionPage').then(m => ({ default: m.RelacionesOrganizacionPage })));
+const SolicitudesCambioPage = lazy(() => import('@/features/organization/pages/SolicitudesCambioPage').then(m => ({ default: m.SolicitudesCambioPage })));
 const TraccarMapPage = lazy(() => import('@/features/traccar-map/pages/TraccarMapPage').then(m => ({ default: m.TraccarMapPage })));
 const ReplayPage = lazy(() => import('@/features/replay/pages/ReplayPage').then(m => ({ default: m.ReplayPage })));
 const MarketplacePage = lazy(() => import('@/features/marketplace/pages/MarketplacePage').then(m => ({ default: m.MarketplacePage })));
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
       {
         path: 'configuracion/empresa/relaciones',
         element: withSuspense(RelacionesOrganizacionPage),
+      },
+      {
+        path: 'configuracion/empresa/solicitudes-cambio',
+        element: withSuspense(SolicitudesCambioPage),
       },
       {
         path: 'turnos-taxi',

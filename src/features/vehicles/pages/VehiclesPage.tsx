@@ -273,10 +273,14 @@ export function VehiclesPage() {
 
   const vehicles = vehiclesData?.items ?? [];
 
-  const getDeviceName = (deviceId: string | null) => {
-    if (!deviceId) return null;
-    const device = devices.find(d => d.id === deviceId);
-    return device?.nombre || device?.uniqueId || t('vehicles.deviceName');
+  const getDeviceIdentifier = (v: VehiculoDto): string | null => {
+    if (!v.dispositivoActivoId) return null;
+    const device = devices.find(d => d.id === v.dispositivoActivoId);
+    if (device?.uniqueId) return device.uniqueId;
+    const name = v.dispositivoActivoNombre;
+    if (!name) return null;
+    const match = name.replace(/^(?:Dispositivo|Device)\s+/i, '').trim();
+    return match || name;
   };
 
   const columns = [
@@ -297,10 +301,9 @@ export function VehiclesPage() {
       key: 'dispositivo',
       header: t('vehicles.device'),
       render: (v: VehiculoDto) => {
-        // Prioritize name from DTO (supports shared devices not in local list)
-        const deviceName = v.dispositivoActivoNombre || getDeviceName(v.dispositivoActivoId);
-        return deviceName ? (
-          <Badge variant="info">{deviceName}</Badge>
+        const identifier = getDeviceIdentifier(v);
+        return identifier ? (
+          <Badge variant="info">{identifier}</Badge>
         ) : (
           <span className="text-text-muted">{t('vehicles.table.unassigned')}</span>
         );

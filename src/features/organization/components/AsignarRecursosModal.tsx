@@ -19,7 +19,7 @@ interface AsignarRecursosModalProps {
   onClose: () => void;
   onSuccess: () => void;
   relacionId: string;
-  organizacionActualId: string;
+  // P1.5 FIX: Removido organizacionActualId - no era usado en el componente
 }
 
 const PAGE_SIZE = 15;
@@ -169,7 +169,7 @@ export function AsignarRecursosModal({
       onClose();
     } catch (err) {
       const parsedError = parseError(err);
-      
+
       // Para errores graves (500+), redirigir a la página de error
       if (parsedError.status >= 500) {
         navigate('/error', {
@@ -177,7 +177,7 @@ export function AsignarRecursosModal({
         });
         return;
       }
-      
+
       // Para otros errores (validación, conflictos, etc.), mostrar toast
       toast.error(parsedError.message);
     } finally {

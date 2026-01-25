@@ -132,12 +132,12 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
   };
 
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex gap-2">
+    <div className="absolute top-4 left-4 right-4 z-[1000] flex gap-2 flex-wrap justify-end max-w-full">
       {/* Organization Filter */}
-      <div className="relative" ref={filterMenuRef}>
+      <div className="relative flex-shrink-0" ref={filterMenuRef}>
         <button
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-          className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg ${filterMode !== 'all'
+          className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg flex-shrink-0 ${filterMode !== 'all'
             ? 'bg-primary border-primary text-white hover:bg-primary/90'
             : 'bg-surface border-border text-text hover:bg-background'
             }`}
@@ -202,7 +202,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       <button
         onClick={toggleGeofences}
         className={`
-          flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg
+          flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg flex-shrink-0
           ${showGeofences
             ? 'bg-primary border-primary text-white hover:bg-primary/90'
             : 'bg-surface border-border text-text hover:bg-background'
@@ -219,10 +219,10 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       </button>
 
       {/* Map Style Selector */}
-      <div className="relative" ref={styleMenuRef}>
+      <div className="relative flex-shrink-0" ref={styleMenuRef}>
         <button
           onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)}
-          className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg"
+          className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg flex-shrink-0"
           title={t('map.mapType')}
         >
           <Layers size={18} />
@@ -255,7 +255,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       <button
         onClick={onCenterFleet}
         disabled={vehicles.length === 0}
-        className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
         title={t('map.centerFleet')}
       >
         <Focus size={18} />
@@ -266,7 +266,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       <button
         onClick={onCenterSelected}
         disabled={!selectedVehicleId}
-        className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-text hover:bg-background transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
         title={t('map.centerSelected')}
       >
         <Crosshair size={18} />
@@ -274,11 +274,11 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
       </button>
 
       {/* Labels Config Button */}
-      <div className="relative" ref={labelMenuRef}>
+      <div className="relative flex-shrink-0" ref={labelMenuRef}>
         <button
           onClick={() => setIsLabelMenuOpen(!isLabelMenuOpen)}
           className={`
-            flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg
+            flex items-center gap-2 px-3 py-2 border rounded-lg transition-all duration-200 shadow-lg flex-shrink-0
             ${labelConfig.enabled
               ? 'bg-primary border-primary text-white'
               : 'bg-surface border-border text-text hover:bg-background'

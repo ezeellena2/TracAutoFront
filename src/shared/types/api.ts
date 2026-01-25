@@ -260,6 +260,8 @@ export interface ListaPaginada<T> {
   tamanoPagina: number;
   totalPaginas: number;
   totalRegistros: number;
+  /** P1.1 FIX: Estadísticas opcionales calculadas en backend */
+  estadisticas?: Record<string, number>;
 }
 
 export interface PaginacionParams {
@@ -271,7 +273,14 @@ export interface PaginacionParams {
 
 // ==================== Solicitudes de Cambio ====================
 
-export type EstadoSolicitudCambio = 0 | 1 | 2 | 3 | 4 | 5; // Draft, NeedsInfo, Ready, Submitted, Exported, Failed
+export enum EstadoSolicitudCambio {
+  Draft = 0,
+  NeedsInfo = 1,
+  Ready = 2,
+  Submitted = 3,
+  Exported = 4,
+  Failed = 5,
+}
 
 export interface MensajeChatDto {
   id: string;
@@ -283,9 +292,9 @@ export interface MensajeChatDto {
 
 export interface SolicitudCambioDto {
   id: string;
-  route: string;
-  crKey: string;
-  label: string;
+  route?: string | null;
+  crKey?: string | null;
+  label?: string | null;
   estado: EstadoSolicitudCambio;
   jiraIssueKey?: string | null;
   jiraIssueUrl?: string | null;
@@ -295,9 +304,9 @@ export interface SolicitudCambioDto {
 }
 
 export interface CrearSolicitudRequest {
-  route: string;
-  crKey: string;
-  label: string;
+  route?: string | null;
+  crKey?: string | null;
+  label?: string | null;
   entityType?: string | null;
   entityId?: string | null;
   mensajeInicial?: string | null;
@@ -650,6 +659,8 @@ export interface RelacionSharingItemDto {
   asignacionId?: string | null;
   /** ID de la exclusión activa (si está excluido) */
   exclusionId?: string | null;
+  /** Nivel de permiso de la asignación (si está compartido) */
+  permiso?: NivelPermisoCompartido | null;
 }
 
 /**

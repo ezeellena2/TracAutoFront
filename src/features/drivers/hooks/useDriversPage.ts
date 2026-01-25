@@ -11,6 +11,8 @@ import type {
 } from '../types';
 import type { ListaPaginada, DispositivoDto } from '@/shared/types/api';
 import type { VehiculoDto } from '@/features/vehicles/types';
+import { formatDate, formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalizationStore } from '@/store/localization.store';
 
 
 export interface UseDriversPageProps {
@@ -420,10 +422,6 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   // Table helpers - Use formatters from dateFormatter module with store preferences
   // These are kept as local functions for backwards compatibility with DriversTable prop interface
   const formatDateFn = (dateStr: string) => {
-    // Import lazily to avoid circular dependencies issues - 
-    // consumers should prefer importing from @/shared/utils/dateFormatter directly
-    const { formatDate } = require('@/shared/utils/dateFormatter');
-    const { useLocalizationStore } = require('@/store/localization.store');
     const preferences = useLocalizationStore.getState().preferences;
     const culture = preferences?.culture ?? 'es-AR';
     const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
@@ -431,8 +429,6 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   };
 
   const formatDateTimeFn = (dateStr: string) => {
-    const { formatDateTime } = require('@/shared/utils/dateFormatter');
-    const { useLocalizationStore } = require('@/store/localization.store');
     const preferences = useLocalizationStore.getState().preferences;
     const culture = preferences?.culture ?? 'es-AR';
     const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';

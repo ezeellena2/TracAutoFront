@@ -485,7 +485,7 @@ export function DevicesPage() {
             <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
           </div>
           {canCreate && (
-            <>
+            <div className="flex items-center gap-2">
               <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting}>
                 <Download size={16} className="mr-2" />
                 {t('imports.export', { defaultValue: 'Exportar' })}
@@ -498,7 +498,7 @@ export function DevicesPage() {
                 <Plus size={16} className="mr-2" />
                 {t('devices.createDevice')}
               </Button>
-            </>
+            </div>
           )}
         </div>
         <Card>

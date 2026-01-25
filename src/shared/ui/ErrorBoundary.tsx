@@ -42,7 +42,7 @@ function generateErrorId(): string {
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { 
+    this.state = {
       hasError: false,
       errorId: '',
       timestamp: '',
@@ -52,8 +52,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Actualiza el estado para mostrar el fallback en el próximo render
-    return { 
-      hasError: true, 
+    return {
+      hasError: true,
       error,
       errorId: generateErrorId(),
       timestamp: new Date().toISOString()
@@ -79,9 +79,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   handleRetry = (): void => {
     // Resetea el estado para intentar renderizar de nuevo
-    this.setState({ 
-      hasError: false, 
-      error: undefined, 
+    this.setState({
+      hasError: false,
+      error: undefined,
       errorInfo: undefined,
       errorId: '',
       timestamp: '',
@@ -115,9 +115,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       url: window.location.href,
       userAgent: navigator.userAgent
     };
-    
+
     console.log('[ErrorBoundary] Crear ticket con datos:', ticketData);
-    
+
     // TODO: Integrar con Jira/sistema de tickets
     // Por ahora mostramos un alert informativo
     alert(

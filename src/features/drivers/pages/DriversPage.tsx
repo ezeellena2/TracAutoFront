@@ -16,7 +16,7 @@ import { AssignVehicleModal } from '../components/AssignVehicleModal';
 import { AssignDeviceModal } from '../components/AssignDeviceModal';
 import { ViewAssignmentsModal } from '../components/ViewAssignmentsModal';
 import { GestionarComparticionModal } from '@/features/organization';
-import type { TipoRecurso } from '@/shared/types/api';
+import { TipoRecurso } from '@/shared/types/api'; // P2.1 FIX: Usar enum directamente
 import type { ConductorDto } from '../types';
 
 const driverFiltersConfig: FilterConfig[] = [
@@ -280,8 +280,9 @@ export function DriversPage() {
                   <UserCheck size={24} className="text-success" />
                 </div>
                 <div>
+                  {/* P1.1 FIX: Usar estadísticas del backend, no conteo de página */}
                   <p className="text-2xl font-bold text-text">
-                    {conductoresData?.items.filter((c) => c.activo).length ?? 0}
+                    {conductoresData?.estadisticas?.activos ?? conductoresData?.items.filter((c) => c.activo).length ?? 0}
                   </p>
                   <p className="text-sm text-text-muted">{t('drivers.activeDrivers', { defaultValue: 'Activos' })}</p>
                 </div>
@@ -293,8 +294,9 @@ export function DriversPage() {
                   <UserX size={24} className="text-error" />
                 </div>
                 <div>
+                  {/* P1.1 FIX: Usar estadísticas del backend, no conteo de página */}
                   <p className="text-2xl font-bold text-text">
-                    {conductoresData?.items.filter((c) => !c.activo).length ?? 0}
+                    {conductoresData?.estadisticas?.inactivos ?? conductoresData?.items.filter((c) => !c.activo).length ?? 0}
                   </p>
                   <p className="text-sm text-text-muted">{t('drivers.inactiveDrivers', { defaultValue: 'Inactivos' })}</p>
                 </div>
@@ -314,34 +316,34 @@ export function DriversPage() {
             data-route="/conductores"
             data-label="Tabla de Conductores"
           >
-          <Card padding="none" className="overflow-visible">
-            <DriversTable
-              conductores={conductores}
-              canEdit={canEdit}
-              canDelete={canDelete}
-              actionMenuOpen={actionMenuOpen}
-              onActionMenuToggle={setActionMenuOpen}
-              onEdit={handleOpenEdit}
-              onViewAssignments={handleOpenViewAssignments}
-              onAssignVehicle={handleOpenAssignVehicle}
-              onAssignDevice={handleOpenAssignDevice}
-              onDelete={handleOpenDelete}
-              onReactivate={handleOpenReactivate}
-              onShare={setConductorToShare}
-              formatDate={formatDate}
-            />
-            {conductoresData && conductoresData.totalRegistros > 0 && (
-              <PaginationControls
-                paginaActual={conductoresData.paginaActual}
-                totalPaginas={conductoresData.totalPaginas}
-                tamanoPagina={conductoresData.tamanoPagina}
-                totalRegistros={conductoresData.totalRegistros}
-                onPageChange={setNumeroPagina}
-                onPageSizeChange={setTamanoPagina}
-                disabled={isLoading}
+            <Card padding="none" className="overflow-visible">
+              <DriversTable
+                conductores={conductores}
+                canEdit={canEdit}
+                canDelete={canDelete}
+                actionMenuOpen={actionMenuOpen}
+                onActionMenuToggle={setActionMenuOpen}
+                onEdit={handleOpenEdit}
+                onViewAssignments={handleOpenViewAssignments}
+                onAssignVehicle={handleOpenAssignVehicle}
+                onAssignDevice={handleOpenAssignDevice}
+                onDelete={handleOpenDelete}
+                onReactivate={handleOpenReactivate}
+                onShare={setConductorToShare}
+                formatDate={formatDate}
               />
-            )}
-          </Card>
+              {conductoresData && conductoresData.totalRegistros > 0 && (
+                <PaginationControls
+                  paginaActual={conductoresData.paginaActual}
+                  totalPaginas={conductoresData.totalPaginas}
+                  tamanoPagina={conductoresData.tamanoPagina}
+                  totalRegistros={conductoresData.totalRegistros}
+                  onPageChange={setNumeroPagina}
+                  onPageSizeChange={setTamanoPagina}
+                  disabled={isLoading}
+                />
+              )}
+            </Card>
           </div>
         </>
       )}
@@ -465,7 +467,7 @@ export function DriversPage() {
           isOpen={!!conductorToShare}
           onClose={() => setConductorToShare(null)}
           resourceId={conductorToShare.id}
-          resourceType={2 as TipoRecurso} // TipoRecurso.Conductor
+          resourceType={TipoRecurso.Conductor} // P2.1 FIX: Usar enum en lugar de magic number
           resourceName={conductorToShare.nombreCompleto}
           onSuccess={loadData}
         />

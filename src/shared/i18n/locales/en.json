@@ -763,7 +763,7 @@
     "orClickToSelect": "or click to select",
     "removeFile": "Remove file",
     "fileTypeError": "Only .xlsx files are allowed",
-    "fileSizeError": "File cannot exceed 10MB",
+    "fileSizeError": "File cannot exceed {{max}}",
     "uploading": "Uploading...",
     "uploadError": "Error uploading file",
     "processing": "Processing import...",

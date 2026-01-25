@@ -92,7 +92,7 @@ export function GestionarComparticionModal({
             // Convertir a estado local con tracking de cambios
             const relacionesConEstado: RelacionConEstadoLocal[] = data.relaciones.map((rel) => {
                 const estadoOriginal = getEstadoFromDto(rel);
-                const permisoOriginal = (rel as any).permiso === NivelPermisoCompartido.GestionOperativa;
+                const permisoOriginal = rel.permiso === NivelPermisoCompartido.GestionOperativa;
                 return {
                     ...rel,
                     estadoLocal: estadoOriginal,
@@ -308,8 +308,8 @@ export function GestionarComparticionModal({
                         <span>{t('organization.sharing.relations', 'Relaciones')}</span>
                         {relaciones.length > 0 && (
                             <span className="text-text-muted font-normal">
-                                {relaciones.length} {relaciones.length === 1 
-                                    ? t('organization.sharing.relation') 
+                                {relaciones.length} {relaciones.length === 1
+                                    ? t('organization.sharing.relation')
                                     : t('organization.sharing.relations_plural')}
                             </span>
                         )}

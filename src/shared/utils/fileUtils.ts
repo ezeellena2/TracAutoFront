@@ -40,16 +40,19 @@ export function formatFileSize(bytes: number): string {
  */
 export const MAX_EXCEL_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+/** i18n keys for validation errors (use with t(key) or t(key, { max })). */
+export const IMPORT_ERROR_KEYS = {
+  invalidExtension: 'imports.fileTypeError',
+  fileTooLarge: 'imports.fileSizeError',
+} as const;
+
 /**
- * Validates file for Excel import
- * Returns error message if invalid, null if valid
+ * Validates file for Excel import.
+ * Returns i18n error key if invalid, null if valid.
+ * For fileTooLarge, use t(key, { max: formatFileSize(MAX_EXCEL_FILE_SIZE) }).
  */
 export function validateExcelFile(file: File): string | null {
-  if (!isValidExcelFile(file)) {
-    return 'Solo se permiten archivos .xlsx';
-  }
-  if (file.size > MAX_EXCEL_FILE_SIZE) {
-    return `El archivo no puede exceder ${formatFileSize(MAX_EXCEL_FILE_SIZE)}`;
-  }
+  if (!isValidExcelFile(file)) return IMPORT_ERROR_KEYS.invalidExtension;
+  if (file.size > MAX_EXCEL_FILE_SIZE) return IMPORT_ERROR_KEYS.fileTooLarge;
   return null;
 }

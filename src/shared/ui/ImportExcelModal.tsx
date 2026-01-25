@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Upload, X, FileSpreadsheet, AlertCircle, Loader2 } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
-import { validateExcelFile, formatFileSize } from '../utils/fileUtils';
+import { validateExcelFile, formatFileSize, IMPORT_ERROR_KEYS, MAX_EXCEL_FILE_SIZE } from '../utils/fileUtils';
 
 interface ImportExcelModalProps {
   isOpen: boolean;
@@ -31,22 +31,30 @@ export function ImportExcelModal({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileSelect = useCallback((file: File) => {
-    setError(null);
-    const validationError = validateExcelFile(file);
-    if (validationError) {
-      setError(validationError);
-      setSelectedFile(null);
-      return;
-    }
-    setSelectedFile(file);
-  }, []);
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      setError(null);
+      const code = validateExcelFile(file);
+      if (code) {
+        const msg =
+          code === IMPORT_ERROR_KEYS.fileTooLarge
+            ? t(code, { max: formatFileSize(MAX_EXCEL_FILE_SIZE) })
+            : t(code);
+        setError(msg);
+        setSelectedFile(null);
+        return;
+      }
+      setSelectedFile(file);
+    },
+    [t]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleFileSelect(file);
     }
+    e.target.value = '';
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {

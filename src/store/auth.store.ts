@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
-        // token: EXCLUIDO - no persistir en localStorage (XSS risk)
+        token: state.token, // Habilitado para soportar F5 sin depender exclusivamente de cookies
         organizationId: state.organizationId,
       }),
     }

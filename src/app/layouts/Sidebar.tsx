@@ -16,7 +16,8 @@ import {
   ShoppingCart,
   Clock,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FileText
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +61,7 @@ const navItems: NavItem[] = [
       { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
       { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organizationAppearance', icon: Palette },
       { path: '/configuracion/empresa/relaciones', labelKey: 'sidebar.organizationRelations', icon: Link2 },
+      { path: '/configuracion/empresa/solicitudes-cambio', labelKey: 'sidebar.organizationChangeRequests', icon: FileText },
     ]
   },
 ];

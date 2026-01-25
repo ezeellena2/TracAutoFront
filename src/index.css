@@ -129,6 +129,12 @@ body {
   padding: 0 !important;
 }
 
+/* Leaflet zoom controls positioning - avoid overlapping attribution */
+.leaflet-bottom.leaflet-right {
+  margin-bottom: 50px !important;
+  margin-right: 10px !important;
+}
+
 /* Modo Solicitud: highlight en elementos con data-cr-key al hover */
 .tracauto-cr-key-highlight {
   outline: 2px solid var(--color-primary);

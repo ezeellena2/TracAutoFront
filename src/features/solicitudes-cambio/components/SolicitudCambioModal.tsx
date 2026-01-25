@@ -4,6 +4,7 @@ import { useSolicitudChat } from '../hooks/useSolicitudChat';
 import type { CrKeyContext } from '@/store/modoSolicitud.store';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { EstadoSolicitudCambio } from '@/shared/types/api';
 
 interface SolicitudCambioModalProps {
   isOpen: boolean;
@@ -44,16 +45,16 @@ export function SolicitudCambioModal({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-4 py-2">
           {isLoading && (
-            <p className="text-center text-text-muted py-8">Cargando...</p>
+            <p className="text-center text-text-muted py-8">{t('solicitudesCambio.modal.loading')}</p>
           )}
           {error && (
             <p className="text-center text-error py-4">
-              {(error as Error)?.message ?? 'Error al cargar'}
+              {(error as Error)?.message ?? t('solicitudesCambio.modal.errorLoading')}
             </p>
           )}
           {!isLoading && solicitud?.mensajes?.length === 0 && !error && (
             <p className="text-center text-text-muted py-8">
-              Escribí el cambio que necesitás. El asistente te hará preguntas para generar el ticket.
+              {t('solicitudesCambio.modal.emptyMessage')}
             </p>
           )}
           {solicitud?.mensajes?.map((m) => (
@@ -66,7 +67,7 @@ export function SolicitudCambioModal({
           onSend={enviarMensaje}
           disabled={!contexto}
           isSending={isSending}
-          placeholder="Describí el cambio que necesitás..."
+          placeholder={t('solicitudesCambio.modal.inputPlaceholder')}
         />
       </div>
 
@@ -84,24 +85,24 @@ export function SolicitudCambioModal({
                 {solicitud.jiraIssueKey}
               </a>
             </p>
-          ) : solicitud.estado === 3 ? (
+          ) : solicitud.estado === EstadoSolicitudCambio.Submitted ? (
             <p className="text-text-muted">
-              Enviado a Jira. El issue se creará en breve. Actualizá la página para ver el enlace.
+              {t('solicitudesCambio.modal.submitted')}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              <p className="text-text-muted">Listo para enviar a Jira.</p>
+              <p className="text-text-muted">{t('solicitudesCambio.modal.ready')}</p>
               <button
                 type="button"
                 onClick={enviarAJira}
                 disabled={isEnviando}
                 className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
-                {isEnviando ? 'Enviando…' : 'Enviar a Jira'}
+                {isEnviando ? t('solicitudesCambio.modal.sending') : t('solicitudesCambio.modal.sendToJira')}
               </button>
               {errorEnviar && (
                 <p className="text-error text-xs">
-                  {(errorEnviar as Error)?.message ?? 'Error al enviar'}
+                  {(errorEnviar as Error)?.message ?? t('solicitudesCambio.modal.errorSending')}
                 </p>
               )}
             </div>
