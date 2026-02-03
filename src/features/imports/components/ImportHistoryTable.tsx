@@ -24,6 +24,7 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
   const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<ImportacionJobDto | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const {
     setNumeroPagina,
@@ -102,10 +103,20 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
     }
   };
 
-  const handleViewDetails = (job: ImportacionJobDto) => {
-    setSelectedJob(job);
+  const handleViewDetails = useCallback(async (job: ImportacionJobDto) => {
     setIsDetailsModalOpen(true);
-  };
+    setIsLoadingDetails(true);
+    setSelectedJob(null);
+    try {
+      const fullJob = await reportesApi.obtenerImportacionJob(job.id);
+      setSelectedJob(fullJob);
+    } catch (e) {
+      toast.error(getErrorMessage(e));
+      setIsDetailsModalOpen(false);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  }, [getErrorMessage]);
 
   const columns = [
     {
@@ -236,22 +247,27 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
       </Card>
 
       {/* Details Modal */}
-      {selectedJob && (
-        <ImportResultsModal
-          isOpen={isDetailsModalOpen}
-          onClose={() => {
-            setIsDetailsModalOpen(false);
-            setSelectedJob(null);
-          }}
-          results={{
-            totalFilas: selectedJob.totalFilas ?? 0,
-            filasExitosas: selectedJob.filasExitosas ?? 0,
-            filasConErrores: selectedJob.filasConErrores ?? 0,
-            errores: selectedJob.errores ?? [],
-          }}
-          tipoImportacion={getTipoImportacionLabel(selectedJob.tipoImportacion)}
-        />
-      )}
+      <ImportResultsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedJob(null);
+        }}
+        results={
+          selectedJob
+            ? {
+                jobId: selectedJob.id,
+                totalFilas: selectedJob.totalFilas ?? 0,
+                filasExitosas: selectedJob.filasExitosas ?? 0,
+                filasConErrores: selectedJob.filasConErrores ?? 0,
+                errores: selectedJob.errores ?? [],
+                resultadosDetalle: selectedJob.resultadosDetalle ?? undefined,
+              }
+            : { totalFilas: 0, filasExitosas: 0, filasConErrores: 0, errores: [] }
+        }
+        tipoImportacion={selectedJob ? getTipoImportacionLabel(selectedJob.tipoImportacion) : undefined}
+        isLoading={isLoadingDetails}
+      />
     </>
   );
 }

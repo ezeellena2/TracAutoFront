@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { vehiculosApi, dispositivosApi, reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
-import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters, useImportJobPolling } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type {
   VehiculoDto,
@@ -86,7 +86,13 @@ export function VehiclesPage() {
   // Import modals
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [isImportProcessingModalOpen, setIsImportProcessingModalOpen] = useState(false);
+  const [importJobId, setImportJobId] = useState<string | undefined>(undefined);
   const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
+
+  const { job: polledJob } = useImportJobPolling(
+    isImportProcessingModalOpen ? importJobId : undefined
+  );
 
   // Export state
   const [isExporting, setIsExporting] = useState(false);
@@ -233,22 +239,61 @@ export function VehiclesPage() {
     }
   };
 
-  // Import handler
-  const handleImportVehicles = async (file: File) => {
-    try {
-      const results = await reportesApi.importVehiculosExcel(file);
-      setImportResults(results);
+  // When polled job completes, show results modal and toast
+  useEffect(() => {
+    if (!polledJob || !isImportProcessingModalOpen) return;
+    const isCompleted = polledJob.estado === 2; // EstadoImportacionJob.Completado
+    const isFailed = polledJob.estado === 3; // EstadoImportacionJob.Fallido
+    if (isCompleted || isFailed) {
+      setIsImportProcessingModalOpen(false);
+      setImportJobId(undefined);
+      setImportResults({
+        jobId: polledJob.id,
+        totalFilas: polledJob.totalFilas ?? 0,
+        filasExitosas: polledJob.filasExitosas ?? 0,
+        filasConErrores: polledJob.filasConErrores ?? 0,
+        errores: polledJob.errores ?? [],
+        resultadosDetalle: polledJob.resultadosDetalle ?? undefined,
+      });
       setIsImportResultsModalOpen(true);
-      await loadData();
-      if (results.filasConErrores === 0) {
+      void loadData();
+      if (isFailed) {
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+      } else if ((polledJob.filasConErrores ?? 0) === 0) {
         toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
       } else {
         toast.success(
           t('imports.results.importedCount', {
             defaultValue: 'Se importaron {{count}} filas',
-            count: results.filasExitosas,
+            count: polledJob.filasExitosas ?? 0,
           })
         );
+      }
+    }
+  }, [polledJob, isImportProcessingModalOpen, t, loadData]);
+
+  // Import handler
+  const handleImportVehicles = async (file: File) => {
+    try {
+      const results = await reportesApi.importVehiculosExcel(file);
+      if (results.jobId) {
+        setImportJobId(results.jobId);
+        setIsImportProcessingModalOpen(true);
+        await loadData();
+      } else {
+        setImportResults(results);
+        setIsImportResultsModalOpen(true);
+        await loadData();
+        if (results.filasConErrores === 0) {
+          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        } else {
+          toast.success(
+            t('imports.results.importedCount', {
+              defaultValue: 'Se importaron {{count}} filas',
+              count: results.filasExitosas,
+            })
+          );
+        }
       }
     } catch (e) {
       toast.error(getErrorMessage(e));
@@ -766,6 +811,12 @@ export function VehiclesPage() {
           onSuccess={loadData}
         />
       )}
+
+      {/* Import Processing Modal - shown while job runs in background */}
+      <ImportProcessingModal
+        isOpen={isImportProcessingModalOpen}
+        tipoImportacion={t('imports.importVehicles', { defaultValue: 'Vehículos' })}
+      />
 
       {/* Import Modal */}
       <ImportExcelModal

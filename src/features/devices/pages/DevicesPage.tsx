@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { dispositivosApi, reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
-import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters } from '@/hooks';
+import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters, useImportJobPolling } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { NivelPermisoCompartido } from '@/shared/types/api';
@@ -47,6 +47,7 @@ export function DevicesPage() {
   const [createForm, setCreateForm] = useState({
     traccarDeviceId: '',
     alias: '',
+    numeroTelefono: '',
   });
   const [createErrors, setCreateErrors] = useState<{
     traccarDeviceId?: string;
@@ -57,6 +58,7 @@ export function DevicesPage() {
   const [editForm, setEditForm] = useState({
     alias: '',
     activo: true,
+    numeroTelefono: '',
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -68,7 +70,13 @@ export function DevicesPage() {
   // Import modals
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [isImportProcessingModalOpen, setIsImportProcessingModalOpen] = useState(false);
+  const [importJobId, setImportJobId] = useState<string | undefined>(undefined);
   const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
+
+  const { job: polledJob } = useImportJobPolling(
+    isImportProcessingModalOpen ? importJobId : undefined
+  );
 
   // Export state
   const [isExporting, setIsExporting] = useState(false);
@@ -150,12 +158,13 @@ export function DevicesPage() {
     try {
       await dispositivosApi.createDispositivo(
         traccarDeviceIdNum,
-        createForm.alias.trim() || undefined
+        createForm.alias.trim() || undefined,
+        createForm.numeroTelefono.trim() || undefined
       );
 
       toast.success(t('devices.success.created'));
       setIsCreateModalOpen(false);
-      setCreateForm({ traccarDeviceId: '', alias: '' });
+      setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
 
       // Refetch lista
       await loadDevices();
@@ -185,6 +194,7 @@ export function DevicesPage() {
     setEditForm({
       alias: device.nombre, // El nombre puede ser el alias o "Dispositivo {id}"
       activo: device.activo,
+      numeroTelefono: device.numeroTelefono ?? '',
     });
     setIsEditModalOpen(true);
   };
@@ -198,7 +208,8 @@ export function DevicesPage() {
       await dispositivosApi.updateDispositivo(
         editingDevice.id,
         editForm.alias.trim() || undefined,
-        editForm.activo
+        editForm.activo,
+        editForm.numeroTelefono.trim() || undefined
       );
 
       toast.success(t('devices.success.updated'));
@@ -246,22 +257,61 @@ export function DevicesPage() {
     }
   };
 
-  // Import handler
-  const handleImportDevices = async (file: File) => {
-    try {
-      const results = await reportesApi.importDispositivosExcel(file);
-      setImportResults(results);
+  // When polled job completes, show results modal and toast
+  useEffect(() => {
+    if (!polledJob || !isImportProcessingModalOpen) return;
+    const isCompleted = polledJob.estado === 2;
+    const isFailed = polledJob.estado === 3;
+    if (isCompleted || isFailed) {
+      setIsImportProcessingModalOpen(false);
+      setImportJobId(undefined);
+      setImportResults({
+        jobId: polledJob.id,
+        totalFilas: polledJob.totalFilas ?? 0,
+        filasExitosas: polledJob.filasExitosas ?? 0,
+        filasConErrores: polledJob.filasConErrores ?? 0,
+        errores: polledJob.errores ?? [],
+        resultadosDetalle: polledJob.resultadosDetalle ?? undefined,
+      });
       setIsImportResultsModalOpen(true);
-      await loadDevices();
-      if (results.filasConErrores === 0) {
+      void loadDevices();
+      if (isFailed) {
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+      } else if ((polledJob.filasConErrores ?? 0) === 0) {
         toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
       } else {
         toast.success(
           t('imports.results.importedCount', {
             defaultValue: 'Se importaron {{count}} filas',
-            count: results.filasExitosas,
+            count: polledJob.filasExitosas ?? 0,
           })
         );
+      }
+    }
+  }, [polledJob, isImportProcessingModalOpen, t, loadDevices]);
+
+  // Import handler
+  const handleImportDevices = async (file: File) => {
+    try {
+      const results = await reportesApi.importDispositivosExcel(file);
+      if (results.jobId) {
+        setImportJobId(results.jobId);
+        setIsImportProcessingModalOpen(true);
+        await loadDevices();
+      } else {
+        setImportResults(results);
+        setIsImportResultsModalOpen(true);
+        await loadDevices();
+        if (results.filasConErrores === 0) {
+          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        } else {
+          toast.success(
+            t('imports.results.importedCount', {
+              defaultValue: 'Se importaron {{count}} filas',
+              count: results.filasExitosas,
+            })
+          );
+        }
       }
     } catch (e) {
       toast.error(getErrorMessage(e));
@@ -522,7 +572,7 @@ export function DevicesPage() {
           isOpen={isCreateModalOpen}
           onClose={() => {
             setIsCreateModalOpen(false);
-            setCreateForm({ traccarDeviceId: '', alias: '' });
+            setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
             setCreateErrors({});
           }}
           title={t('devices.createDevice')}
@@ -546,12 +596,20 @@ export function DevicesPage() {
               placeholder={t('devices.form.aliasPlaceholder')}
               helperText={t('devices.form.aliasHelper')}
             />
+            <Input
+              label={t('devices.form.phoneNumber')}
+              type="tel"
+              value={createForm.numeroTelefono}
+              onChange={(e) => setCreateForm({ ...createForm, numeroTelefono: e.target.value })}
+              placeholder={t('devices.form.phoneNumberPlaceholder')}
+              helperText={t('devices.form.phoneNumberHelper')}
+            />
             <div className="flex justify-end gap-3 pt-4">
               <Button
                 variant="outline"
                 onClick={() => {
                   setIsCreateModalOpen(false);
-                  setCreateForm({ traccarDeviceId: '', alias: '' });
+                  setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
                   setCreateErrors({});
                 }}
                 disabled={isCreating}
@@ -697,7 +755,7 @@ export function DevicesPage() {
         isOpen={isCreateModalOpen}
         onClose={() => {
           setIsCreateModalOpen(false);
-          setCreateForm({ traccarDeviceId: '', alias: '' });
+          setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
           setCreateErrors({});
         }}
         title={t('devices.createDevice')}
@@ -721,12 +779,20 @@ export function DevicesPage() {
             placeholder={t('devices.form.aliasPlaceholder')}
             helperText={t('devices.form.aliasHelper')}
           />
+          <Input
+            label={t('devices.form.phoneNumber')}
+            type="tel"
+            value={createForm.numeroTelefono}
+            onChange={(e) => setCreateForm({ ...createForm, numeroTelefono: e.target.value })}
+            placeholder={t('devices.form.phoneNumberPlaceholder')}
+            helperText={t('devices.form.phoneNumberHelper')}
+          />
           <div className="flex justify-end gap-3 pt-4">
             <Button
               variant="outline"
               onClick={() => {
                 setIsCreateModalOpen(false);
-                setCreateForm({ traccarDeviceId: '', alias: '' });
+                setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
                 setCreateErrors({});
               }}
               disabled={isCreating}
@@ -740,7 +806,7 @@ export function DevicesPage() {
         </div>
       </Modal>
 
-      {/* Modal de ediciรณn */}
+      {/* Modal de edición */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => {
@@ -767,6 +833,14 @@ export function DevicesPage() {
             onChange={(e) => setEditForm({ ...editForm, alias: e.target.value })}
             placeholder={t('devices.form.aliasPlaceholder')}
             helperText={t('devices.form.aliasHelper')}
+          />
+          <Input
+            label={t('devices.form.phoneNumber')}
+            type="tel"
+            value={editForm.numeroTelefono}
+            onChange={(e) => setEditForm({ ...editForm, numeroTelefono: e.target.value })}
+            placeholder={t('devices.form.phoneNumberPlaceholder')}
+            helperText={t('devices.form.phoneNumberHelper')}
           />
           <div className="flex items-center gap-3">
             <input
@@ -825,6 +899,12 @@ export function DevicesPage() {
           onSuccess={loadDevices}
         />
       )}
+
+      {/* Import Processing Modal */}
+      <ImportProcessingModal
+        isOpen={isImportProcessingModalOpen}
+        tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
+      />
 
       {/* Import Modal */}
       <ImportExcelModal

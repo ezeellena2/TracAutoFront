@@ -60,38 +60,42 @@ export async function getDispositivos(
 
 /**
  * Crea un nuevo dispositivo vinculado a la organización actual
- * 
+ *
  * @param traccarDeviceId ID del dispositivo en Traccar (requerido)
  * @param alias Alias opcional para mostrar en TracAuto
+ * @param numeroTelefono Número opcional en E.164 (ej. +5491112345678). El backend normaliza.
  * @returns Dispositivo creado
  */
 export async function createDispositivo(
   traccarDeviceId: number,
-  alias?: string
+  alias?: string,
+  numeroTelefono?: string | null
 ): Promise<DispositivoDto> {
   const response = await apiClient.post<DispositivoDto>(
     DISPOSITIVOS_BASE,
-    { traccarDeviceId, alias }
+    { traccarDeviceId, alias, numeroTelefono: numeroTelefono || undefined }
   );
   return response.data;
 }
 
 /**
  * Actualiza un dispositivo existente
- * 
+ *
  * @param id ID del dispositivo en TracAuto
  * @param alias Nuevo alias (opcional)
  * @param activo Estado activo/inactivo
+ * @param numeroTelefono Número opcional en E.164. El backend normaliza.
  * @returns Dispositivo actualizado
  */
 export async function updateDispositivo(
   id: string,
   alias: string | undefined,
-  activo: boolean
+  activo: boolean,
+  numeroTelefono?: string | null
 ): Promise<DispositivoDto> {
   const response = await apiClient.put<DispositivoDto>(
     `${DISPOSITIVOS_BASE}/${id}`,
-    { alias, activo }
+    { alias, activo, numeroTelefono: numeroTelefono ?? undefined }
   );
   return response.data;
 }

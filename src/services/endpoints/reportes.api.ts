@@ -9,12 +9,16 @@ const REPORTES_BASE = 'reportes';
 
 /**
  * Response from Excel import operation
+ * When the import is processed asynchronously, jobId is set and totalFilas/filasExitosas/filasConErrores
+ * are 0 until the job completes. Use obtenerImportacionJob(jobId) to poll for results.
  */
 export interface ImportarExcelResponse {
+  jobId?: string;
   totalFilas: number;
   filasExitosas: number;
   filasConErrores: number;
   errores: ErrorFilaImportacion[];
+  resultadosDetalle?: ResultadoFilaImportacion[];
 }
 
 /**
@@ -26,6 +30,19 @@ export interface ErrorFilaImportacion {
   identificador: string;
   mensaje: string;
   campo: string | null;
+}
+
+/**
+ * Result of a specific row during import (Created, Updated, or Error)
+ */
+export interface ResultadoFilaImportacion {
+  numeroFila: number;
+  tipoEntidad: string;
+  identificador: string;
+  accion: string;
+  mensaje?: string;
+  /** Datos de la fila para reconstruir el Excel (Patente, Marca, Modelo, Año, Tipo, Activo). */
+  datosFila?: Record<string, unknown>;
 }
 
 /**
@@ -60,6 +77,7 @@ export interface ImportacionJobDto {
   filasConErrores: number | null;
   mensajeError: string | null;
   errores: ErrorFilaImportacion[] | null;
+  resultadosDetalle?: ResultadoFilaImportacion[] | null;
   fechaInicioProcesamiento: string | null;
   fechaFinProcesamiento: string | null;
   fechaCreacion: string;
@@ -221,6 +239,17 @@ export async function obtenerImportacionJob(id: string): Promise<ImportacionJobD
 }
 
 /**
+ * Download Excel with all imported data from an import job.
+ * Rebuilds the file from the stored ResultadosDetalle (only works for jobs with DatosFila, e.g. Vehículos).
+ */
+export async function descargarImportacionJobExcel(id: string): Promise<Blob> {
+  const response = await apiClient.get(`${REPORTES_BASE}/importaciones/jobs/${id}/excel`, {
+    responseType: 'blob',
+  });
+  return response.data;
+}
+
+/**
  * API object with all reportes functions
  */
 export const reportesApi = {
@@ -235,4 +264,5 @@ export const reportesApi = {
   importDispositivosExcel,
   listarImportacionJobs,
   obtenerImportacionJob,
+  descargarImportacionJobExcel,
 };

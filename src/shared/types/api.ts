@@ -454,6 +454,8 @@ export interface DispositivoDto {
   estadoConexion: string | null;
   uniqueId: string | null; // IMEI / Traccar UniqueId
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
+  /** Número de teléfono en formato E.164 (ej. +5491112345678). */
+  numeroTelefono?: string | null;
   esRecursoAsociado: boolean;
   /**
    * Informacion de comparticion del recurso.

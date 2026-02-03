@@ -8,4 +8,5 @@ export type { ProblemDetails, ParsedError } from './useErrorHandler';
 export * from './useTableFilters';
 export { useOnlineStatus } from './useOnlineStatus';
 export { useCrKeyDetection } from './useCrKeyDetection';
+export { useImportJobPolling } from './useImportJobPolling';
 

@@ -462,7 +462,10 @@
       "aliasHelper": "Nombre descriptivo para mostrar en TracAuto",
       "aliasLabel": "Alias",
       "active": "Dispositivo activo",
-      "imeiLabel": "IMEI / ID Traccar"
+      "imeiLabel": "IMEI / ID Traccar",
+      "phoneNumber": "Número de teléfono (opcional)",
+      "phoneNumberPlaceholder": "+5491112345678",
+      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina). Se guarda y normaliza en el servidor."
     },
     "table": {
       "associated": "Asociado"
@@ -1294,9 +1297,25 @@
       "field": "Campo",
       "noErrors": "No hay errores",
       "allSuccess": "Todas las filas se importaron exitosamente",
-      "importedCount": "Se importaron {{count}} filas"
+      "importedCount": "Se importaron {{count}} filas",
+      "detailByRow": "Detalle por registro",
+      "action": "Acción",
+      "created": "Creado",
+      "updated": "Actualizado",
+      "error": "Error"
+    },
+    "loadingDetails": "Cargando detalles...",
+    "processing": {
+      "title": "Procesando importación",
+      "message": "El archivo se está procesando en segundo plano.",
+      "subtitle": "Puede tardar unos segundos. No cierre esta ventana.",
+      "subtitleWithType": "Procesando {{tipo}}... Puede tardar unos segundos.",
+      "failed": "La importación falló"
     },
     "downloadErrors": "Descargar errores",
+    "downloadExcel": "Descargar Excel",
+    "downloadExcelSuccess": "Excel descargado correctamente",
+    "downloadExcelError": "Error al descargar el Excel",
     "history": {
       "title": "Historial de Importaciones",
       "date": "Fecha",

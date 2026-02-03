@@ -4,6 +4,7 @@ export { Card, CardHeader } from './Card';
 export { Modal } from './Modal';
 export { ImportExcelModal } from './ImportExcelModal';
 export { ImportResultsModal } from './ImportResultsModal';
+export { ImportProcessingModal } from './ImportProcessingModal';
 export { Table } from './Table';
 export { Badge } from './Badge';
 export { ActionMenu } from './ActionMenu';

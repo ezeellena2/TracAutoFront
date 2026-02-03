@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload, Car, UserCircle, Cpu, History } from 'lucide-react';
-import { Card, Button, ImportExcelModal, ImportResultsModal } from '@/shared/ui';
+import { Card, Button, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { toast } from '@/store/toast.store';
-import { useErrorHandler } from '@/hooks';
+import { useErrorHandler, useImportJobPolling } from '@/hooks';
 import { TipoImportacion } from '../types';
 import { ImportHistoryTable } from '../components/ImportHistoryTable';
 
@@ -16,14 +16,53 @@ export function ImportsPage() {
   // Import modals state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
+  const [isImportProcessingModalOpen, setIsImportProcessingModalOpen] = useState(false);
+  const [importJobId, setImportJobId] = useState<string | undefined>(undefined);
   const [importResults, setImportResults] = useState<ImportarExcelResponse | null>(null);
   const [currentImportType, setCurrentImportType] = useState<TipoImportacion | null>(null);
   const [activeTab, setActiveTab] = useState<'import' | 'history'>('import');
+
+  const { job: polledJob } = useImportJobPolling(
+    isImportProcessingModalOpen ? importJobId : undefined
+  );
 
   const handleOpenImportModal = (type: TipoImportacion) => {
     setCurrentImportType(type);
     setIsImportModalOpen(true);
   };
+
+  // When polled job completes, show results modal and toast
+  useEffect(() => {
+    if (!polledJob || !isImportProcessingModalOpen || !currentImportType) return;
+    const isCompleted = polledJob.estado === 2;
+    const isFailed = polledJob.estado === 3;
+    if (isCompleted || isFailed) {
+      setIsImportProcessingModalOpen(false);
+      setImportJobId(undefined);
+      setImportResults({
+        jobId: polledJob.id,
+        totalFilas: polledJob.totalFilas ?? 0,
+        filasExitosas: polledJob.filasExitosas ?? 0,
+        filasConErrores: polledJob.filasConErrores ?? 0,
+        errores: polledJob.errores ?? [],
+        resultadosDetalle: polledJob.resultadosDetalle ?? undefined,
+      });
+      setIsImportResultsModalOpen(true);
+      setActiveTab('history');
+      if (isFailed) {
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+      } else if ((polledJob.filasConErrores ?? 0) === 0) {
+        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+      } else {
+        toast.success(
+          t('imports.results.importedCount', {
+            defaultValue: 'Se importaron {{count}} filas',
+            count: polledJob.filasExitosas ?? 0,
+          })
+        );
+      }
+    }
+  }, [polledJob, isImportProcessingModalOpen, currentImportType, t]);
 
   const handleImport = async (file: File) => {
     if (!currentImportType) return;
@@ -45,22 +84,26 @@ export function ImportsPage() {
           throw new Error('Tipo de importación no válido');
       }
 
-      setImportResults(results);
-      setIsImportResultsModalOpen(true);
-      setIsImportModalOpen(false);
-      
-      // Switch to history tab after successful import
-      setActiveTab('history');
-
-      if (results.filasConErrores === 0) {
-        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+      if (results.jobId) {
+        setImportJobId(results.jobId);
+        setIsImportProcessingModalOpen(true);
+        setIsImportModalOpen(false);
+        setActiveTab('history');
       } else {
-        toast.success(
-          t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
-            count: results.filasExitosas,
-          })
-        );
+        setImportResults(results);
+        setIsImportResultsModalOpen(true);
+        setIsImportModalOpen(false);
+        setActiveTab('history');
+        if (results.filasConErrores === 0) {
+          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        } else {
+          toast.success(
+            t('imports.results.importedCount', {
+              defaultValue: 'Se importaron {{count}} filas',
+              count: results.filasExitosas,
+            })
+          );
+        }
       }
     } catch (e) {
       toast.error(getErrorMessage(e));
@@ -117,19 +160,19 @@ export function ImportsPage() {
       {/* Import Tab */}
       {activeTab === 'import' && (
         <>
-          {/* Import Options */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Import Options - 2 cols en pantallas medianas (14"), 3 cols en xl para evitar wrap de títulos */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <Card>
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
+              <div className="shrink-0 p-3 rounded-lg bg-primary/10">
                 <Car size={24} className="text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-text">
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-text">
                   {t('imports.importVehicles', { defaultValue: 'Importar Vehículos' })}
                 </h3>
-                <p className="text-sm text-text-muted">
+                <p className="text-sm text-text-muted line-clamp-2">
                   {t('imports.importVehiclesDesc', { defaultValue: 'Importa vehículos desde Excel' })}
                 </p>
               </div>
@@ -148,14 +191,14 @@ export function ImportsPage() {
         <Card>
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
+              <div className="shrink-0 p-3 rounded-lg bg-primary/10">
                 <UserCircle size={24} className="text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-text">
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-text">
                   {t('imports.importDrivers', { defaultValue: 'Importar Conductores' })}
                 </h3>
-                <p className="text-sm text-text-muted">
+                <p className="text-sm text-text-muted line-clamp-2">
                   {t('imports.importDriversDesc', { defaultValue: 'Importa conductores desde Excel' })}
                 </p>
               </div>
@@ -174,14 +217,14 @@ export function ImportsPage() {
         <Card>
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
+              <div className="shrink-0 p-3 rounded-lg bg-primary/10">
                 <Cpu size={24} className="text-primary" />
               </div>
-              <div>
-                <h3 className="font-semibold text-text">
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-text">
                   {t('imports.importDevices', { defaultValue: 'Importar Dispositivos' })}
                 </h3>
-                <p className="text-sm text-text-muted">
+                <p className="text-sm text-text-muted line-clamp-2">
                   {t('imports.importDevicesDesc', { defaultValue: 'Importa dispositivos desde Excel' })}
                 </p>
               </div>
@@ -197,6 +240,12 @@ export function ImportsPage() {
           </div>
         </Card>
       </div>
+
+          {/* Import Processing Modal */}
+      <ImportProcessingModal
+        isOpen={isImportProcessingModalOpen}
+        tipoImportacion={currentImportType ? getImportTypeLabel(currentImportType) : undefined}
+      />
 
           {/* Import Modal */}
       <ImportExcelModal

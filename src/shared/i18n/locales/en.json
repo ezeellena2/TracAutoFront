@@ -322,7 +322,10 @@
       "aliasHelper": "Descriptive name to display in TracAuto",
       "aliasLabel": "Alias",
       "active": "Active device",
-      "imeiLabel": "IMEI / Traccar ID"
+      "imeiLabel": "IMEI / Traccar ID",
+      "phoneNumber": "Phone number (optional)",
+      "phoneNumberPlaceholder": "+5491112345678",
+      "phoneNumberHelper": "E.164 format (e.g. +54 for Argentina). Stored and normalized by the server."
     },
     "table": {
       "associated": "Associated"
@@ -784,6 +787,9 @@
       "importedCount": "{{count}} rows imported"
     },
     "downloadErrors": "Download errors",
+    "downloadExcel": "Download Excel",
+    "downloadExcelSuccess": "Excel downloaded successfully",
+    "downloadExcelError": "Error downloading Excel",
     "history": {
       "title": "Import History",
       "date": "Date",
