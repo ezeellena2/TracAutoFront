@@ -6,11 +6,10 @@ import { vehiculosApi } from '@/services/endpoints';
 import { useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import { useTenantStore } from '@/store';
-import { TipoExtensionVehiculo, CreateVehiculoRequest, VehiculoAseguradoraCreateData, VehiculoAlquilerCreateData, VehiculoTaxiCreateData, VehiculoOtrosCreateData } from '../types';
+import { TipoExtensionVehiculo, CreateVehiculoRequest, VehiculoAseguradoraCreateData, VehiculoTaxiCreateData, VehiculoOtrosCreateData } from '../types';
 import { DispositivoDto } from '@/shared/types/api';
 import { shouldShowExtensionForm, getExtensionTypeForOrgType } from '../utils/extensionHelpers';
 import { AseguradoraExtensionForm } from './AseguradoraExtensionForm';
-import { AlquilerExtensionForm } from './AlquilerExtensionForm';
 import { TaxiExtensionForm } from './TaxiExtensionForm';
 import { OtrosExtensionForm } from './OtrosExtensionForm';
 
@@ -43,12 +42,11 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
 
     // Extension States
     const [extensionDataAseguradora, setExtensionDataAseguradora] = useState<VehiculoAseguradoraCreateData>({});
-    const [extensionDataAlquiler, setExtensionDataAlquiler] = useState<VehiculoAlquilerCreateData>({ categoriaId: '' });
     const [extensionDataTaxi, setExtensionDataTaxi] = useState<VehiculoTaxiCreateData>({});
     const [extensionDataOtros, setExtensionDataOtros] = useState<VehiculoOtrosCreateData>({ tipoContexto: '' });
 
     const [createDeviceId, setCreateDeviceId] = useState('');
-    const [createErrors, setCreateErrors] = useState<{ patente?: string; categoriaId?: string; tipoContexto?: string }>({});
+    const [createErrors, setCreateErrors] = useState<{ patente?: string; tipoContexto?: string }>({});
     const [isCreating, setIsCreating] = useState(false);
 
     // Reset state on close
@@ -56,7 +54,6 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
         if (!isOpen) {
             setCreateForm({ tipo: 1, patente: '', marca: '', modelo: '', anio: undefined });
             setExtensionDataAseguradora({});
-            setExtensionDataAlquiler({ categoriaId: '' });
             setExtensionDataTaxi({});
             setExtensionDataOtros({ tipoContexto: '' });
             setCreateDeviceId('');
@@ -65,15 +62,12 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
     }, [isOpen]);
 
     const handleCreate = async () => {
-        const errors: { patente?: string; categoriaId?: string; tipoContexto?: string } = {};
+        const errors: { patente?: string; tipoContexto?: string } = {};
         if (!createForm.patente.trim()) {
             errors.patente = t('vehicles.form.required');
         }
 
         // Validate required fields for extensions
-        if (extensionType === TipoExtensionVehiculo.Alquiler && !extensionDataAlquiler.categoriaId) {
-            errors.categoriaId = t('vehicles.form.required');
-        }
         if (extensionType === TipoExtensionVehiculo.Otros && !extensionDataOtros.tipoContexto) {
             errors.tipoContexto = t('vehicles.form.required');
         }
@@ -109,17 +103,6 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
                     valorAsegurado: extensionDataAseguradora.valorAsegurado || undefined,
                     fechaInicioCobertura: extensionDataAseguradora.fechaInicioCobertura || undefined,
                     fechaVencimientoPoliza: extensionDataAseguradora.fechaVencimientoPoliza || undefined,
-                };
-            } else if (extensionesSolicitadas === TipoExtensionVehiculo.Alquiler) {
-                requestData.datosAlquiler = {
-                    ...extensionDataAlquiler,
-                    categoriaId: extensionDataAlquiler.categoriaId,
-                    sucursalBaseId: extensionDataAlquiler.sucursalBaseId || undefined,
-                    estado: extensionDataAlquiler.estado || undefined,
-                    disponibleDesdeUtc: extensionDataAlquiler.disponibleDesdeUtc || undefined,
-                    disponibleHastaUtc: extensionDataAlquiler.disponibleHastaUtc || undefined,
-                    kilometrosMaxDia: extensionDataAlquiler.kilometrosMaxDia || undefined,
-                    notas: extensionDataAlquiler.notas || undefined,
                 };
             } else if (extensionesSolicitadas === TipoExtensionVehiculo.Taxi) {
                 requestData.datosTaxi = {
@@ -185,14 +168,6 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
                     <AseguradoraExtensionForm
                         value={extensionDataAseguradora}
                         onChange={setExtensionDataAseguradora}
-                    />
-                );
-            case TipoExtensionVehiculo.Alquiler:
-                return (
-                    <AlquilerExtensionForm
-                        value={extensionDataAlquiler}
-                        onChange={setExtensionDataAlquiler}
-                        errors={{ categoriaId: createErrors.categoriaId }}
                     />
                 );
             case TipoExtensionVehiculo.Taxi:

@@ -16,8 +16,6 @@ export function getDefaultExtensionForOrgType(
       return TipoExtensionVehiculo.Aseguradora;
     case TipoOrganizacion.ConcesionarioAutos:
       return TipoExtensionVehiculo.Marketplace;
-    case TipoOrganizacion.EmpresaRenting:
-      return TipoExtensionVehiculo.Alquiler;
     default:
       return TipoExtensionVehiculo.Ninguno;
   }
@@ -29,7 +27,6 @@ export function getDefaultExtensionForOrgType(
 export function shouldShowExtensionForm(orgType: TipoOrganizacion | undefined): boolean {
   switch (orgType) {
     case TipoOrganizacion.Aseguradora:
-    case TipoOrganizacion.EmpresaRenting:
     case TipoOrganizacion.FlotaPrivada:
     case TipoOrganizacion.TallerMecanico:
     case TipoOrganizacion.ConcesionarioAutos:
@@ -50,8 +47,6 @@ export function getExtensionTypeForOrgType(
       return TipoExtensionVehiculo.Aseguradora;
     case TipoOrganizacion.ConcesionarioAutos:
       return TipoExtensionVehiculo.Marketplace;
-    case TipoOrganizacion.EmpresaRenting:
-      return TipoExtensionVehiculo.Alquiler;
     case TipoOrganizacion.FlotaPrivada:
       return TipoExtensionVehiculo.Taxi;
     case TipoOrganizacion.TallerMecanico:

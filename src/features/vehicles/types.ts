@@ -13,7 +13,6 @@ export enum TipoVehiculo {
 export enum TipoExtensionVehiculo {
   Ninguno = 0,
   Marketplace = 1,
-  Alquiler = 2,
   Taxi = 4,
   Aseguradora = 8,
   FlotaPrivada = 16,
@@ -53,17 +52,6 @@ export interface VehiculoMarketplaceCreateData {
   destacado?: boolean;
 }
 
-/** Datos para crear extensión Alquiler */
-export interface VehiculoAlquilerCreateData {
-  categoriaId: string;
-  sucursalBaseId?: string;
-  estado?: number; // EstadoVehiculoAlquiler enum
-  disponibleDesdeUtc?: string;
-  disponibleHastaUtc?: string;
-  kilometrosMaxDia?: number;
-  notas?: string;
-}
-
 /** Datos para crear extensión Taxi */
 export interface VehiculoTaxiCreateData {
   numeroLicencia?: string;
@@ -99,7 +87,6 @@ export interface CreateVehiculoRequest {
   anio?: number;
   extensionesSolicitadas?: TipoExtensionVehiculo;
   datosMarketplace?: VehiculoMarketplaceCreateData;
-  datosAlquiler?: VehiculoAlquilerCreateData;
   datosTaxi?: VehiculoTaxiCreateData;
   datosAseguradora?: VehiculoAseguradoraCreateData;
   datosOtros?: VehiculoOtrosCreateData;

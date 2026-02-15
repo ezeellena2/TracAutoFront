@@ -4,9 +4,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainLayout } from '@/app/layouts';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PageLoader } from '@/shared/ui';
-import { OrganizationTypeGuard } from '@/shared/components/OrganizationTypeGuard';
-import { TipoOrganizacion } from '@/shared/types/api';
-
 // Lazy-loaded features para mejor code-splitting
 // Ref: https://vercel.com/blog/how-we-optimized-package-imports-in-next-js
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -24,7 +21,9 @@ const SolicitudesCambioPage = lazy(() => import('@/features/organization/pages/S
 const TraccarMapPage = lazy(() => import('@/features/traccar-map/pages/TraccarMapPage').then(m => ({ default: m.TraccarMapPage })));
 const ReplayPage = lazy(() => import('@/features/replay/pages/ReplayPage').then(m => ({ default: m.ReplayPage })));
 const MarketplacePage = lazy(() => import('@/features/marketplace/pages/MarketplacePage').then(m => ({ default: m.MarketplacePage })));
-const TurnosTaxiPage = lazy(() => import('@/features/turnos-taxi/pages/TurnosTaxiPage').then(m => ({ default: m.TurnosTaxiPage })));
+const GeofencesPage = lazy(() => import('@/features/geofences/pages/GeofencesPage').then(m => ({ default: m.GeofencesPage })));
+const GeofenceEditorPage = lazy(() => import('@/features/geofences/pages/GeofenceEditorPage').then(m => ({ default: m.GeofenceEditorPage })));
+const GeofenceMapViewPage = lazy(() => import('@/features/geofences/pages/GeofenceMapViewPage').then(m => ({ default: m.GeofenceMapViewPage })));
 const ImportsPage = lazy(() => import('@/features/imports/pages/ImportsPage').then(m => ({ default: m.ImportsPage })));
 
 // Error pages - se cargan eager porque son pequeñas y críticas
@@ -107,14 +106,20 @@ const router = createBrowserRouter([
         element: withSuspense(SolicitudesCambioPage),
       },
       {
-        path: 'turnos-taxi',
-        element: (
-          <OrganizationTypeGuard allowedTypes={[TipoOrganizacion.FlotaPrivada]}>
-            <Suspense fallback={<PageLoader />}>
-              <TurnosTaxiPage />
-            </Suspense>
-          </OrganizationTypeGuard>
-        ),
+        path: 'geozonas',
+        element: withSuspense(GeofencesPage),
+      },
+      {
+        path: 'geozonas/mapa',
+        element: withSuspense(GeofenceMapViewPage),
+      },
+      {
+        path: 'geozonas/crear',
+        element: withSuspense(GeofenceEditorPage),
+      },
+      {
+        path: 'geozonas/:id/editar',
+        element: withSuspense(GeofenceEditorPage),
       },
       {
         path: 'importaciones',

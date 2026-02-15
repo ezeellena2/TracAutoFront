@@ -34,6 +34,11 @@ export type Permission =
   | 'conductores:crear'
   | 'conductores:editar'
   | 'conductores:eliminar'
+  // Geofences
+  | 'geofences:ver'
+  | 'geofences:crear'
+  | 'geofences:editar'
+  | 'geofences:eliminar'
   // Organización
   | 'organizacion:editar';
 
@@ -69,6 +74,11 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'conductores:crear',
     'conductores:editar',
     'conductores:eliminar',
+    // Geofences
+    'geofences:ver',
+    'geofences:crear',
+    'geofences:editar',
+    'geofences:eliminar',
     // Organización
     'organizacion:editar',
   ],
@@ -90,6 +100,10 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'conductores:ver',
     'conductores:crear',
     'conductores:editar',
+    // Geofences
+    'geofences:ver',
+    'geofences:crear',
+    'geofences:editar',
   ],
 
   Analista: [
@@ -104,6 +118,8 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'eventos:exportar',
     // Conductores (solo lectura)
     'conductores:ver',
+    // Geofences (solo lectura)
+    'geofences:ver',
   ],
 };
 
@@ -116,6 +132,7 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/dispositivos': ['Admin', 'Operador', 'Analista'],
   '/eventos': ['Admin', 'Operador', 'Analista'],
   '/conductores': ['Admin', 'Operador', 'Analista'],
+  '/geozonas': ['Admin', 'Operador', 'Analista'],
   '/dashboard': ['Admin', 'Operador', 'Analista'],
   '/configuracion/empresa/apariencia': ['Admin'],
 };

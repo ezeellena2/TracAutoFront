@@ -14,7 +14,7 @@ import {
   UserCircle,
   Link2,
   ShoppingCart,
-  Clock,
+  MapPin,
   X,
   FileSpreadsheet,
   FileText
@@ -51,7 +51,7 @@ const navItems: NavItem[] = [
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
   { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
-  { path: '/turnos-taxi', labelKey: 'sidebar.turnosTaxi', icon: Clock, requiredOrganizationType: TipoOrganizacion.FlotaPrivada },
+  { path: '/geozonas', labelKey: 'sidebar.geofences', icon: MapPin },
   { path: '/importaciones', labelKey: 'sidebar.imports', icon: FileSpreadsheet },
   {
     labelKey: 'sidebar.organization',

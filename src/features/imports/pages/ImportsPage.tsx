@@ -5,6 +5,7 @@ import { Card, Button, ImportExcelModal, ImportResultsModal, ImportProcessingMod
 import { reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { toast } from '@/store/toast.store';
+import { downloadBlob } from '@/shared/utils/fileUtils';
 import { useErrorHandler, useImportJobPolling } from '@/hooks';
 import { TipoImportacion } from '../types';
 import { ImportHistoryTable } from '../components/ImportHistoryTable';
@@ -119,6 +120,35 @@ export function ImportsPage() {
         return t('imports.importDrivers', { defaultValue: 'Importar Conductores' });
       case TipoImportacion.Dispositivos:
         return t('imports.importDevices', { defaultValue: 'Importar Dispositivos' });
+    }
+  };
+
+  const getDownloadTemplateConfig = (type: TipoImportacion) => {
+    switch (type) {
+      case TipoImportacion.Vehiculos:
+        return {
+          onDownloadTemplate: async () => {
+            const blob = await reportesApi.downloadTemplateVehiculosExcel();
+            downloadBlob(blob, 'template_vehiculos.xlsx');
+          },
+          templateLabel: t('imports.downloadVehicleTemplate', { defaultValue: 'Template de Vehículos' }),
+        };
+      case TipoImportacion.Conductores:
+        return {
+          onDownloadTemplate: async () => {
+            const blob = await reportesApi.downloadTemplateConductoresExcel();
+            downloadBlob(blob, 'template_conductores.xlsx');
+          },
+          templateLabel: t('imports.downloadDriverTemplate', { defaultValue: 'Template de Conductores' }),
+        };
+      case TipoImportacion.Dispositivos:
+        return {
+          onDownloadTemplate: async () => {
+            const blob = await reportesApi.downloadTemplateDispositivosExcel();
+            downloadBlob(blob, 'template_dispositivos.xlsx');
+          },
+          templateLabel: t('imports.downloadDeviceTemplate', { defaultValue: 'Template de Dispositivos' }),
+        };
     }
   };
 
@@ -256,6 +286,7 @@ export function ImportsPage() {
         }}
         onImport={handleImport}
         title={currentImportType ? getImportTypeLabel(currentImportType) : t('imports.selectFile', { defaultValue: 'Seleccionar archivo Excel' })}
+        {...(currentImportType ? getDownloadTemplateConfig(currentImportType) : {})}
       />
 
       {/* Import Results Modal */}

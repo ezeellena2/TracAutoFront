@@ -209,7 +209,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
           }
         `}
         title={showGeofences ? t('map.hideGeofences', 'Ocultar zonas') : t('map.showGeofences', 'Mostrar zonas')}
-        aria-label={showGeofences ? t('map.hideGeofences', 'Ocultar zonas de turnos activos') : t('map.showGeofences', 'Mostrar zonas de turnos activos')}
+        aria-label={showGeofences ? t('map.hideGeofences', 'Ocultar geozonas') : t('map.showGeofences', 'Mostrar geozonas')}
         aria-pressed={showGeofences}
       >
         {showGeofences ? <MapPin size={18} /> : <MapPinOff size={18} />}

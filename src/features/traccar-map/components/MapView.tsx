@@ -157,10 +157,9 @@ export function MapView() {
         <MapController />
         <MapResizeHandler />
         
-        {/* Geofences de turnos activos */}
+        {/* Geofences */}
         <GeofenceLayer 
           visible={showGeofences} 
-          vehiculoIds={vehicles.map(v => v.id)}
         />
         
         {vehicles.map((vehicle) => (

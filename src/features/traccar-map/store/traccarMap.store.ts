@@ -27,7 +27,7 @@ interface TraccarMapState {
   filterOrgName: string | null;     // Nombre de la org para filtrar (no ID)
   filterOrgId: string | null;       // ID de la org para UI (dropdown active state)
 
-  // Geofences de turnos activos
+  // Visibilidad de geofences en el mapa
   showGeofences: boolean;
 
   mapStyle: MapStyle;
