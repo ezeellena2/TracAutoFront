@@ -71,10 +71,12 @@ export async function createDispositivo(
   alias?: string,
   numeroTelefono?: string | null
 ): Promise<DispositivoDto> {
-  const response = await apiClient.post<DispositivoDto>(
-    DISPOSITIVOS_BASE,
-    { traccarDeviceId, alias, numeroTelefono: numeroTelefono || undefined }
-  );
+  const body = {
+    traccarDeviceId: String(traccarDeviceId),
+    alias: alias ?? null,
+    numeroTelefono: numeroTelefono ?? null,
+  };
+  const response = await apiClient.post<DispositivoDto>(DISPOSITIVOS_BASE, body);
   return response.data;
 }
 

@@ -677,7 +677,7 @@ export function DevicesPage() {
               <Settings size={24} className="text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-text">{devices.length}</p>
+              <p className="text-2xl font-bold text-text">{devicesData?.totalRegistros ?? devices.length}</p>
               <p className="text-sm text-text-muted">{t('devices.totalDevices')}</p>
             </div>
           </div>
