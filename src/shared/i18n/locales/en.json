@@ -936,7 +936,7 @@
     "fullNamePlaceholder": "John Doe",
     "emailLabelRegister": "Email",
     "emailPlaceholderRegister": "contact@company.com",
-    "phoneLabel": "Phone (optional)",
+    "phoneLabel": "Phone",
     "phonePlaceholder": "+1 555 123-4567",
     "passwordLabelRegister": "Password",
     "passwordPlaceholderRegister": "Minimum 8 characters",

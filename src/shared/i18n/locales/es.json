@@ -1049,7 +1049,7 @@
     "fullNamePlaceholder": "Juan Pérez",
     "emailLabelRegister": "Correo Electrónico",
     "emailPlaceholderRegister": "contacto@empresa.com",
-    "phoneLabel": "Teléfono (opcional)",
+    "phoneLabel": "Teléfono",
     "phonePlaceholder": "+54 11 1234-5678",
     "passwordLabelRegister": "Contraseña",
     "passwordPlaceholderRegister": "Mínimo 8 caracteres",

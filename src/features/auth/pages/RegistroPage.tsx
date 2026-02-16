@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
-import { Button, Input } from '@/shared/ui';
+import { Button, Input, Select } from '@/shared/ui';
 import { authApi, organizacionesApi } from '@/services/endpoints';
 import { useAuthStore, useTenantStore } from '@/store';
 
@@ -78,6 +78,21 @@ export function RegistroPage() {
     setError('');
   };
 
+  // Formatear CUIT: XX-XXXXXXXX-X
+  const formatCuit = (value: string) => {
+    // Solo números, máx 11 dígitos
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    let res = digits;
+
+    if (digits.length > 2) {
+      res = `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    }
+    if (digits.length > 10) {
+      res = `${res.slice(0, 11)}-${res.slice(11)}`;
+    }
+    return res;
+  };
+
   // Validación de CUIT argentino (algoritmo módulo 11)
   const validarCuit = (cuit: string): boolean => {
     // Normalizar: remover guiones y espacios
@@ -151,6 +166,12 @@ export function RegistroPage() {
     }
     if (!/[^a-zA-Z0-9]/.test(formData.password)) {
       setError(t('auth.errors.passwordSpecial'));
+      return;
+    }
+
+    // Phone validation
+    if (formData.telefono && formData.telefono.length < 10) {
+      setError(t('auth.errors.phoneMinLength'));
       return;
     }
 
@@ -265,32 +286,32 @@ export function RegistroPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-6">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <Car size={32} className="text-white" />
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary">
+            <Car size={30} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-text">{t('auth.title')}</h1>
-          <p className="text-text-muted mt-1">{t('auth.subtitle')}</p>
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-text">{t('auth.title')}</h1>
+            <p className="text-text-muted mt-1">{t('auth.subtitle')}</p>
+          </div>
         </div>
-
+        {/* Back button */}
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text mb-4"
+        >
+          <ArrowLeft size={16} />
+          {t('auth.backToLogin')}
+        </Link>
         {/* Card */}
-        <div className="bg-surface rounded-2xl border border-border p-8">
-          {/* Back button */}
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text mb-6"
-          >
-            <ArrowLeft size={16} />
-            {t('auth.backToLogin')}
-          </Link>
-
+        <div className="bg-surface rounded-2xl border border-border px-8 py-6">
           {step === 'datos' ? (
             <>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-left">
                   <Building2 size={20} className="text-primary" />
                 </div>
                 <div>
@@ -298,11 +319,15 @@ export function RegistroPage() {
                   <p className="text-sm text-text-muted">{t('auth.registerSubtitle')}</p>
                 </div>
               </div>
-
+              {/* Form */}
               <form onSubmit={handleRegistro} className="space-y-4">
                 {/* Empresa */}
                 <Input
-                  label={t('auth.companyNameLabel')}
+                  label={
+                    <span>
+                      {t('auth.companyNameLabel')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type="text"
                   value={formData.nombreEmpresa}
                   onChange={(e) => updateField('nombreEmpresa', e.target.value)}
@@ -313,10 +338,14 @@ export function RegistroPage() {
 
                 {/* CUIT */}
                 <Input
-                  label={t('auth.cuitLabel')}
+                  label={
+                    <span>
+                      {t('auth.cuitLabel')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type="text"
                   value={formData.cuit}
-                  onChange={(e) => updateField('cuit', e.target.value)}
+                  onChange={(e) => updateField('cuit', formatCuit(e.target.value))}
                   placeholder={t('auth.cuitPlaceholder')}
                   required
                   disabled={isLoading}
@@ -324,28 +353,28 @@ export function RegistroPage() {
 
                 {/* Tipo de Organización */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-text">
-                    {t('auth.orgTypeLabel')} <span className="text-error">*</span>
-                  </label>
-                  <select
-                    value={formData.tipoOrganizacion}
-                    onChange={(e) => updateField('tipoOrganizacion', parseInt(e.target.value, 10))}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface text-text focus:ring-2 focus:ring-primary focus:border-transparent"
+                  <Select
+                    label={
+                      <span>
+                        {t('auth.orgTypeLabel')} <span className="text-error">*</span>
+                      </span>
+                    }
+                    value={formData.tipoOrganizacion || ''}
+                    onChange={(val) => updateField('tipoOrganizacion', Number(val))}
+                    options={tiposOrganizacion}
+                    placeholder={t('auth.selectOrgType')}
                     required
                     disabled={isLoading}
-                  >
-                    <option value={0}>{t('auth.selectOrgType')}</option>
-                    {tiposOrganizacion.map((tipo) => (
-                      <option key={tipo.value} value={tipo.value}>
-                        {tipo.label}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 {/* Usuario */}
                 <Input
-                  label={t('auth.fullNameLabel')}
+                  label={
+                    <span>
+                      {t('auth.fullNameLabel')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type="text"
                   value={formData.nombreCompleto}
                   onChange={(e) => updateField('nombreCompleto', e.target.value)}
@@ -353,9 +382,13 @@ export function RegistroPage() {
                   required
                   disabled={isLoading}
                 />
-
+                {/* Email */}
                 <Input
-                  label={t('auth.emailLabelRegister')}
+                  label={
+                    <span>
+                      {t('auth.emailLabelRegister')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
@@ -363,51 +396,80 @@ export function RegistroPage() {
                   required
                   disabled={isLoading}
                 />
-
+                {/* Telefono */}
                 <Input
-                  label={t('auth.phoneLabel')}
+                  label={
+                    <span>
+                      {t('auth.phoneLabel')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type="tel"
+                  name="telefono"
                   value={formData.telefono}
                   onChange={(e) => updateField('telefono', e.target.value)}
                   placeholder={t('auth.phonePlaceholder')}
+                  autoComplete="tel"
+                  required
                   disabled={isLoading}
                 />
-
-                <div className="relative">
-                  <Input
-                    label={t('auth.passwordLabelRegister')}
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => updateField('password', e.target.value)}
-                    placeholder={t('auth.passwordPlaceholderRegister')}
-                    required
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-9 text-text-muted hover:text-text"
-                    disabled={isLoading}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-
+                {/* Password */}
                 <Input
-                  label={t('auth.confirmPasswordLabel')}
+                  label={
+                    <span>
+                      {t('auth.passwordLabelRegister')} <span className="text-error">*</span>
+                    </span>
+                  }
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => updateField('password', e.target.value)}
+                  placeholder={t('auth.passwordPlaceholderRegister')}
+                  autoComplete="new-password"
+                  required
+                  disabled={isLoading}
+                  rightElement={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-text-muted hover:text-text focus:outline-none flex items-center"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  }
+                />
+                {/* Confirmar Password */}
+                <Input
+                  label={
+                    <span>
+                      {t('auth.confirmPasswordLabel')} <span className="text-error">*</span>
+                    </span>
+                  }
                   type={showPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => updateField('confirmPassword', e.target.value)}
                   placeholder={t('auth.confirmPasswordPlaceholder')}
+                  autoComplete="new-password"
                   required
                   disabled={isLoading}
                 />
-
                 {error && (
                   <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
                     {error}
                   </div>
                 )}
+                {/* Legal */}
+                <div className="pb-4 flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="acceptTerms"
+                    className="mt-1 w-4 h-4 rounded-sm border-border bg-white checked:bg-white checked:border-gray-400 checked:text-primary focus:ring-2 focus:rounded focus:ring-offset-0 focus:outline-none cursor-pointer"
+                    required
+                  />
+                  <label htmlFor="acceptTerms" className="text-justify text-xs text-text-muted cursor-pointer">
+                    {t('auth.legalRegister')}
+                  </label>
+                </div>
+
 
                 <Button
                   type="submit"
@@ -540,10 +602,7 @@ export function RegistroPage() {
           )}
         </div>
 
-        {/* Legal */}
-        <p className="mt-6 text-center text-xs text-text-muted">
-          {t('auth.legalRegister')}
-        </p>
+
       </div>
     </div>
   );

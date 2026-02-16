@@ -81,6 +81,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -91,6 +92,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -140,4 +142,115 @@ body {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   cursor: pointer;
+}
+
+/* ============================================
+   react-international-phone Custom Styles
+   ============================================ */
+
+/* Contenedor principal del input */
+.react-international-phone-input-container {
+  height: 46px !important;
+  width: 100% !important;
+  border-radius: 0.5rem !important;
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  transition: all 0.2s !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.react-international-phone-input-container:has(.react-international-phone-input:focus) {
+  box-shadow: 0 0 0 2px var(--color-primary) !important;
+  border-color: transparent !important;
+}
+
+/* Botón de la bandera/país */
+.react-international-phone-country-selector-button {
+  background-color: transparent !important;
+  border: none !important;
+  border-right: 1px solid var(--color-border) !important;
+  border-radius: 0.5rem 0 0 0.5rem !important;
+  padding: 0 14px !important;
+  height: 46px !important;
+  /* Force same height as container */
+  max-height: none !important;
+  /* Override library defaults */
+  display: flex !important;
+  align-items: center !important;
+  transition: background-color 0.2s !important;
+}
+
+.react-international-phone-country-selector-button__button-content {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.react-international-phone-country-selector-button__dropdown-arrow {
+  margin-left: 6px !important;
+  border-top-color: var(--color-text-muted) !important;
+}
+
+.react-international-phone-country-selector-button:hover,
+.react-international-phone-country-selector-button[aria-expanded="true"] {
+  background-color: var(--color-border) !important;
+}
+
+/* Remove default focus ring from button ONLY */
+.react-international-phone-country-selector-button:focus,
+.react-international-phone-country-selector-button:active,
+.react-international-phone-country-selector-button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-right: 1px solid var(--color-border) !important;
+  background-color: var(--color-border) !important;
+}
+
+/* Input de texto */
+.react-international-phone-input {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--color-text) !important;
+  height: 100% !important;
+  width: 100% !important;
+  font-size: 1rem !important;
+  padding: 0 16px !important;
+  border-radius: 0 0.5rem 0.5rem 0 !important;
+}
+
+.react-international-phone-input::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+/* Dropdown de países */
+.react-international-phone-country-selector-dropdown {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  width: 377px !important;
+  z-index: 50 !important;
+  margin-top: 2px !important;
+}
+
+/* Item de país en dropdown */
+.react-international-phone-country-selector-dropdown__list-item {
+  padding: 8px 12px !important;
+}
+
+.react-international-phone-country-selector-dropdown__list-item:hover,
+.react-international-phone-country-selector-dropdown__list-item--focused,
+.react-international-phone-country-selector-dropdown__list-item:focus {
+  background-color: var(--color-border) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-international-phone-country-selector-dropdown__list-item--selected {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
