@@ -57,7 +57,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
       onClose();
     } catch (err: unknown) {
       const parsedError = parseError(err);
-      
+
       // Para errores graves (500+), redirigir a la página de error
       if (parsedError.status >= 500) {
         navigate('/error', {
@@ -65,7 +65,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
         });
         return;
       }
-      
+
       // Para otros errores (validación, conflictos, etc.), mostrar toast
       toast.error(parsedError.message);
     } finally {
@@ -124,6 +124,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
             <div className="md:col-span-2">
               <Input
                 label={t('drivers.form.phoneLabel')}
+                type="tel"
                 value={form.telefono || ''}
                 onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                 placeholder={t('drivers.form.phonePlaceholder')}
