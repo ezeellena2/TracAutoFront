@@ -25,6 +25,7 @@ const GeofencesPage = lazy(() => import('@/features/geofences/pages/GeofencesPag
 const GeofenceEditorPage = lazy(() => import('@/features/geofences/pages/GeofenceEditorPage').then(m => ({ default: m.GeofenceEditorPage })));
 const GeofenceMapViewPage = lazy(() => import('@/features/geofences/pages/GeofenceMapViewPage').then(m => ({ default: m.GeofenceMapViewPage })));
 const ImportsPage = lazy(() => import('@/features/imports/pages/ImportsPage').then(m => ({ default: m.ImportsPage })));
+const NotificationsPage = lazy(() => import('@/features/notifications/pages/NotificationsPage').then(m => ({ default: m.NotificationsPage })));
 
 // Error pages - se cargan eager porque son pequeñas y críticas
 import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
@@ -124,6 +125,10 @@ const router = createBrowserRouter([
       {
         path: 'importaciones',
         element: withSuspense(ImportsPage),
+      },
+      {
+        path: 'notificaciones',
+        element: withSuspense(NotificationsPage),
       },
     ],
   },

@@ -5,6 +5,7 @@ import { useAuthStore, useTenantStore, useThemeStore, useModoSolicitudStore } fr
 import { authService } from '@/services/auth.service';
 import { LanguageSwitcher } from '@/shared/ui/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { NotificationBell, NotificationDrawer, useNotifications } from '@/features/notifications';
 
 export function Header() {
   const navigate = useNavigate();
@@ -12,8 +13,17 @@ export function Header() {
   const { currentOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode } = useThemeStore();
   const { activo, toggle } = useModoSolicitudStore();
+  const {
+    recent,
+    unreadCount,
+    connectionState,
+    markAsRead,
+    markAllAsRead,
+    archivar,
+  } = useNotifications();
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
@@ -117,6 +127,11 @@ export function Header() {
           <FileEdit size={18} />
           <span className="hidden sm:inline">{t('header.modoSolicitud')}</span>
         </button>
+        <NotificationBell
+          unreadCount={unreadCount}
+          connectionState={connectionState}
+          onClick={() => setIsNotificationsOpen(true)}
+        />
         <div className="relative" ref={dropdownRef}>
         <button
           ref={buttonRef}
@@ -205,6 +220,14 @@ export function Header() {
         )}
         </div>
       </div>
+      <NotificationDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        notifications={recent}
+        onMarkAsRead={markAsRead}
+        onMarkAllAsRead={markAllAsRead}
+        onArchivar={archivar}
+      />
     </header>
   );
 }

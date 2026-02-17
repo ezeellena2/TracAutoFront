@@ -1040,7 +1040,8 @@
       "resendError": "Error al reenviar código",
       "resendCodeError": "Error al reenviar código de verificación",
       "googleNotAvailable": "Login con Google estará disponible próximamente",
-      "termsRequired": "Debe aceptar los términos y condiciones para continuar"
+      "termsRequired": "Debés aceptar los términos y condiciones para continuar",
+      "phoneMinLength": "El número de teléfono debe tener al menos 10 dígitos"
     },
     "success": {
       "codeResentEmail": "Código reenviado a su correo electrónico",
@@ -1282,6 +1283,82 @@
       "errors": "Errores",
       "status": "Estado",
       "actions": "Acciones"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "centerTitle": "Centro de notificaciones",
+    "loading": "Cargando notificaciones...",
+    "empty": "No tienes notificaciones.",
+    "emptyByFilter": "No hay notificaciones para los filtros actuales.",
+    "bellAriaLabel": "Notificaciones ({{count}} sin leer)",
+    "timeAgo": "hace {{value}}",
+    "time": {
+      "now": "Ahora",
+      "minutes_one": "Hace {{count}} minuto",
+      "minutes_other": "Hace {{count}} minutos",
+      "hours_one": "Hace {{count}} hora",
+      "hours_other": "Hace {{count}} horas",
+      "days_one": "Hace {{count}} dia",
+      "days_other": "Hace {{count}} dias"
+    },
+    "actions": {
+      "archive": "Archivar notificacion",
+      "markAllAsRead": "Marcar todas como leidas",
+      "viewAll": "Ver todas"
+    },
+    "filters": {
+      "all": "Todas",
+      "read": "Leidas",
+      "unread": "No leidas"
+    },
+    "categories": {
+      "all": "Todas",
+      "geofence": "Geozonas",
+      "vehiculo": "Vehiculo",
+      "conductor": "Conductor",
+      "sistema": "Sistema",
+      "seguridad": "Seguridad",
+      "solicitud": "Solicitud",
+      "mantenimiento": "Mantenimiento"
+    },
+    "geofence": {
+      "transition": {
+        "title": "{{esEntrada, select, true {Ingreso a geozona} other {Salida de geozona}}",
+        "message": "{{esEntrada, select, true {El vehiculo/dispositivo {{dispositivoNombre}} ingreso a {{geofenceNombre}}.} other {El vehiculo/dispositivo {{dispositivoNombre}} salio de {{geofenceNombre}}.}}"
+      }
+    },
+    "sistema": {
+      "importacion_finalizada": {
+        "title": "Importacion finalizada",
+        "message": "Resultado: {{filasExitosas}} exitos, {{filasConErrores}} errores de {{totalFilas}} filas."
+      },
+      "reporte_listo": {
+        "title": "Reporte listo para descargar",
+        "message": "Tu reporte {{nombreArchivo}} esta listo para descargar."
+      }
+    },
+    "solicitud": {
+      "vinculacion_solicitada": {
+        "title": "Nueva solicitud de vinculacion",
+        "message": "{{organizacionSolicitanteNombre}} quiere vincularse y compartir recursos."
+      },
+      "vinculacion_respondida": {
+        "title": "Solicitud respondida",
+        "message": "Tu solicitud con {{organizacionRespondedoraNombre}} fue {{aceptada, select, true {aceptada} other {rechazada}}}."
+      }
+    },
+    "conductor": {
+      "asignado": {
+        "title": "Asignacion de conductor",
+        "message": "Se asigno {{conductorNombre}} a {{dispositivoNombre}}."
+      }
+    },
+    "seguridad": {
+      "login_riesgo": {
+        "title": "Nuevo inicio de sesion",
+        "message": "Nuevo inicio de sesion desde {{ip}} el {{fechaUtc}} UTC."
+      }
     }
   },
   "errors": {

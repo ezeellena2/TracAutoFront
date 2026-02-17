@@ -930,7 +930,9 @@
       "verifyError": "Error verifying account",
       "resendError": "Error resending code",
       "resendCodeError": "Error resending verification code",
-      "googleNotAvailable": "Google login will be available soon"
+      "googleNotAvailable": "Google login will be available soon",
+      "termsRequired": "You must accept the terms and conditions to continue",
+      "phoneMinLength": "Phone number must be at least 10 digits"
     },
     "success": {
       "codeResentEmail": "Code resent to your email",
@@ -1108,6 +1110,82 @@
       "resourceWithoutName": "Resource without name",
       "unknown": "Unknown",
       "withoutName": "Without name"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "centerTitle": "Notifications Center",
+    "loading": "Loading notifications...",
+    "empty": "You have no notifications.",
+    "emptyByFilter": "No notifications for the current filters.",
+    "bellAriaLabel": "Notifications ({{count}} unread)",
+    "timeAgo": "{{value}} ago",
+    "time": {
+      "now": "Now",
+      "minutes_one": "{{count}} minute ago",
+      "minutes_other": "{{count}} minutes ago",
+      "hours_one": "{{count}} hour ago",
+      "hours_other": "{{count}} hours ago",
+      "days_one": "{{count}} day ago",
+      "days_other": "{{count}} days ago"
+    },
+    "actions": {
+      "archive": "Archive notification",
+      "markAllAsRead": "Mark all as read",
+      "viewAll": "View all"
+    },
+    "filters": {
+      "all": "All",
+      "read": "Read",
+      "unread": "Unread"
+    },
+    "categories": {
+      "all": "All",
+      "geofence": "Geofences",
+      "vehiculo": "Vehicle",
+      "conductor": "Driver",
+      "sistema": "System",
+      "seguridad": "Security",
+      "solicitud": "Request",
+      "mantenimiento": "Maintenance"
+    },
+    "geofence": {
+      "transition": {
+        "title": "{{esEntrada, select, true {Geofence entry} other {Geofence exit}}",
+        "message": "{{esEntrada, select, true {Vehicle/device {{dispositivoNombre}} entered {{geofenceNombre}}.} other {Vehicle/device {{dispositivoNombre}} exited {{geofenceNombre}}.}}"
+      }
+    },
+    "sistema": {
+      "importacion_finalizada": {
+        "title": "Import completed",
+        "message": "Result: {{filasExitosas}} successful, {{filasConErrores}} failed out of {{totalFilas}} rows."
+      },
+      "reporte_listo": {
+        "title": "Report ready to download",
+        "message": "Your report {{nombreArchivo}} is ready to download."
+      }
+    },
+    "solicitud": {
+      "vinculacion_solicitada": {
+        "title": "New relationship request",
+        "message": "{{organizacionSolicitanteNombre}} wants to link and share resources."
+      },
+      "vinculacion_respondida": {
+        "title": "Relationship request answered",
+        "message": "Your request with {{organizacionRespondedoraNombre}} was {{aceptada, select, true {accepted} other {rejected}}}."
+      }
+    },
+    "conductor": {
+      "asignado": {
+        "title": "Driver assignment",
+        "message": "{{conductorNombre}} was assigned to {{dispositivoNombre}}."
+      }
+    },
+    "seguridad": {
+      "login_riesgo": {
+        "title": "New sign in",
+        "message": "New sign in from {{ip}} at {{fechaUtc}} UTC."
+      }
     }
   },
   "errors": {

@@ -7,4 +7,5 @@ export { conductoresApi } from './conductores.api';
 export { marketplaceApi } from './marketplace.api';
 export { reportesApi } from './reportes.api';
 export { solicitudesCambioApi } from './solicitudesCambio.api';
+export { notificacionesApi } from './notificaciones.api';
 export * from './system.api';
