@@ -38,8 +38,8 @@ export const RegistrarEmpresaRequestSchema = z.object({
   razonSocial: z.string().optional(),
   cuit: z
     .string()
-    .min(11, "CUIT debe tener al menos 11 caracteres")
-    .max(14, "CUIT no puede exceder 14 caracteres"),
+    .min(11, "El CUIT debe tener 11 dígitos.")
+    .max(11, "El CUIT debe tener 11 dígitos."),
   tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
   email: z.string().email("Email inválido"),
   password: z
@@ -53,10 +53,15 @@ export const RegistrarEmpresaRequestSchema = z.object({
   telefono: z
     .string()
     .regex(/^[\d\+\-\s\(\)]+$/, "Formato de teléfono inválido")
-    .max(20, "Teléfono no puede exceder 20 caracteres")
-    .optional(),
+    .max(20, "Teléfono no puede exceder 20 caracteres."),
   googleToken: z.string().optional(),
 });
+export const RegistrarEmpresaFormSchema = RegistrarEmpresaRequestSchema.extend({
+  aceptaTerminos: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar los términos y condiciones." }),
+  }),
+});
+
 export type RegistrarEmpresaRequest = z.infer<
   typeof RegistrarEmpresaRequestSchema
 >;

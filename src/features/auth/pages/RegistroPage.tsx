@@ -48,6 +48,7 @@ export function RegistroPage() {
     telefono: '',
     password: '',
     confirmPassword: '',
+    aceptaTerminos: false,
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -73,7 +74,7 @@ export function RegistroPage() {
     }
   }, [state]);
 
-  const updateField = (field: keyof typeof formData, value: string | number) => {
+  const updateField = (field: keyof typeof formData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
   };
@@ -169,6 +170,12 @@ export function RegistroPage() {
       return;
     }
 
+    // Validar términos
+    if (!formData.aceptaTerminos) {
+      setError(t('auth.errors.termsRequired'));
+      return;
+    }
+
     // Phone validation
     if (formData.telefono && formData.telefono.length < 10) {
       setError(t('auth.errors.phoneMinLength'));
@@ -186,7 +193,7 @@ export function RegistroPage() {
         email: formData.email,
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
-        telefono: formData.telefono || undefined,
+        telefono: formData.telefono,
       });
 
       setSuccessData({
@@ -463,6 +470,8 @@ export function RegistroPage() {
                     type="checkbox"
                     id="acceptTerms"
                     className="mt-1 w-4 h-4 rounded-sm border-border bg-white checked:bg-white checked:border-gray-400 checked:text-primary focus:ring-2 focus:rounded focus:ring-offset-0 focus:outline-none cursor-pointer"
+                    checked={formData.aceptaTerminos}
+                    onChange={(e) => updateField('aceptaTerminos', e.target.checked)}
                     required
                   />
                   <label htmlFor="acceptTerms" className="text-justify text-xs text-text-muted cursor-pointer">

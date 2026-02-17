@@ -1085,7 +1085,8 @@
       "verifyError": "Error al verificar cuenta",
       "resendError": "Error al reenviar código",
       "resendCodeError": "Error al reenviar código de verificación",
-      "googleNotAvailable": "Login con Google estará disponible próximamente"
+      "googleNotAvailable": "Login con Google estará disponible próximamente",
+      "termsRequired": "Debe aceptar los términos y condiciones para continuar"
     },
     "success": {
       "codeResentEmail": "Código reenviado a su correo electrónico",
@@ -1093,7 +1094,9 @@
       "resendCodeSuccess": "Código de verificación reenviado exitosamente"
     },
     "resendVerificationCode": "Reenviar código de verificación",
-    "resendingCode": "Reenviando código..."
+    "resendingCode": "Reenviando código...",
+    "invalidPhone": "Número de teléfono inválido",
+    "whatsappRequired": "Debe ser un número con WhatsApp (celular)"
   },
   "organization": {
     "title": "Empresa · Apariencia / Branding",
