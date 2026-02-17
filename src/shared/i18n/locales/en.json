@@ -894,7 +894,7 @@
     "fullNamePlaceholder": "John Doe",
     "emailLabelRegister": "Email",
     "emailPlaceholderRegister": "contact@company.com",
-    "phoneLabel": "Phone (optional)",
+    "phoneLabel": "Phone",
     "phonePlaceholder": "+1 555 123-4567",
     "passwordLabelRegister": "Password",
     "passwordPlaceholderRegister": "Minimum 8 characters",
@@ -938,7 +938,9 @@
       "resendCodeSuccess": "Verification code resent successfully"
     },
     "resendVerificationCode": "Resend verification code",
-    "resendingCode": "Resending code..."
+    "resendingCode": "Resending code...",
+    "invalidPhone": "Invalid phone number",
+    "whatsappRequired": "Must be a WhatsApp number (mobile)"
   },
   "organization": {
     "title": "Company · Appearance / Branding",
@@ -1195,6 +1197,12 @@
     "Tenancy.EntityCreationWithoutAuth": "ITenantEntity '{{param0}}' cannot be created without authenticated context.",
     "Tenancy.CrossTenantWrite": "Cross-tenant write attempt detected: entity OrganizacionId={{param0}}, token OrganizacionId={{param1}}",
     "Tenancy.OrganizacionIdModificationNotAllowed": "OrganizacionId modification not allowed: original={{param0}}, new={{param1}}",
-    "Tenancy.SelfAssociationNotAllowed": "Cannot associate a resource to its own organization: OrganizacionId={{param0}}, OrganizacionAsociadaId={{param1}}"
+    "Tenancy.SelfAssociationNotAllowed": "Cannot associate a resource to its own organization: OrganizacionId={{param0}}, OrganizacionAsociadaId={{param1}}",
+    "Marketplace.OrganizacionNoEsConcesionaria": "Only dealerships can access the Marketplace",
+    "Marketplace.PublicacionNoEncontrada": "Publication not found",
+    "Marketplace.VehiculoYaPublicado": "This vehicle is already published",
+    "Marketplace.VehiculoNoPublicado": "This vehicle is not published",
+    "Marketplace.PublicacionInactiva": "Cannot modify a sold publication",
+    "Marketplace.TransicionEstadoInvalida": "Invalid status transition"
   }
 }
