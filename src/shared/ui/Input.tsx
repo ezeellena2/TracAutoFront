@@ -101,6 +101,9 @@ function PhoneInput({
       countries: countriesForPhoneInput,
       onChange: (data: { phone: string }) => {
         setPhoneUI(data.phone);
+        if (onChange) {
+          onChange({ target: { name: name || "", value: data.phone } });
+        }
       },
       forceDialCode: true,
     });
