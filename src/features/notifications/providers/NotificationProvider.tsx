@@ -46,8 +46,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         if (disposed) return;
         setUnreadCount(count);
         setRecent(recentPage.items);
-      } catch (error) {
-        console.error('Error hydrating notifications:', error);
+      } catch {
+        if (!disposed) {
+          setConnectionState('disconnected');
+        }
       } finally {
         if (!disposed) setLoading(false);
       }

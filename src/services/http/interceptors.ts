@@ -232,8 +232,10 @@ export function setupInterceptors(client: AxiosInstance): void {
       const status = error.response?.status || 0;
       const originalConfig = error.config as RetryableConfig | undefined;
 
-      // Log mínimo (sin PII)
-      console.warn('[API Error]', { status, url: error.config?.url });
+      // Log mínimo solo en desarrollo y para respuestas HTTP reales (evita ruido por desconexión de backend).
+      if (import.meta.env.DEV && status > 0) {
+        console.warn('[API Error]', { status, url: error.config?.url });
+      }
 
       // 401: intentar refresh automático SOLO si el usuario estaba autenticado y no es endpoint excluido.
       if (

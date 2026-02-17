@@ -42,7 +42,7 @@ export function Drawer({
     };
 
     const content = (
-        <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[10020] flex justify-end" role="dialog" aria-modal="true">
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
