@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { CheckCircle, XCircle, Loader2, AlertTriangle, Ban } from 'lucide-react';
 import { invitacionesApi } from '@/services/endpoints';
 import { InvitacionDto } from '@/shared/types/api';
 import { Button, Input } from '@/shared/ui';
 import { useErrorHandler } from '@/hooks';
 
-type PageState = 'loading' | 'valid' | 'expired' | 'invalid' | 'already_accepted' | 'success' | 'error';
+type PageState = 'loading' | 'valid' | 'expired' | 'invalid' | 'cancelled' | 'already_accepted' | 'success' | 'error';
 
 export function AcceptInvitationPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { parseError, getErrorMessage } = useErrorHandler();
-  
+
   const [pageState, setPageState] = useState<PageState>('loading');
   const [invitation, setInvitation] = useState<InvitacionDto | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  
+
   const [formData, setFormData] = useState({
     nombreCompleto: '',
     password: '',
@@ -39,11 +41,13 @@ export function AcceptInvitationPage() {
       } catch (err: unknown) {
         const parsed = parseError(err);
         const code = parsed.code;
-        
+
         if (code === 'errors.Invitacion.Expirada' || code === 'Invitacion.Expirada') {
           setPageState('expired');
         } else if (code === 'errors.Invitacion.YaAceptada' || code === 'Invitacion.YaAceptada') {
           setPageState('already_accepted');
+        } else if (code === 'errors.Invitacion.Cancelada' || code === 'Invitacion.Cancelada') {
+          setPageState('cancelled');
         } else {
           setPageState('invalid');
         }
@@ -55,14 +59,14 @@ export function AcceptInvitationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
-      setErrorMessage('Las contraseñas no coinciden');
+      setErrorMessage(t('invitations.passwordsDoNotMatch', 'Las contraseñas no coinciden'));
       return;
     }
-    
+
     if (!token) return;
-    
+
     setIsSubmitting(true);
     setErrorMessage('');
 
@@ -70,7 +74,7 @@ export function AcceptInvitationPage() {
       await invitacionesApi.aceptarInvitacion(token, {
         nombreCompleto: formData.nombreCompleto,
         password: formData.password,
-        telefono: formData.telefono || undefined,
+        telefono: formData.telefono,
       });
       setPageState('success');
     } catch (err: unknown) {
@@ -87,34 +91,39 @@ export function AcceptInvitationPage() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-          <p className="mt-4 text-text-muted">Validando invitación...</p>
+          <p className="mt-4 text-text-muted">{t('invitations.validating', 'Validando invitación...')}</p>
         </div>
       </div>
     );
   }
 
   // Error states
-  if (pageState === 'expired' || pageState === 'invalid' || pageState === 'already_accepted') {
+  if (pageState === 'expired' || pageState === 'invalid' || pageState === 'already_accepted' || pageState === 'cancelled') {
     const messages = {
       expired: {
         icon: <AlertTriangle className="w-16 h-16 text-amber-500" />,
-        title: 'Invitación Expirada',
-        text: 'Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador.',
+        title: t('invitations.expired.title', 'Invitación Expirada'),
+        text: t('invitations.expired.text', 'Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador.'),
       },
       invalid: {
         icon: <XCircle className="w-16 h-16 text-red-500" />,
-        title: 'Invitación Inválida',
-        text: 'El enlace de invitación no es válido o ya no existe.',
+        title: t('invitations.invalid.title', 'Invitación Inválida'),
+        text: t('invitations.invalid.text', 'El enlace de invitación no es válido o ya no existe.'),
+      },
+      cancelled: {
+        icon: <Ban className="w-16 h-16 text-red-400" />,
+        title: t('invitations.cancelled.title', 'Invitación Cancelada'),
+        text: t('invitations.cancelled.text', 'Esta invitación fue cancelada por el administrador. Solicitá una nueva invitación.'),
       },
       already_accepted: {
         icon: <CheckCircle className="w-16 h-16 text-blue-500" />,
-        title: 'Invitación Ya Utilizada',
-        text: 'Esta invitación ya fue aceptada anteriormente.',
+        title: t('invitations.alreadyAccepted.title', 'Invitación Ya Utilizada'),
+        text: t('invitations.alreadyAccepted.text', 'Esta invitación ya fue aceptada anteriormente.'),
       },
     };
-    
+
     const { icon, title, text } = messages[pageState];
-    
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md w-full text-center">
@@ -122,7 +131,7 @@ export function AcceptInvitationPage() {
           <h1 className="text-2xl font-bold text-text mb-2">{title}</h1>
           <p className="text-text-muted mb-6">{text}</p>
           <Link to="/login">
-            <Button variant="primary">Ir al Login</Button>
+            <Button variant="primary">{t('invitations.goToLogin', 'Ir al Login')}</Button>
           </Link>
         </div>
       </div>
@@ -135,12 +144,12 @@ export function AcceptInvitationPage() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md w-full text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-bold text-text mb-2">¡Bienvenido!</h1>
+          <h1 className="text-2xl font-bold text-text mb-2">{t('invitations.success.title', '¡Bienvenido!')}</h1>
           <p className="text-text-muted mb-6">
-            Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión.
+            {t('invitations.success.text', 'Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión.')}
           </p>
           <Button variant="primary" onClick={() => navigate('/login')}>
-            Iniciar Sesión
+            {t('invitations.login', 'Iniciar Sesión')}
           </Button>
         </div>
       </div>
@@ -152,9 +161,11 @@ export function AcceptInvitationPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-text">Únete a {invitation?.nombreOrganizacion}</h1>
+          <h1 className="text-2xl font-bold text-text">
+            {t('invitations.joinOrg', 'Únete a {{org}}', { org: invitation?.nombreOrganizacion })}
+          </h1>
           <p className="text-text-muted mt-2">
-            Has sido invitado como <strong>{invitation?.rolAsignado}</strong>
+            {t('invitations.invitedAs', 'Has sido invitado como')} <strong>{invitation?.rolAsignado}</strong>
           </p>
         </div>
 
@@ -162,7 +173,7 @@ export function AcceptInvitationPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text mb-1">
-                Email
+                {t('invitations.form.email', 'Email')}
               </label>
               <input
                 type="email"
@@ -173,38 +184,39 @@ export function AcceptInvitationPage() {
             </div>
 
             <Input
-              label="Nombre completo"
+              label={t('invitations.form.fullName', 'Nombre completo')}
               value={formData.nombreCompleto}
               onChange={(e) => setFormData(prev => ({ ...prev, nombreCompleto: e.target.value }))}
-              placeholder="Juan Pérez"
+              placeholder={t('invitations.form.fullNamePlaceholder', 'Juan Pérez')}
               required
             />
 
             <Input
-              label="Contraseña"
+              label={t('invitations.form.password', 'Contraseña')}
               type="password"
               value={formData.password}
               onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t('invitations.form.passwordPlaceholder', 'Mínimo 8 caracteres')}
               required
               minLength={8}
             />
 
             <Input
-              label="Confirmar contraseña"
+              label={t('invitations.form.confirmPassword', 'Confirmar contraseña')}
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              placeholder="Repetir contraseña"
+              placeholder={t('invitations.form.confirmPasswordPlaceholder', 'Repetir contraseña')}
               required
             />
 
             <Input
-              label="Teléfono (opcional)"
+              label={t('invitations.form.phone', 'Teléfono')}
               type="tel"
               value={formData.telefono}
               onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-              placeholder="+54 11 1234-5678"
+              placeholder={t('invitations.form.phonePlaceholder', '+54 11 1234-5678')}
+              required
             />
 
             {errorMessage && (
@@ -222,19 +234,19 @@ export function AcceptInvitationPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creando cuenta...
+                  {t('invitations.form.creating', 'Creando cuenta...')}
                 </>
               ) : (
-                'Crear mi cuenta'
+                t('invitations.form.submit', 'Crear mi cuenta')
               )}
             </Button>
           </form>
         </div>
 
         <p className="text-center text-text-muted text-sm mt-6">
-          ¿Ya tienes cuenta?{' '}
+          {t('invitations.alreadyHaveAccount', '¿Ya tienes cuenta?')}{' '}
           <Link to="/login" className="text-primary hover:underline">
-            Iniciar sesión
+            {t('invitations.login', 'Iniciar sesión')}
           </Link>
         </p>
       </div>

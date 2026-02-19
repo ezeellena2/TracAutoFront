@@ -103,11 +103,6 @@ export function GeofencesTable({
                       onEdit(g);
                     }}
                     className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
-                    data-cr-key="geofences-table-acciones-editar"
-                    data-route="/geozonas"
-                    data-label="Tabla de Geozonas - Botón Editar"
-                    data-entity-type="Geofence"
-                    data-entity-id={g.id}
                   >
                     <Pencil size={14} />
                     {t('common.edit')}

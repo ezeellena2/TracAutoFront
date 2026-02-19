@@ -47,13 +47,15 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'tracauto-auth',
-      // PR 2.1 FIX: Token excluido de localStorage para prevenir XSS.
-      // El token solo vive en memoria; tras F5 se renueva via refresh_token (HttpOnly cookie).
-      // Ver: OWASP Token Storage Best Practices
+      // OWASP Token Storage Best Practices:
+      // El access token (JWT) NO se persiste en localStorage para prevenir robo via XSS.
+      // Tras F5, el interceptor llama automáticamente a /auth/refresh usando la cookie HttpOnly.
+      // Solo se persisten: isAuthenticated (para mostrar UI correcta), user (datos de perfil),
+      // y organizationId (para routing). El token vive exclusivamente en memoria.
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
-        token: state.token, // Habilitado para soportar F5 sin depender exclusivamente de cookies
+        // token: EXCLUIDO — no persistir en localStorage (XSS risk)
         organizationId: state.organizationId,
       }),
     }

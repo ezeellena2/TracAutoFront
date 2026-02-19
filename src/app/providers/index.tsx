@@ -38,6 +38,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutos
+      gcTime: 1000 * 60 * 5, // 5 minutos: datos inactivos se eliminan tras este tiempo
       retry: shouldRetry,
       retryDelay: retryDelay,
       refetchOnWindowFocus: false,

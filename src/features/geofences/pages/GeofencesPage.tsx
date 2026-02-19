@@ -14,9 +14,9 @@ import { GeofencesTable } from '../components/GeofencesTable';
 import { AssignVehiculosModal } from '../components/AssignVehiculosModal';
 import type { GeofenceDto } from '../types';
 
-const geofenceFiltersConfig: FilterConfig[] = [
-  { key: 'buscar', label: 'Buscar / Search', type: 'text', placeholder: 'Nombre, descripción...' },
-  { key: 'soloActivas', label: 'Solo Activas / Active Only', type: 'boolean' },
+const getGeofenceFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
+  { key: 'buscar', label: t('geofences.buscar', { defaultValue: 'Buscar' }), type: 'text', placeholder: t('geofences.buscarPlaceholder', { defaultValue: 'Nombre, descripción...' }) },
+  { key: 'soloActivas', label: t('geofences.soloActivas', { defaultValue: 'Solo Activas' }), type: 'boolean' },
 ];
 
 export function GeofencesPage() {
@@ -125,34 +125,18 @@ export function GeofencesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div
-        className="flex items-center justify-between"
-        data-cr-key="geofences-page-header"
-        data-route="/geozonas"
-        data-label="Página de Geozonas - Header"
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">{t('geofences.titulo')}</h1>
           <p className="text-text-muted mt-1">{t('geofences.subtitulo')}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/geozonas/mapa')}
-            data-cr-key="geofences-page-mapa"
-            data-route="/geozonas"
-            data-label="Página de Geozonas - Botón Mapa"
-          >
+          <Button variant="ghost" onClick={() => navigate('/geozonas/mapa')}>
             <Map size={16} className="mr-2" />
             {t('geofences.verMapa', 'Ver Mapa')}
           </Button>
           {canCreate && (
-            <Button
-              onClick={handleCreate}
-              data-cr-key="geofences-page-crear"
-              data-route="/geozonas"
-              data-label="Página de Geozonas - Botón Crear"
-            >
+            <Button onClick={handleCreate}>
               <Plus size={16} className="mr-2" />
               {t('geofences.crearGeozona')}
             </Button>
@@ -200,7 +184,7 @@ export function GeofencesPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-text">{stats.sincronizadas}</p>
-                  <p className="text-sm text-text-muted">{t('geofences.kpi.sincronizadas')}</p>
+                  <p className="text-sm text-text-muted">{t('geofences.kpi.sincronizadas')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })})</span></p>
                 </div>
               </div>
             </Card>
@@ -211,7 +195,7 @@ export function GeofencesPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-text">{stats.conError}</p>
-                  <p className="text-sm text-text-muted">{t('geofences.kpi.conError')}</p>
+                  <p className="text-sm text-text-muted">{t('geofences.kpi.conError')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })})</span></p>
                 </div>
               </div>
             </Card>
@@ -222,7 +206,7 @@ export function GeofencesPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-text">{stats.pendientes}</p>
-                  <p className="text-sm text-text-muted">{t('geofences.kpi.pendientes')}</p>
+                  <p className="text-sm text-text-muted">{t('geofences.kpi.pendientes')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })})</span></p>
                 </div>
               </div>
             </Card>
@@ -230,18 +214,14 @@ export function GeofencesPage() {
 
           {/* Filtros */}
           <AdvancedFilterBar
-            config={geofenceFiltersConfig}
+            config={getGeofenceFiltersConfig(t)}
             filters={filters}
             onFilterChange={setFilter}
             onClearFilters={clearFilters}
           />
 
           {/* Tabla */}
-          <div
-            data-cr-key="geofences-table"
-            data-route="/geozonas"
-            data-label="Tabla de Geozonas"
-          >
+          <div>
             <Card padding="none" className="overflow-visible">
               <GeofencesTable
                 geofences={geofences}

@@ -1,4 +1,9 @@
 {
+  "routes": {
+    "accessDenied": "Acceso Denegado",
+    "accessDeniedDescription": "No tiene permisos para acceder a esta sección.",
+    "requiredRole": "Rol requerido: {{roles}}"
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",
@@ -239,15 +244,39 @@
       "error": "Error al borrar la solicitud"
     },
     "modal": {
+      "changeRequest": "Solicitud de cambio",
+      "messages": "mensajes",
+      "ticketCreated": "Ticket creado:",
+      "backToChat": "Volver al chat",
+      "ticketPreview": "Vista previa del ticket",
+      "summary": "Resumen",
+      "labels": "Etiquetas",
+      "description": "Descripción",
+      "sending": "Enviando...",
+      "confirmAndSend": "Confirmar y enviar a Jira",
+      "describeChange": "Describí el cambio que necesitás en",
+      "thisElement": "este elemento",
+      "messageLimit": "Tenés hasta {{max}} mensajes para describir tu solicitud.",
+      "processing": "Procesando...",
+      "limitReached": "Límite de mensajes alcanzado. Revisá la respuesta del asistente.",
+      "limitReachedShort": "Límite de mensajes alcanzado",
+      "readyToSend": "Ticket listo para enviar",
+      "viewAndConfirm": "Ver ticket y confirmar",
+      "inputPlaceholder": "Describí el cambio que necesitás...",
+      "readyForJira": "Listo para Jira",
       "loading": "Cargando...",
       "emptyMessage": "Escribí el cambio que necesitás. El asistente te hará preguntas para generar el ticket.",
-      "inputPlaceholder": "Describí el cambio que necesitás...",
       "submitted": "Enviado a Jira. El issue se creará en breve. Actualizá la página para ver el enlace.",
       "ready": "Listo para enviar a Jira.",
-      "sending": "Enviando…",
       "sendToJira": "Enviar a Jira",
       "errorLoading": "Error al cargar",
       "errorSending": "Error al enviar"
+    },
+    "chat": {
+      "imageSizeLimit": "La imagen no puede superar 4MB.",
+      "removeImage": "Quitar imagen",
+      "attachImage": "Adjuntar imagen",
+      "sendMessage": "Enviar mensaje"
     }
   },
   "dashboard": {
@@ -1362,6 +1391,11 @@
     }
   },
   "errors": {
+    "Filters": {
+      "UnknownField": "Campo de filtro no reconocido: {{param0}}"
+    },
+    "TenancyViolation": "No se puede acceder a datos de otra organización. Por favor inicie sesión nuevamente.",
+    "preferencesLoadFailed": "Error al cargar preferencias.",
     "default": "Ha ocurrido un error inesperado.",
     "unexpected": "Ha ocurrido un error inesperado.",
     "network": "Error de conexión. Verifique su conexión a internet.",
@@ -1374,6 +1408,22 @@
     "HTTP_409": "Conflict: El recurso ya existe o hay un estado inválido.",
     "HTTP_429": "Demasiadas solicitudes. Espere un momento.",
     "HTTP_500": "Error interno del servidor. Intente más tarde.",
+    "SolicitudCambio": {
+      "NoEncontrada": "Solicitud de cambio no encontrada",
+      "CrKeyVacio": "CrKey no puede estar vacío",
+      "SinOrganizacion": "El usuario no tiene organización asignada. No se pueden crear solicitudes de cambio.",
+      "ContenidoVacio": "El contenido del mensaje no puede estar vacío.",
+      "NoListaParaEnviar": "La solicitud debe estar en estado Ready para poder enviarla.",
+      "YaEnviada": "La solicitud ya fue enviada a Jira.",
+      "EncoladoFallido": "No se pudo encolar la exportación a Jira. Intente de nuevo más tarde.",
+      "LimiteMensajesAlcanzado": "Se alcanzó el límite máximo de mensajes de usuario.",
+      "ContenidoMuyLargo": "El mensaje excede el límite de caracteres permitido.",
+      "NoAutorizadoParaBorrar": "No tiene permisos para borrar esta solicitud. Solo el creador o un admin pueden borrarla.",
+      "RequiereConfirmacionBorrado": "Esta solicitud ya fue exportada a Jira. Para borrarla, confirme explícitamente usando forceDelete=true.",
+      "ImagenDemasiadoGrande": "La imagen adjunta supera el tamaño máximo permitido (4 MB).",
+      "ImagenInvalida": "La imagen adjunta no es válida. Solo se permiten imágenes PNG, JPEG o WebP.",
+      "RateLimitExceeded": "Límite de mensajes por minuto alcanzado. Intente nuevamente en unos segundos."
+    },
     "Auth": {
       "CredencialesInvalidas": "Email o contraseña incorrectos",
       "EmailNoVerificado": "Debe verificar su email antes de iniciar sesión",
@@ -1415,7 +1465,17 @@
       "AccesoDenegado": "No tiene acceso a esta organización",
       "RelacionNoEncontrada": "No existe una relación activa entre las organizaciones especificadas",
       "RelacionDuplicada": "Ya existe una relación activa entre las organizaciones especificadas",
-      "OrganizacionIdMismatch": "El orgId del path debe coincidir con uno de los IDs en la relación"
+      "OrganizacionIdMismatch": "El orgId del path debe coincidir con uno de los IDs en la relación",
+      "SolicitudPropia": "No puede solicitar vinculación con su propia organización",
+      "SolicitudPendiente": "Ya existe una solicitud de vinculación pendiente con esta organización",
+      "SolicitudRechazada": "La solicitud de vinculación fue rechazada anteriormente. Debe esperar para volver a solicitar.",
+      "SolicitudCruzadaPendiente": "Ya existe una solicitud de esa organización hacia la suya. Revise 'Solicitudes Pendientes' para aceptarla.",
+      "PolicyNoEncontrada": "No existe una política de compartición activa para este tipo de recurso",
+      "EmailAdminYaAsociadoAOtraOrganizacion": "El email del administrador ya está asociado a otra organización.",
+      "ConcurrenciaConflict": "La organización fue modificada por otro usuario. Recargue los datos y vuelva a intentar.",
+      "NombreRequerido": "El nombre de la organización es requerido",
+      "UrlIdBodyMismatch": "El ID de la URL no coincide con el ID del body",
+      "BodyDebeSerObjetoJson": "El body debe ser un objeto JSON con los campos a actualizar"
     },
     "Invitacion": {
       "NoEncontrada": "Invitación no encontrada",
@@ -1426,11 +1486,16 @@
       "EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
       "UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
       "RolInvalido": "El rol asignado no es válido",
-      "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}"
+      "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}",
+      "UsuarioVinculado": "El usuario existente fue vinculado a la organización exitosamente",
+      "UsuarioCreado": "La cuenta de usuario fue creada y vinculada a la organización exitosamente"
     },
     "Dispositivo": {
       "NoEncontrado": "Dispositivo no encontrado",
-      "YaExiste": "Ya existe un dispositivo vinculado con este TraccarDeviceId en la organización"
+      "YaExiste": "Ya existe un dispositivo vinculado con este TraccarDeviceId en la organización",
+      "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
+      "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
+      "SinPermisoGestion": "No tiene permiso de gestión sobre este dispositivo compartido"
     },
     "Vehiculo": {
       "NoEncontrado": "Vehículo no encontrado",
@@ -1438,7 +1503,11 @@
       "VehiculoInactivo": "No se puede asignar un dispositivo a un vehículo desactivado",
       "OrganizacionNoCoincide": "El vehículo y el dispositivo deben pertenecer a la misma organización",
       "DispositivoYaAsignado": "El dispositivo ya está asignado a otro vehículo",
-      "AsignacionNoEncontrada": "Asignación no encontrada"
+      "AsignacionNoEncontrada": "Asignación no encontrada",
+      "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
+      "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
+      "SinPermisoGestion": "No tiene permiso de gestión sobre este vehículo compartido",
+      "ErrorEliminacion": "Error al eliminar el vehículo. {{param0}}"
     },
     "Conductor": {
       "NoEncontrado": "Conductor no encontrado",
@@ -1447,12 +1516,22 @@
       "VehiculoInactivo": "No se puede asignar un conductor a un vehículo desactivado",
       "DispositivoInactivo": "No se puede asignar un conductor a un dispositivo desactivado",
       "ConductorInactivo": "No se puede asignar un conductor inactivo",
-      "AsignacionNoEncontrada": "Asignación de conductor no encontrada"
+      "AsignacionNoEncontrada": "Asignación de conductor no encontrada",
+      "DniDuplicado": "Ya existe un conductor activo con el mismo DNI en esta organización",
+      "DniDuplicadoEnTraccar": "Ya existe un conductor en Traccar con este DNI. Contacte al administrador.",
+      "YaPerteneceAOtraOrganizacion": "El conductor ya pertenece a otra organización activa.",
+      "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
+      "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
+      "ConductorYaInactivo": "El conductor ya se encuentra inactivo",
+      "NoSePuedeEditarInactivo": "No se puede editar un conductor inactivo. Primero debe reactivarlo.",
+      "ConductorYaActivo": "El conductor ya se encuentra activo",
+      "SinPermisoGestion": "No tiene permiso de gestión sobre este conductor compartido"
     },
     "Seguridad": {
       "IntentoAccesoTenantCruzado": "Intento de acceso a datos de otra organización detectado",
       "ContextoNoAutenticado": "Se requiere autenticación para esta operación",
-      "ModificacionOrganizacionNoPermitida": "La modificación de OrganizacionId no está permitida"
+      "ModificacionOrganizacionNoPermitida": "La modificación de OrganizacionId no está permitida",
+      "OperacionCancelada": "La operación fue cancelada. Por favor, intente nuevamente"
     },
     "Replay": {
       "RangoInvalido": "El rango de fechas es inválido. Inicio > Fin",
@@ -1469,6 +1548,7 @@
     "General": {
       "ErrorInterno": "Ha ocurrido un error interno del servidor",
       "OperacionNoPermitida": "No tiene permisos para realizar esta operación",
+      "NotFound": "Recurso no encontrado",
       "ErrorInesperado": "Ha ocurrido un error inesperado: {{param0}}"
     },
     "Archivo": {
@@ -1495,8 +1575,24 @@
       "PublicacionNoEncontrada": "Publicación no encontrada",
       "VehiculoYaPublicado": "Este vehículo ya está publicado",
       "VehiculoNoPublicado": "Este vehículo no está publicado",
-      "PublicacionInactiva": "No se puede modificar una publicacion vendida",
-      "TransicionEstadoInvalida": "Transicion de estado invalida"
+      "PublicacionInactiva": "No se puede modificar una publicación vendida",
+      "TransicionEstadoInvalida": "Transición de estado inválida: {{param0}} -> {{param1}}",
+      "PublicacionYaVinculada": "La publicación ya está vinculada a un vehículo operativo",
+      "VehiculoYaTienePublicacion": "El vehículo ya tiene una publicación activa",
+      "PublicacionSinPatente": "La publicación debe tener patente para crear vehículo",
+      "VinculacionIncompleta": "Debe proporcionar VehiculoId o DispositivoId para vincular la publicación"
+    },
+    "MarketplacePublico": {
+      "PublicacionNoEncontrada": "La publicación no fue encontrada o no está disponible",
+      "ConcesionariaNoEncontrada": "La concesionaria no fue encontrada o no tiene marketplace activo"
+    },
+    "Notificacion": {
+      "OrganizacionRequerida": "La organización destino es requerida",
+      "PayloadRequerido": "Debe enviar templateKey o título/mensaje legacy",
+      "UsuarioRequerido": "El usuario destinatario es requerido para audiencia UserDirect",
+      "RolRequerido": "El rol destinatario es requerido para audiencia RoleScoped",
+      "SinDestinatarios": "No se encontraron destinatarios para la notificación",
+      "SegmentoNoSoportado": "La audiencia SegmentScoped aún no está implementada"
     }
   }
 }

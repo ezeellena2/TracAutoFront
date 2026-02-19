@@ -6,10 +6,10 @@
 export const env = {
   /** URL base del API */
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5200/api',
-  
+
   /** Versión del API */
   apiVersion: import.meta.env.VITE_API_VERSION || 'v1',
-  
+
   /** Flag para usar datos mockeados */
   useMocks: import.meta.env.VITE_USE_MOCKS === 'true',
 
@@ -19,6 +19,15 @@ export const env = {
    */
   apiWithCredentials: import.meta.env.VITE_API_WITH_CREDENTIALS === 'true',
 } as const;
+
+// Fail-fast: en producción, VITE_API_BASE_URL debe estar configurada explícitamente.
+// Si no lo está, la app apuntaría silenciosamente a localhost y todos los requests fallarían.
+if (import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL) {
+  throw new Error(
+    '[TracAuto] VITE_API_BASE_URL no está configurada. ' +
+    'Definir la variable de entorno antes de hacer el build de producción.'
+  );
+}
 
 /**
  * Construye la URL completa del API para un path dado

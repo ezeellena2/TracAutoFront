@@ -111,6 +111,26 @@ function getDefaultMessage(status: number): string {
 }
 
 /**
+ * Extrae el código de error del backend para que useErrorHandler pueda traducirlo.
+ * Prioriza code en raíz, luego extensions.code, luego fallback por status.
+ */
+function extractErrorCode(data: ApiErrorResponse | undefined, status: number): string {
+  if (!data) return getDefaultMessage(status);
+  if ('code' in data && data.code && typeof data.code === 'string') return data.code;
+  const ext = (data as Record<string, unknown>).extensions as Record<string, unknown> | undefined;
+  if (ext?.code && typeof ext.code === 'string') return ext.code;
+  return getDefaultMessage(status);
+}
+
+/** Crea un Error con code y status para contrato uniforme (shouldRetry, useErrorHandler). */
+function createApiError(message: string, code: string, status: number): Error {
+  const err = new Error(message);
+  (err as any).code = code;
+  (err as any).status = status;
+  return err;
+}
+
+/**
  * Configura los interceptores de request y response
  */
 export function setupInterceptors(client: AxiosInstance): void {
@@ -259,9 +279,10 @@ export function setupInterceptors(client: AxiosInstance): void {
         } catch (refreshErr) {
           rejectPending(refreshErr);
           await safeLogoutBestEffort();
-          // Rechazar con mensaje legible (igual ya redirigimos)
-          const message = extractErrorMessage((error.response?.data as ApiErrorResponse | undefined), status);
-          return Promise.reject(new Error(message));
+          const data = error.response?.data as ApiErrorResponse | undefined;
+          const message = extractErrorMessage(data, status);
+          const code = extractErrorCode(data, status);
+          return Promise.reject(createApiError(message, code, status));
         }
       }
 
@@ -278,26 +299,21 @@ export function setupInterceptors(client: AxiosInstance): void {
         const isTenancy = isTenancyViolation(data);
 
         if (isTenancy) {
-          // Tenancy violation: mensaje específico + logout + redirección
-          toast.error(
-            'No se puede acceder a datos de otra organización. Por favor inicie sesión nuevamente.'
-          );
+          const { t: translate } = await import('i18next');
+          toast.error(translate('errors.TenancyViolation'));
           await safeLogoutBestEffort();
-          return Promise.reject(new Error('Violación de tenancy'));
+          return Promise.reject(createApiError('TenancyViolation', 'TenancyViolation', 403));
         } else {
-          // 403 por permisos/roles: solo mostrar mensaje, NO logout
           const message = extractErrorMessage(data, status);
-          return Promise.reject(new Error(message));
+          const code = extractErrorCode(data, 403);
+          return Promise.reject(createApiError(message, code, status));
         }
       }
 
-      // Extraer mensaje de error legible para otros errores
-      const message = extractErrorMessage(error.response?.data, status);
-      const err = new Error(message);
-      // Adjuntar el mensaje como código para que useErrorHandler intente traducirlo
-      (err as any).code = message;
-      (err as any).status = status;
-      return Promise.reject(err);
+      const data = error.response?.data as ApiErrorResponse | undefined;
+      const message = extractErrorMessage(data, status);
+      const code = extractErrorCode(data, status);
+      return Promise.reject(createApiError(message, code, status));
     }
   );
 }

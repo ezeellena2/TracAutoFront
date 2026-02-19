@@ -137,11 +137,13 @@ body {
   margin-right: 10px !important;
 }
 
-/* Modo Solicitud: highlight en elementos con data-cr-key al hover */
+/* Modo Solicitud: highlight en cualquier elemento seleccionable */
 .tracauto-cr-key-highlight {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 2px dashed var(--color-primary);
+  outline-offset: 3px;
+  background-color: rgba(37, 99, 235, 0.05);
   cursor: pointer;
+  transition: outline-color 0.15s ease, background-color 0.15s ease;
 }
 
 /* ============================================

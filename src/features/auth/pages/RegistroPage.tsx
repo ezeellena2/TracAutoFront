@@ -7,6 +7,37 @@ import { authApi, organizacionesApi } from '@/services/endpoints';
 import { useAuthStore, useTenantStore } from '@/store';
 
 /**
+ * Decodifica el payload de un JWT sin verificar la firma.
+ * Solo para uso en cliente — la verificación real ocurre en el backend.
+ */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+}
+
+/** Extrae el rol del JWT. Soporta claim 'role' y el claim largo de ASP.NET Identity. */
+function extractRoleFromToken(token: string): 'Admin' | 'Operador' | 'Analista' {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return 'Operador';
+  const roleClaim =
+    (payload['role'] as string | undefined) ??
+    (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] as string | undefined);
+  const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
+    Admin: 'Admin',
+    Administrador: 'Admin',
+    Operador: 'Operador',
+    Analista: 'Analista',
+  };
+  return rolMap[roleClaim ?? ''] ?? 'Operador';
+}
+
+/**
  * Página de Registro de Empresa B2B
  * Flujo: Datos → Registro → Verificación → Auto-login → Dashboard
  */
@@ -194,6 +225,7 @@ export function RegistroPage() {
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
         telefono: formData.telefono,
+        aceptaTerminosYCondiciones: formData.aceptaTerminos,
       });
 
       setSuccessData({
@@ -226,12 +258,14 @@ export function RegistroPage() {
       });
 
       // Verificación exitosa - auto-login con el token recibido
+      // F01-C01: Extraer rol real del JWT en lugar de hardcodear 'Admin'
+      const rolReal = extractRoleFromToken(response.token);
       useAuthStore.getState().login(
         {
           id: successData.usuarioId,
           nombre: formData.nombreCompleto,
           email: formData.email,
-          rol: 'Admin', // Dueño de empresa = Admin
+          rol: rolReal,
           organizationId: successData.organizacionId,
           organizationName: successData.nombreOrganizacion,
         },
@@ -244,11 +278,10 @@ export function RegistroPage() {
         useTenantStore.getState().setOrganizationFromDto(orgDto);
       } catch (orgError) {
         console.error('Error loading organization details after verify:', orgError);
-        // Fallback local si falla el fetch (mejor que nada)
+        // F01-M03: Fallback sin tipoOrganizacion del formulario (puede diferir del backend)
         useTenantStore.getState().setOrganization({
           id: successData.organizacionId,
           name: successData.nombreOrganizacion,
-          tipoOrganizacion: formData.tipoOrganizacion,
           logo: '',
           theme: {}
         });

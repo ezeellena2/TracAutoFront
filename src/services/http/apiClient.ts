@@ -8,7 +8,7 @@ import { setupInterceptors } from './interceptors';
  */
 const apiClient: AxiosInstance = axios.create({
   baseURL: `${env.apiBaseUrl}/${env.apiVersion}`,
-  timeout: 30000,
+  timeout: 120_000, // 2 min
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

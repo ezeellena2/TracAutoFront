@@ -15,6 +15,8 @@ export interface LoginResult {
   success: boolean;
   user?: AuthUser;
   error?: string;
+  /** Código de error estructurado del backend (ej: 'Auth.EmailNoVerificado'). Usar en lugar de string matching. */
+  errorCode?: string;
 }
 
 /**
@@ -46,9 +48,7 @@ export async function login(email: string, password: string, rememberMe: boolean
       const orgDto = await organizacionesApi.getOrganizacionById(user.organizationId);
       const t = theme || orgDto.theme;
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/bb1a61ab-ff73-446c-aa2c-a9a0be282dee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'auth.service.ts:49', message: '[HYP-A] orgDto recibido con tipoOrganizacion', data: { orgDtoId: orgDto.id, orgDtoNombre: orgDto.nombre, tipoOrganizacion: orgDto.tipoOrganizacion }, timestamp: Date.now(), sessionId: 'debug-marketplace', runId: 'run2', hypothesisId: 'A' }) }).catch(() => { });
-      // #endregion
+
 
       // Usar setOrganizationFromDto para incluir tipoOrganizacion
       useTenantStore.getState().setOrganizationFromDto(orgDto);
@@ -85,9 +85,12 @@ export async function login(email: string, password: string, rememberMe: boolean
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error de autenticación';
+    // Extraer código de error estructurado si el interceptor lo adjuntó
+    const code = (error as any)?.code as string | undefined;
     return {
       success: false,
       error: message,
+      errorCode: code,
     };
   }
 }

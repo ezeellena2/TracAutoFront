@@ -18,12 +18,13 @@ import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
 import { CreateVehicleModal } from '../components/CreateVehicleModal';
 
-const vehicleFiltersConfig: FilterConfig[] = [
-  { key: 'patente', label: 'Patente / License Plate', type: 'text', placeholder: 'AA000AA' },
-  { key: 'marca', label: 'Marca / Brand', type: 'text' },
-  { key: 'modelo', label: 'Modelo / Model', type: 'text' },
-  { key: 'anio', label: 'Año / Year', type: 'number' },
-  { key: 'activo', label: 'Estado / Status', type: 'boolean' },
+// FIX-6: Usar función factory con t() para i18n en labels de filtros
+const getVehicleFiltersConfig = (t: (key: string, options?: Record<string, string>) => string): FilterConfig[] => [
+  { key: 'patente', label: t('vehicles.filters.licensePlate', { defaultValue: 'Patente' }), type: 'text', placeholder: 'AA000AA' },
+  { key: 'marca', label: t('vehicles.filters.brand', { defaultValue: 'Marca' }), type: 'text' },
+  { key: 'modelo', label: t('vehicles.filters.model', { defaultValue: 'Modelo' }), type: 'text' },
+  { key: 'anio', label: t('vehicles.filters.year', { defaultValue: 'Año' }), type: 'number' },
+  { key: 'activo', label: t('vehicles.filters.status', { defaultValue: 'Estado' }), type: 'boolean' },
 ];
 
 export function VehiclesPage() {
@@ -453,11 +454,6 @@ export function VehiclesPage() {
                   size="sm"
                   onClick={() => handleOpenEdit(v)}
                   title={t('vehicles.table.editVehicle')}
-                  data-cr-key="vehiculo-table-acciones-editar"
-                  data-route="/vehiculos"
-                  data-label="Tabla de Vehículos - Botón Editar"
-                  data-entity-type="Vehiculo"
-                  data-entity-id={v.id}
                 >
                   <Edit size={16} />
                 </Button>
@@ -578,19 +574,14 @@ export function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div
-        className="flex items-center justify-between"
-        data-cr-key="vehiculos-page-header"
-        data-route="/vehiculos"
-        data-label="Página de Vehículos - Header"
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
           <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportVehicles}>
+            <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting} disabled={isExporting}>
               <Download size={16} className="mr-2" />
               {t('imports.export', { defaultValue: 'Exportar' })}
             </Button>
@@ -598,12 +589,7 @@ export function VehiclesPage() {
               <Upload size={16} className="mr-2" />
               {t('imports.import', { defaultValue: 'Importar' })}
             </Button>
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              data-cr-key="vehiculos-page-crear"
-              data-route="/vehiculos"
-              data-label="Página de Vehículos - Botón Crear"
-            >
+            <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('vehicles.createVehicle')}
             </Button>
@@ -632,7 +618,7 @@ export function VehiclesPage() {
               <p className="text-2xl font-bold text-text">
                 {vehiclesData?.items.filter((v) => v.dispositivoActivoId).length ?? 0}
               </p>
-              <p className="text-sm text-text-muted">{t('vehicles.withDevice')}</p>
+              <p className="text-sm text-text-muted">{t('vehicles.withDevice')} <span className="text-xs opacity-60">({t('common.currentPage', { defaultValue: 'pág. actual' })})</span></p>
             </div>
           </div>
         </Card>
@@ -645,14 +631,14 @@ export function VehiclesPage() {
               <p className="text-2xl font-bold text-text">
                 {vehiclesData?.items.filter((v) => !v.dispositivoActivoId).length ?? 0}
               </p>
-              <p className="text-sm text-text-muted">{t('vehicles.withoutDevice')}</p>
+              <p className="text-sm text-text-muted">{t('vehicles.withoutDevice')} <span className="text-xs opacity-60">({t('common.currentPage', { defaultValue: 'pág. actual' })})</span></p>
             </div>
           </div>
         </Card>
       </div>
 
       <AdvancedFilterBar
-        config={vehicleFiltersConfig}
+        config={getVehicleFiltersConfig(t)}
         filters={filters}
         onFilterChange={(key, value) => {
           const op = ['activo', 'anio'].includes(key) ? 'eq' : 'contains';
@@ -661,30 +647,26 @@ export function VehiclesPage() {
         onClearFilters={clearFilters}
       />
 
-      <div
-        data-cr-key="vehiculos-table"
-        data-route="/vehiculos"
-        data-label="Tabla de Vehículos"
-      >
+      <div>
         <Card padding="none">
-        <Table
-          columns={columns}
-          data={vehicles}
-          keyExtractor={(v) => v.id}
-          enableFilters={false}
-          emptyMessage={hasActiveFilters ? t('filters.noResults') : t('common.noData')}
-        />
-        {vehiclesData && vehiclesData.totalRegistros > 0 && (
-          <PaginationControls
-            paginaActual={vehiclesData.paginaActual}
-            totalPaginas={vehiclesData.totalPaginas}
-            tamanoPagina={vehiclesData.tamanoPagina}
-            totalRegistros={vehiclesData.totalRegistros}
-            onPageChange={setNumeroPagina}
-            onPageSizeChange={setTamanoPagina}
-            disabled={isLoading}
+          <Table
+            columns={columns}
+            data={vehicles}
+            keyExtractor={(v) => v.id}
+            enableFilters={false}
+            emptyMessage={hasActiveFilters ? t('filters.noResults') : t('common.noData')}
           />
-        )}
+          {vehiclesData && vehiclesData.totalRegistros > 0 && (
+            <PaginationControls
+              paginaActual={vehiclesData.paginaActual}
+              totalPaginas={vehiclesData.totalPaginas}
+              tamanoPagina={vehiclesData.tamanoPagina}
+              totalRegistros={vehiclesData.totalRegistros}
+              onPageChange={setNumeroPagina}
+              onPageSizeChange={setTamanoPagina}
+              disabled={isLoading}
+            />
+          )}
         </Card>
       </div>
 

@@ -1,21 +1,23 @@
 import { create } from 'zustand';
 
-export interface CrKeyContext {
-  crKey: string;
+export interface SolicitudContext {
+  selector: string;
   route: string;
   label: string;
   entityType?: string;
   entityId?: string;
+  elementTag?: string;
+  pageTitle?: string;
 }
 
 interface ModoSolicitudState {
   activo: boolean;
-  selectedContext: CrKeyContext | null;
+  selectedContext: SolicitudContext | null;
 
   toggle: () => void;
   activar: () => void;
   desactivar: () => void;
-  setSelectedContext: (ctx: CrKeyContext | null) => void;
+  setSelectedContext: (ctx: SolicitudContext | null) => void;
   clearSelection: () => void;
 }
 

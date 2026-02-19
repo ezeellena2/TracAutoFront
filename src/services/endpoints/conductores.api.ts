@@ -163,7 +163,7 @@ export const conductoresApi = {
     conductorId: string,
     soloActivos?: boolean
   ): Promise<ConductorDispositivoAsignacionDto[]> => {
-    const params = soloActivos !== undefined ? { soloActivos: soloActivos.toString() } : undefined;
+    const params = soloActivos !== undefined ? { soloActivos } : undefined;
     const response = await apiClient.get<ConductorDispositivoAsignacionDto[]>(
       `${BASE}/${conductorId}/asignaciones/dispositivos`,
       { params }
