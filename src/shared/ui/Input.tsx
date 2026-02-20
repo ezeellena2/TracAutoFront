@@ -108,15 +108,19 @@ function PhoneInput({
       forceDialCode: true,
     });
 
+  const [localError, setLocalError] = useState<string | null>(null);
+
   const commitE164 = () => {
     if (!onChange) return;
 
-    const { e164, ok } = getE164IfMobile(inputValue, country?.iso2 || "AR", t);
+    const { e164, ok, msg } = getE164IfMobile(inputValue, country?.iso2 || "AR", t);
 
     if (!ok) {
-      onChange({ target: { name: name || "", value: "" } });
+      setLocalError(msg || t("auth.invalidPhone"));
       return;
     }
+
+    setLocalError(null);
 
     onChange({ target: { name: name || "", value: e164 } });
   };
@@ -132,7 +136,7 @@ function PhoneInput({
         </label>
       )}
 
-      <div className={`flex gap-2 ${error ? "phone-input-error" : ""}`}>
+      <div className={`flex gap-2 ${error || localError ? "phone-input-error" : ""}`}>
         <div className="w-[80px] shrink-0">
           <Select
             options={countries.map((c) => ({
@@ -191,7 +195,7 @@ function PhoneInput({
               focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
               transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${error ? "border-error focus:ring-error" : ""}
+              ${error || localError ? "border-error focus:ring-error" : ""}
               ${rightElement ? "pr-10" : ""}
               h-10
               ${className}
@@ -207,8 +211,8 @@ function PhoneInput({
         </div>
       </div>
 
-      {error && <p className="mt-1.5 text-sm text-error">{error}</p>}
-      {helperText && !error && (
+      {(error || localError) && <p className="mt-1.5 text-sm text-error">{error || localError}</p>}
+      {helperText && !error && !localError && (
         <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
       )}
     </div>
