@@ -8,9 +8,11 @@ interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
   className?: string;
+  /** Excluye este modal del detector de Modo Solicitud (evita que Enviar/input capturen el clic) */
+  dataTracautoSolicitudModal?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md', className = '' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', dataTracautoSolicitudModal }: ModalProps) {
   // Cerrar con Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -43,7 +45,10 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
   };
 
   return (
-    <div className="fixed inset-0 z-[10050] flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-[10050] flex items-center justify-center"
+      {...(dataTracautoSolicitudModal ? { 'data-tracauto-solicitud-modal': '' } : {})}
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

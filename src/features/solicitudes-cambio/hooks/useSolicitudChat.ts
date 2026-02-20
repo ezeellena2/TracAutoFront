@@ -1,17 +1,18 @@
 import { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { solicitudesCambioApi } from '@/services/endpoints';
-import type { CrKeyContext } from '@/store/modoSolicitud.store';
+import type { SolicitudContext } from '@/store/modoSolicitud.store';
 import type { SolicitudCambioDto } from '@/shared/types/api';
 
 const QUERY_KEY = 'solicitud-cambio';
 
 export interface UseSolicitudChatOptions {
-  contexto: CrKeyContext | null;
+  contexto: SolicitudContext | null;
   solicitudId?: string;
+  onEnviadoAJira?: () => void;
 }
 
-export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolicitudChatOptions) {
+export function useSolicitudChat({ contexto, solicitudId: initialId, onEnviadoAJira }: UseSolicitudChatOptions) {
   const queryClient = useQueryClient();
   const [solicitudId, setSolicitudId] = useState<string | undefined>(initialId);
   const idRef = useRef<string | undefined>(initialId);
@@ -24,14 +25,16 @@ export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolici
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: { contenido: string }) => {
+    mutationFn: (payload: { contenido: string; imagenBase64?: string }) => {
       if (!contexto) throw new Error('Context required to create');
       return solicitudesCambioApi.crear({
         route: contexto.route,
-        crKey: contexto.crKey,
+        crKey: contexto.selector,
         label: contexto.label,
         entityType: contexto.entityType ?? null,
         entityId: contexto.entityId ?? null,
+        elementTag: contexto.elementTag ?? null,
+        pageTitle: contexto.pageTitle ?? null,
         mensajeInicial: payload.contenido,
       });
     },
@@ -43,10 +46,13 @@ export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolici
   });
 
   const addMessageMutation = useMutation({
-    mutationFn: (payload: { contenido: string }) => {
+    mutationFn: (payload: { contenido: string; imagenBase64?: string }) => {
       const id = idRef.current;
       if (!id) throw new Error('Solicitud id required');
-      return solicitudesCambioApi.agregarMensaje(id, { contenido: payload.contenido });
+      return solicitudesCambioApi.agregarMensaje(id, {
+        contenido: payload.contenido,
+        imagenBase64: payload.imagenBase64,
+      });
     },
     onSuccess: (data) => {
       queryClient.setQueryData([QUERY_KEY, data.id], data);
@@ -62,16 +68,17 @@ export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolici
     onSuccess: (data) => {
       queryClient.setQueryData([QUERY_KEY, data.id], data);
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, data.id] });
+      onEnviadoAJira?.();
     },
   });
 
   const enviarMensaje = useCallback(
-    async (contenido: string): Promise<SolicitudCambioDto> => {
+    async (contenido: string, imagenBase64?: string): Promise<SolicitudCambioDto> => {
       const id = idRef.current ?? initialId;
       if (id) {
-        return addMessageMutation.mutateAsync({ contenido });
+        return addMessageMutation.mutateAsync({ contenido, imagenBase64 });
       }
-      return createMutation.mutateAsync({ contenido });
+      return createMutation.mutateAsync({ contenido, imagenBase64 });
     },
     [initialId, createMutation, addMessageMutation]
   );
@@ -82,8 +89,11 @@ export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolici
     enviarMutation.mutate();
   }, [enviarMutation]);
 
+  const solicitudData = solicitud ?? (createMutation.data ?? addMessageMutation.data ?? enviarMutation.data) ?? null;
+  const mensajesUsuario = solicitudData?.mensajes?.filter((m) => m.rol === 'user').length ?? 0;
+
   return {
-    solicitud: solicitud ?? (createMutation.data ?? addMessageMutation.data ?? enviarMutation.data) ?? null,
+    solicitud: solicitudData,
     isLoading,
     enviarMensaje,
     isSending,
@@ -92,5 +102,6 @@ export function useSolicitudChat({ contexto, solicitudId: initialId }: UseSolici
     errorEnviar: enviarMutation.error,
     solicitudId: solicitudId ?? initialId,
     error: createMutation.error ?? addMessageMutation.error,
+    mensajesUsuario,
   };
 }

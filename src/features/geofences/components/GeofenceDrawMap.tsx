@@ -42,15 +42,16 @@ function layerToWkt(layer: L.Layer, tipo: TipoGeofence): string | null {
 
   if (layer instanceof L.Polygon) {
     const latlngs = layer.getLatLngs()[0] as L.LatLng[];
-    const coords = latlngs.map((ll) => `${ll.lng} ${ll.lat}`).join(', ');
+    // Traccar usa orden "lat lon" (no el estándar WKT "lon lat")
+    const coords = latlngs.map((ll) => `${ll.lat} ${ll.lng}`).join(', ');
     // Cerrar el polígono
     const first = latlngs[0];
-    return `POLYGON ((${coords}, ${first.lng} ${first.lat}))`;
+    return `POLYGON ((${coords}, ${first.lat} ${first.lng}))`;
   }
 
   if (layer instanceof L.Polyline && tipo === TipoGeofence.Polyline) {
     const latlngs = layer.getLatLngs() as L.LatLng[];
-    const coords = latlngs.map((ll) => `${ll.lng} ${ll.lat}`).join(', ');
+    const coords = latlngs.map((ll) => `${ll.lat} ${ll.lng}`).join(', ');
     return `LINESTRING (${coords})`;
   }
 
@@ -77,7 +78,8 @@ function wktToLayer(wkt: string): L.Layer | null {
     const polygonMatch = wkt.match(/POLYGON\s*\(\((.*)\)\)/i);
     if (polygonMatch) {
       const coords = polygonMatch[1].split(',').map((pair) => {
-        const [lng, lat] = pair.trim().split(/\s+/).map(Number);
+        // Traccar: "lat lng" order
+        const [lat, lng] = pair.trim().split(/\s+/).map(Number);
         return [lat, lng] as L.LatLngTuple;
       });
       return L.polygon(coords);
@@ -87,7 +89,8 @@ function wktToLayer(wkt: string): L.Layer | null {
     const lineMatch = wkt.match(/LINESTRING\s*\((.*)\)/i);
     if (lineMatch) {
       const coords = lineMatch[1].split(',').map((pair) => {
-        const [lng, lat] = pair.trim().split(/\s+/).map(Number);
+        // Traccar: "lat lng" order
+        const [lat, lng] = pair.trim().split(/\s+/).map(Number);
         return [lat, lng] as L.LatLngTuple;
       });
       return L.polyline(coords);
@@ -148,7 +151,7 @@ export function GeofenceDrawMap({
           showArea: true,
           drawError: {
             color: '#ef4444',
-            message: '<strong>No se permiten intersecciones</strong>',
+            message: '<strong>Intersections are not allowed</strong>',
           },
           shapeOptions: {
             color: '#3b82f6',

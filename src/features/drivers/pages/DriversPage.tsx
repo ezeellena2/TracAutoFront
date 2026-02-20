@@ -19,9 +19,9 @@ import { GestionarComparticionModal } from '@/features/organization';
 import { TipoRecurso } from '@/shared/types/api'; // P2.1 FIX: Usar enum directamente
 import type { ConductorDto } from '../types';
 
-const driverFiltersConfig: FilterConfig[] = [
-  { key: 'buscar', label: 'Buscar / Search', type: 'text', placeholder: 'Nombre, DNI...' },
-  { key: 'soloActivos', label: 'Solo Activos / Active Only', type: 'boolean' },
+const getDriverFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
+  { key: 'buscar', label: t('drivers.searchPlaceholder', { defaultValue: 'Buscar' }), type: 'text', placeholder: t('common.searchPlaceholder.driver', { defaultValue: 'Nombre, DNI...' }) },
+  { key: 'soloActivos', label: t('drivers.onlyActive', { defaultValue: 'Solo Activos' }), type: 'boolean' },
 ];
 
 export function DriversPage() {
@@ -256,19 +256,14 @@ export function DriversPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div
-        className="flex items-center justify-between"
-        data-cr-key="conductores-page-header"
-        data-route="/conductores"
-        data-label="Página de Conductores - Header"
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">{t('drivers.title')}</h1>
           <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportDrivers} isLoading={isExporting}>
+            <Button variant="outline" onClick={handleExportDrivers} isLoading={isExporting} disabled={isExporting}>
               <Download size={16} className="mr-2" />
               {t('imports.export', { defaultValue: 'Exportar' })}
             </Button>
@@ -276,12 +271,7 @@ export function DriversPage() {
               <Upload size={16} className="mr-2" />
               {t('imports.import', { defaultValue: 'Importar' })}
             </Button>
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              data-cr-key="conductores-page-crear"
-              data-route="/conductores"
-              data-label="Página de Conductores - Botón Crear"
-            >
+            <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('drivers.addDriver')}
             </Button>
@@ -350,17 +340,13 @@ export function DriversPage() {
           </div>
 
           <AdvancedFilterBar
-            config={driverFiltersConfig}
+            config={getDriverFiltersConfig(t)}
             filters={filters}
             onFilterChange={setFilter}
             onClearFilters={clearFilters}
           />
 
-          <div
-            data-cr-key="conductores-table"
-            data-route="/conductores"
-            data-label="Tabla de Conductores"
-          >
+          <div>
             <Card padding="none" className="overflow-visible">
               <DriversTable
                 conductores={conductores}

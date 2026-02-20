@@ -14,8 +14,8 @@ import { formatDateTime } from '@/shared/utils';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
 
-const deviceFiltersConfig: FilterConfig[] = [
-  { key: 'soloActivos', label: 'Solo Activos / Active Only', type: 'boolean' },
+const getDeviceFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
+  { key: 'soloActivos', label: t('devices.onlyActive', { defaultValue: 'Solo Activos' }), type: 'boolean' },
 ];
 
 export function DevicesPage() {
@@ -123,7 +123,7 @@ export function DevicesPage() {
   }, [loadDevices]);
 
 
-  // Ajustar automรกticamente si la pรกgina actual excede el total de pรกginas
+  // Ajustar automáticamente si la página actual excede el total de páginas
   useEffect(() => {
     if (
       devicesData &&
@@ -170,7 +170,7 @@ export function DevicesPage() {
       await loadDevices();
     } catch (e) {
       const parsedError = parseError(e);
-      
+
       // Para errores graves (500+), redirigir a la página de error
       if (parsedError.status >= 500) {
         navigate('/error', {
@@ -178,7 +178,7 @@ export function DevicesPage() {
         });
         return;
       }
-      
+
       // Para otros errores (validación, conflictos, etc.), mostrar toast
       toast.error(parsedError.message);
       if (import.meta.env.DEV) {
@@ -443,11 +443,6 @@ export function DevicesPage() {
                 size="sm"
                 onClick={() => handleOpenEdit(d)}
                 title={t('devices.editDevice')}
-                data-cr-key="dispositivo-table-acciones-editar"
-                data-route="/dispositivos"
-                data-label="Tabla de Dispositivos - Botón Editar"
-                data-entity-type="Dispositivo"
-                data-entity-id={d.id}
               >
                 <Edit size={16} />
               </Button>
@@ -502,7 +497,7 @@ export function DevicesPage() {
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting}>
+              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
                 <Download size={16} className="mr-2" />
                 {t('imports.export', { defaultValue: 'Exportar' })}
               </Button>
@@ -536,7 +531,7 @@ export function DevicesPage() {
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting}>
+              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
                 <Download size={16} className="mr-2" />
                 {t('imports.export', { defaultValue: 'Exportar' })}
               </Button>
@@ -567,61 +562,6 @@ export function DevicesPage() {
           </div>
         </Card>
 
-        {/* Modal de creaciรณn */}
-        <Modal
-          isOpen={isCreateModalOpen}
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
-            setCreateErrors({});
-          }}
-          title={t('devices.createDevice')}
-        >
-          <div className="space-y-4">
-            <Input
-              label={t('devices.form.traccarId')}
-              type="number"
-              value={createForm.traccarDeviceId}
-              onChange={(e) => setCreateForm({ ...createForm, traccarDeviceId: e.target.value })}
-              placeholder={t('devices.form.traccarIdPlaceholder')}
-              error={createErrors.traccarDeviceId}
-              helperText={t('devices.form.traccarIdHelper')}
-              required
-            />
-            <Input
-              label={t('devices.form.alias')}
-              type="text"
-              value={createForm.alias}
-              onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
-              placeholder={t('devices.form.aliasPlaceholder')}
-              helperText={t('devices.form.aliasHelper')}
-            />
-            <Input
-              label={t('devices.form.phoneNumber')}
-              type="tel"
-              value={createForm.numeroTelefono}
-              onChange={(e) => setCreateForm({ ...createForm, numeroTelefono: e.target.value })}
-              placeholder={t('devices.form.phoneNumberPlaceholder')}
-              helperText={t('devices.form.phoneNumberHelper')}
-            />
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsCreateModalOpen(false);
-                  setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
-                  setCreateErrors({});
-                }}
-                disabled={isCreating}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button onClick={handleCreateDevice} disabled={isCreating}>
-                {isCreating ? t('devices.creating') : t('common.create')}
-              </Button>
-            </div>
-          </div>
-        </Modal>
       </div>
     );
   }
@@ -629,19 +569,14 @@ export function DevicesPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div
-        className="flex items-center justify-between"
-        data-cr-key="dispositivos-page-header"
-        data-route="/dispositivos"
-        data-label="Página de Dispositivos - Header"
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
           <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportDevices}>
+            <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
               <Download size={16} className="mr-2" />
               {t('imports.export', { defaultValue: 'Exportar' })}
             </Button>
@@ -649,12 +584,7 @@ export function DevicesPage() {
               <Upload size={16} className="mr-2" />
               {t('imports.import', { defaultValue: 'Importar' })}
             </Button>
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              data-cr-key="dispositivos-page-crear"
-              data-route="/dispositivos"
-              data-label="Página de Dispositivos - Botón Crear"
-            >
+            <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('devices.createDevice')}
             </Button>
@@ -663,7 +593,7 @@ export function DevicesPage() {
       </div>
 
       <AdvancedFilterBar
-        config={deviceFiltersConfig}
+        config={getDeviceFiltersConfig(t)}
         filters={filters}
         onFilterChange={setFilter}
         onClearFilters={clearFilters}
@@ -691,7 +621,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estadoConexion === 'online').length}
               </p>
-              <p className="text-sm text-text-muted">{t('devices.devicesOnline')}</p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOnline')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })} {t('common.active', { defaultValue: 'actual' }).toLowerCase()})</span></p>
             </div>
           </div>
         </Card>
@@ -704,7 +634,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estadoConexion === 'offline').length}
               </p>
-              <p className="text-sm text-text-muted">{t('devices.devicesOffline')}</p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOffline')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })} {t('common.active', { defaultValue: 'actual' }).toLowerCase()})</span></p>
             </div>
           </div>
         </Card>
@@ -724,29 +654,25 @@ export function DevicesPage() {
       </div>
 
       {/* Table */}
-      <div
-        data-cr-key="dispositivos-table"
-        data-route="/dispositivos"
-        data-label="Tabla de Dispositivos"
-      >
+      <div>
         <Card padding="none">
-        <Table
-          columns={columns}
-          data={devices}
-          keyExtractor={(d) => d.id}
-        />
-        {/* Controles de paginación */}
-        {devicesData && devicesData.totalRegistros > 0 && (
-          <PaginationControls
-            paginaActual={devicesData.paginaActual}
-            totalPaginas={devicesData.totalPaginas}
-            tamanoPagina={devicesData.tamanoPagina}
-            totalRegistros={devicesData.totalRegistros}
-            onPageChange={setNumeroPagina}
-            onPageSizeChange={setTamanoPagina}
-            disabled={isLoading}
+          <Table
+            columns={columns}
+            data={devices}
+            keyExtractor={(d) => d.id}
           />
-        )}
+          {/* Controles de paginación */}
+          {devicesData && devicesData.totalRegistros > 0 && (
+            <PaginationControls
+              paginaActual={devicesData.paginaActual}
+              totalPaginas={devicesData.totalPaginas}
+              tamanoPagina={devicesData.tamanoPagina}
+              totalRegistros={devicesData.totalRegistros}
+              onPageChange={setNumeroPagina}
+              onPageSizeChange={setTamanoPagina}
+              disabled={isLoading}
+            />
+          )}
         </Card>
       </div>
 

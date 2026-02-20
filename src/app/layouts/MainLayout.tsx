@@ -5,7 +5,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ToastContainer, ErrorBoundary } from '@/shared/ui';
 import { useSidebarStore, useAuthStore, useLocalizationStore, useModoSolicitudStore } from '@/store';
-import { useCrKeyDetection } from '@/hooks';
+import { useModoSolicitudDetection } from '@/hooks';
 import { SolicitudCambioModal } from '@/features/solicitudes-cambio';
 import { NotificationProvider } from '@/features/notifications';
 
@@ -15,7 +15,7 @@ export function MainLayout() {
   const { preferences, loadPreferences, isLoading } = useLocalizationStore();
   const { selectedContext, clearSelection } = useModoSolicitudStore();
 
-  useCrKeyDetection();
+  useModoSolicitudDetection();
 
   // Cargar preferencias de localización una vez post-auth
   useEffect(() => {
@@ -54,10 +54,11 @@ export function MainLayout() {
         {/* Notificaciones Toast globales */}
         <ToastContainer />
 
-        {/* Modal chat Modo Solicitud (click en data-cr-key) */}
+        {/* Modal chat Modo Solicitud (click en elemento seleccionable) */}
         <SolicitudCambioModal
           isOpen={!!selectedContext}
           onClose={clearSelection}
+          onEnviadoAJira={clearSelection}
           contexto={selectedContext}
         />
       </div>

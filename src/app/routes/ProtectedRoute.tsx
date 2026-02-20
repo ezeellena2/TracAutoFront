@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { UserRole } from '@/shared/types';
@@ -12,15 +13,17 @@ interface ProtectedRouteProps {
 /**
  * Componente que protege rutas que requieren autenticación y/o roles específicos
  * - Redirige a /login si el usuario no está autenticado
+ * - Tras F5 el token no está en memoria; el interceptor hará refresh con cookie y rellenará el token
  * - Muestra "Acceso Denegado" si no tiene el rol requerido
  */
 export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { canAccessRoute, role } = usePermissions();
   const location = useLocation();
+  const { t } = useTranslation();
 
-  // 1. Verificar autenticación
-  if (!isAuthenticated || !token) {
+  // 1. Verificar autenticación (no exigir token: tras F5 se obtiene vía refresh en la primera request)
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -31,12 +34,12 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center p-8">
-            <h1 className="text-2xl font-bold text-text mb-2">Acceso Denegado</h1>
+            <h1 className="text-2xl font-bold text-text mb-2">{t('routes.accessDenied')}</h1>
             <p className="text-text-muted mb-4">
-              No tiene permisos para acceder a esta sección.
+              {t('routes.accessDeniedDescription')}
             </p>
             <p className="text-sm text-text-muted">
-              Rol requerido: {requiredRoles.join(' o ')}
+              {t('routes.requiredRole', { roles: requiredRoles.join(' o ') })}
             </p>
           </div>
         </div>

@@ -4,9 +4,10 @@ export type { PaginationState, UsePaginationParamsResult, UsePaginationParamsOpt
 export { useLocalization } from './useLocalization';
 export * from './useCurrencies';
 export { useErrorHandler } from './useErrorHandler';
-export type { ProblemDetails, ParsedError } from './useErrorHandler';
+export type { ParsedError } from './useErrorHandler';
+export type { ProblemDetails } from '@/shared/types/api';
 export * from './useTableFilters';
 export { useOnlineStatus } from './useOnlineStatus';
-export { useCrKeyDetection } from './useCrKeyDetection';
+export { useModoSolicitudDetection } from './useModoSolicitudDetection';
 export { useImportJobPolling } from './useImportJobPolling';
 

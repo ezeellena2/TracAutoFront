@@ -120,6 +120,7 @@ export function Header() {
         <button
           type="button"
           onClick={toggle}
+          data-tracauto-modo-solicitud-toggle
           className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${activo ? 'bg-primary text-white' : 'text-text-muted hover:text-text hover:bg-background'}`}
           title={t('header.modoSolicitud')}
           aria-pressed={activo}

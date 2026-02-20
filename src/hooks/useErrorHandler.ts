@@ -7,24 +7,7 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-
-/**
- * ProblemDetails response from backend
- * RFC 7807 compliant with TracAuto extensions
- */
-export interface ProblemDetails {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  // TracAuto extensions
-  code?: string;
-  traceId?: string;
-  timestamp?: string;
-  retryAfter?: number;
-  errors?: Record<string, string[]>; // FluentValidation errors
-}
+import type { ProblemDetails } from '@/shared/types/api';
 
 /**
  * Parsed error with translated message and metadata
@@ -116,8 +99,15 @@ export function useErrorHandler() {
       else if (typeof error === 'object' && ('code' in error || 'status' in error)) {
         problemDetails = error as ProblemDetails;
       }
-      // Error message string
+      // Error from interceptor (Error with code/status attached)
       else if (error instanceof Error) {
+        const err = error as Error & { code?: string; status?: number };
+        if (err.status != null || err.code != null) {
+          const code = err.code ?? 'errors.client';
+          const status = err.status ?? 0;
+          const message = translateCode(code);
+          return { message, code, status };
+        }
         return {
           message: error.message || defaultError.message,
           code: 'errors.client',
@@ -129,9 +119,15 @@ export function useErrorHandler() {
         return defaultError;
       }
 
-      // Extract code and translate
-      const code = problemDetails.code ?? 'errors.unexpected';
-      const message = translateCode(code, problemDetails as Record<string, unknown>);
+      // Backend may send code in problemDetails.code (root) or problemDetails.extensions.code (RFC 7807)
+      const extensions = (problemDetails as Record<string, unknown>).extensions as Record<string, unknown> | undefined;
+      const code =
+        (problemDetails.code as string | undefined) ??
+        (typeof extensions?.code === 'string' ? extensions.code : null) ??
+        'errors.unexpected';
+      // Merge extensions (param0, param1, retryAfter) for i18n interpolation
+      const interpolate = extensions ? { ...problemDetails, ...extensions } : (problemDetails as Record<string, unknown>);
+      const message = translateCode(code, interpolate);
 
       // Parse field-level validation errors
       let fieldErrors: Record<string, string> | undefined;

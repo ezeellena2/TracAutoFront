@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, RefreshCw, Trash2, Clock } from 'lucide-react';
+import { Mail, RefreshCw, Trash2, Clock, AlertCircle } from 'lucide-react';
 import { Table, Badge, Button, Card, CardHeader, PaginationControls } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { invitacionesApi } from '@/services/endpoints';
@@ -18,25 +18,31 @@ export function PendingInvitationsTable() {
   const [isLoading, setIsLoading] = useState(true);
   const [invitationIdToCancel, setInvitationIdToCancel] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Hook de paginación reutilizable
-  const { 
-    setNumeroPagina, 
-    setTamanoPagina, 
-    params: paginationParams 
+  const {
+    setNumeroPagina,
+    setTamanoPagina,
+    params: paginationParams
   } = usePaginationParams({ initialPageSize: 10 });
 
   const loadInvitaciones = useCallback(async () => {
     try {
       setIsLoading(true);
+      setLoadError(null);
       const result = await invitacionesApi.getInvitacionesPendientes(paginationParams);
       setInvitacionesData(result);
     } catch (err) {
       console.error('Error loading invitations:', err);
+      const msg = getErrorMessage(err);
+      setLoadError(msg);
+      toast.error(t('users.errorLoadingInvitations', { defaultValue: 'Error al cargar invitaciones: {{msg}}', msg }));
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams]);
+  }, [paginationParams, getErrorMessage, t]);
 
   useEffect(() => {
     loadInvitaciones();
@@ -44,10 +50,14 @@ export function PendingInvitationsTable() {
 
   const handleResend = async (id: string) => {
     try {
+      setResendingId(id);
       await invitacionesApi.reenviarInvitacion(id);
       toast.success(t('users.success.resendInvitation'));
+      await loadInvitaciones();
     } catch (error) {
       toast.error(getErrorMessage(error));
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -100,64 +110,94 @@ export function PendingInvitationsTable() {
       )
     },
     {
+      key: 'fechaExpiracion',
+      header: t('users.expires', { defaultValue: 'Expira' }),
+      render: (i: InvitacionDto) => (
+        <div className="flex items-center gap-1 text-text-muted">
+          <AlertCircle size={14} />
+          <span className={
+            i.fechaExpiracion && new Date(i.fechaExpiracion) < new Date()
+              ? 'text-error font-medium'
+              : ''
+          }>
+            {i.fechaExpiracion
+              ? formatDateTime(i.fechaExpiracion, culture, timeZoneId)
+              : '-'}
+          </span>
+        </div>
+      )
+    },
+    {
       key: 'actions',
       header: t('users.actions'),
       render: (i: InvitacionDto) => (
         <div className="flex gap-2">
-            <Button
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => handleResend(i.id)}
+            disabled={resendingId === i.id}
             title={t('users.resendInvitation')}
-            >
-            <RefreshCw size={16} className="text-primary" />
-            </Button>
-            <Button
+          >
+            {resendingId === i.id ? (
+              <RefreshCw size={16} className="text-primary animate-spin" />
+            ) : (
+              <RefreshCw size={16} className="text-primary" />
+            )}
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={() => confirmCancel(i.id)}
             title={t('users.cancelInvitation')}
-            >
+          >
             <Trash2 size={16} className="text-error" />
-            </Button>
+          </Button>
         </div>
       )
     }
   ];
 
   // No mostrar si no hay invitaciones y no está cargando
-  if (invitaciones.length === 0 && !isLoading) return null;
+  if (invitaciones.length === 0 && !isLoading && !loadError) return null;
 
   return (
     <>
       <Card className="mt-8 overflow-visible" padding="none">
-          <CardHeader title={t('users.pendingInvitations')} className="p-4 border-b border-border mb-0" />
-          {isLoading ? (
-            <div className="p-8 text-center text-text-muted">
-              {t('users.loadingInvitations')}
-            </div>
-          ) : (
-            <>
-              <Table
-                  columns={columns}
-                  data={invitaciones}
-                  keyExtractor={(i) => i.id}
-                  containerClassName="overflow-visible"
+        <CardHeader title={t('users.pendingInvitations')} className="p-4 border-b border-border mb-0" />
+        {isLoading ? (
+          <div className="p-8 text-center text-text-muted">
+            {t('users.loadingInvitations')}
+          </div>
+        ) : loadError ? (
+          <div className="p-8 text-center">
+            <p className="text-error mb-3">{loadError}</p>
+            <Button variant="outline" size="sm" onClick={loadInvitaciones}>
+              {t('common.retry', 'Reintentar')}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Table
+              columns={columns}
+              data={invitaciones}
+              keyExtractor={(i) => i.id}
+              containerClassName="overflow-visible"
+            />
+            {/* Controles de paginación */}
+            {invitacionesData && invitacionesData.totalRegistros > 0 && (
+              <PaginationControls
+                paginaActual={invitacionesData.paginaActual}
+                totalPaginas={invitacionesData.totalPaginas}
+                tamanoPagina={invitacionesData.tamanoPagina}
+                totalRegistros={invitacionesData.totalRegistros}
+                onPageChange={setNumeroPagina}
+                onPageSizeChange={setTamanoPagina}
+                disabled={isLoading}
               />
-              {/* Controles de paginación */}
-              {invitacionesData && invitacionesData.totalRegistros > 0 && (
-                <PaginationControls
-                  paginaActual={invitacionesData.paginaActual}
-                  totalPaginas={invitacionesData.totalPaginas}
-                  tamanoPagina={invitacionesData.tamanoPagina}
-                  totalRegistros={invitacionesData.totalRegistros}
-                  onPageChange={setNumeroPagina}
-                  onPageSizeChange={setTamanoPagina}
-                  disabled={isLoading}
-                />
-              )}
-            </>
-          )}
+            )}
+          </>
+        )}
       </Card>
 
       <ConfirmationModal

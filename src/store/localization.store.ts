@@ -74,9 +74,9 @@ export const useLocalizationStore = create<LocalizationState>()(
             error: null,
           });
         } catch (err) {
-          const message = err instanceof Error ? err.message : 'Error al cargar preferencias';
+          // Guardar clave i18n para que la UI traduzca con t(state.error)
           set({ 
-            error: message,
+            error: 'errors.preferencesLoadFailed',
             isLoading: false,
             // Mantener preferencias anteriores si hay error
           });

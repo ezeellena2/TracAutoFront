@@ -10,8 +10,8 @@ import type {
   UpdateVehiculoRequest,
   AssignDispositivoRequest,
 } from '@/features/vehicles/types';
-import type { 
-  ListaPaginada, 
+import type {
+  ListaPaginada,
   PaginacionParams,
   RecursoSharingStatusDto,
   ActualizarComparticionRequest,
@@ -27,6 +27,8 @@ export interface GetVehiculosParams extends PaginacionParams {
   filtroPatente?: string;
   /** Si es true, solo retorna vehículos propios (excluye compartidos/asociados) */
   soloPropios?: boolean;
+  /** Advanced column filters from useTableFilters (e.g. 'filters[patente]': 'ABC') */
+  [key: string]: string | number | boolean | undefined;
 }
 
 /**
@@ -36,13 +38,13 @@ export interface GetVehiculosParams extends PaginacionParams {
 export async function getVehiculos(
   params: GetVehiculosParams = {}
 ): Promise<ListaPaginada<VehiculoDto>> {
-  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente, soloPropios } = params;
-  
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente, soloPropios, ...extraParams } = params;
+
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
     tamanoPagina,
   };
-  
+
   if (soloActivos !== undefined) {
     queryParams.soloActivos = soloActivos;
   }
@@ -52,9 +54,16 @@ export async function getVehiculos(
   if (soloPropios !== undefined) {
     queryParams.soloPropios = soloPropios;
   }
-  
-  const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, { 
-    params: queryParams 
+
+  // Forward advanced filter params (filters[key], op[key]) from useTableFilters
+  Object.entries(extraParams).forEach(([k, v]) => {
+    if (v !== undefined && v !== '') {
+      queryParams[k] = v;
+    }
+  });
+
+  const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, {
+    params: queryParams
   });
   return response.data;
 }

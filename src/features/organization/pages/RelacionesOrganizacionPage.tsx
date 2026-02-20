@@ -103,7 +103,7 @@ export function RelacionesOrganizacionPage() {
       setRelacionToDelete(null); // Close modal
     } catch (err) {
       console.error('Error deleting relation:', err);
-      // Optional: setError(getErrorMessage(err));
+      setError(getErrorMessageRef.current(err));
     } finally {
       setIsDeleting(false);
     }
@@ -282,7 +282,7 @@ export function RelacionesOrganizacionPage() {
               ? relacionToManageExclusions.destinoOrganizacionNombre
               : relacionToManageExclusions.solicitanteOrganizacionNombre
           }
-          esOutbound={true} // DEFAULT: true (Managing my exclusions)
+          esOutbound={relacionToManageExclusions.esSolicitante} // F02-M03: calculado dinámicamente
         />
       )}
     </div>

@@ -185,8 +185,8 @@ export function SolicitudesCambioPage() {
             refetch(); // Refresh list after closing modal
           }}
           contexto={{
+            selector: selectedSolicitud.crKey ?? '',
             route: selectedSolicitud.route ?? '',
-            crKey: selectedSolicitud.crKey ?? '',
             label: selectedSolicitud.label ?? '',
             entityType: undefined,
             entityId: undefined,

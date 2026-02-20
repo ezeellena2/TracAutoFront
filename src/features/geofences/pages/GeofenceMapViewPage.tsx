@@ -168,9 +168,8 @@ function GeofenceMapSidebar({
               return (
                 <div
                   key={g.id}
-                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-primary/5 ${
-                    isSelected ? 'bg-primary/10' : ''
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-primary/5 ${isSelected ? 'bg-primary/10' : ''
+                    }`}
                   onClick={() => onSelect(g)}
                 >
                   {/* Color indicator */}
@@ -234,6 +233,7 @@ function GeofenceMapLayers({
   selectedId: string | null;
   onSelect: (g: GeofenceDto) => void;
 }) {
+  const { t } = useTranslation();
   const items = useMemo(() => {
     return geofences
       .map((g, i) => {
@@ -242,10 +242,10 @@ function GeofenceMapLayers({
         return geometry ? { geofence: g, geometry, color } : null;
       })
       .filter(Boolean) as Array<{
-      geofence: GeofenceDto;
-      geometry: NonNullable<ReturnType<typeof parseTraccarGeometry>>;
-      color: string;
-    }>;
+        geofence: GeofenceDto;
+        geometry: NonNullable<ReturnType<typeof parseTraccarGeometry>>;
+        color: string;
+      }>;
   }, [geofences]);
 
   return (
@@ -270,7 +270,7 @@ function GeofenceMapLayers({
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                 onClick={() => onSelect(geofence)}
               >
-                Enfocar en mapa
+                {t('geofences.enfocarEnMapa', 'Enfocar en mapa')}
               </button>
             </div>
           </Popup>

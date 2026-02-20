@@ -55,12 +55,11 @@ export const RegistrarEmpresaRequestSchema = z.object({
     .regex(/^[\d\+\-\s\(\)]+$/, "Formato de teléfono inválido")
     .max(20, "Teléfono no puede exceder 20 caracteres."),
   googleToken: z.string().optional(),
-});
-export const RegistrarEmpresaFormSchema = RegistrarEmpresaRequestSchema.extend({
-  aceptaTerminos: z.literal(true, {
+  aceptaTerminosYCondiciones: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los términos y condiciones." }),
   }),
 });
+export const RegistrarEmpresaFormSchema = RegistrarEmpresaRequestSchema;
 
 export type RegistrarEmpresaRequest = z.infer<
   typeof RegistrarEmpresaRequestSchema
@@ -304,6 +303,8 @@ export interface SolicitudCambioDto {
   jiraIssueKey?: string | null;
   jiraIssueUrl?: string | null;
   readyForJira: boolean;
+  /** JSON de la especificación (vista previa del ticket) */
+  specJson?: string | null;
   mensajes: MensajeChatDto[];
   fechaCreacion: string;
 }
@@ -314,22 +315,31 @@ export interface CrearSolicitudRequest {
   label?: string | null;
   entityType?: string | null;
   entityId?: string | null;
+  elementTag?: string | null;
+  pageTitle?: string | null;
   mensajeInicial?: string | null;
 }
 
 export interface AgregarMensajeRequest {
   contenido: string;
+  imagenBase64?: string | null;
 }
 
 // ==================== Error Response ====================
 
 export interface ProblemDetails {
   type?: string;
-  title: string;
-  status: number;
-  detail: string;
+  title?: string;
+  status?: number;
+  detail?: string;
   instance?: string;
   code?: string;
+  traceId?: string;
+  timestamp?: string;
+  /** Retry-after in seconds (rate limiting) */
+  retryAfter?: number;
+  /** FluentValidation / field-level errors */
+  errors?: Record<string, string[]>;
   [key: string]: unknown;
 }
 
