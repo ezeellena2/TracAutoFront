@@ -207,12 +207,6 @@ export function RegistroPage() {
       return;
     }
 
-    // Phone validation
-    if (formData.telefono && formData.telefono.length < 10) {
-      setError(t('auth.errors.phoneMinLength'));
-      return;
-    }
-
     setIsLoading(true);
     setError('');
 

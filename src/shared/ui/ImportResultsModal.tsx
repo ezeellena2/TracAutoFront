@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, XCircle, AlertCircle, Download, Plus, RefreshCw, Loader2, FileSpreadsheet } from 'lucide-react';
+
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Table } from './Table';
@@ -110,12 +111,12 @@ export function ImportResultsModal({
   const ordenColumnasDatos = ordenColumnasPorTipo[inferirTipo()] ?? ordenColumnasPorTipo.vehiculos;
   const columnasDatosDisponibles = hasDetalle
     ? Array.from(
-        new Set(
-          resultadosDetalle!.flatMap((r) =>
-            r.datosFila ? Object.keys(r.datosFila) : []
-          )
+      new Set(
+        resultadosDetalle!.flatMap((r) =>
+          r.datosFila ? Object.keys(r.datosFila) : []
         )
       )
+    )
     : [];
   const columnasDatosOrdenadas = [
     ...ordenColumnasDatos.filter((c) => columnasDatosDisponibles.includes(c)),
@@ -168,7 +169,8 @@ export function ImportResultsModal({
       header: col,
       render: (r: ResultadoFilaImportacion) => {
         const val = r.datosFila?.[col];
-        return val != null ? String(val) : '-';
+        if (val == null) return '-';
+        return String(val);
       },
     })),
   ];
@@ -190,136 +192,136 @@ export function ImportResultsModal({
           </div>
         )}
         {!isLoading && (
-        <>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg bg-background border border-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-text-muted/10">
-                <AlertCircle size={20} className="text-text-muted" />
+          <>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-background border border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-text-muted/10">
+                    <AlertCircle size={20} className="text-text-muted" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-text">{totalFilas}</p>
+                    <p className="text-sm text-text-muted">
+                      {t('imports.results.totalRows', { defaultValue: 'Total de filas' })}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-text">{totalFilas}</p>
-                <p className="text-sm text-text-muted">
-                  {t('imports.results.totalRows', { defaultValue: 'Total de filas' })}
-                </p>
+
+              <div className="p-4 rounded-lg bg-success/10 border border-success/20">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-success/20">
+                    <CheckCircle2 size={20} className="text-success" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-success">{filasExitosas}</p>
+                    <p className="text-sm text-text-muted">
+                      {t('imports.results.successfulRows', { defaultValue: 'Filas exitosas' })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-error/10 border border-error/20">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-error/20">
+                    <XCircle size={20} className="text-error" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-error">{filasConErrores}</p>
+                    <p className="text-sm text-text-muted">
+                      {t('imports.results.errorRows', { defaultValue: 'Filas con errores' })}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="p-4 rounded-lg bg-success/10 border border-success/20">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-success/20">
-                <CheckCircle2 size={20} className="text-success" />
+            {/* Detalle por registro */}
+            {hasDetalle && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-text">
+                  {t('imports.results.detailByRow', { defaultValue: 'Detalle por registro' })} ({resultadosDetalle!.length})
+                </h3>
+                <div className="border border-border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+                  <Table
+                    data={resultadosDetalle!}
+                    columns={detalleColumns}
+                    keyExtractor={(r) => `${r.numeroFila}-${r.identificador}-${r.accion}`}
+                    emptyMessage="-"
+                  />
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-success">{filasExitosas}</p>
-                <p className="text-sm text-text-muted">
-                  {t('imports.results.successfulRows', { defaultValue: 'Filas exitosas' })}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-lg bg-error/10 border border-error/20">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-error/20">
-                <XCircle size={20} className="text-error" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-error">{filasConErrores}</p>
-                <p className="text-sm text-text-muted">
-                  {t('imports.results.errorRows', { defaultValue: 'Filas con errores' })}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Detalle por registro */}
-        {hasDetalle && (
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-text">
-              {t('imports.results.detailByRow', { defaultValue: 'Detalle por registro' })} ({resultadosDetalle!.length})
-            </h3>
-            <div className="border border-border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
-              <Table
-                data={resultadosDetalle!}
-                columns={detalleColumns}
-                keyExtractor={(r) => `${r.numeroFila}-${r.identificador}-${r.accion}`}
-                emptyMessage="-"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Errors Table */}
-        {hasErrors && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-text">
-                {t('imports.results.errors', { defaultValue: 'Errores' })} ({errores.length})
-              </h3>
-              <Button variant="ghost" size="sm" onClick={handleDownloadErrors}>
-                <Download size={16} className="mr-2" />
-                {t('imports.downloadErrors', { defaultValue: 'Descargar errores' })}
-              </Button>
-            </div>
-            <div className="border border-border rounded-lg overflow-hidden">
-              <Table
-                data={errores}
-                columns={errorColumns}
-                keyExtractor={(error) => `${error.numeroFila}-${error.tipoEntidad}-${error.identificador}`}
-                emptyMessage={t('imports.results.noErrors', { defaultValue: 'No hay errores' })}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {!hasErrors && (
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-success/10 border border-success/20">
-            <CheckCircle2 size={24} className="text-success" />
-            <div>
-              <p className="font-medium text-success">
-                {t('imports.results.allSuccess', {
-                  defaultValue: 'Todas las filas se importaron exitosamente',
-                })}
-              </p>
-              <p className="text-sm text-text-muted mt-1">
-                {t('imports.results.importedCount', {
-                  defaultValue: 'Se importaron {count} filas',
-                  count: filasExitosas,
-                })}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex justify-between pt-4 border-t border-border">
-          <div>
-            {jobId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDownloadExcel}
-                disabled={isDownloadingExcel}
-              >
-                {isDownloadingExcel ? (
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <FileSpreadsheet size={16} className="mr-2" />
-                )}
-                {t('imports.downloadExcel', { defaultValue: 'Descargar Excel' })}
-              </Button>
             )}
-          </div>
-          <Button variant="primary" onClick={onClose}>
-            {t('common.close', { defaultValue: 'Cerrar' })}
-          </Button>
-        </div>
-        </>
+
+            {/* Errors Table */}
+            {hasErrors && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-text">
+                    {t('imports.results.errors', { defaultValue: 'Errores' })} ({errores.length})
+                  </h3>
+                  <Button variant="ghost" size="sm" onClick={handleDownloadErrors}>
+                    <Download size={16} className="mr-2" />
+                    {t('imports.downloadErrors', { defaultValue: 'Descargar errores' })}
+                  </Button>
+                </div>
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <Table
+                    data={errores}
+                    columns={errorColumns}
+                    keyExtractor={(error) => `${error.numeroFila}-${error.tipoEntidad}-${error.identificador}`}
+                    emptyMessage={t('imports.results.noErrors', { defaultValue: 'No hay errores' })}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {!hasErrors && (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-success/10 border border-success/20">
+                <CheckCircle2 size={24} className="text-success" />
+                <div>
+                  <p className="font-medium text-success">
+                    {t('imports.results.allSuccess', {
+                      defaultValue: 'Todas las filas se importaron exitosamente',
+                    })}
+                  </p>
+                  <p className="text-sm text-text-muted mt-1">
+                    {t('imports.results.importedCount', {
+                      defaultValue: 'Se importaron {count} filas',
+                      count: filasExitosas,
+                    })}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex justify-between pt-4 border-t border-border">
+              <div>
+                {jobId && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDownloadExcel}
+                    disabled={isDownloadingExcel}
+                  >
+                    {isDownloadingExcel ? (
+                      <Loader2 size={16} className="mr-2 animate-spin" />
+                    ) : (
+                      <FileSpreadsheet size={16} className="mr-2" />
+                    )}
+                    {t('imports.downloadExcel', { defaultValue: 'Descargar Excel' })}
+                  </Button>
+                )}
+              </div>
+              <Button variant="primary" onClick={onClose}>
+                {t('common.close', { defaultValue: 'Cerrar' })}
+              </Button>
+            </div>
+          </>
         )}
       </div>
     </Modal>
