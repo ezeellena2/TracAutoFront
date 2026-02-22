@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { Edit, Trash2, Car, Smartphone, List, RefreshCw, Share2 } from 'lucide-react';
 import { Table, Badge, ActionMenu } from '@/shared/ui';
 import { NivelPermisoCompartido } from '@/shared/types/api';
@@ -57,7 +58,14 @@ export function DriversTable({
     {
       key: 'telefono',
       header: t('drivers.phone'),
-      render: (c: ConductorDto) => c.telefono || '-',
+      render: (c: ConductorDto) => {
+        if (!c.telefono) return '-';
+        try {
+          return parsePhoneNumberWithError(c.telefono).format('INTERNATIONAL');
+        } catch {
+          return c.telefono;
+        }
+      },
     },
     {
       key: 'activo',
@@ -221,35 +229,35 @@ export function DriversTable({
               )}
 
               {/* Conductor ACTIVO: mostrar eliminar (solo propios) */}
-                  {isActive && canDelete && !c.esRecursoAsociado && (
-                    <>
-                      <div className="border-t border-border my-1" />
-                      <button
-                        onClick={() => {
-                          onActionMenuToggle(null);
-                          onDelete(c);
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                      >
-                        <Trash2 size={14} />
-                        {t('drivers.delete')}
-                      </button>
-                    </>
-                  )}
-                  {/* Conductor INACTIVO: solo mostrar Reactivar */}
-                  {!isActive && canEdit && (
-                    <button
-                      onClick={() => {
-                        onActionMenuToggle(null);
-                        onReactivate(c);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
-                    >
-                      <RefreshCw size={14} />
-                      {t('drivers.reactivate')}
-                    </button>
-                  )}
-                </div>
+              {isActive && canDelete && !c.esRecursoAsociado && (
+                <>
+                  <div className="border-t border-border my-1" />
+                  <button
+                    onClick={() => {
+                      onActionMenuToggle(null);
+                      onDelete(c);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  >
+                    <Trash2 size={14} />
+                    {t('drivers.delete')}
+                  </button>
+                </>
+              )}
+              {/* Conductor INACTIVO: solo mostrar Reactivar */}
+              {!isActive && canEdit && (
+                <button
+                  onClick={() => {
+                    onActionMenuToggle(null);
+                    onReactivate(c);
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                >
+                  <RefreshCw size={14} />
+                  {t('drivers.reactivate')}
+                </button>
+              )}
+            </div>
           </ActionMenu>
         );
       },

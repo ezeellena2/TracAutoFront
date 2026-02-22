@@ -1,7 +1,6 @@
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { usePhoneInput, defaultCountries } from "react-international-phone";
-import { parsePhoneNumberFromString } from "libphonenumber-js/max";
+import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js/max";
 import { useTranslation } from "react-i18next";
 import { Select } from "./Select";
 import "react-international-phone/style.css";
@@ -34,7 +33,7 @@ function getE164IfMobile(
   iso2: string,
   t: (key: string) => string
 ) {
-  const region = (iso2 ?? "AR").toUpperCase() as any;
+  const region = (iso2 ?? "AR").toUpperCase() as CountryCode;
 
   const p = raw.trim().startsWith("+")
     ? parsePhoneNumberFromString(raw.trim())
@@ -79,17 +78,21 @@ function PhoneInput({
   const [phoneUI, setPhoneUI] = useState<string>("");
   const countries = defaultCountries as Array<[string, string, string, ...unknown[]]>;
 
+  const prevValueRef = useRef(props.value);
+
   useEffect(() => {
-    if (typeof props.value === "string" && props.value !== phoneUI) {
+    if (typeof props.value === "string" && props.value !== prevValueRef.current) {
       setPhoneUI(props.value);
     }
-  }, [props.value, phoneUI]);
+    prevValueRef.current = props.value;
+  }, [props.value]);
 
-  const countriesForPhoneInput = useMemo(
+
+  const countriesPermissive = useMemo(
     () =>
       countries.map(
         (c) =>
-          [c[0], c[1], c[2], "... ... .... .... "] as [string, string, string, string]
+          [c[0], c[1], c[2], "...................."] as [string, string, string, string]
       ),
     [countries]
   );
@@ -98,9 +101,11 @@ function PhoneInput({
     usePhoneInput({
       defaultCountry: "ar",
       value: phoneUI,
-      countries: countriesForPhoneInput,
+      countries: countriesPermissive,
+      disableFormatting: true,
       onChange: (data: { phone: string }) => {
         setPhoneUI(data.phone);
+        setLocalError(null);
         if (onChange) {
           onChange({ target: { name: name || "", value: data.phone } });
         }
@@ -108,18 +113,37 @@ function PhoneInput({
       forceDialCode: true,
     });
 
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   const commitE164 = () => {
     if (!onChange) return;
 
-    const { e164, ok } = getE164IfMobile(inputValue, country?.iso2 || "AR", t);
-
-    if (!ok) {
-      onChange({ target: { name: name || "", value: "" } });
+    const digitsOnly = inputValue.replace(/\D/g, "");
+    const dialCode = country?.dialCode || "";
+    if (!digitsOnly || digitsOnly === dialCode) {
+      setLocalError(null);
       return;
     }
 
+    const { e164, ok, msg } = getE164IfMobile(inputValue, country?.iso2 || "AR", t);
+
+    if (!ok) {
+      setLocalError(msg || t("auth.invalidPhone"));
+      return;
+    }
+
+    setLocalError(null);
     onChange({ target: { name: name || "", value: e164 } });
-  };
+  }
+
+  const displayValue = useMemo(() => {
+    if (isEditing) return inputValue;
+    const parsed = parsePhoneNumberFromString(inputValue);
+    if (parsed?.isValid()) return parsed.format("INTERNATIONAL");
+    return inputValue;
+  }, [isEditing, inputValue]);
+
 
   return (
     <div className="w-full">
@@ -132,7 +156,7 @@ function PhoneInput({
         </label>
       )}
 
-      <div className={`flex gap-2 ${error ? "phone-input-error" : ""}`}>
+      <div className={`flex gap-2 ${error || localError ? "phone-input-error" : ""}`}>
         <div className="w-[80px] shrink-0">
           <Select
             options={countries.map((c) => ({
@@ -177,9 +201,13 @@ function PhoneInput({
             ref={inputRef}
             id={inputId}
             name={name}
-            value={inputValue}
-            onChange={handlePhoneValueChange}
+            value={displayValue}
+            onChange={(e) => {
+              handlePhoneValueChange(e);
+            }}
+            onFocus={() => setIsEditing(true)}
             onBlur={(e) => {
+              setIsEditing(false);
               commitE164();
               props.onBlur?.(e);
             }}
@@ -191,7 +219,7 @@ function PhoneInput({
               focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
               transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${error ? "border-error focus:ring-error" : ""}
+              ${error || localError ? "border-error focus:ring-error" : ""}
               ${rightElement ? "pr-10" : ""}
               h-10
               ${className}
@@ -207,8 +235,8 @@ function PhoneInput({
         </div>
       </div>
 
-      {error && <p className="mt-1.5 text-sm text-error">{error}</p>}
-      {helperText && !error && (
+      {(error || localError) && <p className="mt-1.5 text-sm text-error">{error || localError}</p>}
+      {helperText && !error && !localError && (
         <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
       )}
     </div>
