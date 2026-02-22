@@ -290,7 +290,7 @@ export function ImportResultsModal({
                   </p>
                   <p className="text-sm text-text-muted mt-1">
                     {t('imports.results.importedCount', {
-                      defaultValue: 'Se importaron {count} filas',
+                      defaultValue: 'Se importaron {{count}} filas',
                       count: filasExitosas,
                     })}
                   </p>
