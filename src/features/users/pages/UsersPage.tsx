@@ -15,7 +15,7 @@ type RolType = 'Admin' | 'Operador' | 'Analista';
 export function UsersPage() {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   // Datos paginados
   const [usersData, setUsersData] = useState<ListaPaginada<UsuarioOrganizacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,11 +47,12 @@ export function UsersPage() {
       const result = await organizacionesApi.getUsuariosOrganizacion(paginationParams);
       setUsersData(result);
     } catch (err) {
-      setError(getErrorMessage(err));
+      const parsed = handleApiError(err, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams]);
+  }, [paginationParams, handleApiError]);
 
   // Refetch cuando cambian los parámetros de paginación
   useEffect(() => {
@@ -75,7 +76,7 @@ export function UsersPage() {
       await loadUsers();
       setActionMenuOpen(null);
     } catch (err) {
-      console.error('Error changing role:', err);
+      handleApiError(err);
     }
   };
 
@@ -91,7 +92,7 @@ export function UsersPage() {
       await loadUsers();
       setUserToDelete(null);
     } catch (err) {
-      console.error('Error removing user:', err);
+      handleApiError(err);
     } finally {
       setIsDeleting(false);
     }

@@ -340,6 +340,7 @@ export interface ProblemDetails {
   retryAfter?: number;
   /** FluentValidation / field-level errors */
   errors?: Record<string, string[]>;
+  extensions?: Record<string, unknown>;
   [key: string]: unknown;
 }
 

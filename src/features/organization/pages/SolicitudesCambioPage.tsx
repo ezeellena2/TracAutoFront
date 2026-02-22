@@ -13,7 +13,7 @@ import { toast } from '@/store/toast.store';
 
 export function SolicitudesCambioPage() {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError, parseError } = useErrorHandler();
   const organizacionId = useAuthStore((state) => state.organizationId);
 
   // Pagination
@@ -38,9 +38,17 @@ export function SolicitudesCambioPage() {
     ...paginationParams,
   });
 
+  const errorMessage = error ? parseError(error).message : null;
+
   // Auto-ajustar página si excede el total
   const totalPaginas = data?.totalPaginas ?? 0;
   const paginaActual = data?.paginaActual ?? 1;
+
+  useEffect(() => {
+    if (error) {
+      handleApiError(error, { showToast: false });
+    }
+  }, [error, handleApiError]);
 
   useEffect(() => {
     if (totalPaginas > 0 && paginaActual > totalPaginas) {
@@ -70,8 +78,8 @@ export function SolicitudesCambioPage() {
       setSelectedSolicitud(nuevaSolicitud);
       refetch();
     } catch (err) {
-      const errorMessage = getErrorMessage(err);
-      setErrorDetalle(errorMessage);
+      const parsed = handleApiError(err, { showToast: false });
+      setErrorDetalle(parsed.message);
     } finally {
       setIsCreating(false);
     }
@@ -87,8 +95,8 @@ export function SolicitudesCambioPage() {
       setShowBorrarModal(null);
       refetch();
     } catch (err) {
-      const errorMessage = getErrorMessage(err);
-      setErrorDetalle(errorMessage);
+      const parsed = handleApiError(err, { showToast: false });
+      setErrorDetalle(parsed.message);
     } finally {
       setIsDeleting(false);
     }
@@ -130,7 +138,7 @@ export function SolicitudesCambioPage() {
 
       {error && (
         <div className="p-4 bg-error/10 text-error rounded-lg border border-error/20">
-          {getErrorMessage(error)}
+          {errorMessage}
         </div>
       )}
 
@@ -152,9 +160,8 @@ export function SolicitudesCambioPage() {
                 setSelectedSolicitud(fullSolicitud);
               })
               .catch((err) => {
-                // Usar getErrorMessage para obtener mensaje seguro sin exponer detalles sensibles
-                const errorMessage = getErrorMessage(err);
-                setErrorDetalle(errorMessage);
+                const parsed = handleApiError(err, { showToast: false });
+                setErrorDetalle(parsed.message);
               });
           }}
           onDelete={(solicitud) => {

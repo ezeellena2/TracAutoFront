@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, RefreshCw, Trash2, Clock, AlertCircle } from 'lucide-react';
+import { Mail, RefreshCw, Trash2, Clock, AlertCircle, Ban, CheckCircle, Hourglass } from 'lucide-react';
 import { Table, Badge, Button, Card, CardHeader, PaginationControls } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { invitacionesApi } from '@/services/endpoints';
@@ -12,7 +12,7 @@ import { formatDateTime } from '@/shared/utils';
 export function PendingInvitationsTable() {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   // Datos paginados
   const [invitacionesData, setInvitacionesData] = useState<ListaPaginada<InvitacionDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,13 +36,12 @@ export function PendingInvitationsTable() {
       setInvitacionesData(result);
     } catch (err) {
       console.error('Error loading invitations:', err);
-      const msg = getErrorMessage(err);
-      setLoadError(msg);
-      toast.error(t('users.errorLoadingInvitations', { defaultValue: 'Error al cargar invitaciones: {{msg}}', msg }));
+      const parsed = handleApiError(err, { showToast: false });
+      setLoadError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, getErrorMessage, t]);
+  }, [paginationParams, handleApiError]);
 
   useEffect(() => {
     loadInvitaciones();
@@ -55,7 +54,7 @@ export function PendingInvitationsTable() {
       toast.success(t('users.success.resendInvitation'));
       await loadInvitaciones();
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      handleApiError(error);
     } finally {
       setResendingId(null);
     }
@@ -74,7 +73,7 @@ export function PendingInvitationsTable() {
       setInvitationIdToCancel(null);
       loadInvitaciones();
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      handleApiError(error);
     } finally {
       setIsCancelling(false);
     }
@@ -93,6 +92,31 @@ export function PendingInvitationsTable() {
           <span className="font-medium text-text">{i.email}</span>
         </div>
       )
+    },
+    {
+      key: 'estado',
+      header: t('users.status', { defaultValue: 'Estado' }),
+      render: (i: InvitacionDto) => {
+        const estado = (i.estado ?? '').toLowerCase();
+        if (estado === 'cancelada') return (
+          <div className="flex items-center gap-1 text-error">
+            <Ban size={14} />
+            <span className="text-sm font-medium">{t('users.statuses.cancelled', { defaultValue: 'Cancelada' })}</span>
+          </div>
+        );
+        if (estado === 'aceptada') return (
+          <div className="flex items-center gap-1 text-success">
+            <CheckCircle size={14} />
+            <span className="text-sm font-medium">{t('users.statuses.accepted', { defaultValue: 'Aceptada' })}</span>
+          </div>
+        );
+        return (
+          <div className="flex items-center gap-1 text-warning">
+            <Hourglass size={14} />
+            <span className="text-sm font-medium">{t('users.statuses.pending', { defaultValue: 'Pendiente' })}</span>
+          </div>
+        );
+      }
     },
     {
       key: 'rolAsignado',

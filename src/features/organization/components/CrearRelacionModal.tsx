@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Modal, Input, Button } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
@@ -20,8 +19,7 @@ export function CrearRelacionModal({
   onSuccess
 }: CrearRelacionModalProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { parseError } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const [organizacionDestinoId, setOrganizacionDestinoId] = useState('');
   const [compartirRecursos, setCompartirRecursos] = useState(true);
   const [organizaciones, setOrganizaciones] = useState<OrganizacionDto[]>([]);
@@ -74,17 +72,7 @@ export function CrearRelacionModal({
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const parsedError = parseError(err);
-      
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-      
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      const parsedError = handleApiError(err, { showToast: false });
       toast.error(parsedError.message);
     } finally {
       setIsLoading(false);

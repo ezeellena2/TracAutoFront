@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { Modal, Input, Button } from '@/shared/ui';
+import { Modal, Input, Button, ApiErrorBanner } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
 import { useErrorHandler } from '@/hooks';
@@ -16,8 +15,7 @@ interface CreateDriverModalProps {
 
 export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverModalProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { parseError } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const [form, setForm] = useState<CreateConductorCommand>({
     nombreCompleto: '',
     dni: '',
@@ -25,6 +23,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
     telefono: '',
   });
   const [errors, setErrors] = useState<{ nombreCompleto?: string }>({});
+  const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +41,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
 
     setIsLoading(true);
     setErrors({});
+    setApiError(null);
 
     try {
       await conductoresApi.crear({
@@ -53,21 +53,12 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
       toast.success(t('drivers.success.created'));
       setForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
       setErrors({});
+      setApiError(null);
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const parsedError = parseError(err);
-
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
-      toast.error(parsedError.message);
+      const parsedError = handleApiError(err, { showToast: false });
+      setApiError(parsedError);
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +67,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
   const handleClose = () => {
     setForm({ nombreCompleto: '', dni: '', email: '', telefono: '' });
     setErrors({});
+    setApiError(null);
     onClose();
   };
 
@@ -90,6 +82,11 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <ApiErrorBanner
+            error={apiError}
+            jiraLabel={t('drivers.errors.createFailed', 'Error al crear conductor')}
+            onReportClick={onClose}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <Input

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { Modal, Button } from '@/shared/ui';
+import { Modal, Button, ApiErrorBanner } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
 import { useErrorHandler } from '@/hooks';
@@ -25,14 +24,15 @@ export function AssignDeviceModal({
   onSuccess,
 }: AssignDeviceModalProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { parseError } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
+  const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedDeviceId('');
+      setApiError(null);
     }
   }, [isOpen]);
 
@@ -44,6 +44,7 @@ export function AssignDeviceModal({
     }
 
     setIsLoading(true);
+    setApiError(null);
 
     try {
       await conductoresApi.asignarDispositivo(conductor.id, {
@@ -51,21 +52,12 @@ export function AssignDeviceModal({
       });
       toast.success(t('drivers.success.deviceAssigned'));
       setSelectedDeviceId('');
+      setApiError(null);
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const parsedError = parseError(err);
-      
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-      
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
-      toast.error(parsedError.message);
+      const parsedError = handleApiError(err, { showToast: false });
+      setApiError(parsedError);
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +78,11 @@ export function AssignDeviceModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <ApiErrorBanner
+            error={apiError}
+            jiraLabel={t('drivers.errors.assignDeviceFailed', 'Error al asignar dispositivo')}
+            onReportClick={onClose}
+          />
           <div className="p-3 bg-background rounded-lg border border-border">
             <p className="text-xs text-text-muted mb-1">{t('drivers.assignDeviceModal.driver')}</p>
             <p className="font-medium text-text">{conductor.nombreCompleto}</p>

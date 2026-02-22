@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X, Check, XCircle } from 'lucide-react';
 import { Modal, Button } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
@@ -22,8 +21,7 @@ export function ResponderSolicitudModal({
     solicitud
 }: ResponderSolicitudModalProps) {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const { parseError } = useErrorHandler();
+    const { handleApiError } = useErrorHandler();
     const [isLoading, setIsLoading] = useState(false);
     const [compartirRecursos, setCompartirRecursos] = useState(true);
 
@@ -51,17 +49,7 @@ export function ResponderSolicitudModal({
             onSuccess();
             onClose();
         } catch (err) {
-            const parsedError = parseError(err);
-            
-            // Para errores graves (500+), redirigir a la página de error
-            if (parsedError.status >= 500) {
-                navigate('/error', {
-                    state: { traceId: parsedError.traceId },
-                });
-                return;
-            }
-            
-            // Para otros errores (validación, conflictos, etc.), mostrar toast
+            const parsedError = handleApiError(err, { showToast: false });
             toast.error(parsedError.message);
         } finally {
             setIsLoading(false);

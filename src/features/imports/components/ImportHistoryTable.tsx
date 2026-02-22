@@ -6,7 +6,6 @@ import { reportesApi } from '@/services/endpoints';
 import { type ImportacionJobDto, EstadoImportacionJob } from '@/services/endpoints/reportes.api';
 import type { ListaPaginada } from '@/shared/types/api';
 import { usePaginationParams, useErrorHandler, useLocalization } from '@/hooks';
-import { toast } from '@/store/toast.store';
 import { formatDateTime } from '@/shared/utils';
 import { ImportResultsModal } from '@/shared/ui';
 
@@ -16,7 +15,7 @@ interface ImportHistoryTableProps {
 
 export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const { culture, timeZoneId } = useLocalization();
 
   const [historyData, setHistoryData] = useState<ListaPaginada<ImportacionJobDto> | null>(null);
@@ -44,12 +43,12 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
       });
       setHistoryData(result);
     } catch (e) {
-      setError(getErrorMessage(e));
-      toast.error(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, tipoImportacion, getErrorMessage]);
+  }, [paginationParams, tipoImportacion, handleApiError]);
 
   useEffect(() => {
     void loadHistory();
@@ -111,12 +110,12 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
       const fullJob = await reportesApi.obtenerImportacionJob(job.id);
       setSelectedJob(fullJob);
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       setIsDetailsModalOpen(false);
     } finally {
       setIsLoadingDetails(false);
     }
-  }, [getErrorMessage]);
+  }, [handleApiError]);
 
   const columns = [
     {

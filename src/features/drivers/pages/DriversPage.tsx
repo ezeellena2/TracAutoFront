@@ -26,7 +26,7 @@ const getDriverFiltersConfig = (t: (key: string, options?: Record<string, unknow
 
 export function DriversPage() {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const { can } = usePermissions();
   const canEdit = can('conductores:editar');
   const canCreate = can('conductores:crear');
@@ -183,7 +183,7 @@ export function DriversPage() {
         }
       }
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       throw e;
     }
   };
@@ -198,7 +198,7 @@ export function DriversPage() {
       downloadBlob(blob, 'conductores.xlsx');
       toast.success(t('imports.exportSuccess', { defaultValue: 'Conductores exportados exitosamente' }));
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsExporting(false);
     }

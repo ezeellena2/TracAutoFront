@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { Modal, Input, Button } from '@/shared/ui';
+import { Modal, Input, Button, ApiErrorBanner } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
 import { useErrorHandler } from '@/hooks';
@@ -17,13 +16,13 @@ interface EditDriverModalProps {
 
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { parseError } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',
     telefono: '',
   });
+  const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -41,6 +40,7 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
     if (!conductor) return;
 
     setIsLoading(true);
+    setApiError(null);
 
     try {
       await conductoresApi.actualizar(conductor.id, {
@@ -49,21 +49,12 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
         telefono: form.telefono?.trim() || undefined,
       });
       toast.success(t('drivers.success.updated'));
+      setApiError(null);
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const parsedError = parseError(err);
-
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
-      toast.error(parsedError.message);
+      const parsedError = handleApiError(err, { showToast: false });
+      setApiError(parsedError);
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +73,11 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <ApiErrorBanner
+            error={apiError}
+            jiraLabel={t('drivers.errors.updateFailed', 'Error al actualizar conductor')}
+            onReportClick={onClose}
+          />
           <Input
             label={t('drivers.form.fullNameLabel')}
             value={form.nombreCompleto}

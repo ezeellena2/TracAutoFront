@@ -4,10 +4,11 @@
  */
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ServerCrash, Home, RefreshCw, Copy, Check } from 'lucide-react';
+import { ServerCrash, Home, RefreshCw, Copy, Check, Ticket } from 'lucide-react';
 import { Button } from '@/shared/ui';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { openErrorReport, generateReferenceId } from '@/shared/errors';
 
 export function ServerErrorPage() {
   const navigate = useNavigate();
@@ -16,11 +17,7 @@ export function ServerErrorPage() {
   const [copied, setCopied] = useState(false);
 
   // Obtener traceId del state de navegación si existe
-  const traceId = (location.state as { traceId?: string })?.traceId || generateErrorId();
-
-  function generateErrorId(): string {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  }
+  const traceId = (location.state as { traceId?: string })?.traceId || generateReferenceId();
 
   const handleCopy = async () => {
     try {
@@ -31,6 +28,15 @@ export function ServerErrorPage() {
       console.log('Error ID:', traceId);
     }
   };
+
+  useEffect(() => {
+    openErrorReport({
+      referenceId: traceId,
+      message: t('errorPages.serverError.message', 'Ocurrió un error inesperado. Nuestro equipo ya fue notificado.'),
+      code: 'HTTP_500',
+      status: 500,
+    });
+  }, [traceId, t]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -88,6 +94,19 @@ export function ServerErrorPage() {
           >
             <RefreshCw className="w-4 h-4" />
             {t('common.retry', 'Reintentar')}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => openErrorReport({
+              referenceId: traceId,
+              message: t('errorPages.serverError.message', 'Ocurrió un error inesperado. Nuestro equipo ya fue notificado.'),
+              code: 'HTTP_500',
+              status: 500,
+            })}
+            className="flex items-center justify-center gap-2"
+          >
+            <Ticket className="w-4 h-4" />
+            {t('errorReport.reportProblem', 'Reportar problema')}
           </Button>
           <Button
             onClick={() => navigate('/')}

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { OrganizationTheme } from '@/shared/types';
-import { OrganizacionDto } from '@/shared/types/api';
-import { ThemeColors } from '@/shared/types/organization';
+import { OrganizacionDto, OrganizacionThemeDto, TipoOrganizacion } from '@/shared/types/api';
+import { buildThemeOverride } from '@/shared/utils/buildThemeOverride';
 
 interface TenantState {
   /**
@@ -15,6 +15,12 @@ interface TenantState {
   // Actions
   setOrganization: (org: OrganizationTheme) => void;
   setOrganizationFromDto: (dto: OrganizacionDto) => void;
+  setOrganizationFromLogin: (info: {
+    id: string;
+    nombre: string;
+    tipoOrganizacion: TipoOrganizacion;
+    theme?: OrganizacionThemeDto | null;
+  }) => void;
   clearOrganization: () => void;
 }
 
@@ -32,35 +38,28 @@ export const useTenantStore = create<TenantState>()(
        * Maneja el caso donde theme puede no estar presente (fallback seguro)
        */
       setOrganizationFromDto: (dto) => {
-        const themeOverride: Partial<ThemeColors> = {
-          ...(dto.theme?.primary ? { primary: dto.theme.primary } : {}),
-          ...(dto.theme?.primaryDark ? { primaryDark: dto.theme.primaryDark } : {}),
-          ...(dto.theme?.secondary ? { secondary: dto.theme.secondary } : {}),
-          ...(dto.theme?.background ? { background: dto.theme.background } : {}),
-          ...(dto.theme?.surface ? { surface: dto.theme.surface } : {}),
-          ...(dto.theme?.text ? { text: dto.theme.text } : {}),
-          ...(dto.theme?.textMuted ? { textMuted: dto.theme.textMuted } : {}),
-          ...(dto.theme?.border ? { border: dto.theme.border } : {}),
-          ...(dto.theme?.success ? { success: dto.theme.success } : {}),
-          ...(dto.theme?.warning ? { warning: dto.theme.warning } : {}),
-          ...(dto.theme?.error ? { error: dto.theme.error } : {}),
-          ...(dto.theme?.roleAdminBg ? { roleAdminBg: dto.theme.roleAdminBg } : {}),
-          ...(dto.theme?.roleAdminText ? { roleAdminText: dto.theme.roleAdminText } : {}),
-          ...(dto.theme?.roleOperadorBg ? { roleOperadorBg: dto.theme.roleOperadorBg } : {}),
-          ...(dto.theme?.roleOperadorText ? { roleOperadorText: dto.theme.roleOperadorText } : {}),
-          ...(dto.theme?.roleAnalistaBg ? { roleAnalistaBg: dto.theme.roleAnalistaBg } : {}),
-          ...(dto.theme?.roleAnalistaText ? { roleAnalistaText: dto.theme.roleAnalistaText } : {}),
-        };
-
         const orgTheme: OrganizationTheme = {
           id: dto.id,
           name: dto.nombre,
-          // El backend expone logoUrl dentro del theme (branding).
           logo: dto.theme?.logoUrl || '',
           tipoOrganizacion: dto.tipoOrganizacion,
-          theme: themeOverride, // Override parcial (solo tokens soportados por el frontend)
+          theme: buildThemeOverride(dto.theme),
         };
 
+        set({ currentOrganization: orgTheme });
+      },
+
+      /**
+       * Crea OrganizationTheme desde datos del login response (sin segunda API call)
+       */
+      setOrganizationFromLogin: (info) => {
+        const orgTheme: OrganizationTheme = {
+          id: info.id,
+          name: info.nombre,
+          logo: info.theme?.logoUrl || '',
+          tipoOrganizacion: info.tipoOrganizacion,
+          theme: buildThemeOverride(info.theme),
+        };
         set({ currentOrganization: orgTheme });
       },
 

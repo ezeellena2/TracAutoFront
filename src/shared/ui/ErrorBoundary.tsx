@@ -1,21 +1,13 @@
 /**
  * Error Boundary para capturar errores de React no manejados.
  * Evita que un error en un componente rompa toda la aplicación.
- * 
- * Uso:
- * <ErrorBoundary>
- *   <ComponenteQuePuedeFallar />
- * </ErrorBoundary>
- * 
- * Con fallback personalizado:
- * <ErrorBoundary fallback={<MiComponenteDeError />}>
- *   <ComponenteQuePuedeFallar />
- * </ErrorBoundary>
  */
 
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Ticket, Copy, Check } from 'lucide-react';
+import i18next from 'i18next';
 import { Button } from './Button';
+import { openErrorReport, extractErrorDetails, formatErrorMessageForDisplay, generateReferenceId } from '@/shared/errors';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -34,10 +26,6 @@ interface ErrorBoundaryState {
   copied: boolean;
 }
 
-// Genera un ID corto para el error (los primeros 8 caracteres de un UUID-like)
-function generateErrorId(): string {
-  return Math.random().toString(36).substring(2, 10).toUpperCase();
-}
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -46,17 +34,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       hasError: false,
       errorId: '',
       timestamp: '',
-      copied: false
+      copied: false,
     };
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    // Actualiza el estado para mostrar el fallback en el próximo render
     return {
       hasError: true,
       error,
-      errorId: generateErrorId(),
-      timestamp: new Date().toISOString()
+      errorId: generateReferenceId(),
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -67,7 +54,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
-      timestamp: this.state.timestamp
+      timestamp: this.state.timestamp,
     });
 
     // Guardar errorInfo en el estado
@@ -75,22 +62,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     // Callback opcional para logging externo (Sentry, LogRocket, etc.)
     this.props.onError?.(error, errorInfo);
+
+    // El modal de reporte solo se abre cuando el usuario hace clic en "Reportar problema" (handleOpenReport).
   }
 
   handleRetry = (): void => {
-    // Resetea el estado para intentar renderizar de nuevo
     this.setState({
       hasError: false,
       error: undefined,
       errorInfo: undefined,
       errorId: '',
       timestamp: '',
-      copied: false
+      copied: false,
     });
   };
 
   handleGoHome = (): void => {
-    // Navega al inicio y recarga para limpiar cualquier estado corrupto
     window.location.href = '/';
   };
 
@@ -100,65 +87,50 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       this.setState({ copied: true });
       setTimeout(() => this.setState({ copied: false }), 2000);
     } catch {
-      // Fallback si clipboard no está disponible
       console.log('Error ID:', this.state.errorId);
     }
   };
 
-  handleCreateTicket = (): void => {
-    // Por ahora solo logueamos la intención de crear ticket
-    // En el futuro esto se conectará a Jira u otro sistema
-    const ticketData = {
-      errorId: this.state.errorId,
+  handleOpenReport = (): void => {
+    openErrorReport({
+      referenceId: this.state.errorId,
+      message: this.state.error?.message || i18next.t('errors.unexpected'),
+      code: 'errors.client',
+      status: 0,
       timestamp: this.state.timestamp,
-      message: this.state.error?.message,
-      url: window.location.href,
-      userAgent: navigator.userAgent
-    };
-
-    console.log('[ErrorBoundary] Crear ticket con datos:', ticketData);
-
-    // TODO: Integrar con Jira/sistema de tickets
-    // Por ahora mostramos un alert informativo
-    alert(
-      `🎫 Ticket (próximamente)\n\n` +
-      `ID de referencia: ${this.state.errorId}\n` +
-      `Error: ${this.state.error?.message}\n\n` +
-      `Esta función se conectará próximamente a Jira.`
-    );
+      details: extractErrorDetails(this.state.error),
+    });
   };
 
   render(): ReactNode {
     if (this.state.hasError) {
-      // Si hay un fallback personalizado, usarlo
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       const { errorId, copied } = this.state;
+      const t = i18next.t.bind(i18next);
 
-      // Fallback por defecto
       return (
         <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-background">
           <div className="bg-surface border border-border rounded-2xl p-8 max-w-md w-full shadow-lg">
-            {/* Icono */}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center">
                 <AlertTriangle className="w-8 h-8 text-error" />
               </div>
             </div>
 
-            {/* Título y mensaje */}
             <h2 className="text-xl font-semibold text-text mb-2">
-              Algo salió mal
+              {t('errorBoundary.title', 'Algo salió mal')}
             </h2>
             <p className="text-text-muted mb-4">
-              Ocurrió un error inesperado. Podés intentar recargar la página o volver al inicio.
+              {t('errorBoundary.message', 'Ocurrió un error inesperado. Podés intentar recargar la página o volver al inicio.')}
             </p>
 
-            {/* ID de referencia */}
             <div className="mb-6 p-3 bg-background rounded-lg border border-border">
-              <p className="text-xs text-text-muted mb-1">ID de referencia</p>
+              <p className="text-xs text-text-muted mb-1">
+                {t('errorBoundary.referenceId', 'ID de referencia')}
+              </p>
               <div className="flex items-center justify-center gap-2">
                 <code className="text-sm font-mono text-text font-semibold">
                   {errorId}
@@ -166,7 +138,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <button
                   onClick={this.handleCopyErrorId}
                   className="p-1 rounded hover:bg-surface-hover transition-colors"
-                  title="Copiar ID"
+                  title={t('common.copy', 'Copiar')}
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-success" />
@@ -176,18 +148,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 </button>
               </div>
               <p className="text-xs text-text-muted mt-1">
-                Usá este código si contactás a soporte
+                {t('errorBoundary.referenceHint', 'Usá este código si contactás a soporte')}
               </p>
             </div>
 
-            {/* Detalles del error (solo en desarrollo) */}
             {import.meta.env.DEV && this.state.error && (
               <details className="mb-6 text-left">
                 <summary className="text-sm text-text-muted cursor-pointer hover:text-text">
-                  Ver detalles técnicos
+                  {t('errorBoundary.technicalDetails', 'Ver detalles técnicos')}
                 </summary>
-                <pre className="mt-2 p-3 bg-background rounded-lg text-xs text-error overflow-auto max-h-32 border border-border">
-                  {this.state.error.message}
+                <pre className="mt-2 p-3 bg-background rounded-lg text-xs text-error overflow-auto max-h-32 border border-border break-words whitespace-pre-wrap">
+                  {formatErrorMessageForDisplay(this.state.error.message)}
                   {this.state.error.stack && (
                     <>
                       {'\n\n'}
@@ -198,7 +169,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </details>
             )}
 
-            {/* Acciones principales */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
               <Button
                 variant="outline"
@@ -206,24 +176,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 className="flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reintentar
+                {t('common.retry', 'Reintentar')}
               </Button>
               <Button
                 onClick={this.handleGoHome}
                 className="flex items-center justify-center gap-2"
               >
                 <Home className="w-4 h-4" />
-                Ir al Inicio
+                {t('common.goHome', 'Ir al Inicio')}
               </Button>
             </div>
 
-            {/* Botón de crear ticket */}
             <button
-              onClick={this.handleCreateTicket}
+              onClick={this.handleOpenReport}
               className="w-full flex items-center justify-center gap-2 py-2 px-4 text-sm text-text-muted hover:text-text hover:bg-background rounded-lg transition-colors border border-transparent hover:border-border"
             >
               <Ticket className="w-4 h-4" />
-              Reportar problema
+              {t('errorBoundary.reportProblem', 'Reportar problema')}
             </button>
           </div>
         </div>
@@ -236,9 +205,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
 /**
  * HOC para envolver componentes con ErrorBoundary
- * 
- * Uso:
- * const SafeComponent = withErrorBoundary(MyComponent);
  */
 export function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,

@@ -6,4 +6,4 @@ export { useSidebarStore } from './sidebar.store';
 export { useLocalizationStore } from './localization.store';
 export { useModoSolicitudStore } from './modoSolicitud.store';
 export { useNotificationsStore } from './notifications.store';
-
+export { useErrorReportStore } from './errorReport.store';

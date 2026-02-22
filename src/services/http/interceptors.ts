@@ -78,6 +78,12 @@ function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean 
     return true;
   }
 
+  // Preferido alternativo: extensions.code
+  const ext = (data as Record<string, unknown>).extensions as Record<string, unknown> | undefined;
+  if (ext?.code === 'TENANCY_VIOLATION' || ext?.code === 'TenancyViolation') {
+    return true;
+  }
+
   // Fallback: detectar por title (acotado, sin depender de texto largo)
   const title = data.title?.toLowerCase() || '';
   if (title.includes('tenant') || title.includes('organización')) {
@@ -122,11 +128,23 @@ function extractErrorCode(data: ApiErrorResponse | undefined, status: number): s
   return getDefaultMessage(status);
 }
 
-/** Crea un Error con code y status para contrato uniforme (shouldRetry, useErrorHandler). */
-function createApiError(message: string, code: string, status: number): Error {
-  const err = new Error(message);
-  (err as any).code = code;
-  (err as any).status = status;
+/** Adjunta metadata de error para contrato uniforme (shouldRetry, useErrorHandler). */
+function attachErrorMetadata(
+  error: unknown,
+  message: string,
+  code: string,
+  status: number,
+  data?: ApiErrorResponse
+): Error {
+  const err = (error instanceof Error ? error : new Error(message)) as Error & {
+    code?: string;
+    status?: number;
+    problemDetails?: ApiErrorResponse;
+  };
+  err.message = message;
+  err.code = code;
+  err.status = status;
+  if (data) err.problemDetails = data;
   return err;
 }
 
@@ -224,11 +242,6 @@ export function setupInterceptors(client: AxiosInstance): void {
         config.headers.Authorization = `Bearer ${state.token}`;
       }
 
-      // REMOVER: Header X-Organization-Id (redundante, backend lo obtiene del token)
-      // if (state.organizationId && config.headers) {
-      //   config.headers['X-Organization-Id'] = state.organizationId;
-      // }
-
       // Sanitizar body si es JSON (POST/PUT/PATCH)
       if (config.data &&
         (config.method === 'post' || config.method === 'put' || config.method === 'patch') &&
@@ -282,7 +295,7 @@ export function setupInterceptors(client: AxiosInstance): void {
           const data = error.response?.data as ApiErrorResponse | undefined;
           const message = extractErrorMessage(data, status);
           const code = extractErrorCode(data, status);
-          return Promise.reject(createApiError(message, code, status));
+          return Promise.reject(attachErrorMetadata(error, message, code, status, data));
         }
       }
 
@@ -302,18 +315,18 @@ export function setupInterceptors(client: AxiosInstance): void {
           const { t: translate } = await import('i18next');
           toast.error(translate('errors.TenancyViolation'));
           await safeLogoutBestEffort();
-          return Promise.reject(createApiError('TenancyViolation', 'TenancyViolation', 403));
+          return Promise.reject(attachErrorMetadata(error, 'TenancyViolation', 'TenancyViolation', 403, data));
         } else {
           const message = extractErrorMessage(data, status);
           const code = extractErrorCode(data, 403);
-          return Promise.reject(createApiError(message, code, status));
+          return Promise.reject(attachErrorMetadata(error, message, code, status, data));
         }
       }
 
       const data = error.response?.data as ApiErrorResponse | undefined;
       const message = extractErrorMessage(data, status);
       const code = extractErrorCode(data, status);
-      return Promise.reject(createApiError(message, code, status));
+      return Promise.reject(attachErrorMetadata(error, message, code, status, data));
     }
   );
 }

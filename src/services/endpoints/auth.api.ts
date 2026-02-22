@@ -35,6 +35,7 @@ export interface LoginResponse {
   email: string;
   nombreOrganizacion: string;
   rol: string;
+  tipoOrganizacion: number;
   theme?: OrganizacionThemeDto | null;
 }
 
@@ -46,6 +47,7 @@ export interface LoginResponse {
 export async function login(email: string, password: string, rememberMe: boolean = true): Promise<{
   token: string;
   user: AuthUser;
+  tipoOrganizacion: number;
   theme?: OrganizacionThemeDto | null;
 }> {
   const response = await apiClient.post<LoginResponse>(`${AUTH_BASE}/login`, {
@@ -74,19 +76,9 @@ export async function login(email: string, password: string, rememberMe: boolean
       organizationId: data.organizacionId,
       organizationName: data.nombreOrganizacion,
     },
+    tipoOrganizacion: data.tipoOrganizacion,
     theme: data.theme,
   };
-}
-
-/**
- * Login tradicional con email y password (legacy - redirige a login)
- */
-export async function loginTradicional(
-  email: string, 
-  password: string, 
-  _organizationId: string
-): Promise<{ token: string; user: AuthUser }> {
-  return login(email, password);
 }
 
 /**
@@ -143,7 +135,6 @@ export async function logout(): Promise<void> {
 
 export const authApi = {
   login,
-  loginTradicional,
   registrarEmpresa,
   verificarCuenta,
   reenviarCodigo,

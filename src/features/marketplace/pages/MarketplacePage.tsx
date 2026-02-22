@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Plus, Edit, Link2, AlertCircle, Pause, CheckCircle, Eye, Play } from 'lucide-react';
-import { Card, Table, Badge, Button, Modal, Input, PaginationControls } from '@/shared/ui';
+import { Card, Table, Badge, Button, Modal, Input, PaginationControls, ApiErrorBanner } from '@/shared/ui';
 import { marketplaceApi, vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePaginationParams, useLocalization, useErrorHandler } from '@/hooks';
 import { useTenantStore } from '@/store';
@@ -24,7 +24,7 @@ export function MarketplacePage() {
   const localization = useLocalization();
   const culture = localization.culture;
   const timeZoneId = localization.timeZoneId;
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   // Data state
   const [marketplaceData, setMarketplaceData] = useState<ListaPaginada<VehiculoMarketplaceDto> | null>(null);
@@ -56,6 +56,8 @@ export function MarketplacePage() {
     vehiculoId: null, // Opcional: vincular a vehículo existente
   });
   const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
+  const [createApiError, setCreateApiError] = useState<import('@/hooks').ParsedError | null>(null);
+  const [editApiError, setEditApiError] = useState<import('@/hooks').ParsedError | null>(null);
 
   type ConfirmStatusChange = {
     item: VehiculoMarketplaceDto;
@@ -111,13 +113,12 @@ export function MarketplacePage() {
       setVehicles(vehiclesData.items);
       setDevices(devicesData.items);
     } catch (e) {
-      const errorMessage = getErrorMessage(e);
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams.numeroPagina, paginationParams.tamanoPagina, getErrorMessage]);
+  }, [paginationParams.numeroPagina, paginationParams.tamanoPagina, handleApiError]);
 
   useEffect(() => {
     loadData();
@@ -147,6 +148,7 @@ export function MarketplacePage() {
 
     setIsCreating(true);
     setCreateErrors({});
+    setCreateApiError(null);
     try {
       await marketplaceApi.createVehiculoMarketplace({
         ...createForm,
@@ -170,7 +172,8 @@ export function MarketplacePage() {
       });
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setCreateApiError(parsed);
     } finally {
       setIsCreating(false);
     }
@@ -205,7 +208,7 @@ export function MarketplacePage() {
       setVehicleToLink(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsLinking(false);
     }
@@ -262,6 +265,7 @@ export function MarketplacePage() {
     if (!editingItem) return;
 
     setIsSavingPublication(true);
+    setEditApiError(null);
     try {
       if (!editingItem.publicacionId) {
         await marketplaceApi.publicarVehiculo(editingItem.vehiculoId, {
@@ -279,7 +283,8 @@ export function MarketplacePage() {
       setEditingItem(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setEditApiError(parsed);
     } finally {
       setIsSavingPublication(false);
     }
@@ -324,7 +329,7 @@ export function MarketplacePage() {
       setConfirmStatusChange(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsSavingPublication(false);
     }
@@ -533,6 +538,12 @@ export function MarketplacePage() {
           title={t('marketplace.addVehicle')}
         >
           <div className="space-y-4">
+            <ApiErrorBanner
+              error={createApiError}
+              title={t('marketplace.errors.createFailed', 'Error al crear/actualizar')}
+              jiraLabel="Error Creación Vehículo"
+              onReportClick={() => setIsCreateModalOpen(false)}
+            />
             {/* Selector de vehículo existente */}
             <div>
               <label className="block text-sm font-medium text-text mb-2">
@@ -739,6 +750,12 @@ export function MarketplacePage() {
         title={t('marketplace.addVehicle')}
       >
         <div className="space-y-4">
+          <ApiErrorBanner
+            error={createApiError}
+            title={t('marketplace.errors.createFailed', 'Error al crear/actualizar')}
+            jiraLabel="Error Creación Vehículo"
+            onReportClick={() => setIsCreateModalOpen(false)}
+          />
           <Input
             label={t('marketplace.form.licensePlate')}
             value={createForm.patente}
@@ -811,6 +828,12 @@ export function MarketplacePage() {
       >
         {editingItem && (
           <div className="space-y-4">
+            <ApiErrorBanner
+              error={editApiError}
+              title={t('marketplace.errors.updateFailed', 'Error al actualizar')}
+              jiraLabel="Error Edición Vehículo"
+              onReportClick={() => setIsEditModalOpen(false)}
+            />
             <div className="p-3 bg-background rounded-lg border border-border">
               <p className="text-xs text-text-muted mb-1">{t('marketplace.form.vehicleToLink')}</p>
               <p className="font-medium text-text">

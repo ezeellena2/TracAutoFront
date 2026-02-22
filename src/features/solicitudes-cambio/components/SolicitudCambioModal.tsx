@@ -7,6 +7,7 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useErrorHandler } from '@/hooks';
 import type { SolicitudContext } from '@/store/modoSolicitud.store';
+import { Modal } from '@/shared/ui/Modal';
 import { SolicitudCambioLimits } from '../constants';
 
 const MAX_MENSAJES_USUARIO = SolicitudCambioLimits.MAX_MENSAJES_USUARIO;
@@ -37,7 +38,7 @@ function markdownToHtml(md: string): string {
 
 export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira, solicitudId: solicitudIdProp }: SolicitudCambioModalProps) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError, parseError } = useErrorHandler();
   const [showConfirm, setShowConfirm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -50,6 +51,14 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
     error,
     mensajesUsuario,
   } = useSolicitudChat({ contexto, solicitudId: solicitudIdProp, onEnviadoAJira });
+
+  const errorMessage = error ? parseError(error).message : null;
+
+  useEffect(() => {
+    if (error) {
+      handleApiError(error, { showToast: false });
+    }
+  }, [error, handleApiError]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,167 +102,178 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
   };
 
   return (
-    <div
-      data-tracauto-solicitud-modal
-      className="solicitud-modal-overlay"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    <Modal
+      isOpen={Boolean(isOpen && (contexto || solicitudIdProp))}
+      onClose={onClose}
+      size="2xl"
+      dataTracautoSolicitudModal
     >
-      <div className="solicitud-modal">
+      <div className="flex flex-col h-[70vh] md:h-[600px] w-full">
         {/* Header */}
-        <div className="solicitud-modal__header">
-          <div className="solicitud-modal__header-info">
-            <span className="solicitud-modal__title">{t('solicitudesCambio.modal.changeRequest', 'Solicitud de cambio')}</span>
+        <div className="flex items-start justify-between pb-4 border-b border-border shrink-0">
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold text-text text-lg">{t('solicitudesCambio.modal.changeRequest', 'Solicitud de cambio')}</span>
             {solicitud?.label && (
-              <span className="solicitud-modal__label">{solicitud.label}</span>
+              <span className="text-xs font-medium text-text-muted bg-surface border border-border px-2 py-0.5 rounded-md w-fit">
+                {solicitud.label}
+              </span>
             )}
           </div>
-          <div className="solicitud-modal__header-actions">
+          <div className="flex items-center gap-3">
             {!jiraIssueKey && (
-              <span className="solicitud-modal__counter">
+              <span className="text-xs font-medium text-text-muted bg-background px-2 py-1 rounded-full border border-border">
                 {mensajesUsuario}/{MAX_MENSAJES_USUARIO} {t('solicitudesCambio.modal.messages', 'mensajes')}
               </span>
             )}
-            <button className="solicitud-modal__close" onClick={onClose} aria-label={t('common.close', 'Cerrar')}>
+            <button className="text-text-muted hover:text-text hover:bg-surface rounded p-1 transition-colors" onClick={onClose} aria-label={t('common.close', 'Cerrar')}>
               <X size={18} />
             </button>
           </div>
         </div>
 
-        {/* Jira enviado */}
-        {jiraIssueKey && jiraIssueUrl && (
-          <div className="solicitud-modal__jira-success">
-            <CheckCircle size={16} className="text-success" />
-            <span>{t('solicitudesCambio.modal.ticketCreated', 'Ticket creado:')}</span>
-            <a href={jiraIssueUrl} target="_blank" rel="noopener noreferrer" className="solicitud-modal__jira-link">
-              {jiraIssueKey} <ExternalLink size={12} />
-            </a>
-          </div>
-        )}
-
-        {/* Panel de confirmación */}
-        {showConfirm ? (
-          <div className="solicitud-modal__confirm-panel">
-            <div className="solicitud-modal__confirm-header">
-              <button className="solicitud-modal__back-btn" onClick={() => setShowConfirm(false)}>
-                <ChevronLeft size={16} /> {t('solicitudesCambio.modal.backToChat', 'Volver al chat')}
-              </button>
-              <h3 className="solicitud-modal__confirm-title">{t('solicitudesCambio.modal.ticketPreview', 'Vista previa del ticket')}</h3>
+        {/* Cuerpos de estado */}
+        <div className="flex flex-col flex-1 overflow-hidden min-h-0 pt-4 pb-2">
+          {/* Jira enviado */}
+          {jiraIssueKey && jiraIssueUrl && (
+            <div className="flex items-center gap-2 bg-success/10 border border-success/20 text-success px-4 py-3 rounded-xl mb-4 text-sm shrink-0">
+              <CheckCircle size={16} />
+              <span className="font-medium">{t('solicitudesCambio.modal.ticketCreated', 'Ticket creado:')}</span>
+              <a href={jiraIssueUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold hover:underline">
+                {jiraIssueKey} <ExternalLink size={12} />
+              </a>
             </div>
+          )}
 
-            <div className="solicitud-modal__confirm-body">
-              <div className="solicitud-modal__ticket-field">
-                <label>{t('solicitudesCambio.modal.summary', 'Resumen')}</label>
-                <p className="solicitud-modal__ticket-summary">{ticketSummary}</p>
+          {/* Panel de confirmación */}
+          {showConfirm ? (
+            <div className="flex flex-col flex-1 overflow-auto bg-background rounded-xl border border-border">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border sticky top-0 bg-background z-10">
+                <button className="p-1 rounded text-text-muted hover:text-text hover:bg-surface" onClick={() => setShowConfirm(false)}>
+                  <ChevronLeft size={18} />
+                </button>
+                <h3 className="font-semibold text-sm">{t('solicitudesCambio.modal.ticketPreview', 'Vista previa del ticket')}</h3>
               </div>
 
-              {ticketLabels.length > 0 && (
-                <div className="solicitud-modal__ticket-field">
-                  <label>{t('solicitudesCambio.modal.labels', 'Etiquetas')}</label>
-                  <div className="solicitud-modal__ticket-labels">
-                    {ticketLabels.map((l) => (
-                      <span key={l} className="solicitud-modal__ticket-label">{l}</span>
-                    ))}
+              <div className="flex flex-col gap-4 p-4 text-sm">
+                <div className="flex flex-col gap-1">
+                  <label className="font-medium text-text-muted text-xs uppercase tracking-wider">{t('solicitudesCambio.modal.summary', 'Resumen')}</label>
+                  <p className="font-medium">{ticketSummary}</p>
+                </div>
+
+                {ticketLabels.length > 0 && (
+                  <div className="flex flex-col gap-1">
+                    <label className="font-medium text-text-muted text-xs uppercase tracking-wider">{t('solicitudesCambio.modal.labels', 'Etiquetas')}</label>
+                    <div className="flex flex-wrap gap-2">
+                      {ticketLabels.map((l) => (
+                        <span key={l} className="bg-surface border border-border text-xs px-2 py-1 rounded">{l}</span>
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {ticketDescription && (
+                  <div className="flex flex-col gap-1">
+                    <label className="font-medium text-text-muted text-xs uppercase tracking-wider">{t('solicitudesCambio.modal.description', 'Descripción')}</label>
+                    <div
+                      className="prose prose-sm max-w-none text-text-muted [&_p]:text-sm [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_a]:text-primary"
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(markdownToHtml(ticketDescription)) }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 p-4 border-t border-border mt-auto sticky bottom-0 bg-background z-10">
+                <button
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-surface hover:bg-surface/80 text-text transition-colors"
+                  onClick={() => setShowConfirm(false)}
+                >
+                  {t('common.cancel', 'Cancelar')}
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary hover:bg-primary-dark text-white transition-colors disabled:opacity-50"
+                  onClick={handleConfirmarYEnviar}
+                  disabled={isEnviando}
+                >
+                  {isEnviando ? (
+                    <><Loader2 size={14} className="animate-spin" /> {t('solicitudesCambio.modal.sending', 'Enviando...')}</>
+                  ) : (
+                    <>{t('solicitudesCambio.modal.confirmAndSend', 'Confirmar y enviar a Jira')}</>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col flex-1 gap-4 overflow-y-auto pr-2 scrollbar-thin">
+                {mensajes.length === 0 && !isSending && (
+                  <div className="flex flex-col items-center justify-center text-center p-6 bg-surface/50 border border-border border-dashed rounded-xl m-auto max-w-sm">
+                    <p className="text-sm text-text mb-2">
+                      {t('solicitudesCambio.modal.describeChange', 'Describí el cambio que necesitás en')} <strong className="font-semibold text-primary">{solicitud?.label ?? contexto?.label ?? t('solicitudesCambio.modal.thisElement', 'este elemento')}</strong>.
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      {t('solicitudesCambio.modal.messageLimit', 'Tenés hasta {{max}} mensajes para describir tu solicitud.', { max: MAX_MENSAJES_USUARIO })}
+                    </p>
+                  </div>
+                )}
+                {mensajes.map((m) => (
+                  <ChatMessage key={m.id} message={m} />
+                ))}
+                {isSending && (
+                  <div className="flex items-center gap-2 text-xs text-text-muted py-2">
+                    <Loader2 size={14} className="animate-spin" /> {t('solicitudesCambio.modal.processing', 'Procesando...')}
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="flex items-start gap-2 text-sm text-error bg-error/10 border border-error/20 rounded-lg p-3 my-2 shrink-0">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <span className="flex-1">{errorMessage}</span>
                 </div>
               )}
 
-              {ticketDescription && (
-                <div className="solicitud-modal__ticket-field">
-                  <label>{t('solicitudesCambio.modal.description', 'Descripción')}</label>
-                  <div
-                    className="solicitud-modal__ticket-description"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(markdownToHtml(ticketDescription)) }}
+              {/* Limit reached message */}
+              {limitAlcanzado && !readyForJira && (
+                <div className="text-center text-xs font-medium text-warning bg-warning/10 border border-warning/20 p-2 rounded-lg my-2 shrink-0">
+                  {t('solicitudesCambio.modal.limitReached', 'Límite de mensajes alcanzado. Revisá la respuesta del asistente.')}
+                </div>
+              )}
+
+              {/* Ready for Jira action */}
+              {readyForJira && !jiraIssueKey && (
+                <div className="flexitems-center justify-between gap-4 bg-primary/10 border border-primary/20 p-3 rounded-xl mt-3 shrink-0">
+                  <span className="font-medium text-sm text-primary flex items-center gap-2">
+                    ✅ {t('solicitudesCambio.modal.readyToSend', 'Ticket listo para enviar')}
+                  </span>
+                  <button
+                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors ml-auto mt-2 sm:mt-0"
+                    onClick={() => setShowConfirm(true)}
+                  >
+                    {t('solicitudesCambio.modal.viewAndConfirm', 'Ver ticket y confirmar')} <ChevronRight size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* Input */}
+              {!jiraIssueKey && (
+                <div className="shrink-0">
+                  <ChatInput
+                    onSend={handleSend}
+                    disabled={isSending || limitAlcanzado || isEnviando}
+                    placeholder={
+                      limitAlcanzado
+                        ? t('solicitudesCambio.modal.limitReachedShort', 'Límite de mensajes alcanzado')
+                        : t('solicitudesCambio.modal.inputPlaceholder', 'Describí el cambio que necesitás...')
+                    }
                   />
                 </div>
               )}
-            </div>
-
-            <div className="solicitud-modal__confirm-actions">
-              <button
-                className="solicitud-modal__btn solicitud-modal__btn--secondary"
-                onClick={() => setShowConfirm(false)}
-              >
-                {t('common.cancel', 'Cancelar')}
-              </button>
-              <button
-                className="solicitud-modal__btn solicitud-modal__btn--primary"
-                onClick={handleConfirmarYEnviar}
-                disabled={isEnviando}
-              >
-                {isEnviando ? (
-                  <><Loader2 size={14} className="spin" /> {t('solicitudesCambio.modal.sending', 'Enviando...')}</>
-                ) : (
-                  <>{t('solicitudesCambio.modal.confirmAndSend', 'Confirmar y enviar a Jira')}</>
-                )}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Chat messages */}
-            <div className="solicitud-modal__messages">
-              {mensajes.length === 0 && !isSending && (
-                <div className="solicitud-modal__empty">
-                  <p>{t('solicitudesCambio.modal.describeChange', 'Describí el cambio que necesitás en')} <strong>{solicitud?.label ?? contexto?.label ?? t('solicitudesCambio.modal.thisElement', 'este elemento')}</strong>.</p>
-                  <p className="solicitud-modal__empty-hint">{t('solicitudesCambio.modal.messageLimit', 'Tenés hasta {{max}} mensajes para describir tu solicitud.', { max: MAX_MENSAJES_USUARIO })}</p>
-                </div>
-              )}
-              {mensajes.map((m) => (
-                <ChatMessage key={m.id} message={m} />
-              ))}
-              {isSending && (
-                <div className="solicitud-modal__typing">
-                  <Loader2 size={14} className="spin" /> {t('solicitudesCambio.modal.processing', 'Procesando...')}
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Error */}
-            {error && (
-              <div className="solicitud-modal__error">
-                <AlertCircle size={14} />
-                <span>{getErrorMessage(error)}</span>
-              </div>
-            )}
-
-            {/* Limit reached message */}
-            {limitAlcanzado && !readyForJira && (
-              <div className="solicitud-modal__limit-msg">
-                {t('solicitudesCambio.modal.limitReached', 'Límite de mensajes alcanzado. Revisá la respuesta del asistente.')}
-              </div>
-            )}
-
-            {/* Ready for Jira action */}
-            {readyForJira && !jiraIssueKey && (
-              <div className="solicitud-modal__ready-bar">
-                <span className="solicitud-modal__ready-text">
-                  ✅ {t('solicitudesCambio.modal.readyToSend', 'Ticket listo para enviar')}
-                </span>
-                <button
-                  className="solicitud-modal__btn solicitud-modal__btn--primary"
-                  onClick={() => setShowConfirm(true)}
-                >
-                  {t('solicitudesCambio.modal.viewAndConfirm', 'Ver ticket y confirmar')} <ChevronRight size={14} />
-                </button>
-              </div>
-            )}
-
-            {/* Input */}
-            {!jiraIssueKey && (
-              <ChatInput
-                onSend={handleSend}
-                disabled={isSending || limitAlcanzado || isEnviando}
-                placeholder={
-                  limitAlcanzado
-                    ? t('solicitudesCambio.modal.limitReachedShort', 'Límite de mensajes alcanzado')
-                    : t('solicitudesCambio.modal.inputPlaceholder', 'Describí el cambio que necesitás...')
-                }
-              />
-            )}
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

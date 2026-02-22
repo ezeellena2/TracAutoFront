@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useErrorHandler } from '@/hooks';
 import { useGeofencesStore } from '../store/geofences.store';
 import { geofencesApi } from '../api';
 import { vehiculosApi } from '@/services/endpoints/vehiculos.api';
@@ -29,6 +30,7 @@ interface UseGeofencesOptions {
 export function useGeofences(options: UseGeofencesOptions = {}) {
   const { autoLoad = true } = options;
   const { t } = useTranslation();
+  const { handleApiError } = useErrorHandler();
   const toast = useToastStore();
 
   // Estado local para vehículos (usado en asignación)
@@ -102,11 +104,11 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
 
       setGeofences(filtered);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al cargar geofences';
-      setError(message);
+      const parsed = handleApiError(err, { showToast: false });
+      setError(parsed.message);
       toast.error(t('geofences.errorCargar', 'Error al cargar geozonas'));
     }
-  }, [filtros, setLoading, setError, setGeofences, toast, t]);
+  }, [filtros, setLoading, setError, setGeofences, toast, t, handleApiError]);
 
   // ================================
   // CRUD FUNCTIONS
@@ -120,12 +122,12 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
         toast.success(t('geofences.creadaExito', 'Geozona creada exitosamente'));
         return nueva;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Error al crear geozona';
-        toast.error(message);
+        const parsed = handleApiError(err, { showToast: false });
+        toast.error(parsed.message);
         throw err;
       }
     },
-    [addGeofence, toast, t]
+    [addGeofence, toast, t, handleApiError]
   );
 
   const actualizarGeofence = useCallback(
@@ -136,12 +138,12 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
         toast.success(t('geofences.actualizadaExito', 'Geozona actualizada exitosamente'));
         return actualizada;
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Error al actualizar geozona';
-        toast.error(message);
+        const parsed = handleApiError(err, { showToast: false });
+        toast.error(parsed.message);
         throw err;
       }
     },
-    [updateGeofence, toast, t]
+    [updateGeofence, toast, t, handleApiError]
   );
 
   const eliminarGeofence = useCallback(
@@ -151,12 +153,12 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
         removeGeofence(geofence.id);
         toast.success(t('geofences.eliminadaExito', 'Geozona eliminada exitosamente'));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Error al eliminar geozona';
-        toast.error(message);
+        const parsed = handleApiError(err, { showToast: false });
+        toast.error(parsed.message);
         throw err;
       }
     },
-    [removeGeofence, toast, t]
+    [removeGeofence, toast, t, handleApiError]
   );
 
   const asignarVehiculo = useCallback(
@@ -165,12 +167,12 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
         await geofencesApi.asignarVehiculo(geofenceId, vehiculoId);
         toast.success(t('geofences.vehiculoAsignado', 'Vehículo asignado exitosamente'));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Error al asignar vehículo';
-        toast.error(message);
+        const parsed = handleApiError(err, { showToast: false });
+        toast.error(parsed.message);
         throw err;
       }
     },
-    [toast, t]
+    [toast, t, handleApiError]
   );
 
   const desasignarVehiculo = useCallback(
@@ -179,12 +181,12 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
         await geofencesApi.desasignarVehiculo(geofenceId, vehiculoId);
         toast.success(t('geofences.vehiculoDesasignado', 'Vehículo desasignado exitosamente'));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Error al desasignar vehículo';
-        toast.error(message);
+        const parsed = handleApiError(err, { showToast: false });
+        toast.error(parsed.message);
         throw err;
       }
     },
-    [toast, t]
+    [toast, t, handleApiError]
   );
 
   const handleSubmitModal = useCallback(

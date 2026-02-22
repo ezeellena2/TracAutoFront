@@ -22,7 +22,7 @@ export interface UseDriversPageProps {
 export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   const { t } = useTranslation();
   // Error handling
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   // Data state
   const [conductoresData, setConductoresData] = useState<ListaPaginada<ConductorDto> | null>(null);
@@ -126,11 +126,12 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setVehiculos(vehiculosResult.items);
       setDispositivos(dispositivosResult.items);
     } catch (e) {
-      setError(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, filters]);
+  }, [paginationParams, filters, handleApiError]);
 
   useEffect(() => {
     void loadData();
@@ -172,7 +173,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setCreateErrors({});
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsCreating(false);
     }
@@ -205,7 +206,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setEditingConductor(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsUpdating(false);
     }
@@ -229,7 +230,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setConductorToDelete(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsDeleting(false);
     }
@@ -253,7 +254,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setConductorToReactivate(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsReactivating(false);
     }
@@ -284,7 +285,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setSelectedVehicleId('');
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsAssigningVehicle(false);
     }
@@ -314,7 +315,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       setSelectedDeviceId('');
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsAssigningDevice(false);
     }
@@ -332,11 +333,11 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
         dispositivos: dispositivosResult,
       });
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsLoadingAssignments(false);
     }
-  }, []);
+  }, [handleApiError]);
 
   const handleOpenViewAssignments = async (conductor: ConductorDto) => {
     setConductorForAssignment(conductor);
@@ -376,7 +377,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       }
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsUnassigningVehicle(false);
     }
@@ -413,7 +414,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
       }
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsUnassigningDevice(false);
     }
