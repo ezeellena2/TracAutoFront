@@ -75,10 +75,12 @@ function PhoneInput({
 }: InputComponentProps) {
   const { t } = useTranslation();
   const inputId = getInputId(label, id);
-  const [phoneUI, setPhoneUI] = useState<string>("");
+  const [phoneUI, setPhoneUI] = useState<string>(typeof props.value === "string" ? props.value : "");
   const countries = defaultCountries as Array<[string, string, string, ...unknown[]]>;
 
   const prevValueRef = useRef(props.value);
+  const [isEditing, setIsEditing] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof props.value === "string" && props.value !== prevValueRef.current) {
@@ -113,9 +115,6 @@ function PhoneInput({
       forceDialCode: true,
     });
 
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-
   const commitE164 = () => {
     if (!onChange) return;
 
@@ -135,7 +134,7 @@ function PhoneInput({
 
     setLocalError(null);
     onChange({ target: { name: name || "", value: e164 } });
-  }
+  };
 
   const displayValue = useMemo(() => {
     if (isEditing) return inputValue;

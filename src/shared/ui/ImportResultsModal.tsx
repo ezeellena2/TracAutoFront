@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, XCircle, AlertCircle, Download, Plus, RefreshCw, Loader2, FileSpreadsheet } from 'lucide-react';
 
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Table } from './Table';
@@ -10,6 +11,21 @@ import { reportesApi } from '@/services/endpoints';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { toast } from '@/store/toast.store';
 import type { ImportarExcelResponse, ResultadoFilaImportacion } from '@/services/endpoints/reportes.api';
+
+/** Column names that contain phone numbers and should be formatted internationally */
+const PHONE_COLUMNS = new Set(['Teléfono', 'Número Teléfono']);
+
+function formatPhoneInternational(raw: string): string {
+  try {
+    const parsed = parsePhoneNumberFromString(raw);
+    if (parsed && parsed.isValid()) {
+      return parsed.format('INTERNATIONAL');
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return raw;
+}
 
 interface ImportResultsModalProps {
   isOpen: boolean;
@@ -170,7 +186,8 @@ export function ImportResultsModal({
       render: (r: ResultadoFilaImportacion) => {
         const val = r.datosFila?.[col];
         if (val == null) return '-';
-        return String(val);
+        const str = String(val);
+        return PHONE_COLUMNS.has(col) ? formatPhoneInternational(str) : str;
       },
     })),
   ];
