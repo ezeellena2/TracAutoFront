@@ -62,7 +62,7 @@ export function AsignarRecursosModal({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Cargar datos cuando cambian los filtros
+  // Cargar datos cuando se abre el modal o cambian los filtros
   const loadData = useCallback(async () => {
     if (!isOpen || !relacionId) return;
 
@@ -85,6 +85,10 @@ export function AsignarRecursosModal({
       setIsSubmitting(false);
     }
   }, [isOpen, relacionId, activeTab, currentPage, debouncedSearch, handleApiError]);
+
+  useEffect(() => {
+    if (isOpen && relacionId) loadData();
+  }, [isOpen, relacionId, loadData]);
 
   const handleClose = () => {
     onClose();
@@ -110,15 +114,14 @@ export function AsignarRecursosModal({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = {
-        vehiculosIds: Array.from(selectedByType[TipoRecurso.Vehiculo]),
-        conductoresIds: Array.from(selectedByType[TipoRecurso.Conductor]),
-        dispositivosIds: Array.from(selectedByType[TipoRecurso.DispositivoTraccar]),
-        nivelPermiso: permisoGestion
+      await organizacionesApi.asignarRecursosARelacion(relacionId, {
+        vehiculoIds: Array.from(selectedByType[TipoRecurso.Vehiculo]),
+        conductorIds: Array.from(selectedByType[TipoRecurso.Conductor]),
+        dispositivoIds: Array.from(selectedByType[TipoRecurso.DispositivoTraccar]),
+        permiso: permisoGestion
           ? NivelPermisoCompartido.GestionOperativa
           : NivelPermisoCompartido.SoloLectura
-      };
-      // await organizacionesApi.compartirRecursos(relacionId, payload);
+      });
       toast.success(t('organization.relations.assign.success', 'Recursos compartidos correctamente'));
       onSuccess();
       onClose();

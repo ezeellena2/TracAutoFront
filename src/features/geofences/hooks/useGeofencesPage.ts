@@ -10,6 +10,7 @@ import { vehiculosApi } from '@/services/endpoints/vehiculos.api';
 import { usePaginationParams, useErrorHandler } from '@/hooks';
 import { useLocalizationStore } from '@/store/localization.store';
 import { formatDate } from '@/shared/utils/dateFormatter';
+import { toast } from '@/store/toast.store';
 import { SyncStatus } from '../types';
 import type {
   GeofenceDto,
