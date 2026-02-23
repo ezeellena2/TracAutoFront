@@ -77,7 +77,6 @@ function PhoneInput({
   const inputId = getInputId(label, id);
   const [phoneUI, setPhoneUI] = useState<string>(typeof props.value === "string" ? props.value : "");
   const countries = defaultCountries as Array<[string, string, string, ...unknown[]]>;
-
   const prevValueRef = useRef(props.value);
   const [isEditing, setIsEditing] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
