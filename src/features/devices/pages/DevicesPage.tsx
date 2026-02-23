@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
@@ -20,9 +19,8 @@ const getDeviceFiltersConfig = (t: (key: string, options?: Record<string, unknow
 
 export function DevicesPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { culture, timeZoneId } = useLocalization();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   // Datos paginados
   const [devicesData, setDevicesData] = useState<ListaPaginada<DispositivoDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,14 +103,15 @@ export function DevicesPage() {
         console.log('[DevicesPage] Devices loaded:', result.items, 'Total:', result.totalRegistros);
       }
     } catch (e) {
-      setError(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error loading devices:', e);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, filters]);
+  }, [paginationParams, filters, handleApiError]);
 
   // Extraer items para compatibilidad
   const devices = devicesData?.items ?? [];
@@ -169,18 +168,8 @@ export function DevicesPage() {
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      const parsedError = parseError(e);
-
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
-      toast.error(parsedError.message);
+      // Mantener contexto en Dispositivos, usando modal para errores graves.
+      handleApiError(e);
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error creating device:', e);
       }
@@ -219,7 +208,7 @@ export function DevicesPage() {
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error updating device:', e);
       }
@@ -248,7 +237,7 @@ export function DevicesPage() {
       // Refetch lista
       await loadDevices();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       if (import.meta.env.DEV) {
         console.error('[DevicesPage] Error deleting device:', e);
       }
@@ -314,7 +303,7 @@ export function DevicesPage() {
         }
       }
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       throw e;
     }
   };
@@ -329,7 +318,7 @@ export function DevicesPage() {
       downloadBlob(blob, 'dispositivos.xlsx');
       toast.success(t('imports.exportSuccess', { defaultValue: 'Dispositivos exportados exitosamente' }));
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsExporting(false);
     }

@@ -7,6 +7,8 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from '@/store/toast.store';
+import { buildErrorReportContext, extractErrorDetails, isReportableError, openErrorReport } from '@/shared/errors';
 import type { ProblemDetails } from '@/shared/types/api';
 
 /**
@@ -27,6 +29,12 @@ export interface ParsedError {
   retryAfter?: number;
   /** Field-level validation errors (translated) */
   fieldErrors?: Record<string, string>;
+}
+
+export interface HandleApiErrorOptions {
+  showToast?: boolean;
+  showReportModal?: boolean;
+  reportable?: boolean;
 }
 
 /**
@@ -95,6 +103,11 @@ export function useErrorHandler() {
           };
         }
       }
+      // Error from interceptor with ProblemDetails attached
+      else if (typeof error === 'object' && 'problemDetails' in error) {
+        const err = error as { problemDetails?: ProblemDetails };
+        problemDetails = err.problemDetails ?? null;
+      }
       // Direct ProblemDetails object
       else if (typeof error === 'object' && ('code' in error || 'status' in error)) {
         problemDetails = error as ProblemDetails;
@@ -127,7 +140,8 @@ export function useErrorHandler() {
         'errors.unexpected';
       // Merge extensions (param0, param1, retryAfter) for i18n interpolation
       const interpolate = extensions ? { ...problemDetails, ...extensions } : (problemDetails as Record<string, unknown>);
-      const message = translateCode(code, interpolate);
+      const translated = translateCode(code, interpolate);
+      const message = translated === code && problemDetails.detail ? problemDetails.detail : translated;
 
       // Parse field-level validation errors
       let fieldErrors: Record<string, string> | undefined;
@@ -147,13 +161,48 @@ export function useErrorHandler() {
         message,
         code,
         status: problemDetails.status ?? 500,
-        traceId: problemDetails.traceId,
-        timestamp: problemDetails.timestamp,
-        retryAfter: problemDetails.retryAfter,
+        traceId: (problemDetails.traceId as string | undefined) ??
+          (typeof extensions?.traceId === 'string' ? extensions.traceId : undefined),
+        timestamp: (problemDetails.timestamp as string | undefined) ??
+          (typeof extensions?.timestamp === 'string' ? extensions.timestamp : undefined),
+        retryAfter: (problemDetails.retryAfter as number | undefined) ??
+          (typeof extensions?.retryAfter === 'number' ? extensions.retryAfter : undefined),
         fieldErrors,
       };
     },
     [t, translateCode]
+  );
+
+  /**
+   * Manejo unificado de errores de API.
+   * Abre modal de reporte para errores graves y muestra toast para errores funcionales.
+   */
+  const handleApiError = useCallback(
+    (error: unknown, options: HandleApiErrorOptions = {}): ParsedError => {
+      const parsed = parseError(error);
+      const reportable = options.reportable ?? isReportableError(parsed);
+      const showReportModal = options.showReportModal ?? true;
+      const showToast = options.showToast ?? !reportable;
+
+      if (reportable && showReportModal) {
+        openErrorReport(buildErrorReportContext({
+          message: parsed.message,
+          code: parsed.code,
+          status: parsed.status,
+          traceId: parsed.traceId,
+          timestamp: parsed.timestamp,
+          details: extractErrorDetails(error),
+          referenceId: parsed.traceId,
+        }));
+      }
+
+      if (showToast) {
+        toast.error(parsed.message);
+      }
+
+      return parsed;
+    },
+    [parseError]
   );
 
   /**
@@ -169,5 +218,6 @@ export function useErrorHandler() {
     parseError,
     translateCode,
     getErrorMessage,
+    handleApiError,
   };
 }

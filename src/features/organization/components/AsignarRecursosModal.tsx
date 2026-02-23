@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { X, Search, Check, Share2, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Modal, Button, Input, Badge } from '@/shared/ui';
 import { organizacionesApi } from '@/services/endpoints';
@@ -32,8 +31,7 @@ export function AsignarRecursosModal({
   relacionId,
 }: AsignarRecursosModalProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   // Estado de UI
   const [activeTab, setActiveTab] = useState<TipoRecurso>(TipoRecurso.Vehiculo);
@@ -64,7 +62,7 @@ export function AsignarRecursosModal({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Cargar datos cuando cambian los filtros
+  // Cargar datos cuando se abre el modal o cambian los filtros
   const loadData = useCallback(async () => {
     if (!isOpen || !relacionId) return;
 
@@ -81,46 +79,23 @@ export function AsignarRecursosModal({
 
       setData(response);
     } catch (err) {
-      console.error('Error loading recursos:', err);
-      setError(getErrorMessage(err));
+      const parsedError = handleApiError(err, { showToast: false });
+      toast.error(parsedError.message);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
-  }, [isOpen, relacionId, activeTab, currentPage, debouncedSearch, getErrorMessage]);
+  }, [isOpen, relacionId, activeTab, currentPage, debouncedSearch, handleApiError]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (isOpen && relacionId) loadData();
+  }, [isOpen, relacionId, loadData]);
 
-  // Reset state cuando se abre/cierra el modal
-  useEffect(() => {
-    if (isOpen) {
-      setActiveTab(TipoRecurso.Vehiculo);
-      setSearchTerm('');
-      setDebouncedSearch('');
-      setCurrentPage(1);
-      setSelectedByType({
-        [TipoRecurso.Vehiculo]: new Set(),
-        [TipoRecurso.Conductor]: new Set(),
-        [TipoRecurso.DispositivoTraccar]: new Set(),
-      });
-      setError(null);
-      setPermisoGestion(false);
-    }
-  }, [isOpen]);
-
-  // Reset page cuando cambia el tab
-  useEffect(() => {
-    setCurrentPage(1);
-    setSearchTerm('');
-    setDebouncedSearch('');
-  }, [activeTab]);
+  const handleClose = () => {
+    onClose();
+  };
 
   const handleToggleResource = (recurso: RecursoCompartibleDto) => {
-    // Solo permitir seleccionar recursos disponibles
-    if (recurso.estado !== EstadoComparticion.Disponible) return;
-
-    setSelectedByType((prev) => {
+    setSelectedByType(prev => {
       const newSet = new Set(prev[activeTab]);
       if (newSet.has(recurso.id)) {
         newSet.delete(recurso.id);
@@ -132,61 +107,30 @@ export function AsignarRecursosModal({
   };
 
   const getTotalSelected = () => {
-    return (
-      selectedByType[TipoRecurso.Vehiculo].size +
-      selectedByType[TipoRecurso.Conductor].size +
-      selectedByType[TipoRecurso.DispositivoTraccar].size
-    );
+    return Object.values(selectedByType).reduce((acc, set) => acc + set.size, 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const totalSelected = getTotalSelected();
-    if (totalSelected === 0) {
-      toast.error(t('organization.relations.assign.noResourcesSelected', 'Selecciona al menos un recurso'));
-      return;
-    }
-
     setIsSubmitting(true);
-
     try {
       await organizacionesApi.asignarRecursosARelacion(relacionId, {
-        vehiculoIds: selectedByType[TipoRecurso.Vehiculo].size > 0
-          ? Array.from(selectedByType[TipoRecurso.Vehiculo])
-          : undefined,
-        conductorIds: selectedByType[TipoRecurso.Conductor].size > 0
-          ? Array.from(selectedByType[TipoRecurso.Conductor])
-          : undefined,
-        dispositivoIds: selectedByType[TipoRecurso.DispositivoTraccar].size > 0
-          ? Array.from(selectedByType[TipoRecurso.DispositivoTraccar])
-          : undefined,
-        permiso: permisoGestion ? NivelPermisoCompartido.GestionOperativa : NivelPermisoCompartido.SoloLectura,
+        vehiculoIds: Array.from(selectedByType[TipoRecurso.Vehiculo]),
+        conductorIds: Array.from(selectedByType[TipoRecurso.Conductor]),
+        dispositivoIds: Array.from(selectedByType[TipoRecurso.DispositivoTraccar]),
+        permiso: permisoGestion
+          ? NivelPermisoCompartido.GestionOperativa
+          : NivelPermisoCompartido.SoloLectura
       });
-
       toast.success(t('organization.relations.assign.success', 'Recursos compartidos correctamente'));
       onSuccess();
       onClose();
     } catch (err) {
-      const parsedError = parseError(err);
-
-      // Para errores graves (500+), redirigir a la página de error
-      if (parsedError.status >= 500) {
-        navigate('/error', {
-          state: { traceId: parsedError.traceId },
-        });
-        return;
-      }
-
-      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      const parsedError = handleApiError(err, { showToast: false });
       toast.error(parsedError.message);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleClose = () => {
-    onClose();
   };
 
   const getTabLabel = (tipo: TipoRecurso) => {

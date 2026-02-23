@@ -40,9 +40,15 @@ export function usePermissions(): UsePermissionsReturn {
   const canAccessRoute = useCallback(
     (route: string): boolean => {
       if (!role) return false;
-      const allowedRoles = ROUTE_ACCESS[route];
-      if (!allowedRoles) return true; // Ruta no protegida
-      return allowedRoles.includes(role);
+      // Exact match first
+      const exactMatch = ROUTE_ACCESS[route];
+      if (exactMatch) return exactMatch.includes(role);
+      // Prefix match: /geozonas/abc/editar hereda permisos de /geozonas
+      const prefixMatch = Object.keys(ROUTE_ACCESS)
+        .filter(key => route.startsWith(key + '/'))
+        .sort((a, b) => b.length - a.length)[0];
+      if (prefixMatch) return ROUTE_ACCESS[prefixMatch].includes(role);
+      return false; // Deny unknown routes
     },
     [role]
   );

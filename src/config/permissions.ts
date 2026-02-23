@@ -127,12 +127,21 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
  * Roles que pueden acceder a cada ruta protegida
  */
 export const ROUTE_ACCESS: Record<string, UserRole[]> = {
-  '/usuarios': ['Admin'],
+  '/': ['Admin', 'Operador', 'Analista'],
+  '/dashboard': ['Admin', 'Operador', 'Analista'],
+  '/mapa': ['Admin', 'Operador', 'Analista'],
+  '/replay': ['Admin', 'Operador', 'Analista'],
   '/vehiculos': ['Admin', 'Operador', 'Analista'],
   '/dispositivos': ['Admin', 'Operador', 'Analista'],
   '/eventos': ['Admin', 'Operador', 'Analista'],
   '/conductores': ['Admin', 'Operador', 'Analista'],
   '/geozonas': ['Admin', 'Operador', 'Analista'],
-  '/dashboard': ['Admin', 'Operador', 'Analista'],
+  '/geozonas/crear': ['Admin', 'Operador'],
+  '/marketplace': ['Admin', 'Operador', 'Analista'],
+  '/importaciones': ['Admin', 'Operador'],
+  '/notificaciones': ['Admin', 'Operador', 'Analista'],
+  '/usuarios': ['Admin'],
   '/configuracion/empresa/apariencia': ['Admin'],
+  '/configuracion/empresa/relaciones': ['Admin'],
+  '/configuracion/empresa/solicitudes-cambio': ['Admin'],
 };

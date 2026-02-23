@@ -9,6 +9,7 @@ import { setupInterceptors } from './interceptors';
 const apiClient: AxiosInstance = axios.create({
   baseURL: `${env.apiBaseUrl}/${env.apiVersion}`,
   timeout: 120_000, // 2 min
+  withCredentials: env.apiWithCredentials, // Enviar cookies (refresh token HttpOnly) en requests cross-origin
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

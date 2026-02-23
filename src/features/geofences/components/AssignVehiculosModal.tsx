@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useErrorHandler } from '@/hooks';
 import { Modal, Button } from '@/shared/ui';
 import { Check, X, Search, Loader2 } from 'lucide-react';
 import { geofencesApi } from '../api';
@@ -33,6 +34,7 @@ export function AssignVehiculosModal({
   onAssigned,
 }: AssignVehiculosModalProps) {
   const { t } = useTranslation();
+  const { handleApiError } = useErrorHandler();
   const toast = useToastStore();
   const [buscar, setBuscar] = useState('');
   const [asignados, setAsignados] = useState<Set<string>>(new Set());
@@ -67,7 +69,7 @@ export function AssignVehiculosModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, geofence, toast, t]);
+  }, [isOpen, geofence, toast, t, handleApiError]);
 
   const vehiculosFiltrados = vehiculos.filter((v) =>
     v.patente.toLowerCase().includes(buscar.toLowerCase())
@@ -102,7 +104,7 @@ export function AssignVehiculosModal({
         setProcesando(null);
       }
     },
-    [geofence, procesando, asignados, toast, t, onAssigned]
+    [geofence, procesando, asignados, toast, t, onAssigned, handleApiError]
   );
 
   return (

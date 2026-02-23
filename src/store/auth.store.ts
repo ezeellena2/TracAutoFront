@@ -6,6 +6,12 @@ interface AuthState {
   isAuthenticated: boolean;
   user: AuthUser | null;
   token: string | null;
+  /**
+   * Duplica user.organizationId intencionalmente.
+   * 5+ archivos (organizaciones.api, invitaciones.api, SolicitudesCambioPage, etc.)
+   * acceden a state.organizationId directamente. Refactorizar a user?.organizationId
+   * requiere verificar disponibilidad de user tras F5 (rehidratación). Mantener como está.
+   */
   organizationId: string | null;
 
   // Actions

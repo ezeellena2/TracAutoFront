@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useErrorHandler } from '@/hooks';
 import { CheckCircle2, XCircle, AlertCircle, Download, Plus, RefreshCw, Loader2, FileSpreadsheet } from 'lucide-react';
 
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
@@ -43,6 +44,7 @@ export function ImportResultsModal({
   isLoading = false,
 }: ImportResultsModalProps) {
   const { t } = useTranslation();
+  const { handleApiError } = useErrorHandler();
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   const titleBase = t('imports.results.title', { defaultValue: 'Resultados de Importación' });
   const title = tipoImportacion ? `${titleBase} - ${tipoImportacion}` : titleBase;
@@ -60,10 +62,11 @@ export function ImportResultsModal({
       downloadBlob(blob, `datos_importados_${fecha}.xlsx`);
       toast.success(t('imports.downloadExcelSuccess', { defaultValue: 'Excel descargado correctamente' }));
     } catch (e: unknown) {
+      const parsed = handleApiError(e, { showToast: false });
       const msg = e && typeof e === 'object' && 'response' in e
         ? (e as { response?: { data?: { error?: string } } }).response?.data?.error
         : null;
-      toast.error(msg ?? t('imports.downloadExcelError', { defaultValue: 'Error al descargar el Excel' }));
+      toast.error(msg ?? parsed.message ?? t('imports.downloadExcelError', { defaultValue: 'Error al descargar el Excel' }));
     } finally {
       setIsDownloadingExcel(false);
     }

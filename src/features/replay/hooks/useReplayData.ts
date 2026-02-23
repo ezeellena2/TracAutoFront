@@ -44,7 +44,7 @@ interface UseReplayDataReturn {
 
 export function useReplayData(): UseReplayDataReturn {
   const store = useReplayStore();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const playIntervalRef = useRef<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -95,9 +95,10 @@ export function useReplayData(): UseReplayDataReturn {
       if ((err as Error).name === 'AbortError' || (err as Error).name === 'CanceledError') {
         return;
       }
-      store.setError(getErrorMessage(err));
+      const parsed = handleApiError(err, { showToast: false });
+      store.setError(parsed.message);
     }
-  }, [store, getErrorMessage]);
+  }, [store, handleApiError]);
 
   /**
    * Formatea una fecha local para enviar al backend como "intención local".

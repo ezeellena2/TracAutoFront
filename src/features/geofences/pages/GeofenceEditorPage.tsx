@@ -13,6 +13,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useErrorHandler } from '@/hooks';
 import { Loader2, MapPin } from 'lucide-react';
 
 import { MapShell } from '@/features/traccar-map/components/MapShell';
@@ -43,6 +44,7 @@ export function GeofenceEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { handleApiError } = useErrorHandler();
 
   const isEditMode = !!id;
 
@@ -80,12 +82,13 @@ export function GeofenceEditorPage() {
           geometria: g.geometria,
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        handleApiError(err, { showToast: false });
         toast.error(t('geofences.errorCargar', 'Error al cargar la geozona'));
         navigate('/geozonas');
       })
       .finally(() => setIsLoadingGeofence(false));
-  }, [id, navigate, t]);
+  }, [id, navigate, t, handleApiError]);
 
   /* ---- Helpers ---- */
   const updateField = useCallback(

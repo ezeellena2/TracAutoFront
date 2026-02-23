@@ -62,13 +62,13 @@ export function ChatInput({ onSend, disabled = false, placeholder }: ChatInputPr
   };
 
   return (
-    <div className="solicitud-modal__input-area">
+    <div className="flex flex-col gap-2 border-t border-border pt-4 mt-auto">
       {/* Image preview */}
       {imagenPreview && (
-        <div className="solicitud-modal__image-preview">
-          <img src={imagenPreview} alt="Preview" className="solicitud-modal__image-thumb" />
+        <div className="relative self-start rounded-lg overflow-hidden border border-border shadow-sm">
+          <img src={imagenPreview} alt="Preview" className="max-w-[120px] max-h-[120px] object-cover" />
           <button
-            className="solicitud-modal__image-remove"
+            className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/80 transition-colors"
             onClick={clearImage}
             aria-label={t('solicitudesCambio.chat.removeImage', 'Quitar imagen')}
             type="button"
@@ -78,17 +78,17 @@ export function ChatInput({ onSend, disabled = false, placeholder }: ChatInputPr
         </div>
       )}
 
-      <div className="solicitud-modal__input-row">
+      <div className="flex items-center gap-2 bg-background border border-border rounded-xl p-1 pr-2 focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary/50 transition-all">
         {/* Attach image button */}
         <button
           type="button"
-          className="solicitud-modal__attach-btn"
+          className="p-2 text-text-muted hover:text-primary transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-surface"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
           aria-label={t('solicitudesCambio.chat.attachImage', 'Adjuntar imagen')}
           title={t('solicitudesCambio.chat.attachImage', 'Adjuntar imagen')}
         >
-          <Paperclip size={16} />
+          <Paperclip size={18} />
         </button>
 
         <input
@@ -101,7 +101,7 @@ export function ChatInput({ onSend, disabled = false, placeholder }: ChatInputPr
         />
 
         <textarea
-          className="solicitud-modal__textarea"
+          className="flex-1 bg-transparent resize-none outline-none text-sm text-text placeholder-text-muted py-2 max-h-32 min-h-[40px] overflow-y-auto"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -112,7 +112,7 @@ export function ChatInput({ onSend, disabled = false, placeholder }: ChatInputPr
 
         <button
           type="button"
-          className="solicitud-modal__send-btn"
+          className="p-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex-shrink-0 disabled:opacity-50 disabled:bg-surface disabled:text-text-muted disabled:cursor-not-allowed"
           onClick={handleSend}
           disabled={disabled || !value.trim()}
           aria-label={t('solicitudesCambio.chat.sendMessage', 'Enviar mensaje')}

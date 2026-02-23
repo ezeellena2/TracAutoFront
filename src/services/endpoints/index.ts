@@ -8,4 +8,6 @@ export { marketplaceApi } from './marketplace.api';
 export { reportesApi } from './reportes.api';
 export { solicitudesCambioApi } from './solicitudesCambio.api';
 export { notificacionesApi } from './notificaciones.api';
+export { reportarError } from './support.api';
+export type { ReportarErrorRequest, ReportarErrorResponse } from './support.api';
 export * from './system.api';

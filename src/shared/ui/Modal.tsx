@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -44,14 +45,16 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
     'full': 'max-w-[95vw]',
   };
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-[10050] flex items-center justify-center"
+      className="fixed inset-0 z-[10050] flex items-center justify-center min-h-[100dvh] min-w-[100vw]"
+      style={{ top: 0, left: 0, right: 0, bottom: 0 }}
       {...(dataTracautoSolicitudModal ? { 'data-tracauto-solicitud-modal': '' } : {})}
     >
-      {/* Backdrop */}
+      {/* Backdrop: cubre todo el viewport sin huecos */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm min-h-[100dvh] min-w-[100vw]"
+        style={{ top: 0, left: 0, right: 0, bottom: 0 }}
         onClick={onClose}
       />
 
@@ -77,4 +80,6 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

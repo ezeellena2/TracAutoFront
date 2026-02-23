@@ -47,7 +47,7 @@ export function GestionarComparticionModal({
     onSuccess,
 }: GestionarComparticionModalProps) {
     const { t } = useTranslation();
-    const { getErrorMessage } = useErrorHandler();
+    const { handleApiError } = useErrorHandler();
     const { preferences } = useLocalizationStore();
     const culture = preferences?.culture ?? 'es-AR';
     const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
@@ -104,11 +104,12 @@ export function GestionarComparticionModal({
             });
             setRelaciones(relacionesConEstado);
         } catch (err) {
-            setError(getErrorMessage(err));
+            const parsed = handleApiError(err, { showToast: false });
+            setError(parsed.message);
         } finally {
             setIsLoading(false);
         }
-    }, [isOpen, resourceId, resourceType, getErrorMessage]);
+    }, [isOpen, resourceId, resourceType, handleApiError]);
 
     useEffect(() => {
         loadSharingStatus();
@@ -202,7 +203,8 @@ export function GestionarComparticionModal({
             onSuccess?.();
             onClose();
         } catch (err) {
-            setError(getErrorMessage(err));
+            const parsed = handleApiError(err, { showToast: false });
+            setError(parsed.message);
         } finally {
             setIsSaving(false);
         }

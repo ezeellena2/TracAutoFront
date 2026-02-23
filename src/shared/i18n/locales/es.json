@@ -4,9 +4,29 @@
     "accessDeniedDescription": "No tiene permisos para acceder a esta sección.",
     "requiredRole": "Rol requerido: {{roles}}"
   },
+  "errorReport": {
+    "title": "Se produjo un error",
+    "subtitle": "Podes reportar el problema para que soporte lo investigue.",
+    "referenceId": "ID de referencia",
+    "reportProblem": "Reportar problema",
+    "reportSending": "Enviando reporte...",
+    "reportSent": "Reporte enviado. Ticket creado en Jira:",
+    "reportError": "No se pudo enviar el reporte. Usa el ID de referencia para contactar a soporte.",
+    "viewTicket": "Ver ticket",
+    "technicalDetails": "Ver detalles tecnicos",
+    "status": "Estado",
+    "code": "Codigo"
+  },
+  "errorBoundary": {
+    "title": "Algo salio mal",
+    "message": "Ocurrio un error inesperado. Podes intentar recargar la pagina o volver al inicio.",
+    "referenceId": "ID de referencia",
+    "referenceHint": "Usa este codigo si contactas a soporte",
+    "reportProblem": "Reportar problema",
+    "technicalDetails": "Ver detalles tecnicos"
+  },
   "common": {
     "loading": "Cargando...",
-    "error": "Error",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
@@ -14,7 +34,6 @@
     "create": "Crear",
     "search": "Buscar",
     "filter": "Filtrar",
-    "close": "Cerrar",
     "confirm": "Confirmar",
     "yes": "Sí",
     "no": "No",
@@ -149,52 +168,6 @@
     "organizationChangeRequests": "Solicitudes de Cambio",
     "marketplace": "Marketplace",
     "imports": "Importaciones"
-  },
-  "organization": {
-    "relations": {
-      "title": "Relaciones entre Organizaciones",
-      "subtitle": "Gestiona las relaciones con otras organizaciones",
-      "create": {
-        "title": "Crear Relación",
-        "searchOrganization": "Buscar Organización",
-        "searchPlaceholder": "Buscar por nombre...",
-        "selectOrganization": "Seleccionar Organización",
-        "selectPlaceholder": "Seleccione una organización...",
-        "description": "Busca y selecciona la organización con la que deseas vincularte.",
-        "autoShare": "Ofrecer compartir mis recursos automáticamente",
-        "autoShareDescription": "Si marcas esta opción, se ofrecerá acceso a tus vehículos, conductores y dispositivos.",
-        "noOrganizations": "No se encontraron organizaciones disponibles.",
-        "submit": "Enviar Solicitud"
-      },
-      "pendingRequests": {
-        "title": "Solicitudes Pendientes",
-        "sent": "ENVIADA",
-        "received": "RECIBIDA",
-        "manageRequest": "Gestionar Solicitud",
-        "waitingResponse": "Esperando respuesta...",
-        "cancelRequest": "Cancelar Solicitud"
-      },
-      "table": {
-        "organization": "Organización",
-        "relationType": "Tipo de Relación",
-        "noType": "Sin tipo definido",
-        "status": "Estado",
-        "createdDate": "Fecha de Creación"
-      },
-      "assign": {
-        "title": "Asignar Recursos"
-      },
-      "actions": {
-        "delete": "Eliminar Relación"
-      },
-      "delete": {
-        "title": "Eliminar Relación",
-        "message": "¿Estás seguro de que deseas eliminar esta relación? Esta acción no se puede deshacer."
-      }
-    },
-    "exclusions": {
-      "manageTitle": "Gestionar Exclusiones"
-    }
   },
   "solicitudesCambio": {
     "title": "Solicitudes de Cambio",
@@ -840,6 +813,8 @@
     "success": {
       "published": "Vehículo publicado correctamente",
       "updated": "Publicación actualizada correctamente",
+      "created": "Vehículo creado correctamente",
+      "linked": "Vehículo vinculado correctamente",
       "paused": "Publicación pausada",
       "reactivated": "Publicación reactivada",
       "markedAsSold": "Vehículo marcado como vendido"
@@ -1269,7 +1244,7 @@
     "fileSizeError": "El archivo no puede exceder {{max}}",
     "uploading": "Subiendo...",
     "uploadError": "Error al subir el archivo",
-    "processing": "Procesando importación...",
+    "processingLabel": "Procesando importación...",
     "import": "Importar",
     "results": {
       "title": "Resultados de Importación",
@@ -1392,7 +1367,9 @@
   },
   "errors": {
     "Filters": {
-      "UnknownField": "Campo de filtro no reconocido: {{param0}}"
+      "UnknownField": "Campo de filtro no reconocido: {{param0}}",
+      "UnsupportedOperator": "Operador no soportado",
+      "PropertyNotFound": "Propiedad no encontrada para el filtro"
     },
     "TenancyViolation": "No se puede acceder a datos de otra organización. Por favor inicie sesión nuevamente.",
     "preferencesLoadFailed": "Error al cargar preferencias.",
@@ -1405,7 +1382,7 @@
     "HTTP_401": "Credenciales incorrectas o sesión expirada.",
     "HTTP_403": "No tiene permisos para realizar esta acción.",
     "HTTP_404": "Recurso no encontrado.",
-    "HTTP_409": "Conflict: El recurso ya existe o hay un estado inválido.",
+    "HTTP_409": "El recurso ya existe o hay un conflicto de estado.",
     "HTTP_429": "Demasiadas solicitudes. Espere un momento.",
     "HTTP_500": "Error interno del servidor. Intente más tarde.",
     "SolicitudCambio": {
@@ -1422,7 +1399,8 @@
       "RequiereConfirmacionBorrado": "Esta solicitud ya fue exportada a Jira. Para borrarla, confirme explícitamente usando forceDelete=true.",
       "ImagenDemasiadoGrande": "La imagen adjunta supera el tamaño máximo permitido (4 MB).",
       "ImagenInvalida": "La imagen adjunta no es válida. Solo se permiten imágenes PNG, JPEG o WebP.",
-      "RateLimitExceeded": "Límite de mensajes por minuto alcanzado. Intente nuevamente en unos segundos."
+      "RateLimitExceeded": "Límite de mensajes por minuto alcanzado. Intente nuevamente en unos segundos.",
+      "LimiteOpenAIExcedido": "Se excedió el límite de solicitudes a OpenAI. Intente de nuevo en un minuto."
     },
     "Auth": {
       "CredencialesInvalidas": "Email o contraseña incorrectos",
@@ -1491,11 +1469,12 @@
       "UsuarioCreado": "La cuenta de usuario fue creada y vinculada a la organización exitosamente"
     },
     "Dispositivo": {
-      "NoEncontrado": "Dispositivo no encontrado",
-      "YaExiste": "Ya existe un dispositivo vinculado con este TraccarDeviceId en la organización",
-      "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
-      "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
-      "SinPermisoGestion": "No tiene permiso de gestión sobre este dispositivo compartido"
+      "NoEncontrado": "Dispositivo no encontrado.",
+      "YaExiste": "Este dispositivo ya está registrado en su organización.",
+      "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo.",
+      "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo.",
+      "SinPermisoGestion": "No tiene permiso de gestión sobre este dispositivo compartido.",
+      "EnUsoPorOtraOrganizacion": "Este dispositivo está actualmente en uso por la organización \"{{param0}}\"."
     },
     "Vehiculo": {
       "NoEncontrado": "Vehículo no encontrado",
@@ -1507,7 +1486,9 @@
       "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
       "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
       "SinPermisoGestion": "No tiene permiso de gestión sobre este vehículo compartido",
-      "ErrorEliminacion": "Error al eliminar el vehículo. {{param0}}"
+      "ErrorEliminacion": "Error al eliminar el vehículo. {{param0}}",
+      "ErrorActualizacion": "Error al actualizar el vehículo. {{param0}}",
+      "ErrorCreacion": "Error al crear el vehículo. {{param0}}"
     },
     "Conductor": {
       "NoEncontrado": "Conductor no encontrado",
@@ -1517,9 +1498,9 @@
       "DispositivoInactivo": "No se puede asignar un conductor a un dispositivo desactivado",
       "ConductorInactivo": "No se puede asignar un conductor inactivo",
       "AsignacionNoEncontrada": "Asignación de conductor no encontrada",
-      "DniDuplicado": "Ya existe un conductor activo con el mismo DNI en esta organización",
-      "DniDuplicadoEnTraccar": "Ya existe un conductor en Traccar con este DNI. Contacte al administrador.",
-      "YaPerteneceAOtraOrganizacion": "El conductor ya pertenece a otra organización activa.",
+      "DniDuplicado": "Ya existe un conductor activo con el mismo DNI en esta organización.",
+      "DniDuplicadoEnTraccar": "Ya existe un conductor con el DNI {{param0}} en el sistema. Contacte al administrador.",
+      "YaPerteneceAOtraOrganizacion": "El conductor ya pertenece a la organización \"{{param0}}\". No es posible transferirlo.",
       "SoloPropietarioPuedeEditar": "Solo el propietario del recurso puede editarlo",
       "SoloPropietarioPuedeEliminar": "Solo el propietario del recurso puede eliminarlo",
       "ConductorYaInactivo": "El conductor ya se encuentra inactivo",
@@ -1528,10 +1509,10 @@
       "SinPermisoGestion": "No tiene permiso de gestión sobre este conductor compartido"
     },
     "Seguridad": {
-      "IntentoAccesoTenantCruzado": "Intento de acceso a datos de otra organización detectado",
-      "ContextoNoAutenticado": "Se requiere autenticación para esta operación",
-      "ModificacionOrganizacionNoPermitida": "La modificación de OrganizacionId no está permitida",
-      "OperacionCancelada": "La operación fue cancelada. Por favor, intente nuevamente"
+      "IntentoAccesoTenantCruzado": "Acceso no autorizado: no puede acceder a datos de otra organización.",
+      "ContextoNoAutenticado": "Se requiere autenticación para realizar esta operación.",
+      "ModificacionOrganizacionNoPermitida": "No tiene permisos para modificar la organización asignada.",
+      "OperacionCancelada": "La operación fue cancelada. Por favor, intente nuevamente."
     },
     "Replay": {
       "RangoInvalido": "El rango de fechas es inválido. Inicio > Fin",
@@ -1540,10 +1521,8 @@
       "TimezoneUnavailable": "No se pudo determinar la zona horaria",
       "InvalidLocalDate": "Formato de fecha local inválido",
       "MissingDateRange": "Se requiere rango de fechas",
-      "TraccarUnavailable": "Servicio de posiciones no disponible"
-    },
-    "TraccarDb": {
-      "Unavailable": "Servicio de posiciones temporalmente no disponible"
+      "TraccarUnavailable": "Servicio de posiciones no disponible",
+      "TraccarDbUnavailable": "Servicio de posiciones temporalmente no disponible"
     },
     "General": {
       "ErrorInterno": "Ha ocurrido un error interno del servidor",
@@ -1592,7 +1571,17 @@
       "UsuarioRequerido": "El usuario destinatario es requerido para audiencia UserDirect",
       "RolRequerido": "El rol destinatario es requerido para audiencia RoleScoped",
       "SinDestinatarios": "No se encontraron destinatarios para la notificación",
-      "SegmentoNoSoportado": "La audiencia SegmentScoped aún no está implementada"
+      "SegmentoNoSoportado": "La audiencia SegmentScoped aún no está implementada."
+    },
+    "Geofence": {
+      "NoEncontrada": "Geofence no encontrada.",
+      "Inactiva": "No se puede modificar una geofence inactiva.",
+      "NombreRequerido": "El nombre de la geofence es requerido.",
+      "GeometriaRequerida": "La geometría de la geofence es requerida.",
+      "NoSincronizada": "La geofence aún no fue sincronizada con el sistema externo.",
+      "YaAsignadaAVehiculo": "La geofence ya está asignada a este vehículo.",
+      "AsignacionNoEncontrada": "La asignación geofence-vehículo no fue encontrada.",
+      "VehiculoSinDispositivo": "El vehículo no tiene un dispositivo activo asignado."
     }
   }
 }

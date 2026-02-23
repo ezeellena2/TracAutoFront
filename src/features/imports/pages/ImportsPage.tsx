@@ -12,7 +12,7 @@ import { ImportHistoryTable } from '../components/ImportHistoryTable';
 
 export function ImportsPage() {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   // Import modals state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -107,7 +107,7 @@ export function ImportsPage() {
         }
       }
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       throw e;
     }
   };

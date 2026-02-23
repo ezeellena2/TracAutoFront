@@ -8,9 +8,9 @@ import { useTranslation } from 'react-i18next';
 import { geofencesApi } from '../api';
 import { vehiculosApi } from '@/services/endpoints/vehiculos.api';
 import { usePaginationParams, useErrorHandler } from '@/hooks';
-import { toast } from '@/store/toast.store';
 import { useLocalizationStore } from '@/store/localization.store';
 import { formatDate } from '@/shared/utils/dateFormatter';
+import { toast } from '@/store/toast.store';
 import { SyncStatus } from '../types';
 import type {
   GeofenceDto,
@@ -30,7 +30,7 @@ export interface UseGeofencesPageProps {
 
 export function useGeofencesPage({ filters = {} }: UseGeofencesPageProps = {}) {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   // ================================
   // DATA STATE
@@ -96,11 +96,12 @@ export function useGeofencesPage({ filters = {} }: UseGeofencesPageProps = {}) {
       setGeofencesData(geofencesResult);
       setVehiculos(vehiculosResult.items.map((v) => ({ id: v.id, patente: v.patente })));
     } catch (e) {
-      setError(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, filters, getErrorMessage]);
+  }, [paginationParams, filters, handleApiError]);
 
   useEffect(() => {
     void loadData();
@@ -170,7 +171,7 @@ export function useGeofencesPage({ filters = {} }: UseGeofencesPageProps = {}) {
       setGeofenceToDelete(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsDeleting(false);
     }

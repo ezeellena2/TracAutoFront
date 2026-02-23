@@ -30,7 +30,7 @@ export function useSolicitudesCambio(params: UseSolicitudesCambioParams = {}) {
   return {
     data: queryResult.data ?? null,
     isLoading: queryResult.isLoading,
-    error: queryResult.error ? (queryResult.error as Error).message : null,
+    error: queryResult.error ?? null,
     refetch: queryResult.refetch,
   };
 }

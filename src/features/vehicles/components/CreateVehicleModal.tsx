@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Input, Button } from '@/shared/ui';
+import { Modal, Input, Button, ApiErrorBanner } from '@/shared/ui';
 import { vehiculosApi } from '@/services/endpoints';
 import { useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -22,8 +21,7 @@ interface CreateVehicleModalProps {
 
 export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: CreateVehicleModalProps) {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const { parseError, getErrorMessage } = useErrorHandler();
+    const { handleApiError } = useErrorHandler();
 
     // Organization Context
     const { currentOrganization } = useTenantStore();
@@ -47,6 +45,7 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
 
     const [createDeviceId, setCreateDeviceId] = useState('');
     const [createErrors, setCreateErrors] = useState<{ patente?: string; tipoContexto?: string }>({});
+    const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
     const [isCreating, setIsCreating] = useState(false);
 
     // Reset state on close
@@ -58,6 +57,7 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
             setExtensionDataOtros({ tipoContexto: '' });
             setCreateDeviceId('');
             setCreateErrors({});
+            setApiError(null);
         }
     }, [isOpen]);
 
@@ -79,6 +79,7 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
 
         setIsCreating(true);
         setCreateErrors({});
+        setApiError(null);
 
         try {
             // Prepare extension data
@@ -133,7 +134,8 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
                     });
                     toast.success(t('vehicles.success.createdAndAssigned'));
                 } catch (assignError) {
-                    toast.warning(t('vehicles.success.assignWarning', { message: getErrorMessage(assignError) }));
+                    const assignParsed = handleApiError(assignError, { showToast: false });
+                    toast.warning(t('vehicles.success.assignWarning', { message: assignParsed.message }));
                 }
             } else {
                 toast.success(t('vehicles.success.created'));
@@ -142,19 +144,10 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
             onSuccess();
             onClose();
         } catch (e) {
-            const parsedError = parseError(e);
-
-            // Para errores graves (500+), redirigir a la página de error
-            if (parsedError.status >= 500) {
-                navigate('/error', {
-                    state: { traceId: parsedError.traceId },
-                });
-                return;
-            }
-
-            // Para otros errores (validación, conflictos, etc.), mostrar toast
-            toast.error(parsedError.message);
-        } finally {
+            const parsedError = handleApiError(e, { showToast: false });
+            setApiError(parsedError);
+        }
+        finally {
             setIsCreating(false);
         }
     };
@@ -200,6 +193,15 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
             <div className="flex flex-col h-full max-h-[85vh]">
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto p-1">
+                    {apiError && (
+                        <div className="mb-4">
+                            <ApiErrorBanner
+                                error={apiError}
+                                jiraLabel={t('vehicles.errors.createFailed', 'Error al crear vehículo')}
+                                onReportClick={onClose}
+                            />
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Check if we have extensions or GPS to show right column, otherwise center or use full width */}
                         {/* For now, assuming consistent 2-col layout if there might be extensions */}

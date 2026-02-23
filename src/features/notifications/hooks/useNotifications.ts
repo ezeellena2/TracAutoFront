@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
+import { useErrorHandler } from '@/hooks';
 import { notificacionesApi } from '@/services/endpoints';
 import { toast, useNotificationsStore } from '@/store';
 
 export function useNotifications() {
+  const { handleApiError } = useErrorHandler();
   const {
     recent,
     unreadCount,
@@ -31,10 +33,11 @@ export function useNotifications() {
         await notificacionesApi.markAsRead(id);
       } catch (error) {
         await syncFromServer();
-        toast.error(error instanceof Error ? error.message : 'No se pudo marcar como leída');
+        const parsed = handleApiError(error, { showToast: false });
+        toast.error(parsed.message || 'No se pudo marcar como leída');
       }
     },
-    [markAsReadOptimistic, syncFromServer]
+    [markAsReadOptimistic, syncFromServer, handleApiError]
   );
 
   const markAllAsRead = useCallback(async () => {
@@ -43,9 +46,10 @@ export function useNotifications() {
       await notificacionesApi.markAllAsRead();
     } catch (error) {
       await syncFromServer();
-      toast.error(error instanceof Error ? error.message : 'No se pudieron marcar como leídas');
+      const parsed = handleApiError(error, { showToast: false });
+        toast.error(parsed.message || 'No se pudieron marcar como leídas');
     }
-  }, [markAllAsReadOptimistic, syncFromServer]);
+  }, [markAllAsReadOptimistic, syncFromServer, handleApiError]);
 
   const archivar = useCallback(
     async (id: string) => {
@@ -54,10 +58,11 @@ export function useNotifications() {
         await notificacionesApi.archivar(id);
       } catch (error) {
         await syncFromServer();
-        toast.error(error instanceof Error ? error.message : 'No se pudo archivar');
+        const parsed = handleApiError(error, { showToast: false });
+        toast.error(parsed.message || 'No se pudo archivar');
       }
     },
-    [archivarOptimistic, syncFromServer]
+    [archivarOptimistic, syncFromServer, handleApiError]
   );
 
   return {

@@ -1,15 +1,16 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { ToastContainer, ErrorBoundary } from '@/shared/ui';
+import { ToastContainer, ErrorBoundary, ErrorReportModal } from '@/shared/ui';
 import { useSidebarStore, useAuthStore, useLocalizationStore, useModoSolicitudStore } from '@/store';
 import { useModoSolicitudDetection } from '@/hooks';
 import { SolicitudCambioModal } from '@/features/solicitudes-cambio';
 import { NotificationProvider } from '@/features/notifications';
 
 export function MainLayout() {
+  const location = useLocation();
   const { isCollapsed, openMobile } = useSidebarStore();
   const { isAuthenticated } = useAuthStore();
   const { preferences, loadPreferences, isLoading } = useLocalizationStore();
@@ -46,13 +47,15 @@ export function MainLayout() {
             <Header />
           </div>
           <main className="p-4 md:p-6">
-            <ErrorBoundary>
+            <ErrorBoundary key={location.pathname}>
               <Outlet />
             </ErrorBoundary>
           </main>
         </div>
         {/* Notificaciones Toast globales */}
         <ToastContainer />
+        {/* Modal global de reporte de errores */}
+        <ErrorReportModal />
 
         {/* Modal chat Modo Solicitud (click en elemento seleccionable) */}
         <SolicitudCambioModal

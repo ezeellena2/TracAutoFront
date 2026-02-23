@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link2, Inbox, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { Card, Button, PaginationControls } from '@/shared/ui';
@@ -16,7 +16,7 @@ import { ResponderSolicitudModal } from '../components/ResponderSolicitudModal';
 
 export function RelacionesOrganizacionPage() {
   const { t } = useTranslation();
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   const organizacionId = useAuthStore((state) => state.organizationId);
   const { preferences } = useLocalizationStore();
   const culture = preferences?.culture ?? 'es-AR';
@@ -49,12 +49,6 @@ export function RelacionesOrganizacionPage() {
   const { can } = usePermissions();
   const canManage = can('organizacion:editar');
 
-  // Ref for error handler to avoid dependency in useCallback
-  const getErrorMessageRef = useRef(getErrorMessage);
-  useEffect(() => {
-    getErrorMessageRef.current = getErrorMessage;
-  }, [getErrorMessage]);
-
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -71,11 +65,12 @@ export function RelacionesOrganizacionPage() {
       setRelacionesData(relResult);
       setPendingRequests(pendingResult);
     } catch (err) {
-      setError(getErrorMessageRef.current(err));
+      const parsed = handleApiError(err, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams]); // getErrorMessage removed from dependencies
+  }, [paginationParams, handleApiError]);
 
   useEffect(() => {
     loadData();
@@ -102,8 +97,8 @@ export function RelacionesOrganizacionPage() {
       await loadData();
       setRelacionToDelete(null); // Close modal
     } catch (err) {
-      console.error('Error deleting relation:', err);
-      setError(getErrorMessageRef.current(err));
+      const parsed = handleApiError(err, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsDeleting(false);
     }

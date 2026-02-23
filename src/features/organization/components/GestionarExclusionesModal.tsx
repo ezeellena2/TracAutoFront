@@ -42,7 +42,7 @@ export function GestionarExclusionesModal({
     esOutbound
 }: GestionarExclusionesModalProps) {
     const { t } = useTranslation();
-    const { getErrorMessage } = useErrorHandler();
+    const { handleApiError } = useErrorHandler();
     const { preferences } = useLocalizationStore();
     const culture = preferences?.culture ?? 'es-AR';
     const timeZoneId = preferences?.timeZoneId ?? 'America/Argentina/Buenos_Aires';
@@ -98,7 +98,8 @@ export function GestionarExclusionesModal({
             );
             setExclusiones(data);
         } catch (err) {
-            setError(getErrorMessage(err));
+            const parsed = handleApiError(err, { showToast: false });
+            setError(parsed.message);
         } finally {
             setIsLoadingExclusiones(false);
         }
@@ -148,7 +149,7 @@ export function GestionarExclusionesModal({
 
             setSearchResults(results.filter(r => !excludedIds.has(r.id)));
         } catch (err) {
-            console.error('Error searching resources:', err);
+            handleApiError(err);
         } finally {
             setIsSearching(false);
         }
@@ -175,7 +176,8 @@ export function GestionarExclusionesModal({
             setSearchTerm('');
             await loadExclusiones();
         } catch (err) {
-            setError(getErrorMessage(err));
+            const parsed = handleApiError(err, { showToast: false });
+            setError(parsed.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -191,7 +193,8 @@ export function GestionarExclusionesModal({
             await organizacionesApi.removeExclusiones(relacionId, command);
             await loadExclusiones();
         } catch (err) {
-            setError(getErrorMessage(err));
+            const parsed = handleApiError(err, { showToast: false });
+            setError(parsed.message);
         } finally {
             setIsSubmitting(false);
         }

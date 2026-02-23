@@ -10,9 +10,6 @@ export const env = {
   /** Versión del API */
   apiVersion: import.meta.env.VITE_API_VERSION || 'v1',
 
-  /** Flag para usar datos mockeados */
-  useMocks: import.meta.env.VITE_USE_MOCKS === 'true',
-
   /**
    * Si es true, Axios enviará cookies en requests cross-site (necesario para refresh token HttpOnly).
    * En same-site no es necesario, y en algunos entornos CORS puede requerir configuración del backend.

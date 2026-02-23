@@ -32,7 +32,7 @@ export function VehiclesPage() {
   const localization = useLocalization();
   const culture = localization.culture;
   const timeZoneId = localization.timeZoneId;
-  const { getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
   // Data state
   const [vehiclesData, setVehiclesData] = useState<ListaPaginada<VehiculoDto> | null>(null);
   const [devices, setDevices] = useState<DispositivoDto[]>([]);
@@ -115,11 +115,12 @@ export function VehiclesPage() {
       setVehiclesData(vehiculosResult);
       setDevices(devicesResult.items);
     } catch (e) {
-      setError(getErrorMessage(e));
+      const parsed = handleApiError(e, { showToast: false });
+      setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, filterParams]);
+  }, [paginationParams, filterParams, handleApiError]);
 
   useEffect(() => {
     void loadData();
@@ -170,7 +171,7 @@ export function VehiclesPage() {
       setEditingVehicle(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsUpdating(false);
     }
@@ -192,7 +193,7 @@ export function VehiclesPage() {
       setVehicleToDelete(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsDeleting(false);
     }
@@ -234,7 +235,7 @@ export function VehiclesPage() {
       setVehicleToAssign(null);
       await loadData();
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsAssigning(false);
     }
@@ -297,7 +298,7 @@ export function VehiclesPage() {
         }
       }
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
       throw e;
     }
   };
@@ -311,7 +312,7 @@ export function VehiclesPage() {
       downloadBlob(blob, 'vehiculos.xlsx');
       toast.success(t('imports.exportSuccess', { defaultValue: 'Vehículos exportados exitosamente' }));
     } catch (e) {
-      toast.error(getErrorMessage(e));
+      handleApiError(e);
     } finally {
       setIsExporting(false);
     }
@@ -641,7 +642,7 @@ export function VehiclesPage() {
         config={getVehicleFiltersConfig(t)}
         filters={filters}
         onFilterChange={(key, value) => {
-          const op = ['activo', 'anio'].includes(key) ? 'eq' : 'contains';
+          const op = 'eq';
           setFilter(key, value, op);
         }}
         onClearFilters={clearFilters}

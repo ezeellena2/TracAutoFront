@@ -13,7 +13,7 @@ export function AcceptInvitationPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { parseError, getErrorMessage } = useErrorHandler();
+  const { handleApiError } = useErrorHandler();
 
   const [pageState, setPageState] = useState<PageState>('loading');
   const [invitation, setInvitation] = useState<InvitacionDto | null>(null);
@@ -39,7 +39,7 @@ export function AcceptInvitationPage() {
         setInvitation(data);
         setPageState('valid');
       } catch (err: unknown) {
-        const parsed = parseError(err);
+        const parsed = handleApiError(err, { showToast: false });
         const code = parsed.code;
 
         if (code === 'errors.Invitacion.Expirada' || code === 'Invitacion.Expirada') {
@@ -78,7 +78,8 @@ export function AcceptInvitationPage() {
       });
       setPageState('success');
     } catch (err: unknown) {
-      setErrorMessage(getErrorMessage(err));
+      const parsed = handleApiError(err, { showToast: false });
+      setErrorMessage(parsed.message);
       setPageState('error');
     } finally {
       setIsSubmitting(false);
