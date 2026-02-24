@@ -380,9 +380,11 @@ export function RegistroPage() {
                     </span>
                   }
                   type="text"
+                  name="organization"
                   value={formData.nombreEmpresa}
                   onChange={(e) => updateField('nombreEmpresa', e.target.value)}
                   placeholder={t('auth.companyNamePlaceholder')}
+                  autoComplete="organization"
                   required
                   disabled={isLoading}
                 />
@@ -427,9 +429,11 @@ export function RegistroPage() {
                     </span>
                   }
                   type="text"
+                  name="name"
                   value={formData.nombreCompleto}
                   onChange={(e) => updateField('nombreCompleto', e.target.value)}
                   placeholder={t('auth.fullNamePlaceholder')}
+                  autoComplete="name"
                   required
                   disabled={isLoading}
                 />
@@ -441,9 +445,11 @@ export function RegistroPage() {
                     </span>
                   }
                   type="email"
+                  name="email"
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
                   placeholder={t('auth.emailPlaceholderRegister')}
+                  autoComplete="email"
                   required
                   disabled={isLoading || isGoogleRegistro}
                 />

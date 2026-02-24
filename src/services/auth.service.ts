@@ -171,11 +171,17 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
       Analista: 'Analista',
     };
 
+    // Extraer rol: soportar claim corto 'role' y claim largo de ASP.NET Identity
+    const roleClaim =
+      payload.role ||
+      payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+      '';
+
     const user: AuthUser = {
       id: payload.sub || payload.nameid || '',
       nombre: response.nombre,
       email: response.email,
-      rol: rolMap[payload.role || ''] || 'Operador',
+      rol: rolMap[roleClaim] || 'Operador',
       organizationId: response.organizacionId,
       organizationName: response.nombreOrganizacion || '',
     };
