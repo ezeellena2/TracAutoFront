@@ -120,6 +120,121 @@ export function getCurrentOrganization(): OrganizationTheme | null {
   return useTenantStore.getState().currentOrganization;
 }
 
+// ==================== Google Login ====================
+
+export interface GoogleLoginResult {
+  success: boolean;
+  requiereRegistro?: boolean;
+  googleData?: {
+    email: string;
+    nombre: string;
+    fotoUrl: string | null;
+    idToken: string;
+  };
+  error?: string;
+}
+
+/**
+ * Login con Google.
+ * Envía el ID Token JWT de Google al backend para validación.
+ * - Si el usuario ya existe → inicia sesión (token + sesión completa).
+ * - Si no existe → retorna datos de Google para redirigir a registro.
+ */
+export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResult> {
+  try {
+    const response = await authApi.loginConGoogle({ idToken });
+
+    if (response.requiereRegistro) {
+      return {
+        success: false,
+        requiereRegistro: true,
+        googleData: {
+          email: response.email,
+          nombre: response.nombre,
+          fotoUrl: response.fotoUrl,
+          idToken,
+        },
+      };
+    }
+
+    if (!response.token || !response.organizacionId) {
+      return { success: false, error: 'Respuesta incompleta del servidor' };
+    }
+
+    // Decodificar JWT para obtener usuarioId y rol (no vienen en la respuesta directa)
+    const payload = parseJwtPayload(response.token);
+
+    const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
+      Admin: 'Admin',
+      Administrador: 'Admin',
+      Operador: 'Operador',
+      Analista: 'Analista',
+    };
+
+    // Extraer rol: soportar claim corto 'role' y claim largo de ASP.NET Identity
+    const roleClaim =
+      payload.role ||
+      payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+      '';
+
+    const user: AuthUser = {
+      id: payload.sub || payload.nameid || '',
+      nombre: response.nombre,
+      email: response.email,
+      rol: rolMap[roleClaim] || 'Operador',
+      organizationId: response.organizacionId,
+      organizationName: response.nombreOrganizacion || '',
+    };
+
+    // Guardar en auth store
+    useAuthStore.getState().login(user, response.token);
+
+    // Aplicar UI mode preferido
+    let preferredIsDark = useThemeStore.getState().isDarkMode;
+    try {
+      const raw = localStorage.getItem(getUiModeStorageKey(user.id, user.organizationId));
+      preferredIsDark = raw === 'dark' ? true : raw === 'light' ? false : preferredIsDark;
+    } catch {
+      // noop
+    }
+
+    useTenantStore.getState().setOrganizationFromLogin({
+      id: user.organizationId,
+      nombre: user.organizationName,
+      tipoOrganizacion: response.tipoOrganizacion ?? 1,
+      theme: response.theme,
+    });
+
+    const override = buildThemeOverride(response.theme);
+    useThemeStore.getState().setDarkMode(preferredIsDark, override);
+
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Decodifica el payload de un JWT sin validar la firma (para leer claims).
+ * La validación la hace el backend; aquí solo leemos campos.
+ */
+function parseJwtPayload(token: string): Record<string, string> {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return {};
+  }
+}
+
 export const authService = {
   login,
   logout,
@@ -127,6 +242,7 @@ export const authService = {
   getToken,
   getCurrentUser,
   getCurrentOrganization,
+  loginWithGoogle,
 };
 
 export default authService;

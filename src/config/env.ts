@@ -15,6 +15,9 @@ export const env = {
    * En same-site no es necesario, y en algunos entornos CORS puede requerir configuración del backend.
    */
   apiWithCredentials: import.meta.env.VITE_API_WITH_CREDENTIALS === 'true',
+
+  /** Google OAuth Client ID (obtener de Google Cloud Console) */
+  googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
 } as const;
 
 // Fail-fast: en producción, VITE_API_BASE_URL debe estar configurada explícitamente.
