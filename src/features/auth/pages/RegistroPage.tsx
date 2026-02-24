@@ -47,14 +47,23 @@ export function RegistroPage() {
   const location = useLocation();
   // const { login } = useAuthStore(); // Removed: accessed directly via getState() to ensure latest state and consistency
 
-  // Verificar si viene en modo verificación desde LoginPage
+  // Verificar si viene en modo verificación o con datos de Google desde LoginPage
   const state = location.state as {
     modoVerificacion?: boolean;
     email?: string;
     usuarioId?: string;
     organizacionId?: string;
     nombreOrganizacion?: string;
+    googleData?: {
+      email: string;
+      nombre: string;
+      fotoUrl: string | null;
+      idToken: string;
+    };
   } | null;
+
+  // Flag: si viene de Google login, pre-llenamos email y nombre
+  const [isGoogleRegistro, setIsGoogleRegistro] = useState(false);
 
   const [step, setStep] = useState<'datos' | 'verificacion'>(
     state?.modoVerificacion ? 'verificacion' : 'datos'
@@ -87,7 +96,7 @@ export function RegistroPage() {
   const [codigoEmail, setCodigoEmail] = useState('');
   const [codigoTelefono, setCodigoTelefono] = useState('');
 
-  // Inicializar datos si viene en modo verificación
+  // Inicializar datos si viene en modo verificación o con datos de Google
   useEffect(() => {
     if (state?.modoVerificacion && state.email && state.usuarioId && state.organizacionId) {
       setFormData(prev => ({
@@ -100,7 +109,15 @@ export function RegistroPage() {
         nombreOrganizacion: state.nombreOrganizacion || '',
       });
       setStep('verificacion');
-      // Limpiar el state para que no se aplique de nuevo
+      window.history.replaceState({}, document.title);
+    } else if (state?.googleData) {
+      // Pre-llenar datos de Google
+      setFormData(prev => ({
+        ...prev,
+        email: state.googleData!.email,
+        nombreCompleto: state.googleData!.nombre,
+      }));
+      setIsGoogleRegistro(true);
       window.history.replaceState({}, document.title);
     }
   }, [state]);
@@ -428,7 +445,7 @@ export function RegistroPage() {
                   onChange={(e) => updateField('email', e.target.value)}
                   placeholder={t('auth.emailPlaceholderRegister')}
                   required
-                  disabled={isLoading}
+                  disabled={isLoading || isGoogleRegistro}
                 />
                 {/* Telefono */}
                 <Input

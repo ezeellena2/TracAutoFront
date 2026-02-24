@@ -120,6 +120,9 @@ export interface GoogleAuthResponse {
   nombre: string;
   requiereRegistro: boolean;
   fotoUrl: string | null;
+  nombreOrganizacion: string | null;
+  theme: OrganizacionThemeDto | null;
+  tipoOrganizacion: number | null;
 }
 
 // ==================== Organizaciones DTOs ====================

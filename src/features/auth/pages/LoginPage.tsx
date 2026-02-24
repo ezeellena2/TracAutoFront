@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2, Mail } from 'lucide-react';
 import { Button, Input } from '@/shared/ui';
 import { useAuthStore } from '@/store';
@@ -13,7 +14,7 @@ import { CanalEnvio } from '@/shared/types/api';
  * Soporta:
  * - Login con email/password para usuarios verificados
  * - Registro de nueva empresa
- * - (Futuro) Login con Google
+ * - Login con Google
  */
 export function LoginPage() {
   const { t } = useTranslation();
@@ -98,8 +99,28 @@ export function LoginPage() {
     setIsLoading(false);
   };
 
-  // Google OAuth: no implementado aún — botón oculto hasta implementación real
-  // const handleGoogleLogin = async () => { ... };
+  // Google OAuth: recibe el credential (ID Token JWT) del componente GoogleLogin
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError(t('auth.errors.authError'));
+      return;
+    }
+
+    setError('');
+
+    const result = await authService.loginWithGoogle(credentialResponse.credential);
+
+    if (result.success) {
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    } else if (result.requiereRegistro && result.googleData) {
+      navigate('/registro', {
+        state: { googleData: result.googleData },
+      });
+    } else {
+      setError(result.error || t('auth.errors.authError'));
+    }
+  };
 
   const handleReenviarCodigo = async () => {
     if (!email) {
@@ -166,9 +187,11 @@ export function LoginPage() {
             <Input
               label={t('auth.emailLabel')}
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t('auth.emailPlaceholder')}
+              autoComplete="username"
               required
               disabled={isLoading}
             />
@@ -177,9 +200,11 @@ export function LoginPage() {
               <Input
                 label={t('auth.passwordLabel')}
                 type={showPassword ? 'text' : 'password'}
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('auth.passwordPlaceholder')}
+                autoComplete="current-password"
                 required
                 disabled={isLoading}
               />
@@ -251,9 +276,27 @@ export function LoginPage() {
               )}
             </Button>
 
-            {/* Google OAuth: oculto hasta implementación — descomentar cuando esté listo */}
-            {/* <div className="relative my-6">...</div> */}
-            {/* <Button onClick={handleGoogleLogin}>Google</Button> */}
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-surface px-3 text-text-muted">{t('auth.continueWith')}</span>
+              </div>
+            </div>
+
+            {/* Google Login */}
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError(t('auth.errors.googleNotAvailable'))}
+                text="continue_with"
+                shape="rectangular"
+                size="large"
+                width="380"
+              />
+            </div>
           </form>
 
           {/* Register link */}
