@@ -698,6 +698,7 @@
     "inactive": "Inactive",
     "seeInActions": "See in actions",
     "assign": "Assign",
+    "manageSharing": "Manage sharing",
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Are you sure you want to delete driver \"{{name}}\"? This action cannot be undone.",

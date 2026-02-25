@@ -617,6 +617,7 @@
     "inactive": "Inactivo",
     "seeInActions": "Ver en acciones",
     "assign": "Asignar",
+    "manageSharing": "Gestionar compartición",
     "edit": "Editar",
     "delete": "Eliminar",
     "confirmDelete": "¿Estás seguro de que deseas eliminar al conductor \"{{name}}\"? Esta acción no se puede deshacer.",
