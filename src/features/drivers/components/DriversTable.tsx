@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { Link } from 'react-router-dom';
 import { Edit, Trash2, Car, Smartphone, List, RefreshCw, Share2 } from 'lucide-react';
 import { Table, Badge, ActionMenu } from '@/shared/ui';
 import { NivelPermisoCompartido } from '@/shared/types/api';
@@ -127,14 +128,36 @@ export function DriversTable({
         );
       },
     },
+
     {
       key: 'asignaciones',
       header: t('drivers.assignments'),
-      render: () => (
-        <div className="flex items-center gap-2 text-text-muted text-sm">
-          <Car size={14} />
-          <Smartphone size={14} />
-          <span className="text-xs">{t('drivers.seeInActions')}</span>
+      render: (c: ConductorDto) => (
+        <div className="flex items-center gap-3">
+          {c.vehiculoAsignadoId ? (
+            <Link
+              to={`/vehiculos?filtroId=${c.vehiculoAsignadoId}`}
+              title={t('drivers.goToVehicle')}
+              className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Car size={16} />
+            </Link>
+          ) : (
+            <Car size={16} className="text-text-muted opacity-30" />
+          )}
+          {c.dispositivoAsignadoId ? (
+            <Link
+              to={`/dispositivos?filtroId=${c.dispositivoAsignadoId}`}
+              title={t('drivers.goToDevice')}
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Smartphone size={16} />
+            </Link>
+          ) : (
+            <Smartphone size={16} className="text-text-muted opacity-30" />
+          )}
         </div>
       ),
     },

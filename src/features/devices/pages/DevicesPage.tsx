@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
@@ -81,6 +82,15 @@ export function DevicesPage() {
 
   const { can } = usePermissions();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlFiltroId = searchParams.get('filtroId') ?? undefined;
+
+  const clearDirectFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('filtroId');
+    setSearchParams(newParams, { replace: true });
+  };
+
   const loadDevices = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -93,8 +103,13 @@ export function DevicesPage() {
       const backendParams: any = {
         ...paginationParams,
       };
-      if (filters.soloActivos !== undefined) {
+      // Si hay filtroId (navegación directa desde conductores), no aplicar soloActivos
+      // para evitar excluir dispositivos inactivos que el usuario busca explícitamente
+      if (filters.soloActivos !== undefined && !urlFiltroId) {
         backendParams.soloActivos = filters.soloActivos === 'true';
+      }
+      if (urlFiltroId) {
+        backendParams.filtroId = urlFiltroId;
       }
 
       const result = await dispositivosApi.getDispositivos(backendParams);
@@ -111,7 +126,7 @@ export function DevicesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, filters, handleApiError]);
+  }, [paginationParams, filters, handleApiError, urlFiltroId]);
 
   // Extraer items para compatibilidad
   const devices = devicesData?.items ?? [];
@@ -580,6 +595,16 @@ export function DevicesPage() {
           </div>
         )}
       </div>
+
+      {urlFiltroId && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg text-sm text-text">
+          <AlertCircle size={16} className="text-primary shrink-0" />
+          <span>{t('filters.filteringByDirectLink')}</span>
+          <Button size="sm" variant="ghost" onClick={clearDirectFilter}>
+            {t('filters.clearDirectFilter')}
+          </Button>
+        </div>
+      )}
 
       <AdvancedFilterBar
         config={getDeviceFiltersConfig(t)}

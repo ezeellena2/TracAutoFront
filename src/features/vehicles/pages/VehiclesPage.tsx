@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
@@ -16,7 +17,9 @@ import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
+import type { ConductorVehiculoAsignacionDto } from '@/features/drivers/types';
 import { CreateVehicleModal } from '../components/CreateVehicleModal';
+import { VehicleConductorsModal } from '../components/VehicleConductorsModal';
 
 // FIX-6: Usar función factory con t() para i18n en labels de filtros
 const getVehicleFiltersConfig = (t: (key: string, options?: Record<string, string>) => string): FilterConfig[] => [
@@ -84,6 +87,10 @@ export function VehiclesPage() {
   // Sharing modal
   const [vehicleToShare, setVehicleToShare] = useState<VehiculoDto | null>(null);
 
+  // Conductors modal (ver conductores asignados al vehículo)
+  const [vehicleForConductorsModal, setVehicleForConductorsModal] = useState<VehiculoDto | null>(null);
+  const [vehicleConductorsCache, setVehicleConductorsCache] = useState<Record<string, ConductorVehiculoAsignacionDto[]>>({});
+
   // Import modals
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
@@ -103,14 +110,22 @@ export function VehiclesPage() {
   const canCreate = can('vehiculos:crear');
   const canDelete = can('vehiculos:eliminar');
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlFiltroId = searchParams.get('filtroId') ?? undefined;
+
   // Load data
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const apiParams: Parameters<typeof vehiculosApi.getVehiculos>[0] = {
+        ...paginationParams,
+        filterParams,
+        filtroId: urlFiltroId,
+      };
       const [vehiculosResult, devicesResult] = await Promise.all([
-        vehiculosApi.getVehiculos({ ...paginationParams, ...filterParams }),
-        dispositivosApi.getDispositivos({ tamanoPagina: 50 }), // Dispositivos sin paginar (para select)
+        vehiculosApi.getVehiculos(apiParams),
+        dispositivosApi.getDispositivos({ tamanoPagina: 50 }),
       ]);
       setVehiclesData(vehiculosResult);
       setDevices(devicesResult.items);
@@ -119,12 +134,35 @@ export function VehiclesPage() {
       setError(parsed.message);
     } finally {
       setIsLoading(false);
+      setVehicleConductorsCache({});
     }
-  }, [paginationParams, filterParams, handleApiError]);
+  }, [paginationParams, filterParams, handleApiError, urlFiltroId]);
 
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  // Precargar conductores por vehículo en una sola petición batch (evita N+1)
+  useEffect(() => {
+    const items = vehiclesData?.items ?? [];
+    if (items.length === 0) return;
+    const ids = items.map((v) => v.id);
+    let cancelled = false;
+    vehiculosApi
+      .getConductoresAsignadosBatch(ids, true)
+      .then((batch) => {
+        if (cancelled) return;
+        const newCache: Record<string, ConductorVehiculoAsignacionDto[]> = {};
+        batch.forEach((item) => {
+          newCache[item.vehiculoId] = item.conductores ?? [];
+        });
+        setVehicleConductorsCache((prev) => ({ ...prev, ...newCache }));
+      })
+      .catch((e) => handleApiError(e));
+    return () => {
+      cancelled = true;
+    };
+  }, [vehiclesData, handleApiError]);
 
   // Adjust page if out of bounds
   useEffect(() => {
@@ -357,6 +395,32 @@ export function VehiclesPage() {
       },
     },
     {
+      key: 'conductores',
+      header: t('vehicles.table.drivers'),
+      render: (v: VehiculoDto) => {
+        const list = vehicleConductorsCache[v.id];
+        const handleClick = () => setVehicleForConductorsModal(v);
+        if (list !== undefined) {
+          if (list.length === 0) {
+            return <span className="text-text-muted">—</span>;
+          }
+          return (
+            <button
+              type="button"
+              onClick={handleClick}
+              className="inline-flex items-center justify-center min-w-[1.75rem] h-7 rounded-full bg-primary/15 text-primary text-sm font-semibold hover:bg-primary/25 transition-colors"
+              title={t('vehicles.table.viewDrivers')}
+            >
+              {list.length}
+            </button>
+          );
+        }
+        return (
+          <span className="text-text-muted text-sm">—</span>
+        );
+      },
+    },
+    {
       key: 'activo',
       header: t('vehicles.status'),
       render: (v: VehiculoDto) => (
@@ -519,7 +583,13 @@ export function VehiclesPage() {
     );
   }
 
-  const hasActiveFilters = Object.keys(filters).length > 0;
+  const hasActiveFilters = Object.keys(filters).length > 0 || !!urlFiltroId;
+
+  const clearDirectFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('filtroId');
+    setSearchParams(newParams, { replace: true });
+  };
 
   if (vehicles.length === 0 && !hasActiveFilters) {
     return (
@@ -637,6 +707,16 @@ export function VehiclesPage() {
           </div>
         </Card>
       </div>
+
+      {urlFiltroId && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg text-sm text-text">
+          <AlertCircle size={16} className="text-primary shrink-0" />
+          <span>{t('filters.filteringByDirectLink')}</span>
+          <Button size="sm" variant="ghost" onClick={clearDirectFilter}>
+            {t('filters.clearDirectFilter')}
+          </Button>
+        </div>
+      )}
 
       <AdvancedFilterBar
         config={getVehicleFiltersConfig(t)}
@@ -794,6 +874,14 @@ export function VehiclesPage() {
           onSuccess={loadData}
         />
       )}
+
+      {/* Modal Conductores asignados al vehículo (muestra activos + finalizados; no escribe en caché para no alterar el número de la columna) */}
+      <VehicleConductorsModal
+        isOpen={!!vehicleForConductorsModal}
+        vehicle={vehicleForConductorsModal}
+        onClose={() => setVehicleForConductorsModal(null)}
+        initialData={vehicleForConductorsModal ? vehicleConductorsCache[vehicleForConductorsModal.id] : undefined}
+      />
 
       {/* Import Processing Modal - shown while job runs in background */}
       <ImportProcessingModal

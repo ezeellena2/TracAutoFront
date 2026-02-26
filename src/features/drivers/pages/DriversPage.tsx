@@ -206,8 +206,8 @@ export function DriversPage() {
 
   const conductores = conductoresData?.items ?? [];
 
-  // Loading state
-  if (isLoading && !conductoresData) {
+  // Loading state (incl. al recargar tras limpiar filtros)
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -251,7 +251,7 @@ export function DriversPage() {
   }
 
   const hasActiveFilters = Object.keys(filters).length > 0;
-  const showEmptyState = conductores.length === 0 && !hasActiveFilters;
+  const showEmptyState = conductores.length === 0 && !hasActiveFilters && !isLoading;
 
   return (
     <div className="space-y-6">

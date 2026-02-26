@@ -141,7 +141,9 @@
     "noResults": "No se encontraron resultados con los filtros activos.",
     "noFiltersActive": "No hay filtros activos",
     "clearAll": "Limpiar todo",
-    "description": "Utilice los siguientes campos para filtrar los resultados de la tabla."
+    "description": "Utilice los siguientes campos para filtrar los resultados de la tabla.",
+    "filteringByDirectLink": "Mostrando resultado por navegación directa",
+    "clearDirectFilter": "Mostrar todos"
   },
   "header": {
     "darkMode": "Modo oscuro",
@@ -373,7 +375,13 @@
       "editVehicle": "Editar vehículo",
       "deleteVehicle": "Eliminar vehículo",
       "associated": "Asociado",
-      "manageSharing": "Gestionar compartición"
+      "manageSharing": "Gestionar compartición",
+      "drivers": "CONDUCTORES",
+      "viewDrivers": "Ver conductores"
+    },
+    "conductorsModal": {
+      "title": "Conductores asignados - {{patente}}",
+      "empty": "No hay conductores asignados a este vehículo."
     },
     "deleteTitle": "Eliminar vehículo",
     "deleteMessage": "¿Está seguro de eliminar el vehículo con patente \"{{patente}}\"? Esta acción marcará el vehículo como inactivo.",
@@ -616,6 +624,12 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "seeInActions": "Ver en acciones",
+    "vehicle": "Vehículo",
+    "device": "Dispositivo",
+    "assignedToVehicle": "Asignado a un vehículo",
+    "assignedToDevice": "Asignado a un dispositivo",
+    "goToVehicle": "Ver vehículo asignado",
+    "goToDevice": "Ver dispositivo asignado",
     "assign": "Asignar",
     "manageSharing": "Gestionar compartición",
     "edit": "Editar",
@@ -640,7 +654,8 @@
       "phonePlaceholder": "+54 11 1234-5678"
     },
     "table": {
-      "associated": "Asociado"
+      "associated": "Asociado",
+      "manageSharing": "Gestionar compartición"
     },
     "assignmentsModal": {
       "title": "Asignaciones - {{name}}",

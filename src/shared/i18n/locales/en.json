@@ -109,7 +109,9 @@
       "text": "Filter...",
       "select": "All"
     },
-    "noResults": "No results found with active filters."
+    "noResults": "No results found with active filters.",
+    "filteringByDirectLink": "Showing result from direct navigation",
+    "clearDirectFilter": "Show all"
   },
   "header": {
     "darkMode": "Dark mode",
@@ -339,7 +341,13 @@
       "editVehicle": "Edit vehicle",
       "deleteVehicle": "Delete vehicle",
       "associated": "Associated",
-      "manageSharing": "Manage sharing"
+      "manageSharing": "Manage sharing",
+      "drivers": "DRIVERS",
+      "viewDrivers": "View drivers"
+    },
+    "conductorsModal": {
+      "title": "Assigned drivers - {{patente}}",
+      "empty": "No drivers assigned to this vehicle."
     },
     "deleteTitle": "Delete vehicle",
     "deleteMessage": "Are you sure you want to delete the vehicle with license plate \"{{patente}}\"? This action will mark the vehicle as inactive.",
@@ -697,6 +705,12 @@
     "active": "Active",
     "inactive": "Inactive",
     "seeInActions": "See in actions",
+    "vehicle": "Vehicle",
+    "device": "Device",
+    "assignedToVehicle": "Assigned to a vehicle",
+    "assignedToDevice": "Assigned to a device",
+    "goToVehicle": "View assigned vehicle",
+    "goToDevice": "View assigned device",
     "assign": "Assign",
     "manageSharing": "Manage sharing",
     "edit": "Edit",
@@ -721,7 +735,8 @@
       "phonePlaceholder": "+1 555 123-4567"
     },
     "table": {
-      "associated": "Associated"
+      "associated": "Associated",
+      "manageSharing": "Manage sharing"
     },
     "assignmentsModal": {
       "title": "Assignments - {{name}}",
