@@ -105,10 +105,12 @@ function PhoneInput({
       countries: countriesPermissive,
       disableFormatting: true,
       onChange: (data: { phone: string }) => {
-        setPhoneUI(data.phone);
-        setLocalError(null);
-        if (onChange) {
-          onChange({ target: { name: name || "", value: data.phone } });
+        // Solo actualizamos si el valor realmente cambió para evitar bucles o prefijos automáticos
+        if (data.phone !== phoneUI) {
+          setPhoneUI(data.phone);
+          if (onChange) {
+            onChange({ target: { name: name || "", value: data.phone } });
+          }
         }
       },
       forceDialCode: true,
@@ -119,8 +121,11 @@ function PhoneInput({
 
     const digitsOnly = inputValue.replace(/\D/g, "");
     const dialCode = country?.dialCode || "";
+
+    // Si el usuario no escribió nada (solo está el dialCode o está vacío), enviamos vacío
     if (!digitsOnly || digitsOnly === dialCode) {
       setLocalError(null);
+      onChange({ target: { name: name || "", value: "" } });
       return;
     }
 
@@ -137,10 +142,20 @@ function PhoneInput({
 
   const displayValue = useMemo(() => {
     if (isEditing) return inputValue;
+
+    // Si no se está editando y el valor es solo el prefijo o está vacío,
+    // devolvemos cadena vacía para que se vea el placeholder.
+    const digitsOnly = inputValue.replace(/\D/g, "");
+    const dialCodeDigits = (country?.dialCode || "").replace(/\D/g, "");
+
+    if (digitsOnly === dialCodeDigits || digitsOnly === "") {
+      return "";
+    }
+
     const parsed = parsePhoneNumberFromString(inputValue);
     if (parsed?.isValid()) return parsed.format("INTERNATIONAL");
     return inputValue;
-  }, [isEditing, inputValue]);
+  }, [isEditing, inputValue, country]);
 
 
   return (
@@ -190,6 +205,7 @@ function PhoneInput({
             disabled={props.disabled}
             buttonClassName="h-10"
             dropdownClassName="w-[280px]"
+            usePortal
           />
         </div>
 

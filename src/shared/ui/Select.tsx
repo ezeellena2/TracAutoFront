@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
 interface Option {
@@ -17,6 +18,8 @@ interface SelectProps {
     disabled?: boolean;
     className?: string;
     required?: boolean;
+    /** Render dropdown in a portal so it escapes overflow-hidden containers */
+    usePortal?: boolean;
 }
 
 export function Select({
@@ -30,16 +33,24 @@ export function Select({
     className = '',
     dropdownClassName = '',
     buttonClassName = '',
+    usePortal = false,
 }: SelectProps & { dropdownClassName?: string; buttonClassName?: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [portalStyle, setPortalStyle] = useState<React.CSSProperties>({});
 
     const selectedOption = options.find((opt) => opt.value === value);
 
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            const target = event.target as Node;
+            if (
+                containerRef.current && !containerRef.current.contains(target) &&
+                (!dropdownRef.current || !dropdownRef.current.contains(target))
+            ) {
                 setIsOpen(false);
             }
         };
@@ -49,6 +60,31 @@ export function Select({
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Calculate position for portal dropdown
+    const updatePortalPosition = useCallback(() => {
+        if (!usePortal || !buttonRef.current) return;
+        const rect = buttonRef.current.getBoundingClientRect();
+        setPortalStyle({
+            position: 'fixed',
+            top: rect.bottom + 6,
+            left: rect.left,
+            zIndex: 99999,
+        });
+    }, [usePortal]);
+
+    useEffect(() => {
+        if (isOpen && usePortal) {
+            updatePortalPosition();
+            // Reposition on scroll/resize
+            window.addEventListener('scroll', updatePortalPosition, true);
+            window.addEventListener('resize', updatePortalPosition);
+            return () => {
+                window.removeEventListener('scroll', updatePortalPosition, true);
+                window.removeEventListener('resize', updatePortalPosition);
+            };
+        }
+    }, [isOpen, usePortal, updatePortalPosition]);
 
     const handleSelect = (optionValue: string | number) => {
         if (disabled) return;
@@ -72,6 +108,7 @@ export function Select({
             <div className="relative">
                 <button
                     type="button"
+                    ref={buttonRef}
                     id={inputId}
                     onClick={() => !disabled && setIsOpen(!isOpen)}
                     disabled={disabled}
@@ -98,37 +135,44 @@ export function Select({
                 </button>
 
                 {/* Dropdown Menu */}
-                {isOpen && (
-                    <div className={`absolute z-50 mt-1.5 bg-surface border border-border rounded-lg shadow-xl max-h-[182px] overflow-auto animate-fade-in max-w-[95vw] ${dropdownClassName || 'w-full'}`}>
-                        <ul role="listbox" className="py-1">
-                            {options.map((option) => {
-                                const isSelected = option.value === value;
-                                return (
-                                    <li
-                                        key={option.value}
-                                        role="option"
-                                        aria-selected={isSelected}
-                                        onClick={() => handleSelect(option.value)}
-                                        className={`
-                      cursor-pointer select-none relative py-2 pl-4 pr-5 
-                      ${isSelected ? 'bg-primary text-white' : 'text-text hover:bg-border'}
-                      transition-colors duration-150
-                    `}
-                                    >
-                                        <span className={`block truncate ${isSelected ? 'font-medium' : 'font-normal'}`}>
-                                            {option.label}
-                                        </span>
-                                        {isSelected && (
-                                            <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-white">
-                                                <Check size={16} />
+                {isOpen && (() => {
+                    const dropdownContent = (
+                        <div
+                            ref={dropdownRef}
+                            className={`${usePortal ? '' : 'absolute'} z-50 mt-1.5 bg-surface border border-border rounded-lg shadow-xl max-h-[182px] overflow-auto animate-fade-in max-w-[95vw] ${dropdownClassName || 'w-full'}`}
+                            style={usePortal ? portalStyle : undefined}
+                        >
+                            <ul role="listbox" className="py-1">
+                                {options.map((option) => {
+                                    const isSelected = option.value === value;
+                                    return (
+                                        <li
+                                            key={option.value}
+                                            role="option"
+                                            aria-selected={isSelected}
+                                            onClick={() => handleSelect(option.value)}
+                                            className={`
+                          cursor-pointer select-none relative py-2 pl-4 pr-5 
+                          ${isSelected ? 'bg-primary text-white' : 'text-text hover:bg-border'}
+                          transition-colors duration-150
+                        `}
+                                        >
+                                            <span className={`block truncate ${isSelected ? 'font-medium' : 'font-normal'}`}>
+                                                {option.label}
                                             </span>
-                                        )}
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-                )}
+                                            {isSelected && (
+                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-white">
+                                                    <Check size={16} />
+                                                </span>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    );
+                    return usePortal ? createPortal(dropdownContent, document.body) : dropdownContent;
+                })()}
             </div>
 
             {error && (

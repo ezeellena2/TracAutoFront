@@ -632,6 +632,7 @@
       "fullNameRequired": "El nombre completo es requerido",
       "dniLabel": "DNI",
       "dniPlaceholder": "12345678",
+      "dniRequired": "El DNI es requerido",
       "dniCannotModify": "El DNI no se puede modificar",
       "emailLabel": "Email",
       "emailPlaceholder": "juan@example.com",

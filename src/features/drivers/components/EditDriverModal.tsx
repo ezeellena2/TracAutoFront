@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Input, Button, ApiErrorBanner } from '@/shared/ui';
 import { conductoresApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
-import { useErrorHandler } from '@/hooks';
+import { useErrorHandler, type ParsedError } from '@/hooks';
 import type { ConductorDto } from '../types';
 
 interface EditDriverModalProps {
@@ -16,13 +17,14 @@ interface EditDriverModalProps {
 
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
   const { t } = useTranslation();
-  const { handleApiError } = useErrorHandler();
+  const navigate = useNavigate();
+  const { handleApiError, parseError } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',
     telefono: '',
   });
-  const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
+  const [apiError, setApiError] = useState<ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -53,8 +55,18 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const parsedError = handleApiError(err, { showToast: false });
-      setApiError(parsedError);
+      const parsedError = parseError(err);
+
+      // Para errores graves (500+), redirigir a la página de error
+      if (parsedError.status >= 500) {
+        navigate('/error', {
+          state: { traceId: parsedError.traceId },
+        });
+        return;
+      }
+
+      // Para otros errores (validación, conflictos, etc.), mostrar toast
+      toast.error(parsedError.message);
     } finally {
       setIsLoading(false);
     }
