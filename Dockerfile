@@ -12,9 +12,12 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
-# Build argument para API URL (se pasa en build time)
+# Build arguments (se pasan en build time)
 ARG VITE_API_BASE_URL=http://localhost:5200/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+# No se setea VITE_APP_MODE en build — la detección es por hostname en runtime.
+# Un solo build sirve los 3 subdominios (b2b, marketplace, alquiler).
 
 # Build de producción
 RUN npm run build

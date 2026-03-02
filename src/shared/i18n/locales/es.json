@@ -759,11 +759,7 @@
       "draft": "Borrador",
       "published": "Publicado",
       "paused": "Pausado",
-      "sold": "Vendido",
-      "borrador": "Borrador",
-      "publicado": "Publicado",
-      "pausado": "Pausado",
-      "vendido": "Vendido"
+      "sold": "Vendido"
     },
     "stats": {
       "published": "Publicados",
@@ -1598,6 +1594,53 @@
       "YaAsignadaAVehiculo": "La geofence ya está asignada a este vehículo.",
       "AsignacionNoEncontrada": "La asignación geofence-vehículo no fue encontrada.",
       "VehiculoSinDispositivo": "El vehículo no tiene un dispositivo activo asignado."
+    },
+    "Alquiler": {
+      "VehiculoNoEncontrado": "Vehículo de alquiler no encontrado",
+      "VehiculoNoDisponible": "El vehículo no está disponible para alquiler en las fechas solicitadas",
+      "ReservaNoEncontrada": "Reserva de alquiler no encontrada",
+      "FechasInvalidas": "La fecha de inicio debe ser anterior a la fecha de fin del alquiler",
+      "TransicionEstadoReservaInvalida": "Transición de estado de reserva inválida: {{param0}} → {{param1}}",
+      "ReservaExpirada": "La reserva ha expirado y ya no puede confirmarse",
+      "ConflictoConcurrenciaReserva": "La reserva fue modificada por otro usuario. Recargue los datos y vuelva a intentar",
+      "ContratoNoEncontrado": "Contrato de alquiler no encontrado",
+      "ContratoYaFirmado": "El contrato ya fue firmado y no puede modificarse",
+      "TarifaNoEncontrada": "Tarifa de alquiler no encontrada",
+      "SinTarifaAplicable": "No existe una tarifa aplicable para el vehículo y período solicitado",
+      "PagoNoEncontrado": "Pago no encontrado",
+      "MontoInvalido": "El monto del pago debe ser mayor a cero",
+      "PagoYaProcesado": "El pago ya fue procesado y no puede modificarse",
+      "InspeccionNoEncontrada": "Inspección no encontrada",
+      "ClienteNoEncontrado": "Cliente de alquiler no encontrado",
+      "DocumentoDuplicado": "Ya existe un cliente con {{param0}} {{param1}} en esta organización"
     }
+  },
+  "catalogoMarketplace": {
+    "titulo": "Catálogo de Vehículos",
+    "subtitulo": "Explorá nuestra selección",
+    "catalogo": "Catálogo",
+    "buscarPlaceholder": "Buscar por marca...",
+    "todasConcesionarias": "Todas las concesionarias",
+    "disponibles": "{{count}} vehículos disponibles",
+    "sinVehiculos": "No hay vehículos",
+    "sinVehiculosHint": "Por el momento no hay vehículos publicados",
+    "errorCarga": "Error al cargar los vehículos",
+    "paginaIndicador": "Página {{current}} de {{total}}",
+    "volverCatalogo": "Volver al catálogo",
+    "vehiculoDefault": "Vehículo",
+    "vehiculoNoEncontrado": "Vehículo no encontrado",
+    "sinImagen": "Sin imagen",
+    "destacado": "Destacado",
+    "descripcion": "Descripción",
+    "sinDescripcion": "Sin descripción disponible.",
+    "caracteristicas": "Características",
+    "anio": "Año",
+    "kilometraje": "Kilometraje",
+    "publicadoEl": "Publicado el {{date}}",
+    "whatsapp": "WhatsApp",
+    "mensajeWhatsApp": "Hola, me interesa el vehículo {{title}}. {{url}}",
+    "contactoNoDisponible": "Información de contacto no disponible",
+    "consultarPrecio": "Consultar",
+    "derechosReservados": "Todos los derechos reservados."
   }
 }

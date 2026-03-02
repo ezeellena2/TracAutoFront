@@ -1,7 +1,7 @@
 export { Button } from './Button';
 export { Input } from './Input';
 export { Select } from './Select';
-export { Card, CardHeader } from './Card';
+export { Card, CardHeader, CardImage, CardContent } from './Card';
 export { Modal } from './Modal';
 export { ImportExcelModal } from './ImportExcelModal';
 export { ImportResultsModal } from './ImportResultsModal';
@@ -27,3 +27,6 @@ export * from './Drawer';
 export * from './AdvancedFilter';
 export { PageLoader } from './PageLoader';
 export { ApiErrorBanner } from './ApiErrorBanner';
+export { EstadoVacio } from './EstadoVacio';
+export { EstadoError } from './EstadoError';
+export { Spinner, SpinnerPantalla } from './Spinner';

@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:marketplace": "vite --mode marketplace --port 5174",
+    "dev:alquiler": "vite --mode alquiler --port 5175",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
