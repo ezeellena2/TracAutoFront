@@ -16,6 +16,10 @@ export interface LoginResult {
   error?: string;
   /** Código de error estructurado del backend (ej: 'Auth.EmailNoVerificado'). Usar en lugar de string matching. */
   errorCode?: string;
+  /** Código de estado HTTP retornado por la respuesta de error */
+  status?: number;
+  /** Extensiones adicionales del ProblemDetails (ej: emailVerificado, telefonoVerificado) */
+  extensions?: Record<string, unknown>;
 }
 
 /**
@@ -56,12 +60,20 @@ export async function login(email: string, password: string, rememberMe: boolean
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error de autenticación';
-    // Extraer código de error estructurado si el interceptor lo adjuntó
+    // Extraer código de error estructurado y estado si el interceptor lo adjuntó
     const code = (error as any)?.code as string | undefined;
+    const status = (error as any)?.status as number | undefined;
+    // ASP.NET Core serializa ProblemDetails.Extensions como propiedades de primer nivel
+    // en el JSON (no anidadas bajo "extensions"). Soportamos ambos formatos.
+    const pd = (error as any)?.problemDetails as Record<string, unknown> | undefined;
+    const extensions = (pd?.extensions as Record<string, unknown>) ?? pd;
+
     return {
       success: false,
       error: message,
       errorCode: code,
+      status: status,
+      extensions: extensions,
     };
   }
 }
@@ -132,6 +144,7 @@ export interface GoogleLoginResult {
     idToken: string;
   };
   error?: string;
+  errorCode?: string;
 }
 
 /**
@@ -209,9 +222,10 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
     useThemeStore.getState().setDarkMode(preferredIsDark, override);
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
-    return { success: false, error: message };
+    const errorCode = error?.response?.data?.errorCode || error?.errorCode;
+    return { success: false, error: message, errorCode };
   }
 }
 

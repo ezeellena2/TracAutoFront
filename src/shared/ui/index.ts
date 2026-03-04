@@ -27,3 +27,5 @@ export * from './Drawer';
 export * from './AdvancedFilter';
 export { PageLoader } from './PageLoader';
 export { ApiErrorBanner } from './ApiErrorBanner';
+export { Alert } from './Alert';
+export type { AlertType } from './Alert';

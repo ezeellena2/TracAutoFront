@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
-import { Button, Input, Select } from '@/shared/ui';
+import { Button, Input, Select, Alert } from '@/shared/ui';
 import { authApi, organizacionesApi } from '@/services/endpoints';
 import { useAuthStore, useTenantStore } from '@/store';
 
@@ -54,6 +54,8 @@ export function RegistroPage() {
     usuarioId?: string;
     organizacionId?: string;
     nombreOrganizacion?: string;
+    emailVerificado?: boolean;
+    telefonoVerificado?: boolean;
     googleData?: {
       email: string;
       nombre: string;
@@ -95,19 +97,25 @@ export function RegistroPage() {
   // Verification
   const [codigoEmail, setCodigoEmail] = useState('');
   const [codigoTelefono, setCodigoTelefono] = useState('');
+  const [emailVerificado, setEmailVerificado] = useState<boolean>(false);
+  const [telefonoVerificado, setTelefonoVerificado] = useState<boolean>(false);
+  const [codigoEmailError, setCodigoEmailError] = useState('');
+  const [codigoTelefonoError, setCodigoTelefonoError] = useState('');
 
   // Inicializar datos si viene en modo verificación o con datos de Google
   useEffect(() => {
-    if (state?.modoVerificacion && state.email && state.usuarioId && state.organizacionId) {
+    if (state?.modoVerificacion && state.email && state.usuarioId) {
       setFormData(prev => ({
         ...prev,
         email: state.email || '',
       }));
       setSuccessData({
         usuarioId: state.usuarioId,
-        organizacionId: state.organizacionId,
+        organizacionId: state.organizacionId || '',
         nombreOrganizacion: state.nombreOrganizacion || '',
       });
+      setEmailVerificado(!!state.emailVerificado);
+      setTelefonoVerificado(!!state.telefonoVerificado);
       setStep('verificacion');
       window.history.replaceState({}, document.title);
     } else if (state?.googleData) {
@@ -244,6 +252,8 @@ export function RegistroPage() {
         organizacionId: response.organizacionId,
         nombreOrganizacion: formData.nombreEmpresa,
       });
+      setEmailVerificado(response.emailVerificado);
+      setTelefonoVerificado(!response.requiereVerificacionTelefono);
       setStep('verificacion');
     } catch (err) {
       const message = err instanceof Error ? err.message : t('auth.errors.registerError');
@@ -258,15 +268,46 @@ export function RegistroPage() {
 
     if (!successData) return;
 
+    // Validación por campo
+    let hasFieldError = false;
+    setCodigoEmailError('');
+    setCodigoTelefonoError('');
+
+    if (!emailVerificado) {
+      if (!codigoEmail.trim()) {
+        setCodigoEmailError(t('auth.errors.emailCodeRequired', 'El código de email es requerido'));
+        hasFieldError = true;
+      } else if (!/^\d{6}$/.test(codigoEmail)) {
+        setCodigoEmailError(t('auth.errors.codeFormat', 'El código debe tener 6 dígitos numéricos'));
+        hasFieldError = true;
+      }
+    }
+    if (!telefonoVerificado) {
+      if (!codigoTelefono.trim()) {
+        setCodigoTelefonoError(t('auth.errors.smsCodeRequired', 'El código de SMS es requerido'));
+        hasFieldError = true;
+      } else if (!/^\d{6}$/.test(codigoTelefono)) {
+        setCodigoTelefonoError(t('auth.errors.codeFormat', 'El código debe tener 6 dígitos numéricos'));
+        hasFieldError = true;
+      }
+    }
+    if (hasFieldError) return;
+
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await authApi.verificarCuenta({
-        usuarioId: successData.usuarioId,
-        codigoEmail: codigoEmail,
-        codigoTelefono: codigoTelefono || undefined,
-      });
+      const payload: any = { usuarioId: successData.usuarioId };
+
+      if (!emailVerificado) {
+        payload.codigoEmail = codigoEmail;
+      }
+      if (!telefonoVerificado) {
+        payload.codigoTelefono = codigoTelefono;
+      }
+
+
+      const response = await authApi.verificarCuenta(payload);
 
       // Verificación exitosa - auto-login con el token recibido
       // F01-C01: Extraer rol real del JWT en lugar de hardcodear 'Admin'
@@ -561,10 +602,7 @@ export function RegistroPage() {
 
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 mb-6">
                 <p className="text-sm text-text">
-                  {t('auth.verifyMessage')} <strong>{formData.email}</strong>
-                  {formData.telefono && (
-                    <> {t('common.and')} <strong>{formData.telefono}</strong></>
-                  )}
+                  {t('auth.verifyMessage')}
                 </p>
               </div>
 
@@ -576,34 +614,35 @@ export function RegistroPage() {
                 </div>
               )}
 
-              <form onSubmit={handleVerificar} className="space-y-4">
-                <Input
-                  label={t('auth.emailCodeLabel')}
-                  type="text"
-                  value={codigoEmail}
-                  onChange={(e) => setCodigoEmail(e.target.value)}
-                  placeholder={t('auth.emailCodePlaceholder')}
-                  required
-                  disabled={isLoading}
-                  maxLength={6}
-                />
+              <form onSubmit={handleVerificar} noValidate className="space-y-4">
+                {!emailVerificado && (
+                  <Input
+                    label={t('auth.emailCodeLabel')}
+                    type="text"
+                    value={codigoEmail}
+                    onChange={(e) => { setCodigoEmail(e.target.value); setCodigoEmailError(''); }}
+                    placeholder={t('auth.emailCodePlaceholder')}
+                    disabled={isLoading}
+                    maxLength={6}
+                    error={codigoEmailError}
+                  />
+                )}
 
-                {formData.telefono && (
+                {!telefonoVerificado && (
                   <Input
                     label={t('auth.smsCodeLabel')}
                     type="text"
                     value={codigoTelefono}
-                    onChange={(e) => setCodigoTelefono(e.target.value)}
+                    onChange={(e) => { setCodigoTelefono(e.target.value); setCodigoTelefonoError(''); }}
                     placeholder={t('auth.smsCodePlaceholder')}
                     disabled={isLoading}
                     maxLength={6}
+                    error={codigoTelefonoError}
                   />
                 )}
 
                 {error && (
-                  <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
-                    {error}
-                  </div>
+                  <Alert type="error" message={error} />
                 )}
 
                 <Button
@@ -623,45 +662,47 @@ export function RegistroPage() {
                 </Button>
 
                 {/* Botones de reenvío */}
-                <div className="flex flex-wrap gap-3 justify-center pt-2">
-                  <button
-                    type="button"
-                    onClick={() => handleReenviarCodigo('email')}
-                    disabled={isResending !== null}
-                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isResending === 'email' ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <RefreshCw size={14} />
-                    )}
-                    {t('auth.resendEmail')}
-                  </button>
-                  {formData.telefono && (
-                    <>
-                      <span className="text-text-muted">|</span>
-                      <button
-                        type="button"
-                        onClick={() => handleReenviarCodigo('sms')}
-                        disabled={isResending !== null}
-                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isResending === 'sms' ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <RefreshCw size={14} />
-                        )}
-                        {t('auth.resendSms')}
-                      </button>
-                    </>
+                <div className="flex flex-wrap gap-3 justify-center pt-2 items-center">
+                  {!emailVerificado && (
+                    <button
+                      type="button"
+                      onClick={() => handleReenviarCodigo('email')}
+                      disabled={isResending !== null}
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isResending === 'email' ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                      {t('auth.resendEmail')}
+                    </button>
+                  )}
+
+                  {!emailVerificado && !telefonoVerificado && (
+                    <span className="text-text-muted px-1">|</span>
+                  )}
+
+                  {!telefonoVerificado && (
+                    <button
+                      type="button"
+                      onClick={() => handleReenviarCodigo('sms')}
+                      disabled={isResending !== null}
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isResending === 'sms' ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                      {t('auth.resendSms')}
+                    </button>
                   )}
                 </div>
               </form>
             </>
           )}
         </div>
-
-
       </div>
     </div>
   );

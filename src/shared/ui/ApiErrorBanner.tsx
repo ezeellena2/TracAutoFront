@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+ï»¿import { useTranslation } from 'react-i18next';
 import { AlertCircle } from 'lucide-react';
 import { Button } from './Button';
 import { isReportableError, openErrorReport } from '@/shared/errors';
@@ -7,7 +7,7 @@ import type { ParsedError } from '@/hooks';
 interface ApiErrorBannerProps {
     /** The parsed error object (usually from useErrorHandler) */
     error: ParsedError | null;
-    /** A clear label of the context to send to Jira (e.g., 'Error Creación Vehículo') */
+    /** A clear label of the context to send to Jira (e.g., 'Error CreaciÃ³n VehÃ­culo') */
     jiraLabel: string;
     /** Optionally close the modal or execute logic after clicking the report button */
     onReportClick?: () => void;

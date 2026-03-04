@@ -18,7 +18,7 @@ interface EditDriverModalProps {
 export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditDriverModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { handleApiError, parseError } = useErrorHandler();
+  const { parseError } = useErrorHandler();
   const [form, setForm] = useState({
     nombreCompleto: '',
     email: '',
@@ -101,7 +101,7 @@ export function EditDriverModal({ isOpen, conductor, onClose, onSuccess }: EditD
             <Input
               label={t('drivers.form.dniLabel')}
               value={conductor.dni}
-              disabled
+              readOnly
               helperText={t('drivers.form.dniCannotModify')}
             />
           )}
