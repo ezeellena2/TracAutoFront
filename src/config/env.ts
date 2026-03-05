@@ -18,6 +18,9 @@ export const env = {
 
   /** Google OAuth Client ID (obtener de Google Cloud Console) */
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+
+  /** Stripe publishable key (para Stripe Elements en B2C) */
+  stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
 } as const;
 
 // Fail-fast: en producción, VITE_API_BASE_URL debe estar configurada explícitamente.

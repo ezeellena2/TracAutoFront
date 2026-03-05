@@ -14,6 +14,7 @@ export enum CategoriaNotificacion {
   Seguridad = 'Seguridad',
   Solicitud = 'Solicitud',
   Mantenimiento = 'Mantenimiento',
+  Alquiler = 'Alquiler',
 }
 
 export enum NotificationAudienceType {

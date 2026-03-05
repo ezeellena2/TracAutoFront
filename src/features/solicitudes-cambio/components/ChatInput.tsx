@@ -1,6 +1,7 @@
 import { useState, useRef, KeyboardEvent, ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, Paperclip, X } from 'lucide-react';
+import { toast } from '@/store/toast.store';
 
 interface ChatInputProps {
   onSend: (contenido: string, imagenBase64?: string) => void;
@@ -39,7 +40,7 @@ export function ChatInput({ onSend, disabled = false, placeholder }: ChatInputPr
     // Validar tipo y tamaño (max 4MB)
     if (!file.type.startsWith('image/')) return;
     if (file.size > 4 * 1024 * 1024) {
-      alert(t('solicitudesCambio.chat.imageSizeLimit', 'La imagen no puede superar 4MB.'));
+      toast.error(t('solicitudesCambio.chat.imageSizeLimit', 'La imagen no puede superar 4MB.'));
       return;
     }
 

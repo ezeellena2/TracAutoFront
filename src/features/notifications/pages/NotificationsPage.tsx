@@ -28,6 +28,7 @@ export function NotificationsPage() {
     { value: CategoriaNotificacion.Seguridad, label: t('notifications.categories.seguridad') },
     { value: CategoriaNotificacion.Solicitud, label: t('notifications.categories.solicitud') },
     { value: CategoriaNotificacion.Mantenimiento, label: t('notifications.categories.mantenimiento') },
+    { value: CategoriaNotificacion.Alquiler, label: t('notifications.categories.alquiler') },
   ];
 
   useEffect(() => {

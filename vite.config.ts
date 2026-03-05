@@ -44,9 +44,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png', 'icons/*.svg'],
       manifest: {
-        name: 'TracAuto - Gestión de Flotas',
+        name: 'TracAuto',
         short_name: 'TracAuto',
-        description: 'Plataforma B2B para gestión de flotas y telemetría vehicular',
+        description: 'Plataforma de gestión vehicular, alquiler y telemetría',
         theme_color: '#2563eb',
         background_color: '#0f172a',
         display: 'standalone',

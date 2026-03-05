@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { env } from '@/config/env';
+import { setupPublicApiInterceptors } from './publicApiInterceptors';
 
 /**
  * Cliente HTTP para endpoints publicos (sin autenticacion).
@@ -14,6 +15,9 @@ export const publicApiClient = axios.create({
     'Accept': 'application/json',
   },
 });
+
+// Interceptores B2C (token auth cliente)
+setupPublicApiInterceptors(publicApiClient);
 
 /**
  * Construye la URL completa del API publica para un path dado

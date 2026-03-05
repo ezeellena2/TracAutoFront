@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /registro
+Disallow: /verificar-otp
+Disallow: /reservar/
+Disallow: /mis-reservas

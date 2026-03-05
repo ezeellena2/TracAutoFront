@@ -13,10 +13,16 @@ export function detectAppMode(): AppMode {
   if (hostname.startsWith('marketplace.')) return 'marketplace';
   if (hostname.startsWith('alquiler.')) return 'alquiler';
 
-  // Override por env var (solo disponible en dev)
+  // Override por env var o Vite mode (solo disponible en dev)
   const override = import.meta.env.VITE_APP_MODE as AppMode | undefined;
   if (override && ['b2b', 'marketplace', 'alquiler'].includes(override)) {
     return override;
+  }
+
+  // Fallback: Vite --mode flag (dev:marketplace, dev:alquiler scripts)
+  const viteMode = import.meta.env.MODE as string | undefined;
+  if (viteMode && ['marketplace', 'alquiler'].includes(viteMode)) {
+    return viteMode as AppMode;
   }
 
   return 'b2b';

@@ -1,0 +1,25 @@
+# ===================================================
+# TracAutoFront - Docker Compose para DESARROLLO
+# ===================================================
+# Uso: docker compose up
+# Hot-reload via volumen montado.
+# ===================================================
+
+services:
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5200/api}
+    container_name: tracauto-frontend-dev
+    ports:
+      - "3000:80"
+    environment:
+      - APP_API_URL=${APP_API_URL:-http://localhost:5200/api}
+    networks:
+      - tracauto-dev-network
+
+networks:
+  tracauto-dev-network:
+    driver: bridge

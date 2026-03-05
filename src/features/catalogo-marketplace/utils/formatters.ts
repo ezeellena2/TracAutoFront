@@ -8,19 +8,19 @@ export function formatearPrecio(precio: number | null, moneda: string, consultar
   };
 
   const simbolo = simbolos[moneda] || `${moneda} `;
-  const precioFormateado = precio.toLocaleString('es-AR');
+  const precioFormateado = precio.toLocaleString(undefined);
 
   return `${simbolo}${precioFormateado}`;
 }
 
 export function formatearKilometraje(km: number): string {
   if (km === 0) return '0 km';
-  return `${km.toLocaleString('es-AR')} km`;
+  return `${km.toLocaleString(undefined)} km`;
 }
 
 export function formatearFecha(fechaISO: string): string {
   const fecha = new Date(fechaISO);
-  return fecha.toLocaleDateString('es-AR', {
+  return fecha.toLocaleDateString(undefined, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

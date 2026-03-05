@@ -1,28 +1,72 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AlquilerLayout } from '@/apps/alquiler/layouts';
 import { NotFoundPage } from '@/shared/pages';
+import { PageLoader } from '@/shared/ui';
+import { ProtectedRouteCliente } from '@/features/alquiler-publico/components/ProtectedRouteCliente';
 
-/**
- * Rutas del portal de alquiler público.
- * Se poblarán en fases posteriores (E-block).
- * Placeholder: / -> búsqueda, /reservar/:id -> reserva, /mis-reservas -> panel
- */
+// Lazy pages
+const BusquedaAlquilerPage = lazy(() => import('@/features/alquiler-publico/pages/BusquedaAlquilerPage'));
+const ResultadosAlquilerPage = lazy(() => import('@/features/alquiler-publico/pages/ResultadosAlquilerPage'));
+const DetalleAlquilerPage = lazy(() => import('@/features/alquiler-publico/pages/DetalleAlquilerPage'));
+const ReservaFlowPage = lazy(() => import('@/features/alquiler-publico/pages/ReservaFlowPage'));
+const LoginClientePage = lazy(() => import('@/features/alquiler-publico/pages/LoginClientePage'));
+const RegistroClientePage = lazy(() => import('@/features/alquiler-publico/pages/RegistroClientePage'));
+const VerificarOtpPage = lazy(() => import('@/features/alquiler-publico/pages/VerificarOtpPage'));
+const MisReservasPage = lazy(() => import('@/features/alquiler-publico/pages/MisReservasPage'));
+const ReservaEstadoPage = lazy(() => import('@/features/alquiler-publico/pages/ReservaEstadoPage'));
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <AlquilerLayout />,
     children: [
+      // Rutas públicas (anónimas)
       {
         index: true,
-        element: <PlaceholderPage titulo="Búsqueda de Vehículos" />,
+        element: <Suspense fallback={<PageLoader />}><BusquedaAlquilerPage /></Suspense>,
+      },
+      {
+        path: 'resultados',
+        element: <Suspense fallback={<PageLoader />}><ResultadosAlquilerPage /></Suspense>,
+      },
+      {
+        path: 'vehiculo/:id',
+        element: <Suspense fallback={<PageLoader />}><DetalleAlquilerPage /></Suspense>,
       },
       {
         path: 'reservar/:id',
-        element: <PlaceholderPage titulo="Reservar Vehículo" />,
+        element: <Suspense fallback={<PageLoader />}><ReservaFlowPage /></Suspense>,
+      },
+      // Auth B2C (login/registro/verificacion)
+      {
+        path: 'login',
+        element: <Suspense fallback={<PageLoader />}><LoginClientePage /></Suspense>,
       },
       {
+        path: 'registro',
+        element: <Suspense fallback={<PageLoader />}><RegistroClientePage /></Suspense>,
+      },
+      {
+        path: 'verificar-otp',
+        element: <Suspense fallback={<PageLoader />}><VerificarOtpPage /></Suspense>,
+      },
+      // Rutas autenticadas B2C
+      {
         path: 'mis-reservas',
-        element: <PlaceholderPage titulo="Mis Reservas" />,
+        element: (
+          <ProtectedRouteCliente>
+            <Suspense fallback={<PageLoader />}><MisReservasPage /></Suspense>
+          </ProtectedRouteCliente>
+        ),
+      },
+      {
+        path: 'mis-reservas/:id',
+        element: (
+          <ProtectedRouteCliente>
+            <Suspense fallback={<PageLoader />}><ReservaEstadoPage /></Suspense>
+          </ProtectedRouteCliente>
+        ),
       },
     ],
   },
@@ -31,17 +75,6 @@ const router = createBrowserRouter([
     element: <NotFoundPage />,
   },
 ]);
-
-function PlaceholderPage({ titulo }: { titulo: string }) {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-text mb-2">{titulo}</h1>
-        <p className="text-text-muted">Próximamente — Fases E-block</p>
-      </div>
-    </div>
-  );
-}
 
 export function AlquilerRouter() {
   return <RouterProvider router={router} />;

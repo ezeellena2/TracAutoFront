@@ -27,6 +27,21 @@ const GeofenceMapViewPage = lazy(() => import('@/features/geofences/pages/Geofen
 const ImportsPage = lazy(() => import('@/features/imports/pages/ImportsPage').then(m => ({ default: m.ImportsPage })));
 const NotificationsPage = lazy(() => import('@/features/notifications/pages/NotificationsPage').then(m => ({ default: m.NotificationsPage })));
 
+// Alquileres
+const DashboardAlquileresPage = lazy(() => import('@/features/alquileres/pages/DashboardAlquileresPage').then(m => ({ default: m.DashboardAlquileresPage })));
+const FlotaAlquilerPage = lazy(() => import('@/features/alquileres/pages/FlotaAlquilerPage').then(m => ({ default: m.FlotaAlquilerPage })));
+const SucursalesPage = lazy(() => import('@/features/alquileres/pages/SucursalesPage').then(m => ({ default: m.SucursalesPage })));
+const TarifasPage = lazy(() => import('@/features/alquileres/pages/TarifasPage').then(m => ({ default: m.TarifasPage })));
+const RecargosPage = lazy(() => import('@/features/alquileres/pages/RecargosPage').then(m => ({ default: m.RecargosPage })));
+const CoberturasPage = lazy(() => import('@/features/alquileres/pages/CoberturasPage').then(m => ({ default: m.CoberturasPage })));
+const PromocionesPage = lazy(() => import('@/features/alquileres/pages/PromocionesPage').then(m => ({ default: m.PromocionesPage })));
+const ReservasPage = lazy(() => import('@/features/alquileres/pages/ReservasPage').then(m => ({ default: m.ReservasPage })));
+const ReservaDetallePage = lazy(() => import('@/features/alquileres/pages/ReservaDetallePage').then(m => ({ default: m.ReservaDetallePage })));
+const ClientesAlquilerPage = lazy(() => import('@/features/alquileres/pages/ClientesAlquilerPage').then(m => ({ default: m.ClientesAlquilerPage })));
+const ContratosPage = lazy(() => import('@/features/alquileres/pages/ContratosPage').then(m => ({ default: m.ContratosPage })));
+const ReportesAlquilerPage = lazy(() => import('@/features/alquileres/pages/ReportesAlquilerPage').then(m => ({ default: m.ReportesAlquilerPage })));
+const ConfiguracionAlquilerPage = lazy(() => import('@/features/alquileres/pages/ConfiguracionAlquilerPage').then(m => ({ default: m.ConfiguracionAlquilerPage })));
+
 // Error pages — se cargan eager porque son pequeñas y críticas
 import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
 
@@ -127,6 +142,59 @@ const router = createBrowserRouter([
       {
         path: 'importaciones',
         element: <SuspensePage Component={ImportsPage} />,
+      },
+      // Alquileres
+      {
+        path: 'alquileres',
+        element: <SuspensePage Component={DashboardAlquileresPage} />,
+      },
+      {
+        path: 'alquileres/flota',
+        element: <SuspensePage Component={FlotaAlquilerPage} />,
+      },
+      {
+        path: 'alquileres/sucursales',
+        element: <SuspensePage Component={SucursalesPage} />,
+      },
+      {
+        path: 'alquileres/tarifas',
+        element: <SuspensePage Component={TarifasPage} />,
+      },
+      {
+        path: 'alquileres/recargos',
+        element: <SuspensePage Component={RecargosPage} />,
+      },
+      {
+        path: 'alquileres/coberturas',
+        element: <SuspensePage Component={CoberturasPage} />,
+      },
+      {
+        path: 'alquileres/promociones',
+        element: <SuspensePage Component={PromocionesPage} />,
+      },
+      {
+        path: 'alquileres/reservas',
+        element: <SuspensePage Component={ReservasPage} />,
+      },
+      {
+        path: 'alquileres/reservas/:id',
+        element: <SuspensePage Component={ReservaDetallePage} />,
+      },
+      {
+        path: 'alquileres/clientes',
+        element: <SuspensePage Component={ClientesAlquilerPage} />,
+      },
+      {
+        path: 'alquileres/contratos',
+        element: <SuspensePage Component={ContratosPage} />,
+      },
+      {
+        path: 'alquileres/reportes',
+        element: <SuspensePage Component={ReportesAlquilerPage} />,
+      },
+      {
+        path: 'alquileres/configuracion',
+        element: <SuspensePage Component={ConfiguracionAlquilerPage} />,
       },
       {
         path: 'notificaciones',
