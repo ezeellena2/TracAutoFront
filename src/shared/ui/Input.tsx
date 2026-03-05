@@ -219,7 +219,10 @@ function PhoneInput({
             onChange={(e) => {
               handlePhoneValueChange(e);
             }}
-            onFocus={() => setIsEditing(true)}
+            onFocus={(e) => {
+              setIsEditing(true);
+              props.onFocus?.(e);
+            }}
             onBlur={(e) => {
               setIsEditing(false);
               commitE164();

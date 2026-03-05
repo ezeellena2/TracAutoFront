@@ -112,7 +112,8 @@ function getDefaultMessage(status: number): string {
     case 409: return 'HTTP_409';
     case 429: return 'HTTP_429';
     case 500: return 'HTTP_500';
-    default: return 'network'; // o 'unexpected'
+    case 0: return 'Sin conexión con el servidor. Verifique su conexión a internet o intente más tarde.';
+    default: return 'Error inesperado. Intente nuevamente.';
   }
 }
 

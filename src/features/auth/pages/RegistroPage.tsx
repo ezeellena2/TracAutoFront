@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
@@ -93,6 +93,8 @@ export function RegistroPage() {
     aceptaTerminos: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Verification
   const [codigoEmail, setCodigoEmail] = useState('');
@@ -130,9 +132,52 @@ export function RegistroPage() {
     }
   }, [state]);
 
+  // Ref para que handleBlur siempre lea el valor más reciente
+  // (necesario porque commitE164 del PhoneInput llama updateField y luego onBlur en el mismo tick)
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+
   const updateField = (field: keyof typeof formData, value: string | number | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const next = { ...prev, [field]: value };
+      formDataRef.current = next;
+      return next;
+    });
     setError('');
+    // Limpiar error inline del campo al escribir
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleFocus = (field: string) => {
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    const value = formDataRef.current[field as keyof typeof formData];
+    if (typeof value === 'string' && !value.trim()) {
+      setFieldErrors(prev => ({ ...prev, [field]: t('auth.errors.fieldRequired') }));
+    } else if (typeof value === 'number' && value === 0) {
+      setFieldErrors(prev => ({ ...prev, [field]: t('auth.errors.fieldRequired') }));
+    } else if (field === 'cuit' && formData.cuit && !validarCuit(formData.cuit)) {
+      setFieldErrors(prev => ({ ...prev, cuit: t('auth.errors.invalidCuit') }));
+    } else if (field === 'email' && formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setFieldErrors(prev => ({ ...prev, email: t('auth.errors.invalidEmail') }));
+    } else if (field === 'password' && formData.password) {
+      let pwErr = '';
+      if (formData.password.length < 8) pwErr = t('auth.errors.passwordMinLength');
+      else if (!/[A-Z]/.test(formData.password)) pwErr = t('auth.errors.passwordUppercase');
+      else if (!/[a-z]/.test(formData.password)) pwErr = t('auth.errors.passwordLowercase');
+      else if (!/[0-9]/.test(formData.password)) pwErr = t('auth.errors.passwordNumber');
+      else if (!/[^a-zA-Z0-9]/.test(formData.password)) pwErr = t('auth.errors.passwordSpecial');
+      if (pwErr) setFieldErrors(prev => ({ ...prev, password: pwErr }));
+    } else if (field === 'confirmPassword' && formData.confirmPassword && formData.password !== formData.confirmPassword) {
+      setFieldErrors(prev => ({ ...prev, confirmPassword: t('auth.errors.passwordMismatch') }));
+    }
   };
 
   // Formatear CUIT: XX-XXXXXXXX-X
@@ -184,53 +229,32 @@ export function RegistroPage() {
     { value: 5, label: t('auth.orgTypes.empresaRenting') },
   ];
 
+  // Validez reactiva del formulario
+  const isFormValid = useMemo(() => {
+    const { nombreEmpresa, cuit, tipoOrganizacion, nombreCompleto, email, telefono, password, confirmPassword, aceptaTerminos } = formData;
+    // Campos no vacíos
+    if (!nombreEmpresa.trim() || !cuit.trim() || !tipoOrganizacion || !nombreCompleto.trim() || !email.trim() || !telefono.trim() || !password || !confirmPassword) return false;
+    // CUIT válido
+    if (!validarCuit(cuit)) return false;
+    // Email válido
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
+    // Password requisitos
+    if (password.length < 8) return false;
+    if (!/[A-Z]/.test(password)) return false;
+    if (!/[a-z]/.test(password)) return false;
+    if (!/[0-9]/.test(password)) return false;
+    if (!/[^a-zA-Z0-9]/.test(password)) return false;
+    // Passwords coinciden
+    if (password !== confirmPassword) return false;
+    // Términos aceptados
+    if (!aceptaTerminos) return false;
+    // Sin errores de campo activos
+    if (Object.values(fieldErrors).some(e => e)) return false;
+    return true;
+  }, [formData, fieldErrors]);
+
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validaciones
-    if (!formData.cuit || !validarCuit(formData.cuit)) {
-      setError(t('auth.errors.invalidCuit'));
-      return;
-    }
-
-    if (!formData.tipoOrganizacion) {
-      setError(t('auth.errors.selectOrgType'));
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError(t('auth.errors.passwordMismatch'));
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError(t('auth.errors.passwordMinLength'));
-      return;
-    }
-
-    // P0-FIX: Validación completa de password (coincide con backend)
-    if (!/[A-Z]/.test(formData.password)) {
-      setError(t('auth.errors.passwordUppercase'));
-      return;
-    }
-    if (!/[a-z]/.test(formData.password)) {
-      setError(t('auth.errors.passwordLowercase'));
-      return;
-    }
-    if (!/[0-9]/.test(formData.password)) {
-      setError(t('auth.errors.passwordNumber'));
-      return;
-    }
-    if (!/[^a-zA-Z0-9]/.test(formData.password)) {
-      setError(t('auth.errors.passwordSpecial'));
-      return;
-    }
-
-    // Validar términos
-    if (!formData.aceptaTerminos) {
-      setError(t('auth.errors.termsRequired'));
-      return;
-    }
 
     setIsLoading(true);
     setError('');
@@ -244,7 +268,7 @@ export function RegistroPage() {
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
         telefono: formData.telefono,
-        aceptaTerminosYCondiciones: formData.aceptaTerminos,
+        aceptaTerminosYCondiciones: formData.aceptaTerminos as true,
       });
 
       setSuccessData({
@@ -275,19 +299,19 @@ export function RegistroPage() {
 
     if (!emailVerificado) {
       if (!codigoEmail.trim()) {
-        setCodigoEmailError(t('auth.errors.emailCodeRequired', 'El código de email es requerido'));
+        setCodigoEmailError(t('auth.errors.emailCodeRequired'));
         hasFieldError = true;
       } else if (!/^\d{6}$/.test(codigoEmail)) {
-        setCodigoEmailError(t('auth.errors.codeFormat', 'El código debe tener 6 dígitos numéricos'));
+        setCodigoEmailError(t('auth.errors.codeFormat'));
         hasFieldError = true;
       }
     }
     if (!telefonoVerificado) {
       if (!codigoTelefono.trim()) {
-        setCodigoTelefonoError(t('auth.errors.smsCodeRequired', 'El código de SMS es requerido'));
+        setCodigoTelefonoError(t('auth.errors.smsCodeRequired'));
         hasFieldError = true;
       } else if (!/^\d{6}$/.test(codigoTelefono)) {
-        setCodigoTelefonoError(t('auth.errors.codeFormat', 'El código debe tener 6 dígitos numéricos'));
+        setCodigoTelefonoError(t('auth.errors.codeFormat'));
         hasFieldError = true;
       }
     }
@@ -412,7 +436,7 @@ export function RegistroPage() {
                 </div>
               </div>
               {/* Form */}
-              <form onSubmit={handleRegistro} className="space-y-4">
+              <form onSubmit={handleRegistro} noValidate className="space-y-4">
                 {/* Empresa */}
                 <Input
                   label={
@@ -426,8 +450,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('nombreEmpresa', e.target.value)}
                   placeholder={t('auth.companyNamePlaceholder')}
                   autoComplete="organization"
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('nombreEmpresa')}
+                  onBlur={() => handleBlur('nombreEmpresa')}
+                  error={touched.nombreEmpresa ? fieldErrors.nombreEmpresa : ''}
                 />
 
                 {/* CUIT */}
@@ -441,8 +467,10 @@ export function RegistroPage() {
                   value={formData.cuit}
                   onChange={(e) => updateField('cuit', formatCuit(e.target.value))}
                   placeholder={t('auth.cuitPlaceholder')}
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('cuit')}
+                  onBlur={() => handleBlur('cuit')}
+                  error={touched.cuit ? fieldErrors.cuit : ''}
                 />
 
                 {/* Tipo de Organización */}
@@ -454,12 +482,17 @@ export function RegistroPage() {
                       </span>
                     }
                     value={formData.tipoOrganizacion || ''}
-                    onChange={(val) => updateField('tipoOrganizacion', Number(val))}
+                    onChange={(val) => {
+                      updateField('tipoOrganizacion', Number(val));
+                      if (fieldErrors.tipoOrganizacion) setFieldErrors(prev => ({ ...prev, tipoOrganizacion: '' }));
+                    }}
                     options={tiposOrganizacion}
                     placeholder={t('auth.selectOrgType')}
-                    required
                     disabled={isLoading}
                   />
+                  {touched.tipoOrganizacion && fieldErrors.tipoOrganizacion && (
+                    <p className="mt-1.5 text-sm text-error">{fieldErrors.tipoOrganizacion}</p>
+                  )}
                 </div>
 
                 {/* Usuario */}
@@ -475,8 +508,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('nombreCompleto', e.target.value)}
                   placeholder={t('auth.fullNamePlaceholder')}
                   autoComplete="name"
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('nombreCompleto')}
+                  onBlur={() => handleBlur('nombreCompleto')}
+                  error={touched.nombreCompleto ? fieldErrors.nombreCompleto : ''}
                 />
                 {/* Email */}
                 <Input
@@ -491,8 +526,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('email', e.target.value)}
                   placeholder={t('auth.emailPlaceholderRegister')}
                   autoComplete="email"
-                  required
                   disabled={isLoading || isGoogleRegistro}
+                  onFocus={() => handleFocus('email')}
+                  onBlur={() => handleBlur('email')}
+                  error={touched.email ? fieldErrors.email : ''}
                 />
                 {/* Telefono */}
                 <Input
@@ -507,8 +544,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('telefono', e.target.value)}
                   placeholder={t('auth.phonePlaceholder')}
                   autoComplete="tel"
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('telefono')}
+                  onBlur={() => handleBlur('telefono')}
+                  error={touched.telefono ? fieldErrors.telefono : ''}
                 />
                 {/* Password */}
                 <Input
@@ -522,8 +561,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('password', e.target.value)}
                   placeholder={t('auth.passwordPlaceholderRegister')}
                   autoComplete="new-password"
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('password')}
+                  onBlur={() => handleBlur('password')}
+                  error={touched.password ? fieldErrors.password : ''}
                   rightElement={
                     <button
                       type="button"
@@ -547,13 +588,13 @@ export function RegistroPage() {
                   onChange={(e) => updateField('confirmPassword', e.target.value)}
                   placeholder={t('auth.confirmPasswordPlaceholder')}
                   autoComplete="new-password"
-                  required
                   disabled={isLoading}
+                  onFocus={() => handleFocus('confirmPassword')}
+                  onBlur={() => handleBlur('confirmPassword')}
+                  error={touched.confirmPassword ? fieldErrors.confirmPassword : ''}
                 />
                 {error && (
-                  <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
-                    {error}
-                  </div>
+                  <Alert type="error" message={error} />
                 )}
                 {/* Legal */}
                 <div className="pb-4 flex items-start gap-3">
@@ -563,7 +604,6 @@ export function RegistroPage() {
                     className="mt-1 w-4 h-4 rounded-sm border-border bg-white checked:bg-white checked:border-gray-400 checked:text-primary focus:ring-2 focus:rounded focus:ring-offset-0 focus:outline-none cursor-pointer"
                     checked={formData.aceptaTerminos}
                     onChange={(e) => updateField('aceptaTerminos', e.target.checked)}
-                    required
                   />
                   <label htmlFor="acceptTerms" className="text-justify text-xs text-text-muted cursor-pointer">
                     {t('auth.legalRegister')}
@@ -575,7 +615,7 @@ export function RegistroPage() {
                   type="submit"
                   className="w-full"
                   size="lg"
-                  disabled={isLoading}
+                  disabled={isLoading || !isFormValid}
                 >
                   {isLoading ? (
                     <>

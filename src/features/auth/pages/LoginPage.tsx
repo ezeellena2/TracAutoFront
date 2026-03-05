@@ -35,6 +35,7 @@ export function LoginPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [emailNoVerificado, setEmailNoVerificado] = useState(false);
   const [isCuentaBloqueada, setIsCuentaBloqueada] = useState(false);
+  const [isAutofilled, setIsAutofilled] = useState(false);
   const [emailVerificadoStatus, setEmailVerificadoStatus] = useState<boolean | undefined>(undefined);
   const [telefonoVerificadoStatus, setTelefonoVerificadoStatus] = useState<boolean | undefined>(undefined);
   const [usuarioIdStatus, setUsuarioIdStatus] = useState<string>('');
@@ -59,12 +60,48 @@ export function LoginPage() {
     }
   }, [isAuthenticated, token, navigate, location]);
 
+  // Detectar autofill del navegador — Chrome no dispara onChange
+  useEffect(() => {
+    const checkAutofill = () => {
+      try {
+        const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
+        const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+        const emailFilled = emailInput?.matches(':-webkit-autofill') || emailInput?.matches(':autofill') || false;
+        const passwordFilled = passwordInput?.matches(':-webkit-autofill') || passwordInput?.matches(':autofill') || false;
+        if (emailFilled && passwordFilled) {
+          setIsAutofilled(true);
+        }
+      } catch {
+        // :autofill puede no ser soportado en todos los browsers
+      }
+    };
+    // Polling breve: Chrome aplica autofill con un ligero delay
+    const timers = [
+      setTimeout(checkAutofill, 100),
+      setTimeout(checkAutofill, 500),
+      setTimeout(checkAutofill, 1000),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Autofill fallback: Chrome no dispara onChange, leer del DOM directamente
+    let loginEmail = email;
+    let loginPassword = password;
+    if (isAutofilled && (!email || !password)) {
+      const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
+      const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+      loginEmail = emailInput?.value || email;
+      loginPassword = passwordInput?.value || password;
+      if (loginEmail) setEmail(loginEmail);
+      if (loginPassword) setPassword(loginPassword);
+    }
+
     // Validate inline errors explicitly before submission
-    const newEmailError = validateEmail(email);
-    const newPasswordError = validatePassword(password);
+    const newEmailError = validateEmail(loginEmail);
+    const newPasswordError = validatePassword(loginPassword);
 
     setEmailTouched(true);
     setPasswordTouched(true);
@@ -80,7 +117,7 @@ export function LoginPage() {
     setEmailNoVerificado(false);
     setSuccessMessage('');
 
-    const result = await authService.login(email, password, rememberMe);
+    const result = await authService.login(loginEmail, loginPassword, rememberMe);
 
     if (result.success) {
       // Redirigir al dashboard
@@ -377,7 +414,7 @@ export function LoginPage() {
                 type="submit"
                 className="w-full mt-6"
                 size="lg"
-                disabled={isLoading || !email || !password || isCuentaBloqueada}
+                disabled={isLoading || ((!email || !password) && !isAutofilled) || isCuentaBloqueada}
               >
                 {isLoading ? (
                   <>
