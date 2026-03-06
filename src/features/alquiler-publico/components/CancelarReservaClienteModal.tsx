@@ -32,9 +32,9 @@ export function CancelarReservaClienteModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={onClose} size="md" ariaLabelledBy="cancelar-reserva-titulo">
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-text mb-2">
+        <h2 id="cancelar-reserva-titulo" className="text-lg font-semibold text-text mb-2">
           {t('alquilerPublico.misReservas.cancelar.titulo')}
         </h2>
         <p className="text-sm text-text-muted mb-4">

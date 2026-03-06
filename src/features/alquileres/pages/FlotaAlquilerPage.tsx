@@ -21,6 +21,7 @@ import { CreateVehiculoAlquilerModal } from '../components/CreateVehiculoAlquile
 import { EditVehiculoAlquilerModal } from '../components/EditVehiculoAlquilerModal';
 import { CambiarEstadoModal, ESTADO_BADGE_VARIANT } from '../components/CambiarEstadoModal';
 import { DisponibilidadModal } from '../components/DisponibilidadModal';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import { CategoriaAlquiler, EstadoVehiculoAlquiler } from '../types/vehiculoAlquiler';
 import type { VehiculoAlquilerDto } from '../types/vehiculoAlquiler';
 
@@ -145,7 +146,7 @@ export function FlotaAlquilerPage() {
       header: t('alquileres.flota.tabla.precioDia'),
       render: (v: VehiculoAlquilerDto) => (
         <span className="text-text font-medium">
-          ${v.precioBaseDiario.toLocaleString()}
+          {formatCurrency(v.precioBaseDiario)}
         </span>
       ),
     },

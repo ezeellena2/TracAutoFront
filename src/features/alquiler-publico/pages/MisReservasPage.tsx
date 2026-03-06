@@ -75,10 +75,12 @@ export default function MisReservasPage() {
       </h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-border">
+      <div role="tablist" className="flex gap-1 mb-6 border-b border-border">
         {TABS.map(({ key }) => (
           <button
             key={key}
+            role="tab"
+            aria-selected={tabActiva === key}
             onClick={() => setTabActiva(key)}
             className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
               tabActiva === key
@@ -120,7 +122,7 @@ export default function MisReservasPage() {
 
       {/* Contenido */}
       {!isLoading && !error && (
-        <>
+        <div role="tabpanel">
           {reservasFiltradas.length === 0 ? (
             <EstadoVacio
               titulo={t(`alquilerPublico.misReservas.vacio.${tabActiva}`)}
@@ -137,7 +139,7 @@ export default function MisReservasPage() {
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
     </>

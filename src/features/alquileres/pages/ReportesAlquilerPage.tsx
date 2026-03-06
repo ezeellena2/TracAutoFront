@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
-import { KPICard, Card, CardHeader, Badge, Button, Spinner } from '@/shared/ui';
+import { KPICard, Card, CardHeader, Badge, Button, Spinner, ApiErrorBanner } from '@/shared/ui';
+import { usePermissions } from '@/hooks';
 import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import { CategoriaAlquiler } from '../types/vehiculoAlquiler';
 import { TipoReporte, AgrupacionPeriodo } from '../types/reportes';
@@ -10,11 +11,14 @@ import { GraficoIngresos } from '../components/GraficoIngresos';
 
 export function ReportesAlquilerPage() {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+
   const {
     estadisticas,
     ingresos,
     topVehiculos,
     isLoading,
+    error,
     fechaInicio,
     setFechaInicio,
     fechaFin,
@@ -53,6 +57,14 @@ export function ReportesAlquilerPage() {
 
   const moneda = ingresos?.moneda ?? 'ARS';
 
+  if (!can('alquileres:reportes')) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <p className="text-text-muted text-lg">{t('common.sinAcceso')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -66,10 +78,11 @@ export function ReportesAlquilerPage() {
         <div className="flex flex-wrap items-end gap-4">
           {/* Fecha inicio */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text block">
+            <label htmlFor="reportes-fecha-inicio" className="text-sm font-medium text-text block">
               {t('alquileres.reportes.filtros.fechaInicio')}
             </label>
             <input
+              id="reportes-fecha-inicio"
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
@@ -79,10 +92,11 @@ export function ReportesAlquilerPage() {
 
           {/* Fecha fin */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text block">
+            <label htmlFor="reportes-fecha-fin" className="text-sm font-medium text-text block">
               {t('alquileres.reportes.filtros.fechaFin')}
             </label>
             <input
+              id="reportes-fecha-fin"
               type="date"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
@@ -92,10 +106,11 @@ export function ReportesAlquilerPage() {
 
           {/* Sucursal */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text block">
+            <label htmlFor="reportes-sucursal" className="text-sm font-medium text-text block">
               {t('alquileres.reportes.filtros.sucursal')}
             </label>
             <select
+              id="reportes-sucursal"
               value={sucursalId}
               onChange={(e) => setSucursalId(e.target.value)}
               className="px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm appearance-none min-w-[160px]"
@@ -111,10 +126,11 @@ export function ReportesAlquilerPage() {
 
           {/* Categoría */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text block">
+            <label htmlFor="reportes-categoria" className="text-sm font-medium text-text block">
               {t('alquileres.reportes.filtros.categoria')}
             </label>
             <select
+              id="reportes-categoria"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
               className="px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm appearance-none min-w-[160px]"
@@ -130,10 +146,11 @@ export function ReportesAlquilerPage() {
 
           {/* Agrupación */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-text block">
+            <label htmlFor="reportes-agrupacion" className="text-sm font-medium text-text block">
               {t('alquileres.reportes.filtros.agrupacion')}
             </label>
             <select
+              id="reportes-agrupacion"
               value={agrupacion}
               onChange={(e) => setAgrupacion(Number(e.target.value) as AgrupacionPeriodo)}
               className="px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm appearance-none min-w-[140px]"
@@ -149,10 +166,11 @@ export function ReportesAlquilerPage() {
           {/* Exportar */}
           <div className="flex items-end gap-2">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-text block">
+              <label htmlFor="reportes-tipo-exportar" className="text-sm font-medium text-text block">
                 {t('alquileres.reportes.exportar.tipo')}
               </label>
               <select
+                id="reportes-tipo-exportar"
                 value={tipoExportar}
                 onChange={(e) => setTipoExportar(Number(e.target.value) as TipoReporte)}
                 className="px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm appearance-none min-w-[160px]"
@@ -178,6 +196,8 @@ export function ReportesAlquilerPage() {
           </div>
         </div>
       </Card>
+
+      <ApiErrorBanner error={error} />
 
       {isLoading ? (
         <div className="flex justify-center py-16">

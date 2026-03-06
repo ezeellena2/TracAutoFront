@@ -13,7 +13,8 @@ import {
   ActionMenu,
 } from '@/shared/ui';
 import type { FilterConfig } from '@/shared/ui/AdvancedFilter/types';
-import { usePermissions } from '@/hooks';
+import { usePermissions, useLocalization } from '@/hooks';
+import { formatDate } from '@/shared/utils/dateFormatter';
 import { useClientesPage } from '../hooks/useClientesPage';
 import { CreateClienteModal } from '../components/CreateClienteModal';
 import { EditClienteModal } from '../components/EditClienteModal';
@@ -23,6 +24,7 @@ import type { ClienteAlquilerDto } from '../types/cliente';
 export function ClientesAlquilerPage() {
   const { t } = useTranslation();
   const { can } = usePermissions();
+  const { culture, timeZoneId } = useLocalization();
 
   const {
     clientesData,
@@ -93,7 +95,7 @@ export function ClientesAlquilerPage() {
       key: 'fechaRegistro',
       header: t('alquileres.clientes.tabla.fechaRegistro'),
       render: (c: ClienteAlquilerDto) => (
-        <span className="text-text-muted">{c.fechaRegistro.split('T')[0]}</span>
+        <span className="text-text-muted">{formatDate(c.fechaRegistro, culture, timeZoneId)}</span>
       ),
       mobileHidden: true,
     },

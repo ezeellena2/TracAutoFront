@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, Package } from 'lucide-react';
 import { Card, CardContent, Spinner } from '@/shared/ui';
@@ -39,21 +40,21 @@ export function SelectorOpciones({
 
   if (coberturas.length === 0 && recargos.length === 0) return null;
 
-  const toggleCobertura = (id: string, obligatoria: boolean) => {
+  const toggleCobertura = useCallback((id: string, obligatoria: boolean) => {
     if (obligatoria) return;
     const next = coberturasSeleccionadasIds.includes(id)
       ? coberturasSeleccionadasIds.filter(x => x !== id)
       : [...coberturasSeleccionadasIds, id];
     onCoberturasChange(next);
-  };
+  }, [coberturasSeleccionadasIds, onCoberturasChange]);
 
-  const toggleRecargo = (id: string, obligatorio: boolean) => {
+  const toggleRecargo = useCallback((id: string, obligatorio: boolean) => {
     if (obligatorio) return;
     const next = recargosSeleccionadosIds.includes(id)
       ? recargosSeleccionadosIds.filter(x => x !== id)
       : [...recargosSeleccionadosIds, id];
     onRecargosChange(next);
-  };
+  }, [recargosSeleccionadosIds, onRecargosChange]);
 
   return (
     <Card padding="none">

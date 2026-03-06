@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { reportesAlquilerApi } from '@/services/endpoints';
 import { primerDiaMesISO, hoyISO } from '@/shared/utils/dateFormatter';
 import { AgrupacionPeriodo } from '../types/reportes';
 
 export function useDashboardAlquileres() {
-  const fechaInicio = useMemo(() => primerDiaMesISO(), []);
-  const fechaFin = useMemo(() => hoyISO(), []);
+  const queryClient = useQueryClient();
+  const fechaInicio = primerDiaMesISO();
+  const fechaFin = hoyISO();
 
   const {
     data: estadisticas,
@@ -46,11 +47,16 @@ export function useDashboardAlquileres() {
   const isLoading = isLoadingEstadisticas || isLoadingUtilizacion || isLoadingIngresos;
   const error = errorEstadisticas || errorUtilizacion || errorIngresos;
 
+  const refetch = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['alquiler-reportes'] });
+  }, [queryClient]);
+
   return {
     estadisticas,
     utilizacion,
     ingresos,
     isLoading,
     error,
+    refetch,
   };
 }

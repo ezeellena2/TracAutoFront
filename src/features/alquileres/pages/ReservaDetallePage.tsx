@@ -87,12 +87,12 @@ export function ReservaDetallePage() {
     isGenerandoContrato,
   } = useReservaDetalle(id ?? '');
 
+  const [isPreviewContratoOpen, setIsPreviewContratoOpen] = useState(false);
+
   if (!id) {
     navigate('/alquileres/reservas', { replace: true });
     return null;
   }
-
-  const [isPreviewContratoOpen, setIsPreviewContratoOpen] = useState(false);
 
   if (isLoading) return <SpinnerPantalla />;
   if (error || !reserva) {

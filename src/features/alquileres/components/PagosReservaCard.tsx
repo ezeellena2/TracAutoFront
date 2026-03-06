@@ -8,7 +8,7 @@ interface PagosReservaCardProps {
   pagos: DetallePagoReservaDto[];
   moneda: string;
   precioTotal: number;
-  onRegistrarPago: () => void;
+  onRegistrarPago?: () => void;
   puedeEditar: boolean;
 }
 
@@ -34,7 +34,7 @@ export function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, 
     <Card>
       <CardHeader
         title={t('alquileres.reservaDetalle.pagos.titulo')}
-        action={puedeEditar ? (
+        action={puedeEditar && onRegistrarPago ? (
           <Button variant="outline" onClick={onRegistrarPago} className="text-xs">
             {t('alquileres.reservaDetalle.pagos.registrar')}
           </Button>

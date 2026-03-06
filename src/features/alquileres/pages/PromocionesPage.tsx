@@ -90,7 +90,7 @@ export function PromocionesPage() {
       header: t('alquileres.promociones.tabla.descripcion'),
       render: (item: PromocionAlquilerDto) => (
         <span className="text-text-muted text-sm truncate max-w-[200px] block">
-          {item.descripcion || '—'}
+          {item.descripcion || t('common.noData')}
         </span>
       ),
     },

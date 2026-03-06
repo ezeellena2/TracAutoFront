@@ -4,7 +4,7 @@
  */
 export function SkeletonTarjetaVehiculo() {
   return (
-    <div className="bg-surface rounded-xl border border-border overflow-hidden animate-pulse">
+    <div aria-busy="true" className="bg-surface rounded-xl border border-border overflow-hidden animate-pulse">
       {/* Imagen placeholder */}
       <div className="h-32 bg-border" />
       {/* Contenido */}

@@ -37,6 +37,7 @@ export function useReportesAlquiler() {
   const {
     data: estadisticas,
     isLoading: isLoadingEstadisticas,
+    error: errorEstadisticas,
   } = useQuery({
     queryKey: ['alquiler-reportes', 'estadisticas', fechaInicio, fechaFin],
     queryFn: () => reportesAlquilerApi.getEstadisticasReservas({ fechaInicio, fechaFin }),
@@ -48,6 +49,7 @@ export function useReportesAlquiler() {
   const {
     data: ingresos,
     isLoading: isLoadingIngresos,
+    error: errorIngresos,
   } = useQuery({
     queryKey: ['alquiler-reportes', 'ingresos', fechaInicio, fechaFin, agrupacion, sucursalId, categoria],
     queryFn: () =>
@@ -66,6 +68,7 @@ export function useReportesAlquiler() {
   const {
     data: utilizacion,
     isLoading: isLoadingUtilizacion,
+    error: errorUtilizacion,
   } = useQuery({
     queryKey: ['alquiler-reportes', 'utilizacion', fechaInicio, fechaFin, sucursalId, categoria],
     queryFn: () =>
@@ -83,6 +86,7 @@ export function useReportesAlquiler() {
   const {
     data: topVehiculos,
     isLoading: isLoadingTop,
+    error: errorTop,
   } = useQuery({
     queryKey: ['alquiler-reportes', 'top-vehiculos', fechaInicio, fechaFin],
     queryFn: () =>
@@ -127,6 +131,7 @@ export function useReportesAlquiler() {
   );
 
   const isLoading = isLoadingEstadisticas || isLoadingIngresos || isLoadingUtilizacion || isLoadingTop;
+  const error = errorEstadisticas || errorIngresos || errorUtilizacion || errorTop;
 
   // Opciones de agrupación para el select
   const agrupacionOptions = useMemo(
@@ -145,6 +150,7 @@ export function useReportesAlquiler() {
     utilizacion,
     topVehiculos,
     isLoading,
+    error,
     // Filtros
     fechaInicio,
     setFechaInicio,

@@ -120,7 +120,7 @@ export function DisponibilidadModal({ isOpen, vehiculo, onClose }: Disponibilida
           <h2 className="text-lg font-semibold text-text">
             {t('alquileres.flota.disponibilidad.titulo', { patente: vehiculo.patente })}
           </h2>
-          <button onClick={onClose} className="text-text-muted hover:text-text">
+          <button onClick={onClose} aria-label={t('common.close')} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
         </div>
@@ -129,6 +129,7 @@ export function DisponibilidadModal({ isOpen, vehiculo, onClose }: Disponibilida
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={handlePrevMonth}
+            aria-label={t('alquileres.flota.disponibilidad.mesAnterior')}
             className="p-1.5 rounded-lg hover:bg-border text-text-muted hover:text-text transition-colors"
           >
             <ChevronLeft size={20} />
@@ -136,6 +137,7 @@ export function DisponibilidadModal({ isOpen, vehiculo, onClose }: Disponibilida
           <span className="text-sm font-semibold text-text capitalize">{monthLabel}</span>
           <button
             onClick={handleNextMonth}
+            aria-label={t('alquileres.flota.disponibilidad.mesSiguiente')}
             className="p-1.5 rounded-lg hover:bg-border text-text-muted hover:text-text transition-colors"
           >
             <ChevronRight size={20} />

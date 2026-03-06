@@ -116,6 +116,7 @@ export function CheckInModal({
               step={5}
               value={nivelCombustible}
               onChange={(e) => setNivelCombustible(Number(e.target.value))}
+              aria-label="Nivel de combustible"
               className="w-full h-2 bg-border rounded-lg appearance-none cursor-pointer accent-primary"
             />
             <div className="flex justify-between text-xs text-text-muted mt-1">

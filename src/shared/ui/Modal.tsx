@@ -11,9 +11,11 @@ interface ModalProps {
   className?: string;
   /** Excluye este modal del detector de Modo Solicitud (evita que Enviar/input capturen el clic) */
   dataTracautoSolicitudModal?: boolean;
+  /** ID del elemento que etiqueta el modal para accesibilidad */
+  ariaLabelledBy?: string;
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', dataTracautoSolicitudModal }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', dataTracautoSolicitudModal, ariaLabelledBy }: ModalProps) {
   // Cerrar con Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -59,7 +61,12 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
       />
 
       {/* Modal */}
-      <div className={`relative w-full ${sizes[size]} ${className} mx-4 max-h-[90vh] overflow-y-auto bg-surface rounded-xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200`}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        className={`relative w-full ${sizes[size]} ${className} mx-4 max-h-[90vh] overflow-y-auto bg-surface rounded-xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200`}
+      >
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">

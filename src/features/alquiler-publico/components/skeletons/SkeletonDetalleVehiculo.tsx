@@ -4,7 +4,7 @@
  */
 export function SkeletonDetalleVehiculo() {
   return (
-    <div className="container-app py-6 sm:py-8 animate-pulse">
+    <div aria-busy="true" className="container-app py-6 sm:py-8 animate-pulse">
       {/* Volver */}
       <div className="h-5 w-32 bg-border rounded mb-6" />
 

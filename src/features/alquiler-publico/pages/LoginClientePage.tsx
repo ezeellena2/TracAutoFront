@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -33,7 +33,7 @@ export default function LoginClientePage() {
     }
   }, [isAuthenticated, navigate, redirectTo]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setEsNoEncontrado(false);
@@ -65,7 +65,7 @@ export default function LoginClientePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [email, t, redirectTo, navigate, parseError]);
 
   return (
     <>

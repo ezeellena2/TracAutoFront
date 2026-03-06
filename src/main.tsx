@@ -1,7 +1,8 @@
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { detectAppMode } from '@/config/appMode';
-import { PageLoader } from '@/shared/ui';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import { PageLoader } from '@/shared/ui/PageLoader';
 import './index.css';
 
 const mode = detectAppMode();
@@ -16,8 +17,10 @@ const AppComponent = lazy(() => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Suspense fallback={<PageLoader />}>
-      <AppComponent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<PageLoader />}>
+        <AppComponent />
+      </Suspense>
+    </ErrorBoundary>
   </StrictMode>,
 );

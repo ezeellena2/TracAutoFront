@@ -139,7 +139,6 @@ export default function ReservaEstadoPage() {
             pagos={reserva.pagos}
             moneda={reserva.moneda}
             precioTotal={reserva.precioTotal}
-            onRegistrarPago={() => {}}
             puedeEditar={false}
           />
 

@@ -8,7 +8,7 @@ import { GraficoIngresos } from '../components/GraficoIngresos';
 
 export function DashboardAlquileresPage() {
   const { t } = useTranslation();
-  const { estadisticas, utilizacion, ingresos, isLoading, error } = useDashboardAlquileres();
+  const { estadisticas, utilizacion, ingresos, isLoading, error, refetch } = useDashboardAlquileres();
 
   return (
     <div className="space-y-6">
@@ -24,7 +24,7 @@ export function DashboardAlquileresPage() {
           <Spinner />
         </div>
       ) : error ? (
-        <EstadoError mensaje={(error as Error).message ?? t('common.error')} />
+        <EstadoError mensaje={(error as Error).message ?? t('common.error')} onReintentar={refetch} />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

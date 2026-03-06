@@ -17,7 +17,13 @@ export function StepIndicatorPublico({ pasoActual }: StepIndicatorPublicoProps) 
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center justify-between px-2 sm:px-6 py-4">
+    <div
+      role="progressbar"
+      aria-valuenow={pasoActual}
+      aria-valuemin={1}
+      aria-valuemax={3}
+      className="flex items-center justify-between px-2 sm:px-6 py-4"
+    >
       {PASOS.map(({ paso, icon: Icon, key }, idx) => {
         const esCompletado = paso < pasoActual;
         const esActual = paso === pasoActual;

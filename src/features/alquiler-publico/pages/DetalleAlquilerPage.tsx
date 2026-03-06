@@ -28,6 +28,7 @@ import { useSucursalesPublicas } from '../hooks/useSucursalesPublicas';
 import { useOpcionesPublicas } from '../hooks/useOpcionesPublicas';
 import { ResumenPrecio } from '../components/ResumenPrecio';
 import { SelectorOpciones } from '../components/SelectorOpciones';
+import { SpecItem } from '../components/SpecItem';
 import { alquilerPublicoApi } from '@/services/endpoints/alquiler-publico.api';
 import type { ResultadoCotizacionDto } from '@/features/alquileres/types/cotizacion';
 import type { ValidacionPromocionDto } from '@/features/alquileres/types/promocion';
@@ -201,7 +202,7 @@ export default function DetalleAlquilerPage() {
             offers: {
               '@type': 'Offer',
               price: vehiculo.precioBaseDiario,
-              priceCurrency: 'ARS',
+              priceCurrency: vehiculo.moneda ?? 'ARS',
               availability: 'https://schema.org/InStock',
             },
           })}
@@ -438,19 +439,6 @@ export default function DetalleAlquilerPage() {
             onReservar={handleReservar}
           />
         </aside>
-      </div>
-    </div>
-  );
-}
-
-// Componente interno para spec items
-function SpecItem({ icon: IconComp, label, value }: { icon: React.ElementType; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <IconComp className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-      <div>
-        <p className="text-xs text-text-muted">{label}</p>
-        <p className="text-sm font-medium text-text">{value}</p>
       </div>
     </div>
   );

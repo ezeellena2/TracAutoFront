@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AlquilerLayout } from '@/apps/alquiler/layouts';
 import { NotFoundPage } from '@/shared/pages';
@@ -16,6 +16,10 @@ const VerificarOtpPage = lazy(() => import('@/features/alquiler-publico/pages/Ve
 const MisReservasPage = lazy(() => import('@/features/alquiler-publico/pages/MisReservasPage'));
 const ReservaEstadoPage = lazy(() => import('@/features/alquiler-publico/pages/ReservaEstadoPage'));
 
+function SuspensePage({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
+}
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -24,39 +28,39 @@ const router = createBrowserRouter([
       // Rutas públicas (anónimas)
       {
         index: true,
-        element: <Suspense fallback={<PageLoader />}><BusquedaAlquilerPage /></Suspense>,
+        element: <SuspensePage><BusquedaAlquilerPage /></SuspensePage>,
       },
       {
         path: 'resultados',
-        element: <Suspense fallback={<PageLoader />}><ResultadosAlquilerPage /></Suspense>,
+        element: <SuspensePage><ResultadosAlquilerPage /></SuspensePage>,
       },
       {
         path: 'vehiculo/:id',
-        element: <Suspense fallback={<PageLoader />}><DetalleAlquilerPage /></Suspense>,
+        element: <SuspensePage><DetalleAlquilerPage /></SuspensePage>,
       },
       {
         path: 'reservar/:id',
-        element: <Suspense fallback={<PageLoader />}><ReservaFlowPage /></Suspense>,
+        element: <SuspensePage><ReservaFlowPage /></SuspensePage>,
       },
       // Auth B2C (login/registro/verificacion)
       {
         path: 'login',
-        element: <Suspense fallback={<PageLoader />}><LoginClientePage /></Suspense>,
+        element: <SuspensePage><LoginClientePage /></SuspensePage>,
       },
       {
         path: 'registro',
-        element: <Suspense fallback={<PageLoader />}><RegistroClientePage /></Suspense>,
+        element: <SuspensePage><RegistroClientePage /></SuspensePage>,
       },
       {
         path: 'verificar-otp',
-        element: <Suspense fallback={<PageLoader />}><VerificarOtpPage /></Suspense>,
+        element: <SuspensePage><VerificarOtpPage /></SuspensePage>,
       },
       // Rutas autenticadas B2C
       {
         path: 'mis-reservas',
         element: (
           <ProtectedRouteCliente>
-            <Suspense fallback={<PageLoader />}><MisReservasPage /></Suspense>
+            <SuspensePage><MisReservasPage /></SuspensePage>
           </ProtectedRouteCliente>
         ),
       },
@@ -64,7 +68,7 @@ const router = createBrowserRouter([
         path: 'mis-reservas/:id',
         element: (
           <ProtectedRouteCliente>
-            <Suspense fallback={<PageLoader />}><ReservaEstadoPage /></Suspense>
+            <SuspensePage><ReservaEstadoPage /></SuspensePage>
           </ProtectedRouteCliente>
         ),
       },

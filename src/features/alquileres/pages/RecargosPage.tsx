@@ -19,6 +19,7 @@ import { usePermissions } from '@/hooks';
 import { useRecargosPage } from '../hooks/useRecargosPage';
 import { RecargoModal } from '../components/RecargoModal';
 import { CategoriaAlquiler } from '../types/vehiculoAlquiler';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import { TipoRecargo } from '../types/recargo';
 import type { RecargoAlquilerDto } from '../types/recargo';
 
@@ -103,8 +104,8 @@ export function RecargosPage() {
   // Renderizar precios
   const renderPrecios = (item: RecargoAlquilerDto) => {
     const parts: string[] = [];
-    if (item.precioFijo !== null) parts.push(`$${item.precioFijo.toLocaleString()}`);
-    if (item.precioPorDia !== null) parts.push(`$${item.precioPorDia.toLocaleString()}/d`);
+    if (item.precioFijo !== null) parts.push(formatCurrency(item.precioFijo));
+    if (item.precioPorDia !== null) parts.push(`${formatCurrency(item.precioPorDia)}/d`);
     if (item.porcentajeSobreTotal !== null) parts.push(`${item.porcentajeSobreTotal}%`);
     return parts.join(' | ') || '—';
   };

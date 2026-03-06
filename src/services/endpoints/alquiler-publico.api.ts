@@ -35,18 +35,20 @@ export const alquilerPublicoApi = {
     return r.data;
   },
 
-  getSucursalesPublicas: async (ciudad?: string): Promise<SucursalPublicaDto[]> => {
+  getSucursalesPublicas: async (ciudad?: string, slug?: string): Promise<SucursalPublicaDto[]> => {
     const params = new URLSearchParams();
     if (ciudad) params.append('ciudad', ciudad);
+    if (slug) params.append('slug', slug);
     const query = params.toString();
     const url = query ? `${BASE}/sucursales?${query}` : `${BASE}/sucursales`;
     const r = await publicApiClient.get<SucursalPublicaDto[]>(url);
     return r.data;
   },
 
-  getCategoriasPublicas: async (sucursalId?: string): Promise<CategoriaPublicaDto[]> => {
+  getCategoriasPublicas: async (sucursalId?: string, slug?: string): Promise<CategoriaPublicaDto[]> => {
     const params = new URLSearchParams();
     if (sucursalId) params.append('sucursalId', sucursalId);
+    if (slug) params.append('slug', slug);
     const query = params.toString();
     const url = query ? `${BASE}/categorias?${query}` : `${BASE}/categorias`;
     const r = await publicApiClient.get<CategoriaPublicaDto[]>(url);

@@ -204,7 +204,7 @@ export default function RegistroClientePage() {
               <Select
                 label={t('alquilerPublico.auth.tipoDocumento')}
                 value={form.tipoDocumento}
-                onChange={(v) => updateField({ tipoDocumento: Number(v) })}
+                onChange={(v) => updateField({ tipoDocumento: v === '' ? '' : Number(v) })}
                 options={tipoDocOptions}
                 placeholder={t('alquilerPublico.auth.seleccionarTipo')}
                 error={errores.tipoDocumento}

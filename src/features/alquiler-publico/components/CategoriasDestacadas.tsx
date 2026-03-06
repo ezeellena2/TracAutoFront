@@ -34,7 +34,10 @@ export function CategoriasDestacadas() {
             <Card
               key={cat.categoriaAlquiler}
               hover
-              onClick={() => navigate(`/resultados?categoriaAlquiler=${cat.categoriaAlquiler}`)}
+              onClick={() => {
+                navigate(`/?categoriaAlquiler=${cat.categoriaAlquiler}`);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="text-center"
             >
               <CardContent>

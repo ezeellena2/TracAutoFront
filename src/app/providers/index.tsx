@@ -1,11 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { HelmetProvider } from 'react-helmet-async';
 import { useLayoutEffect, useRef } from 'react';
 import { useTenantStore, useThemeStore } from '@/store';
 import { I18nProvider } from './I18nProvider';
 import { OfflineIndicator } from '@/shared/ui';
 import { env } from '@/config/env';
+import { detectAppMode } from '@/config/appMode';
 import '@/shared/i18n/config'; // Inicializar i18n
+
+const appMode = detectAppMode();
 
 /**
  * Función de retry inteligente para React Query.
@@ -64,33 +68,34 @@ export function AppProviders({ children }: AppProvidersProps) {
   const prevOrgIdRef = useRef<string | null>(null);
   const prevIsDarkModeRef = useRef<boolean>(isDarkMode);
 
-  // Aplicar theme cuando cambia la organización O el modo dark/light
-  // Usa refs para detectar cambios reales y evitar loops
+  // Sincronizar theme con org solo en B2B (Marketplace/Alquiler usan branding propio)
   useLayoutEffect(() => {
+    if (appMode !== 'b2b') return;
+
     const orgId = currentOrganization?.id ?? null;
     const orgChanged = prevOrgIdRef.current !== orgId;
     const modeChanged = prevIsDarkModeRef.current !== isDarkMode;
 
     if (currentOrganization && (orgChanged || modeChanged)) {
-      // Aplicar tema base (según isDarkMode) + override de organización
       setDarkMode(isDarkMode, currentOrganization.theme);
       prevOrgIdRef.current = orgId;
       prevIsDarkModeRef.current = isDarkMode;
     } else if (!currentOrganization && orgChanged) {
-      // Si no hay organización (logout), resetear a default
       resetToDefault();
       prevOrgIdRef.current = null;
     }
   }, [currentOrganization, isDarkMode, setDarkMode, resetToDefault]);
 
   return (
-    <GoogleOAuthProvider clientId={env.googleClientId}>
-      <QueryClientProvider client={queryClient}>
-        <I18nProvider>
-          {children}
-          <OfflineIndicator />
-        </I18nProvider>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+    <HelmetProvider>
+      <GoogleOAuthProvider clientId={env.googleClientId}>
+        <QueryClientProvider client={queryClient}>
+          <I18nProvider>
+            {children}
+            <OfflineIndicator />
+          </I18nProvider>
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
+    </HelmetProvider>
   );
 }

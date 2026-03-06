@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -29,6 +29,7 @@ export default function VerificarOtpPage() {
   const [puedeReenviar, setPuedeReenviar] = useState(false);
   const [isReenviando, setIsReenviando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState('');
+  const isSubmittingRef = useRef(false);
 
   // Si no hay email, redirigir a login
   useEffect(() => {
@@ -48,8 +49,9 @@ export default function VerificarOtpPage() {
   }, [countdown]);
 
   const verificar = useCallback(async (codigoOtp: string) => {
-    if (!codigoOtp || codigoOtp.length !== 6 || isLoading) return;
+    if (!codigoOtp || codigoOtp.length !== 6 || isLoading || isSubmittingRef.current) return;
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     setError('');
 
@@ -77,6 +79,7 @@ export default function VerificarOtpPage() {
       }
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   }, [email, isLoading, setAuth, navigate, redirectTo, parseError, t]);
 

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { Spinner } from '@/shared/ui';
+import { Spinner, EstadoError } from '@/shared/ui';
 import { BuscadorAlquiler } from '../components/BuscadorAlquiler';
 import { CategoriasDestacadas } from '../components/CategoriasDestacadas';
 import { useSucursalesPublicas } from '../hooks/useSucursalesPublicas';
@@ -8,7 +8,7 @@ import { useBrandingPublico } from '../hooks/useBrandingPublico';
 
 export default function BusquedaAlquilerPage() {
   const { t } = useTranslation();
-  const { sucursales, isLoading } = useSucursalesPublicas();
+  const { sucursales, isLoading, error } = useSucursalesPublicas();
   const { branding } = useBrandingPublico();
 
   return (
@@ -45,6 +45,13 @@ export default function BusquedaAlquilerPage() {
             {isLoading ? (
               <div className="flex justify-center py-12">
                 <Spinner className="text-white" />
+              </div>
+            ) : error ? (
+              <div className="bg-white rounded-2xl p-6">
+                <EstadoError
+                  mensaje={t('alquilerPublico.busqueda.errorSucursales')}
+                  onReintentar={() => window.location.reload()}
+                />
               </div>
             ) : (
               <BuscadorAlquiler sucursales={sucursales} />

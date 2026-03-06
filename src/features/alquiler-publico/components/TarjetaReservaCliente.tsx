@@ -17,7 +17,7 @@ export function TarjetaReservaCliente({ reserva, onClick }: TarjetaReservaClient
   const { culture, timeZoneId } = useLocalization();
 
   return (
-    <Card hover onClick={onClick} className="cursor-pointer">
+    <Card hover onClick={onClick} role="button" tabIndex={0} className="cursor-pointer">
       {/* Header: numero + estado */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-semibold text-text">

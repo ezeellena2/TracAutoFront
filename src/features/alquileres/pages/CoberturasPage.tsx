@@ -18,6 +18,7 @@ import type { FilterConfig } from '@/shared/ui/AdvancedFilter/types';
 import { usePermissions } from '@/hooks';
 import { useCoberturasPage } from '../hooks/useCoberturasPage';
 import { CoberturaModal } from '../components/CoberturaModal';
+import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import type { CoberturaAlquilerDto } from '../types/cobertura';
 
 export function CoberturasPage() {
@@ -92,14 +93,14 @@ export function CoberturasPage() {
       key: 'precioPorDia',
       header: t('alquileres.coberturas.tabla.precioPorDia'),
       render: (item: CoberturaAlquilerDto) => (
-        <span className="text-text font-medium">${item.precioPorDia.toLocaleString()}</span>
+        <span className="text-text font-medium">{formatCurrency(item.precioPorDia)}</span>
       ),
     },
     {
       key: 'deducible',
       header: t('alquileres.coberturas.tabla.deducible'),
       render: (item: CoberturaAlquilerDto) => (
-        <span className="text-text">${item.deducibleMaximo.toLocaleString()}</span>
+        <span className="text-text">{formatCurrency(item.deducibleMaximo)}</span>
       ),
     },
     {

@@ -323,8 +323,10 @@ export function ReservasPage() {
 
       {/* Vista toggle */}
       <div className="flex items-center gap-2">
-        <div className="flex bg-background border border-border rounded-lg p-1">
+        <div className="flex bg-background border border-border rounded-lg p-1" role="tablist">
           <button
+            role="tab"
+            aria-selected={vista === 'tabla'}
             onClick={() => setVista('tabla')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               vista === 'tabla' ? 'bg-surface text-text shadow-sm' : 'text-text-muted hover:text-text'
@@ -334,6 +336,8 @@ export function ReservasPage() {
             {t('alquileres.reservas.vistaTabla')}
           </button>
           <button
+            role="tab"
+            aria-selected={vista === 'calendario'}
             onClick={() => setVista('calendario')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               vista === 'calendario' ? 'bg-surface text-text shadow-sm' : 'text-text-muted hover:text-text'

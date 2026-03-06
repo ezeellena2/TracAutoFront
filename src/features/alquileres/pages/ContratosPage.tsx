@@ -14,7 +14,8 @@ import {
   ActionMenu,
 } from '@/shared/ui';
 import type { FilterConfig } from '@/shared/ui/AdvancedFilter/types';
-import { usePermissions } from '@/hooks';
+import { usePermissions, useLocalization } from '@/hooks';
+import { formatDate } from '@/shared/utils/dateFormatter';
 import { useContratosPage } from '../hooks/useContratosPage';
 import { CreatePlantillaModal } from '../components/CreatePlantillaModal';
 import { EditPlantillaModal } from '../components/EditPlantillaModal';
@@ -23,6 +24,7 @@ import type { PlantillaContratoDto } from '../types/contrato';
 export function ContratosPage() {
   const { t } = useTranslation();
   const { can } = usePermissions();
+  const { culture, timeZoneId } = useLocalization();
 
   const {
     plantillasData,
@@ -100,7 +102,7 @@ export function ContratosPage() {
       header: t('alquileres.contratos.tabla.fechaActualizacion'),
       render: (p: PlantillaContratoDto) => (
         <span className="text-text-muted text-sm">
-          {p.fechaActualizacion.split('T')[0]}
+          {formatDate(p.fechaActualizacion, culture, timeZoneId)}
         </span>
       ),
       mobileHidden: true,

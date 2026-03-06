@@ -62,7 +62,7 @@ export function ModalCrearReserva({ isOpen, onClose }: ModalCrearReservaProps) {
           <h2 className="text-lg font-semibold text-text">
             {t('alquileres.wizard.titulo')}
           </h2>
-          <button onClick={handleClose} className="text-text-muted hover:text-text">
+          <button onClick={handleClose} aria-label={t('common.close')} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
         </div>
