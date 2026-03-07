@@ -18,11 +18,4 @@ export function formatearKilometraje(km: number): string {
   return `${km.toLocaleString(undefined)} km`;
 }
 
-export function formatearFecha(fechaISO: string): string {
-  const fecha = new Date(fechaISO);
-  return fecha.toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
+// formatearFecha eliminada: usar formatDate de @/shared/utils/dateFormatter

@@ -166,6 +166,7 @@
     "organization": "Organización",
     "organizationLabel": "Organización",
     "organizationAppearance": "Apariencia",
+    "organizationPreferences": "Preferencias",
     "organizationRelations": "Relaciones",
     "organizationChangeRequests": "Solicitudes de Cambio",
     "marketplace": "Marketplace",
@@ -1181,6 +1182,51 @@
       "relation": "relación",
       "relations_plural": "relaciones",
       "since": "Desde"
+    },
+    "preferences": {
+      "title": "Preferencias de Localización",
+      "subtitle": "Configura el país, zona horaria, idioma y sistema métrico de la organización.",
+      "country": "País",
+      "countryPlaceholder": "Seleccionar país...",
+      "countryHelp": "Al seleccionar un país se auto-completan los valores por defecto de zona horaria, idioma y sistema métrico.",
+      "timeZone": "Zona horaria",
+      "timeZonePlaceholder": "Automática (zona del navegador)",
+      "timeZoneHelp": "Si se deja vacío, cada usuario verá las fechas en la zona horaria de su navegador.",
+      "culture": "Idioma / Formato regional",
+      "culturePlaceholder": "Seleccionar idioma...",
+      "measurementSystem": "Sistema de medición",
+      "metric": "Métrico (km, kg)",
+      "imperial": "Imperial (mi, lb)",
+      "save": "Guardar preferencias",
+      "saving": "Guardando...",
+      "success": "Preferencias actualizadas correctamente.",
+      "error": "No se pudieron guardar las preferencias.",
+      "autoDetectBadge": "Automático",
+      "configuredBadge": "Configurado",
+      "countries": {
+        "AR": "Argentina",
+        "US": "Estados Unidos",
+        "MX": "México",
+        "BR": "Brasil",
+        "CL": "Chile",
+        "CO": "Colombia",
+        "PE": "Perú",
+        "ES": "España",
+        "GB": "Reino Unido",
+        "CA": "Canadá"
+      },
+      "cultures": {
+        "esAR": "Español (Argentina)",
+        "esMX": "Español (México)",
+        "esCL": "Español (Chile)",
+        "esCO": "Español (Colombia)",
+        "esPE": "Español (Perú)",
+        "esES": "Español (España)",
+        "enUS": "Inglés (Estados Unidos)",
+        "enGB": "Inglés (Reino Unido)",
+        "enCA": "Inglés (Canadá)",
+        "ptBR": "Portugués (Brasil)"
+      }
     },
     "relations": {
       "title": "Relaciones entre Organizaciones",
@@ -3054,7 +3100,9 @@
     },
     "busqueda": {
       "titulo": "Encontrá el vehículo ideal para tu viaje",
-      "subtitulo": "Compará precios y reservá online"
+      "subtitulo": "Compará precios y reservá online",
+      "errorSucursales": "No se pudieron cargar las sucursales. Por favor, intentá de nuevo.",
+      "errorCategorias": "No se pudieron cargar las categorías. Por favor, intentá de nuevo."
     },
     "buscador": {
       "sucursalRecogida": "Sucursal de recogida",

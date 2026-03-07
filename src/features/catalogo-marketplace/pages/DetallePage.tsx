@@ -2,11 +2,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Gauge, Phone, Mail, Building2, Star, MessageCircle } from 'lucide-react';
 import { SpinnerPantalla, EstadoError, Card, CardContent } from '@/shared/ui';
 import { useVehiculoDetalle } from '../hooks/useVehiculos';
-import { formatearPrecio, formatearKilometraje, formatearFecha } from '../utils/formatters';
+import { formatearPrecio, formatearKilometraje } from '../utils/formatters';
+import { formatDate } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import { useTranslation } from 'react-i18next';
 
 export function DetallePage() {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -136,7 +139,7 @@ export function DetallePage() {
                 {formatearPrecio(vehiculo.precio, vehiculo.moneda, t('catalogoMarketplace.consultarPrecio'))}
               </p>
               <p className="text-xs text-text-muted mt-2">
-                {t('catalogoMarketplace.publicadoEl', { date: formatearFecha(vehiculo.fechaPublicacion) })}
+                {t('catalogoMarketplace.publicadoEl', { date: formatDate(vehiculo.fechaPublicacion, culture, timeZoneId) })}
               </p>
             </CardContent>
           </Card>

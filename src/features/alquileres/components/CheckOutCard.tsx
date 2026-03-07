@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, Button } from '@/shared/ui';
+import { formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import type { CheckOutAlquilerDto } from '../types/reserva';
 
 interface CheckOutCardProps {
@@ -11,6 +13,7 @@ interface CheckOutCardProps {
 
 export function CheckOutCard({ checkOut, onRealizar, puedeEditar, mostrarBoton }: CheckOutCardProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
 
   return (
     <Card>
@@ -27,7 +30,7 @@ export function CheckOutCard({ checkOut, onRealizar, puedeEditar, mostrarBoton }
         <p className="text-sm text-text-muted">{t('alquileres.reservaDetalle.checkOut.sinCheckOut')}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <Field label={t('alquileres.reservaDetalle.checkOut.fecha')} value={new Date(checkOut.fechaHoraReal).toLocaleString()} />
+          <Field label={t('alquileres.reservaDetalle.checkOut.fecha')} value={formatDateTime(checkOut.fechaHoraReal, culture, timeZoneId)} />
           <Field label={t('alquileres.reservaDetalle.checkOut.kilometraje')} value={`${checkOut.kilometrajeInicial.toLocaleString()} km`} />
           <Field label={t('alquileres.reservaDetalle.checkOut.combustible')} value={`${checkOut.nivelCombustible}%`} />
           <Field label={t('alquileres.reservaDetalle.checkOut.sucursal')} value={checkOut.sucursalNombre} />

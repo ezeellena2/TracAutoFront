@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader } from '@/shared/ui';
+import { formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import { EstadoReserva } from '../types/reserva';
 import type { TimelineEntry } from '../types/reserva';
 
@@ -18,6 +20,7 @@ const ESTADO_LABEL_KEY: Record<number, string> = {
 
 export function TimelineReserva({ entries }: TimelineReservaProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
 
   if (entries.length === 0) return null;
 
@@ -53,7 +56,7 @@ export function TimelineReserva({ entries }: TimelineReservaProps) {
                 </p>
                 {entry.fecha && (
                   <p className="text-xs text-text-muted mt-0.5">
-                    {new Date(entry.fecha).toLocaleString()}
+                    {formatDateTime(entry.fecha, culture, timeZoneId)}
                   </p>
                 )}
                 {entry.descripcion && (

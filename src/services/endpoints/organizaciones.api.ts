@@ -115,10 +115,21 @@ export async function updateOrganizacionTheme(
  * DTO de preferencias de localización efectivas
  */
 export interface LocalizationPreferencesDto {
-  timeZoneId: string;           // IANA timezone ID (ej: "America/Argentina/Buenos_Aires")
+  timeZoneId: string | null;     // IANA timezone ID. Null = usar zona del navegador (auto-detect)
   culture: string;               // Culture code (ej: "es-AR", "en-US")
   measurementSystem: number;     // 0=Metric, 1=Imperial
   country: number | null;        // Enum Country (puede ser null)
+}
+
+/**
+ * Payload para actualizar preferencias de localización de la organización
+ */
+export interface UpdateOrganizacionPreferencesPayload {
+  organizacionId: string;
+  country: number | null;
+  timeZoneId: string | null;
+  culture: string | null;
+  measurementSystem: number | null;
 }
 
 /**
@@ -128,6 +139,19 @@ export interface LocalizationPreferencesDto {
 export async function getCurrentOrganizationPreferences(): Promise<LocalizationPreferencesDto> {
   const response = await apiClient.get<LocalizationPreferencesDto>(
     `${ORGANIZACIONES_BASE}/current/preferences`
+  );
+  return response.data;
+}
+
+/**
+ * Actualiza las preferencias de localización de la organización actual
+ */
+export async function updateOrganizacionPreferences(
+  payload: UpdateOrganizacionPreferencesPayload
+): Promise<LocalizationPreferencesDto> {
+  const response = await apiClient.put<LocalizationPreferencesDto>(
+    `${ORGANIZACIONES_BASE}/${payload.organizacionId}/preferences`,
+    payload
   );
   return response.data;
 }
@@ -256,6 +280,7 @@ export const organizacionesApi = {
   removerUsuario,
   updateOrganizacionTheme,
   getCurrentOrganizationPreferences,
+  updateOrganizacionPreferences,
   getOrganizacionesDisponiblesParaVincular,
   listarRelacionesOrganizacion,
   eliminarRelacionOrganizacion,

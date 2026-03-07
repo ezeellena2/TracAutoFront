@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { X, FileText } from 'lucide-react';
 import { Modal, Button, Spinner, ApiErrorBanner } from '@/shared/ui';
+import { formatDate, formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import { contratosApi } from '@/services/endpoints';
 import { useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
@@ -20,6 +22,7 @@ interface PreviewContratoModalProps {
 
 export function PreviewContratoModal({ isOpen, reservaId, reserva, onClose }: PreviewContratoModalProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
   const { handleApiError } = useErrorHandler();
   const queryClient = useQueryClient();
 
@@ -72,8 +75,8 @@ export function PreviewContratoModal({ isOpen, reservaId, reserva, onClose }: Pr
 
       // Reserva — todos disponibles
       '{{reserva.numero}}': reserva.numeroReserva,
-      '{{reserva.fechaRecogida}}': reserva.fechaHoraRecogida.replace('T', ' ').slice(0, 16),
-      '{{reserva.fechaDevolucion}}': reserva.fechaHoraDevolucion.replace('T', ' ').slice(0, 16),
+      '{{reserva.fechaRecogida}}': formatDateTime(reserva.fechaHoraRecogida, culture, timeZoneId),
+      '{{reserva.fechaDevolucion}}': formatDateTime(reserva.fechaHoraDevolucion, culture, timeZoneId),
       '{{reserva.precioTotal}}': reserva.precioTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }),
       '{{reserva.deposito}}': reserva.montoDeposito.toLocaleString('es-AR', { minimumFractionDigits: 2 }),
       '{{reserva.moneda}}': reserva.moneda,
@@ -89,7 +92,7 @@ export function PreviewContratoModal({ isOpen, reservaId, reserva, onClose }: Pr
       '{{sucursal.devolucion.direccion}}': t('alquileres.contratos.preview.datoServidor'),
 
       // Otros
-      '{{fecha.actual}}': new Date().toLocaleDateString('es-AR'),
+      '{{fecha.actual}}': formatDate(new Date(), culture, timeZoneId),
       '{{contrato.numero}}': t('alquileres.contratos.preview.datoServidor'),
     };
   }, [reserva, t]);

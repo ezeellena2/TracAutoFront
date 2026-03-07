@@ -133,6 +133,7 @@
     "organization": "Organization",
     "organizationLabel": "Organization",
     "organizationAppearance": "Appearance",
+    "organizationPreferences": "Preferences",
     "organizationRelations": "Relations",
     "geofences": "Geozones",
     "imports": "Imports",
@@ -1163,6 +1164,51 @@
       "relation": "relationship",
       "relations_plural": "relationships",
       "since": "Since"
+    },
+    "preferences": {
+      "title": "Localization Preferences",
+      "subtitle": "Configure the country, timezone, language, and measurement system of the organization.",
+      "country": "Country",
+      "countryPlaceholder": "Select country...",
+      "countryHelp": "Selecting a country auto-fills the default timezone, language, and measurement system.",
+      "timeZone": "Timezone",
+      "timeZonePlaceholder": "Automatic (browser timezone)",
+      "timeZoneHelp": "If left empty, each user will see dates in their browser's timezone.",
+      "culture": "Language / Regional Format",
+      "culturePlaceholder": "Select language...",
+      "measurementSystem": "Measurement System",
+      "metric": "Metric (km, kg)",
+      "imperial": "Imperial (mi, lb)",
+      "save": "Save preferences",
+      "saving": "Saving...",
+      "success": "Preferences updated successfully.",
+      "error": "Could not save preferences.",
+      "autoDetectBadge": "Automatic",
+      "configuredBadge": "Configured",
+      "countries": {
+        "AR": "Argentina",
+        "US": "United States",
+        "MX": "Mexico",
+        "BR": "Brazil",
+        "CL": "Chile",
+        "CO": "Colombia",
+        "PE": "Peru",
+        "ES": "Spain",
+        "GB": "United Kingdom",
+        "CA": "Canada"
+      },
+      "cultures": {
+        "esAR": "Spanish (Argentina)",
+        "esMX": "Spanish (Mexico)",
+        "esCL": "Spanish (Chile)",
+        "esCO": "Spanish (Colombia)",
+        "esPE": "Spanish (Peru)",
+        "esES": "Spanish (Spain)",
+        "enUS": "English (US)",
+        "enGB": "English (UK)",
+        "enCA": "English (Canada)",
+        "ptBR": "Portuguese (Brazil)"
+      }
     },
     "relations": {
       "title": "Organization Relationships",
@@ -2983,7 +3029,9 @@
     },
     "busqueda": {
       "titulo": "Find the ideal vehicle for your trip",
-      "subtitulo": "Compare prices and book online"
+      "subtitulo": "Compare prices and book online",
+      "errorSucursales": "Could not load branches. Please try again.",
+      "errorCategorias": "Could not load categories. Please try again."
     },
     "buscador": {
       "sucursalRecogida": "Pickup branch",

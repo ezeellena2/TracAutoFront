@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, Badge, Button } from '@/shared/ui';
 import { formatPrecio } from '../utils/formatters';
+import { formatDate } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import { EstadoPago } from '../types/reserva';
 import type { DetallePagoReservaDto } from '../types/reserva';
 
@@ -23,6 +25,7 @@ const ESTADO_PAGO_BADGE: Record<number, 'default' | 'success' | 'warning' | 'err
 
 export function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, puedeEditar }: PagosReservaCardProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
 
   const totalPagado = pagos
     .filter(p => p.estadoPago === EstadoPago.Completado)
@@ -54,7 +57,7 @@ export function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, 
                 <p className="text-xs text-text-muted">
                   {t(`alquileres.reservaDetalle.metodosPago.${pago.metodoPago}`)}
                   {' · '}
-                  {new Date(pago.fechaPago).toLocaleDateString()}
+                  {formatDate(pago.fechaPago, culture, timeZoneId)}
                 </p>
               </div>
               <div className="text-right">

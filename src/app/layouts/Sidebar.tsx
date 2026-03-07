@@ -29,7 +29,8 @@ import {
   Contact,
   ScrollText,
   BarChart3,
-  Settings
+  Settings,
+  Globe
 } from 'lucide-react';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -92,6 +93,7 @@ const navItems: NavItem[] = [
     children: [
       { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
       { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organizationAppearance', icon: Palette },
+      { path: '/configuracion/empresa/preferencias', labelKey: 'sidebar.organizationPreferences', icon: Globe },
       { path: '/configuracion/empresa/relaciones', labelKey: 'sidebar.organizationRelations', icon: Link2 },
       { path: '/configuracion/empresa/solicitudes-cambio', labelKey: 'sidebar.organizationChangeRequests', icon: FileText },
     ]

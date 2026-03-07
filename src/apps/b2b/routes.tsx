@@ -16,6 +16,7 @@ const UsersPage = lazy(() => import('@/features/users/pages/UsersPage').then(m =
 const DriversPage = lazy(() => import('@/features/drivers/pages/DriversPage').then(m => ({ default: m.DriversPage })));
 const AcceptInvitationPage = lazy(() => import('@/features/invitations/pages/AcceptInvitationPage').then(m => ({ default: m.AcceptInvitationPage })));
 const BrandingPage = lazy(() => import('@/features/organization/pages/BrandingPage').then(m => ({ default: m.BrandingPage })));
+const PreferenciasOrganizacionPage = lazy(() => import('@/features/organization/pages/PreferenciasOrganizacionPage').then(m => ({ default: m.PreferenciasOrganizacionPage })));
 const RelacionesOrganizacionPage = lazy(() => import('@/features/organization/pages/RelacionesOrganizacionPage').then(m => ({ default: m.RelacionesOrganizacionPage })));
 const SolicitudesCambioPage = lazy(() => import('@/features/organization/pages/SolicitudesCambioPage').then(m => ({ default: m.SolicitudesCambioPage })));
 const TraccarMapPage = lazy(() => import('@/features/traccar-map/pages/TraccarMapPage').then(m => ({ default: m.TraccarMapPage })));
@@ -114,6 +115,10 @@ const router = createBrowserRouter([
       {
         path: 'configuracion/empresa/apariencia',
         element: <SuspensePage Component={BrandingPage} />,
+      },
+      {
+        path: 'configuracion/empresa/preferencias',
+        element: <SuspensePage Component={PreferenciasOrganizacionPage} />,
       },
       {
         path: 'configuracion/empresa/relaciones',

@@ -1,4 +1,5 @@
 export { BrandingPage } from './pages/BrandingPage';
+export { PreferenciasOrganizacionPage } from './pages/PreferenciasOrganizacionPage';
 export { RelacionesOrganizacionPage } from './pages/RelacionesOrganizacionPage';
 export { SolicitudesCambioPage } from './pages/SolicitudesCambioPage';
 

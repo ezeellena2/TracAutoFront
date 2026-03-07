@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Spinner } from '@/shared/ui';
+import { useLocalization } from '@/hooks/useLocalization';
 import { EstadoReserva } from '../types/reserva';
 import type { ReservaCalendarioDto } from '../types/reserva';
 
@@ -42,16 +43,16 @@ export function CalendarioReservas({
   onNextMonth,
   onReservaClick,
 }: CalendarioReservasProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
 
   const totalDays = new Date(anio, mes, 0).getDate();
   const days = Array.from({ length: totalDays }, (_, i) => i + 1);
 
   const monthLabel = useMemo(() => {
     const date = new Date(anio, mes - 1, 1);
-    const lang = i18n.language === 'es' ? 'es-AR' : 'en-US';
-    return date.toLocaleDateString(lang, { month: 'long', year: 'numeric' });
-  }, [mes, anio, i18n.language]);
+    return new Intl.DateTimeFormat(culture, { month: 'long', year: 'numeric', timeZone: timeZoneId }).format(date);
+  }, [mes, anio, culture, timeZoneId]);
 
   // Agrupar reservas por vehículo y pre-computar mapa día → reserva (O(1) lookup)
   const vehiculoRows = useMemo(() => {

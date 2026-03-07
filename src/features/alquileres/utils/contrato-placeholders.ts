@@ -101,7 +101,7 @@ export const DATOS_EJEMPLO: Record<string, string> = {
   '{{sucursal.recogida.direccion}}': 'Av. 9 de Julio 1000, CABA',
   '{{sucursal.devolucion.nombre}}': 'Sucursal Centro',
   '{{sucursal.devolucion.direccion}}': 'Av. 9 de Julio 1000, CABA',
-  '{{fecha.actual}}': new Date().toLocaleDateString('es-AR'),
+  '{{fecha.actual}}': '06/03/2026',
   '{{contrato.numero}}': 'CT-2024-00001',
 };
 

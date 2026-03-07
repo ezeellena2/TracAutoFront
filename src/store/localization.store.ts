@@ -6,7 +6,7 @@ import { getCurrentOrganizationPreferences } from '@/services/endpoints/organiza
  * Preferencias de localización efectivas
  */
 export interface LocalizationPreferences {
-  timeZoneId: string;
+  timeZoneId: string | null;
   culture: string;
   measurementSystem: number; // 0=Metric, 1=Imperial
   country: number | null;

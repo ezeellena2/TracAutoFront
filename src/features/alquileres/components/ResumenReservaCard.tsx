@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { MapPin, Calendar, Tag } from 'lucide-react';
 import { Card, CardHeader, Badge } from '@/shared/ui';
+import { formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import type { ReservaAlquilerDetalleDto } from '../types/reserva';
 
 interface ResumenReservaCardProps {
@@ -9,14 +11,7 @@ interface ResumenReservaCardProps {
 
 export function ResumenReservaCard({ reserva }: ResumenReservaCardProps) {
   const { t } = useTranslation();
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    });
-  };
+  const { culture, timeZoneId } = useLocalization();
 
   return (
     <Card>
@@ -40,14 +35,14 @@ export function ResumenReservaCard({ reserva }: ResumenReservaCardProps) {
           <Calendar size={16} className="text-text-muted mt-0.5 shrink-0" />
           <div>
             <p className="text-xs text-text-muted">{t('alquileres.reservaDetalle.resumen.fechaRecogida')}</p>
-            <p className="text-sm text-text font-medium">{formatDate(reserva.fechaHoraRecogida)}</p>
+            <p className="text-sm text-text font-medium">{formatDateTime(reserva.fechaHoraRecogida, culture, timeZoneId)}</p>
           </div>
         </div>
         <div className="flex items-start gap-3">
           <Calendar size={16} className="text-text-muted mt-0.5 shrink-0" />
           <div>
             <p className="text-xs text-text-muted">{t('alquileres.reservaDetalle.resumen.fechaDevolucion')}</p>
-            <p className="text-sm text-text font-medium">{formatDate(reserva.fechaHoraDevolucion)}</p>
+            <p className="text-sm text-text font-medium">{formatDateTime(reserva.fechaHoraDevolucion, culture, timeZoneId)}</p>
           </div>
         </div>
         <div className="flex items-start gap-3">

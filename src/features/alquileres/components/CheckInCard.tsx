@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, Badge, Button } from '@/shared/ui';
 import { formatPrecio } from '../utils/formatters';
+import { formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import type { CheckInAlquilerDto } from '../types/reserva';
 
 interface CheckInCardProps {
@@ -13,6 +15,7 @@ interface CheckInCardProps {
 
 export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarBoton }: CheckInCardProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
 
   const fmt = (n: number) => formatPrecio(n, moneda);
 
@@ -32,7 +35,7 @@ export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarB
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <Field label={t('alquileres.reservaDetalle.checkIn.fecha')} value={new Date(checkIn.fechaHoraReal).toLocaleString()} />
+            <Field label={t('alquileres.reservaDetalle.checkIn.fecha')} value={formatDateTime(checkIn.fechaHoraReal, culture, timeZoneId)} />
             <Field label={t('alquileres.reservaDetalle.checkIn.kilometraje')} value={`${checkIn.kilometrajeFinal.toLocaleString()} km`} />
             <Field label={t('alquileres.reservaDetalle.checkIn.combustible')} value={`${checkIn.nivelCombustible}%`} />
             <Field label={t('alquileres.reservaDetalle.checkIn.sucursal')} value={checkIn.sucursalNombre} />

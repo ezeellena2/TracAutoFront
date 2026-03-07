@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Modal, Spinner, ApiErrorBanner } from '@/shared/ui';
 import { useErrorHandler } from '@/hooks';
+import { useLocalization } from '@/hooks/useLocalization';
 import type { ParsedError } from '@/hooks';
 import { vehiculosAlquilerApi } from '@/services/endpoints';
 import type { VehiculoAlquilerDto, DisponibilidadDiaDto } from '../types/vehiculoAlquiler';
@@ -16,8 +17,9 @@ interface DisponibilidadModalProps {
 const DIAS_SEMANA_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'] as const;
 
 export function DisponibilidadModal({ isOpen, vehiculo, onClose }: DisponibilidadModalProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
+  const { culture, timeZoneId } = useLocalization();
   const now = new Date();
   const [currentMonth, setCurrentMonth] = useState(now.getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(now.getFullYear());
@@ -86,9 +88,8 @@ export function DisponibilidadModal({ isOpen, vehiculo, onClose }: Disponibilida
 
   const monthLabel = useMemo(() => {
     const date = new Date(currentYear, currentMonth - 1, 1);
-    const lang = i18n.language === 'es' ? 'es-AR' : 'en-US';
-    return date.toLocaleDateString(lang, { month: 'long', year: 'numeric' });
-  }, [currentMonth, currentYear, i18n.language]);
+    return new Intl.DateTimeFormat(culture, { month: 'long', year: 'numeric', timeZone: timeZoneId }).format(date);
+  }, [currentMonth, currentYear, culture, timeZoneId]);
 
   const now2 = new Date();
   const todayStr = `${now2.getFullYear()}-${String(now2.getMonth() + 1).padStart(2, '0')}-${String(now2.getDate()).padStart(2, '0')}`;

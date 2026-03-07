@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Select, Spinner } from '@/shared/ui';
+import { formatDateTime } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import type { WizardFormData } from '../../types/wizard';
 import type { ResultadoCotizacionDto } from '../../types/cotizacion';
 import { formatPrecio } from '../../utils/formatters';
@@ -22,14 +24,14 @@ export function PasoResumen({
   onOrigenChange,
 }: PasoResumenProps) {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
   const { cliente, vehiculo, opciones } = formData;
 
   const moneda = cotizacion?.moneda ?? 'ARS';
 
-  const formatDate = (iso: string) => {
+  const fmtDate = (iso: string) => {
     if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    return formatDateTime(iso, culture, timeZoneId);
   };
 
   const clienteNombre = cliente.creandoNuevo
@@ -104,9 +106,9 @@ export function PasoResumen({
           </h4>
           <div className="space-y-1">
             <p className="text-xs text-text-muted">{t('alquileres.wizard.vehiculo.fechaHoraRecogida')}</p>
-            <p className="text-sm text-text">{formatDate(vehiculo.fechaHoraRecogida)}</p>
+            <p className="text-sm text-text">{fmtDate(vehiculo.fechaHoraRecogida)}</p>
             <p className="text-xs text-text-muted mt-2">{t('alquileres.wizard.vehiculo.fechaHoraDevolucion')}</p>
-            <p className="text-sm text-text">{formatDate(vehiculo.fechaHoraDevolucion)}</p>
+            <p className="text-sm text-text">{fmtDate(vehiculo.fechaHoraDevolucion)}</p>
             {cotizacion && (
               <p className="text-xs text-primary mt-1 font-medium">
                 {t('alquileres.wizard.resumen.duracion', { dias: cotizacion.duracionDias })}
