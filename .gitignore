@@ -36,6 +36,10 @@ Thumbs.db
 # Cache
 .eslintcache
 
+# .NET SDK local machine artifacts (if any .NET tooling runs in this repo)
+.dotnet/
+.dotnet-home/
+
 # Temporary files
 *.tmp
 *.temp

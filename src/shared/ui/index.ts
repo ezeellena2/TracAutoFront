@@ -30,3 +30,5 @@ export { ApiErrorBanner } from './ApiErrorBanner';
 export { EstadoVacio } from './EstadoVacio';
 export { EstadoError } from './EstadoError';
 export { Spinner, SpinnerPantalla } from './Spinner';
+export { Alert } from './Alert';
+export type { AlertType } from './Alert';

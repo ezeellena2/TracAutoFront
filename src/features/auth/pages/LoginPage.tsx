@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2, Mail } from 'lucide-react';
-import { Button, Input } from '@/shared/ui';
+import { Button, Input, Alert } from '@/shared/ui';
 import { useAuthStore } from '@/store';
 import { authService } from '@/services/auth.service';
 import { authApi } from '@/services/endpoints';
@@ -25,11 +25,21 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [emailNoVerificado, setEmailNoVerificado] = useState(false);
+  const [isCuentaBloqueada, setIsCuentaBloqueada] = useState(false);
+  const [isAutofilled, setIsAutofilled] = useState(false);
+  const [emailVerificadoStatus, setEmailVerificadoStatus] = useState<boolean | undefined>(undefined);
+  const [telefonoVerificadoStatus, setTelefonoVerificadoStatus] = useState<boolean | undefined>(undefined);
+  const [usuarioIdStatus, setUsuarioIdStatus] = useState<string>('');
+
   const [isReenviandoCodigo, setIsReenviandoCodigo] = useState(false);
 
   // Mostrar mensaje de éxito si viene de verificación
@@ -50,11 +60,55 @@ export function LoginPage() {
     }
   }, [isAuthenticated, token, navigate, location]);
 
+  // Detectar autofill del navegador — Chrome no dispara onChange
+  useEffect(() => {
+    const checkAutofill = () => {
+      try {
+        const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
+        const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+        const emailFilled = emailInput?.matches(':-webkit-autofill') || emailInput?.matches(':autofill') || false;
+        const passwordFilled = passwordInput?.matches(':-webkit-autofill') || passwordInput?.matches(':autofill') || false;
+        if (emailFilled && passwordFilled) {
+          setIsAutofilled(true);
+        }
+      } catch {
+        // :autofill puede no ser soportado en todos los browsers
+      }
+    };
+    // Polling breve: Chrome aplica autofill con un ligero delay
+    const timers = [
+      setTimeout(checkAutofill, 100),
+      setTimeout(checkAutofill, 500),
+      setTimeout(checkAutofill, 1000),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      setError(t('auth.errors.completeFields'));
+    // Autofill fallback: Chrome no dispara onChange, leer del DOM directamente
+    let loginEmail = email;
+    let loginPassword = password;
+    if (isAutofilled && (!email || !password)) {
+      const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
+      const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+      loginEmail = emailInput?.value || email;
+      loginPassword = passwordInput?.value || password;
+      if (loginEmail) setEmail(loginEmail);
+      if (loginPassword) setPassword(loginPassword);
+    }
+
+    // Validate inline errors explicitly before submission
+    const newEmailError = validateEmail(loginEmail);
+    const newPasswordError = validatePassword(loginPassword);
+
+    setEmailTouched(true);
+    setPasswordTouched(true);
+
+    if (newEmailError || newPasswordError) {
+      setEmailError(newEmailError);
+      setPasswordError(newPasswordError);
       return;
     }
 
@@ -63,7 +117,7 @@ export function LoginPage() {
     setEmailNoVerificado(false);
     setSuccessMessage('');
 
-    const result = await authService.login(email, password, rememberMe);
+    const result = await authService.login(loginEmail, loginPassword, rememberMe);
 
     if (result.success) {
       // Redirigir al dashboard
@@ -74,29 +128,68 @@ export function LoginPage() {
       const errorCode = result.errorCode || '';
       const errorMessage = result.error?.toLowerCase() || '';
 
-      // Auth.EmailNoVerificado: detectar por código (robusto) o por texto como fallback
-      const isEmailNoVerificado =
+      // Auth.EmailNoVerificado o Auth.CuentaNoVerificada: detectar por código (robusto) o por texto
+      const isCuentaNoVerificada =
         errorCode === 'Auth.EmailNoVerificado' ||
+        errorCode === 'Auth.CuentaNoVerificada' ||
         errorCode.includes('EmailNoVerificado') ||
-        errorMessage.includes('emailnoverificado');
+        errorCode.includes('CuentaNoVerificada') ||
+        errorMessage.includes('emailnoverificado') ||
+        errorMessage.includes('cuentanoverificada');
 
-      if (isEmailNoVerificado) {
+      if (isCuentaNoVerificada) {
         setEmailNoVerificado(true);
+        if (result.extensions) {
+          if (typeof result.extensions.emailVerificado === 'boolean') {
+            setEmailVerificadoStatus(result.extensions.emailVerificado);
+          }
+          if (typeof result.extensions.telefonoVerificado === 'boolean') {
+            setTelefonoVerificadoStatus(result.extensions.telefonoVerificado);
+          }
+          if (typeof result.extensions.usuarioId === 'string') {
+            setUsuarioIdStatus(result.extensions.usuarioId);
+          }
+        }
         setError(t('auth.errors.accountNotVerified'));
       } else if (
+        errorCode === 'Auth.CuentaBloqueadaTemporal' ||
+        errorCode === 'Auth.CuentaBloqueadaPermanente' ||
         errorCode === 'Auth.CuentaBloqueada' ||
         errorMessage.includes('bloqueada') ||
         errorMessage.includes('cuentabloqueada')
       ) {
         setEmailNoVerificado(false);
+        setIsCuentaBloqueada(true);
         setError(t('auth.errors.accountBlocked'));
       } else {
         setEmailNoVerificado(false);
-        setError(result.error || t('auth.errors.authError'));
+        const status = result.status;
+
+        // Enmascarar errores 400 como credenciales inválidas para no dar pistas 
+        // y errores >=500 como problemas de red / servidor.
+        if (status && status >= 400 && status < 500) {
+          setError(t('errors.Auth.CredencialesInvalidas'));
+        } else if (status && status >= 500) {
+          setError(t('errors.network'));
+        } else {
+          setError(result.error || t('auth.errors.authError'));
+        }
       }
     }
 
     setIsLoading(false);
+  };
+
+  const validateEmail = (value: string) => {
+    if (!value) return 'common.required';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return 'auth.errors.invalidEmail';
+    return '';
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value) return 'common.required';
+    return '';
   };
 
   // Google OAuth: recibe el credential (ID Token JWT) del componente GoogleLogin
@@ -118,7 +211,19 @@ export function LoginPage() {
         state: { googleData: result.googleData },
       });
     } else {
-      setError(result.error || t('auth.errors.authError'));
+      const errorMessage = (result.error || '').toLowerCase();
+      if (
+        result.errorCode === 'Auth.CuentaBloqueadaTemporal' ||
+        result.errorCode === 'Auth.CuentaBloqueadaPermanente' ||
+        result.errorCode === 'Auth.CuentaBloqueada' ||
+        errorMessage.includes('bloqueada') ||
+        errorMessage.includes('cuentabloqueada')
+      ) {
+        setIsCuentaBloqueada(true);
+        setError(t('auth.errors.accountBlocked'));
+      } else {
+        setError(result.error || t('auth.errors.authError'));
+      }
     }
   };
 
@@ -133,22 +238,39 @@ export function LoginPage() {
     setSuccessMessage('');
 
     try {
-      const resultado = await authApi.reenviarCodigo({
-        email,
-        canal: CanalEnvio.Email,
-      });
+      // Determinar qué canales mandar basado en lo que falta verificar
+      let canalesAReenviar = CanalEnvio.Ambos; // Por defecto asumimos ambos por seguridad si el backend no mandó extensiones
 
-      // Navegar a la página de verificación con los datos necesarios
+      if (emailVerificadoStatus === false && telefonoVerificadoStatus === false) {
+        canalesAReenviar = CanalEnvio.Ambos;
+      } else if (emailVerificadoStatus === false) {
+        canalesAReenviar = CanalEnvio.Email;
+      } else if (telefonoVerificadoStatus === false) {
+        canalesAReenviar = CanalEnvio.SMS;
+      }
+
+      // Disparar el reenvío de código de forma silenciosa e independiente (fire-and-forget)
+      // Ni siquiera si falla por Cooldown trabará la UI.
+      authApi.reenviarCodigo({
+        email,
+        canal: canalesAReenviar,
+      }).catch(err => console.error("Error silencioso enviando codigos bg:", err));
+
+      // Navegar a la página de verificación INMEDIATAMENTE para que el usuario no espere
       navigate('/registro', {
         state: {
           modoVerificacion: true,
           email,
-          usuarioId: resultado.usuarioId,
-          organizacionId: resultado.organizacionId,
-          nombreOrganizacion: resultado.nombreOrganizacion,
+          emailVerificado: emailVerificadoStatus,
+          telefonoVerificado: telefonoVerificadoStatus,
+          usuarioId: usuarioIdStatus,
+          organizacionId: '', // No es crítico para verificarCuenta
+          nombreOrganizacion: '',
         },
       });
-    } catch (error) {
+
+    } catch (error: any) {
+      // Error si falla el navigate
       const message = error instanceof Error ? error.message : t('auth.errors.resendCodeError');
       setError(message);
       setIsReenviandoCodigo(false);
@@ -159,12 +281,14 @@ export function LoginPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <Car size={32} className="text-white" />
+        <div className="flex items-center justify-center gap-5 mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary shadow-lg shadow-primary/20">
+            <Car size={38} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-text">{t('auth.title')}</h1>
-          <p className="text-text-muted mt-1">{t('auth.subtitle')}</p>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold text-text">{t('auth.title')}</h1>
+            <p className="text-base text-text-muted mt-1">{t('auth.subtitle')}</p>
+          </div>
         </div>
 
         {/* Login Card */}
@@ -183,13 +307,25 @@ export function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" noValidate>
             <Input
               label={t('auth.emailLabel')}
               type="email"
               name="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              onFocus={() => {
+                setError('');
+                setEmailError('');
+                setIsCuentaBloqueada(false);
+              }}
+              onBlur={() => {
+                setEmailTouched(true);
+                setEmailError(validateEmail(email));
+              }}
+              error={emailTouched && emailError ? t(emailError) : ''}
               placeholder={t('auth.emailPlaceholder')}
               autoComplete="username"
               required
@@ -202,7 +338,19 @@ export function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                onFocus={() => {
+                  setError('');
+                  setPasswordError('');
+                  setIsCuentaBloqueada(false);
+                }}
+                onBlur={() => {
+                  setPasswordTouched(true);
+                  setPasswordError(validatePassword(password));
+                }}
+                error={passwordTouched && passwordError ? t(passwordError) : ''}
                 placeholder={t('auth.passwordPlaceholder')}
                 autoComplete="current-password"
                 required
@@ -231,50 +379,53 @@ export function LoginPage() {
             </label>
 
             {error && (
-              <div className="p-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
-                <div>{error}</div>
+              <div className="flex flex-col gap-2 mt-4">
+                <Alert
+                  type="error"
+                  message={error}
+                />
                 {emailNoVerificado && (
-                  <div className="mt-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleReenviarCodigo}
-                      disabled={isReenviandoCodigo || isLoading}
-                      className="w-full"
-                    >
-                      {isReenviandoCodigo ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin mr-2" />
-                          {t('auth.resendingCode')}
-                        </>
-                      ) : (
-                        <>
-                          <Mail size={16} className="mr-2" />
-                          {t('auth.resendVerificationCode')}
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleReenviarCodigo}
+                    disabled={isReenviandoCodigo || isLoading}
+                    className="w-full mt-2 relative"
+                  >
+                    {isReenviandoCodigo ? (
+                      <span className="flex items-center justify-center">
+                        <Loader2 size={16} className="animate-spin mr-2" />
+                        {t('auth.resendingCode')}
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center">
+                        <Mail size={16} className="mr-2" />
+                        {t('auth.resendVerificationCode')}
+                      </span>
+                    )}
+                  </Button>
                 )}
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 size={18} className="animate-spin mr-2" />
-                  {t('auth.signingIn')}
-                </>
-              ) : (
-                t('auth.signInButton')
-              )}
-            </Button>
+            {!emailNoVerificado && (
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                size="lg"
+                disabled={isLoading || ((!email || !password) && !isAutofilled) || isCuentaBloqueada}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin mr-2" />
+                    {t('auth.signingIn')}
+                  </>
+                ) : (
+                  t('auth.signInButton')
+                )}
+              </Button>
+            )}
 
             {/* Divider */}
             <div className="relative my-6">
@@ -282,7 +433,10 @@ export function LoginPage() {
             </div>
 
             {/* Google Login - styled to match "Ingresar" button */}
-            <div className="relative w-full" style={{ height: '48px' }}>
+            <div
+              className={`relative w-full transition-opacity ${isCuentaBloqueada ? 'opacity-50 pointer-events-none' : ''}`}
+              style={{ height: '48px' }}
+            >
               {/* Visual button underneath (what the user sees) */}
               <Button
                 type="button"
