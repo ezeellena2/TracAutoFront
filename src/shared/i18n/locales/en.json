@@ -1038,6 +1038,7 @@
     "resendSms": "Resend by SMS",
     "legalRegister": "By registering, you agree to our terms of service and privacy policy.",
     "errors": {
+      "invalidEmail": "Please enter a valid email address",
       "completeFields": "Complete all fields",
       "passwordMismatch": "Passwords do not match",
       "passwordMinLength": "Password must be at least 8 characters",
@@ -1055,7 +1056,11 @@
       "resendCodeError": "Error resending verification code",
       "googleNotAvailable": "Google login will be available soon",
       "termsRequired": "You must accept the terms and conditions to continue",
-      "phoneMinLength": "Phone number must be at least 10 digits"
+      "phoneMinLength": "Phone number must be at least 10 digits",
+      "fieldRequired": "This field is required.",
+      "emailCodeRequired": "Email code is required.",
+      "smsCodeRequired": "SMS code is required.",
+      "codeFormat": "Code must be 6 numeric digits."
     },
     "success": {
       "codeResentEmail": "Code resent to your email",
@@ -1335,6 +1340,8 @@
       "CredencialesInvalidas": "Invalid email or password",
       "EmailNoVerificado": "You must verify your email before signing in",
       "CuentaBloqueada": "Account has been temporarily locked due to multiple failed attempts",
+      "CuentaBloqueadaTemporal": "Account locked temporarily. If you have a registered account, you will receive an email with instructions to recover it.",
+      "CuentaBloqueadaPermanente": "Account locked. If you have a registered account, you will receive an email with instructions to recover it.",
       "CodigoInvalido": "Verification code is invalid or has expired",
       "CodigoEmailInvalido": "Email verification code is invalid",
       "CodigoTelefonoInvalido": "Phone verification code is invalid",

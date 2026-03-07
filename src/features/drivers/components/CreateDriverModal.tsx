@@ -22,16 +22,19 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
     email: '',
     telefono: '',
   });
-  const [errors, setErrors] = useState<{ nombreCompleto?: string }>({});
+  const [errors, setErrors] = useState<{ nombreCompleto?: string; dni?: string }>({});
   const [apiError, setApiError] = useState<import('@/hooks').ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const validationErrors: { nombreCompleto?: string } = {};
+    const validationErrors: { nombreCompleto?: string; dni?: string } = {};
     if (!form.nombreCompleto.trim()) {
       validationErrors.nombreCompleto = t('drivers.form.fullNameRequired');
+    }
+    if (!form.dni?.trim()) {
+      validationErrors.dni = t('drivers.form.dniRequired');
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -81,7 +84,11 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+          onFocus={() => apiError && setApiError(null)}
+        >
           <ApiErrorBanner
             error={apiError}
             jiraLabel={t('drivers.errors.createFailed', 'Error al crear conductor')}
@@ -90,7 +97,11 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <Input
-                label={t('drivers.form.fullNameLabel')}
+                label={
+                  <span>
+                    {t('drivers.form.fullNameLabel')} <span className="text-error">*</span>
+                  </span>
+                }
                 value={form.nombreCompleto}
                 onChange={(e) => setForm({ ...form, nombreCompleto: e.target.value })}
                 placeholder={t('drivers.form.fullNamePlaceholder')}
@@ -101,10 +112,16 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
 
             <div className="md:col-span-1">
               <Input
-                label={t('drivers.form.dniLabel')}
+                label={
+                  <span>
+                    {t('drivers.form.dniLabel')} <span className="text-error">*</span>
+                  </span>
+                }
                 value={form.dni || ''}
                 onChange={(e) => setForm({ ...form, dni: e.target.value })}
                 placeholder={t('drivers.form.dniPlaceholder')}
+                error={errors.dni}
+                required
               />
             </div>
 
@@ -136,7 +153,7 @@ export function CreateDriverModal({ isOpen, onClose, onSuccess }: CreateDriverMo
               variant="ghost"
               onClick={handleClose}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 border border-border hover:border-text-muted transition-colors"
             >
               {t('common.cancel')}
             </Button>

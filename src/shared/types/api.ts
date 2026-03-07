@@ -67,7 +67,10 @@ export type RegistrarEmpresaRequest = z.infer<
 
 export const VerificarCuentaRequestSchema = z.object({
   usuarioId: z.string().uuid(),
-  codigoEmail: z.string().length(6, "Código de email debe tener 6 dígitos"),
+  codigoEmail: z
+    .string()
+    .regex(/^\d{6}$/, "Código de email debe tener 6 dígitos")
+    .optional(),
   codigoTelefono: z
     .string()
     .length(6, "Código de teléfono debe tener 6 dígitos")

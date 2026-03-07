@@ -105,6 +105,7 @@ function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean 
  */
 function getDefaultMessage(status: number): string {
   switch (status) {
+    case 0: return 'network';
     case 400: return 'HTTP_400';
     case 401: return 'HTTP_401';
     case 403: return 'HTTP_403';
@@ -112,7 +113,7 @@ function getDefaultMessage(status: number): string {
     case 409: return 'HTTP_409';
     case 429: return 'HTTP_429';
     case 500: return 'HTTP_500';
-    default: return 'network'; // o 'unexpected'
+    default: return 'unexpected';
   }
 }
 
