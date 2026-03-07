@@ -222,9 +222,14 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
     useThemeStore.getState().setDarkMode(preferredIsDark, override);
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Record<string, unknown> & { response?: { data?: { errorCode?: string; code?: string } } };
     const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
-    const errorCode = error?.response?.data?.errorCode || error?.errorCode;
+    const errorCode =
+      err?.response?.data?.errorCode ??
+      (err?.errorCode as string | undefined) ??
+      err?.code ??
+      (err?.response?.data?.code as string | undefined);
     return { success: false, error: message, errorCode };
   }
 }

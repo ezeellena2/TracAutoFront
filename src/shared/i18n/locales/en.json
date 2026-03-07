@@ -1324,6 +1324,8 @@
       "CredencialesInvalidas": "Invalid email or password",
       "EmailNoVerificado": "You must verify your email before signing in",
       "CuentaBloqueada": "Account has been temporarily locked due to multiple failed attempts",
+      "CuentaBloqueadaTemporal": "Account locked temporarily. If you have a registered account, you will receive an email with instructions to recover it.",
+      "CuentaBloqueadaPermanente": "Account locked. If you have a registered account, you will receive an email with instructions to recover it.",
       "CodigoInvalido": "Verification code is invalid or has expired",
       "CodigoEmailInvalido": "Email verification code is invalid",
       "CodigoTelefonoInvalido": "Phone verification code is invalid",

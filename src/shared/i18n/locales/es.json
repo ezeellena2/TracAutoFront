@@ -1411,8 +1411,8 @@
     "Auth": {
       "CredencialesInvalidas": "Email o contraseña incorrectos",
       "EmailNoVerificado": "Debe verificar su email antes de iniciar sesión",
-      "CuentaBloqueada": "Cuenta bloqueada. Si tiene una cuenta registrada, recibirá un email con instrucciones para recuperarla.",
-      "CuentaBloqueadaTemporal": "Cuenta bloqueada. Si tiene una cuenta registrada, recibirá un email con instrucciones para recuperarla.",
+      "CuentaBloqueada": "La cuenta ha sido bloqueada temporalmente por múltiples intentos fallidos",
+      "CuentaBloqueadaTemporal": "Cuenta bloqueada temporalmente. Si tiene una cuenta registrada, recibirá un email con instrucciones para recuperarla.",
       "CuentaBloqueadaPermanente": "Cuenta bloqueada. Si tiene una cuenta registrada, recibirá un email con instrucciones para recuperarla.",
       "CodigoInvalido": "El código de verificación es inválido o ha expirado",
       "CodigoEmailInvalido": "El código de verificación de email es inválido",
