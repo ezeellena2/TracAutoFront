@@ -225,11 +225,12 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
   } catch (error: unknown) {
     const err = error as Record<string, unknown> & { response?: { data?: { errorCode?: string; code?: string } } };
     const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
-    const errorCode =
+    const rawCode =
       err?.response?.data?.errorCode ??
       (err?.errorCode as string | undefined) ??
       err?.code ??
       (err?.response?.data?.code as string | undefined);
+    const errorCode: string | undefined = typeof rawCode === 'string' ? rawCode : undefined;
     return { success: false, error: message, errorCode };
   }
 }
