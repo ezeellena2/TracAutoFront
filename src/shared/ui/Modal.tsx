@@ -31,19 +31,19 @@ interface ModalFooterProps {
 
 function ModalHeader({ icon, title, subtitle, badge, onClose }: ModalHeaderProps) {
   return (
-    <div className="flex items-start justify-between px-6 py-5 border-b border-border">
-      <div className="flex items-start gap-3 min-w-0">
+    <div className="flex items-start justify-between px-5 py-4 border-b border-border">
+      <div className="flex items-center gap-2.5 min-w-0">
         {icon && (
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mt-0.5">
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
             {icon}
           </div>
         )}
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-text leading-tight">{title}</h2>
+          <h2 className="text-base font-semibold text-text leading-tight">{title}</h2>
           {(subtitle || badge) && (
-            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {subtitle && (
-                <span className="text-sm text-text-muted">{subtitle}</span>
+                <span className="text-xs text-text-muted">{subtitle}</span>
               )}
               {badge}
             </div>
@@ -53,10 +53,10 @@ function ModalHeader({ icon, title, subtitle, badge, onClose }: ModalHeaderProps
       {onClose && (
         <button
           onClick={onClose}
-          className="flex-shrink-0 p-1.5 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors ml-4"
+          className="flex-shrink-0 p-1 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors ml-3"
           aria-label="Cerrar"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       )}
     </div>
@@ -65,7 +65,7 @@ function ModalHeader({ icon, title, subtitle, badge, onClose }: ModalHeaderProps
 
 function ModalBody({ children, className = '' }: ModalBodyProps) {
   return (
-    <div className={`px-6 py-5 ${className}`}>
+    <div className={`px-5 py-4 ${className}`}>
       {children}
     </div>
   );
@@ -73,7 +73,7 @@ function ModalBody({ children, className = '' }: ModalBodyProps) {
 
 function ModalFooter({ children, className = '' }: ModalFooterProps) {
   return (
-    <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t border-border ${className}`}>
+    <div className={`flex items-center justify-end gap-3 px-5 py-3 border-t border-border ${className}`}>
       {children}
     </div>
   );

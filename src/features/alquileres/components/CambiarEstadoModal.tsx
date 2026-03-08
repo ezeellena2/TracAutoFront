@@ -71,9 +71,9 @@ export function CambiarEstadoModal({ isOpen, vehiculo, onClose, onSuccess }: Cam
   if (!vehiculo) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="md">
+    <Modal isOpen={isOpen} onClose={handleClose} size="sm" className="!overflow-visible">
       <Modal.Header
-        icon={<RefreshCw size={20} />}
+        icon={<RefreshCw size={16} />}
         title={t('alquileres.flota.cambiarEstado.titulo')}
         subtitle={`${vehiculo.patente} — ${vehiculo.marca} ${vehiculo.modelo}`}
         badge={
