@@ -202,7 +202,7 @@ export default function DetalleAlquilerPage() {
             offers: {
               '@type': 'Offer',
               price: vehiculo.precioBaseDiario,
-              priceCurrency: vehiculo.moneda ?? 'ARS',
+              priceCurrency: 'ARS',
               availability: 'https://schema.org/InStock',
             },
           })}

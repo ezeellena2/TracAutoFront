@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import { KPICard, Card, CardHeader, Badge, Button, Spinner, ApiErrorBanner } from '@/shared/ui';
-import { usePermissions } from '@/hooks';
+import { usePermissions, useErrorHandler } from '@/hooks';
 import { formatCurrency } from '@/shared/utils/currencyFormatter';
 import { CategoriaAlquiler } from '../types/vehiculoAlquiler';
 import { TipoReporte, AgrupacionPeriodo } from '../types/reportes';
@@ -12,6 +12,7 @@ import { GraficoIngresos } from '../components/GraficoIngresos';
 export function ReportesAlquilerPage() {
   const { t } = useTranslation();
   const { can } = usePermissions();
+  const { parseError } = useErrorHandler();
 
   const {
     estadisticas,
@@ -197,7 +198,7 @@ export function ReportesAlquilerPage() {
         </div>
       </Card>
 
-      <ApiErrorBanner error={error} />
+      <ApiErrorBanner error={error ? parseError(error) : null} jiraLabel="Error reportes alquiler" />
 
       {isLoading ? (
         <div className="flex justify-center py-16">
