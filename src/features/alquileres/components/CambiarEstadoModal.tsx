@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Modal, Select, Button, Badge, ApiErrorBanner } from '@/shared/ui';
 import { vehiculosAlquilerApi } from '@/services/endpoints';
 import { toast } from '@/store/toast.store';
@@ -71,28 +71,23 @@ export function CambiarEstadoModal({ isOpen, vehiculo, onClose, onSuccess }: Cam
   if (!vehiculo) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="sm">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-text">{t('alquileres.flota.cambiarEstado.titulo')}</h2>
-          <button onClick={handleClose} className="text-text-muted hover:text-text">
-            <X size={20} />
-          </button>
-        </div>
+    <Modal isOpen={isOpen} onClose={handleClose} size="md">
+      <Modal.Header
+        icon={<RefreshCw size={20} />}
+        title={t('alquileres.flota.cambiarEstado.titulo')}
+        subtitle={`${vehiculo.patente} — ${vehiculo.marca} ${vehiculo.modelo}`}
+        badge={
+          <Badge variant={ESTADO_BADGE_VARIANT[vehiculo.estado]}>
+            {t(`alquileres.flota.estados.${vehiculo.estado}`)}
+          </Badge>
+        }
+        onClose={handleClose}
+      />
 
+      <Modal.Body>
         <ApiErrorBanner error={apiError} jiraLabel="Error cambio estado vehículo" onReportClick={handleClose} />
 
         <div className="space-y-4">
-          <div>
-            <p className="text-sm text-text-muted mb-2">{vehiculo.patente} — {vehiculo.marca} {vehiculo.modelo}</p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-text">{t('alquileres.flota.cambiarEstado.estadoActual')}:</span>
-              <Badge variant={ESTADO_BADGE_VARIANT[vehiculo.estado]}>
-                {t(`alquileres.flota.estados.${vehiculo.estado}`)}
-              </Badge>
-            </div>
-          </div>
-
           <Select
             label={t('alquileres.flota.cambiarEstado.nuevoEstado')}
             value={nuevoEstado}
@@ -101,27 +96,25 @@ export function CambiarEstadoModal({ isOpen, vehiculo, onClose, onSuccess }: Cam
             placeholder={t('alquileres.flota.cambiarEstado.seleccionar')}
             required
           />
-
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleClose}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={isLoading || nuevoEstado === ''}
-              className="flex-1"
-            >
-              {isLoading ? t('common.saving') : t('alquileres.flota.cambiarEstado.confirmar')}
-            </Button>
-          </div>
         </div>
-      </div>
+      </Modal.Body>
+
+      <Modal.Footer>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handleClose}
+          disabled={isLoading}
+        >
+          {t('common.cancel')}
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={isLoading || nuevoEstado === ''}
+        >
+          {isLoading ? t('common.saving') : t('alquileres.flota.cambiarEstado.confirmar')}
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }

@@ -163,6 +163,7 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/notificaciones': ['Admin', 'Operador', 'Analista'],
   '/usuarios': ['Admin'],
   '/configuracion/empresa/apariencia': ['Admin'],
+  '/configuracion/empresa/preferencias': ['Admin'],
   '/configuracion/empresa/relaciones': ['Admin'],
   '/configuracion/empresa/solicitudes-cambio': ['Admin'],
   // Alquileres
