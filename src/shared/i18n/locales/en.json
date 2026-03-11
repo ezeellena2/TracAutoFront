@@ -562,7 +562,7 @@
     "totalSold": "Sold",
     "licensePlate": "LICENSE PLATE",
     "vehicle": "VEHICLE",
-    "status": "STATUS",
+    "statusHeader": "STATUS",
     "price": "PRICE",
     "mileage": "MILEAGE",
     "consultPrice": "Consult price",
@@ -574,7 +574,7 @@
       "vehicle": "VEHICLE",
       "mileage": "MILEAGE",
       "price": "PRICE",
-      "status": "STATUS",
+      "statusHeader": "STATUS",
       "publicationStatus": "PUB. STATUS",
       "actions": "ACTIONS",
       "consultPrice": "Consult",
@@ -955,32 +955,26 @@
     "hideGeofences": "Hide geozones"
   },
   "auth": {
-    "login": "Sign In",
-    "register": "Sign Up",
-    "email": "Email",
-    "password": "Password",
-    "forgotPassword": "Forgot your password?",
-    "rememberMe": "Remember me",
-    "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?",
-    "companyName": "Company Name",
-    "yourName": "Your Name",
-    "confirmPassword": "Confirm Password",
     "title": "TracAuto",
     "subtitle": "Telematics Management Platform",
     "signIn": "Sign In",
     "signInSubtitle": "Enter your credentials to access",
-    "emailLabel": "Email",
+    "forgotPassword": "Forgot your password?",
+    "emailLabel": "Email address",
     "emailPlaceholder": "user@company.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
+    "rememberMe": "Remember me",
     "signingIn": "Signing in...",
     "signInButton": "Sign In",
     "continueWith": "or continue with",
     "continueGoogle": "Continue with Google",
     "registerCompany": "Register my Company",
     "contactSupport": "Contact Support",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "legalMessage": "By signing in, you agree to our terms of use and privacy policy.",
+    "noAccount": "Don't have an account?",
     "registerTitle": "Register Company",
     "registerSubtitle": "Complete the information to create your account",
     "backToLogin": "Back to login",
@@ -1017,10 +1011,22 @@
     "smsCodeLabel": "SMS Code",
     "smsCodePlaceholder": "123456",
     "verifying": "Verifying...",
-    "verifyButton": "Verify Account",
+    "verifyButton": "Verify account",
+    "resendingCode": "Resending code...",
+    "requestResetTitle": "Reset Password",
+    "requestResetSubtitle": "Enter your email to receive a recovery link.",
+    "requestResetButton": "Accept",
     "resendEmail": "Resend by email",
     "resendSms": "Resend by SMS",
     "legalRegister": "By registering, you agree to our terms of service and privacy policy.",
+    "success": {
+      "emailVerified": "Email verified successfully.",
+      "phoneVerified": "Phone verified successfully.",
+      "codeResentEmail": "Code resent successfully.",
+      "codeResentSms": "Code resent via SMS successfully.",
+      "resetPasswordEmailSent": "If the email is registered, you will receive a reset link.",
+      "resendCodeSuccess": "Verification code resent successfully"
+    },
     "errors": {
       "invalidEmail": "Please enter a valid email address",
       "completeFields": "Complete all fields",
@@ -1031,28 +1037,30 @@
       "passwordNumber": "Password must contain at least one number",
       "passwordSpecial": "Password must contain at least one special character",
       "accountNotVerified": "Your account is not verified. Please check your email.",
+      "emailPending": "Email verification is pending.",
+      "phonePending": "Phone verification is pending.",
       "accountBlocked": "Your account has been blocked. Contact support.",
       "invalidCuit": "The tax ID entered is not valid",
       "authError": "Authentication error",
       "registerError": "Error registering company",
       "verifyError": "Error verifying account",
       "resendError": "Error resending code",
-      "resendCodeError": "Error resending verification code",
+      "resendCodeError": "Error resending verification code.",
       "googleNotAvailable": "Google login will be available soon",
       "termsRequired": "You must accept the terms and conditions to continue",
       "phoneMinLength": "Phone number must be at least 10 digits",
       "fieldRequired": "This field is required.",
       "emailCodeRequired": "Email code is required.",
       "smsCodeRequired": "SMS code is required.",
-      "codeFormat": "Code must be 6 numeric digits."
-    },
-    "success": {
-      "codeResentEmail": "Code resent to your email",
-      "codeResentSms": "Code resent to your phone",
-      "resendCodeSuccess": "Verification code resent successfully"
+      "codeFormat": "Code must be 6 numeric digits.",
+      "resetPasswordError": "Could not reset password. Please try again later.",
+      "companyNameRequired": "Company name is required.",
+      "cuitLength": "CUIT must be 11 digits.",
+      "fullNameRequired": "Full name is required.",
+      "phoneMaxLength": "Phone cannot exceed 20 characters.",
+      "googleTokenInvalid": "Invalid Google token."
     },
     "resendVerificationCode": "Resend verification code",
-    "resendingCode": "Resending code...",
     "invalidPhone": "Invalid phone number",
     "whatsappRequired": "Must be a WhatsApp number (mobile)"
   },
@@ -1150,7 +1158,9 @@
         "autoAssignResources": "Automatic resource assignment",
         "autoAssignResourcesHelp": "If enabled, all resources will be automatically shared when there is only 1 active relationship",
         "description": "Select the organization with which you wish to share or receive resources. A request will be sent to their administrators.",
-        "autoShareDescription": "If checked, access to your vehicles, drivers and devices will be offered to the other organization."
+        "autoShareDescription": "If checked, access to your vehicles, drivers and devices will be offered to the other organization.",
+        "autoShare": "Offer to automatically share my resources",
+        "submit": "Send Request"
       },
       "table": {
         "organization": "Organization",
@@ -1182,7 +1192,9 @@
       },
       "success": {
         "created": "Relationship created successfully",
-        "requestSent": "Request sent successfully"
+        "requestSent": "Request sent successfully",
+        "accepted": "Request accepted",
+        "rejected": "Request rejected"
       },
       "respond": {
         "title": "Respond to Request",
@@ -1191,10 +1203,6 @@
         "acceptDescription": "By accepting, a relationship will be established that will allow sharing resources according to each party's configuration.",
         "shareResourcesDescription": "If you check this option, your vehicles, drivers and devices will be visible to {{name}}."
       },
-      "success": {
-        "accepted": "Request accepted",
-        "rejected": "Request rejected"
-      },
       "pendingRequests": {
         "title": "Pending Requests",
         "sent": "SENT",
@@ -1202,10 +1210,6 @@
         "manageRequest": "Manage Request",
         "waitingResponse": "Waiting for response...",
         "cancelRequest": "Cancel Request"
-      },
-      "create": {
-        "autoShare": "Offer to automatically share my resources",
-        "submit": "Send Request"
       }
     },
     "exclusions": {

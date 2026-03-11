@@ -14,6 +14,8 @@ export interface LoginResult {
   success: boolean;
   user?: AuthUser;
   error?: string;
+  /** Email del usuario (si está disponible en el error) */
+  email?: string;
   /** Código de error estructurado del backend (ej: 'Auth.EmailNoVerificado'). Usar en lugar de string matching. */
   errorCode?: string;
   /** Código de estado HTTP retornado por la respuesta de error */
@@ -145,6 +147,9 @@ export interface GoogleLoginResult {
   };
   error?: string;
   errorCode?: string;
+  email?: string;
+  extensions?: any;
+  status?: number;
 }
 
 /**
@@ -225,6 +230,7 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
   } catch (error: unknown) {
     const err = error as Record<string, unknown> & { response?: { data?: { errorCode?: string; code?: string } } };
     const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
+<<<<<<< HEAD
     const rawCode =
       err?.response?.data?.errorCode ??
       (err?.errorCode as string | undefined) ??
@@ -232,14 +238,42 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
       (err?.response?.data?.code as string | undefined);
     const errorCode: string | undefined = typeof rawCode === 'string' ? rawCode : undefined;
     return { success: false, error: message, errorCode };
+=======
+    const errorCode = (error as any)?.code as string | undefined;
+    const status = (error as any)?.status as number | undefined;
+
+    // ASP.NET Core serializa ProblemDetails.Extensions como propiedades de primer nivel
+    // en el JSON (no anidadas bajo "extensions"). Soportamos ambos formatos.
+    const pd = (error as any)?.problemDetails as Record<string, unknown> | undefined;
+    const extensions = (pd?.extensions as Record<string, unknown>) ?? pd;
+    const email = (extensions?.email as string) || (error as any)?.email;
+
+    return {
+      success: false,
+      error: message,
+      errorCode,
+      extensions,
+      email,
+      status
+    };
+>>>>>>> aea21e0 (Reset pass  modal + fix verificación cuenta)
   }
 }
 
 /**
- * Decodifica el payload de un JWT sin validar la firma (para leer claims).
- * La validación la hace el backend; aquí solo leemos campos.
+ * Solicita un link de reseteo de password
  */
-function parseJwtPayload(token: string): Record<string, string> {
+export async function solicitarResetPassword(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await authApi.solicitarResetPassword({ email });
+    return { success: true };
+  } catch (error: any) {
+    const message = error instanceof Error ? error.message : 'Error al solicitar el restablecimiento de contraseña';
+    return { success: false, error: message };
+  }
+}
+
+function parseJwtPayload(token: string): Record<string, any> {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -255,6 +289,7 @@ function parseJwtPayload(token: string): Record<string, string> {
   }
 }
 
+
 export const authService = {
   login,
   logout,
@@ -263,6 +298,7 @@ export const authService = {
   getCurrentUser,
   getCurrentOrganization,
   loginWithGoogle,
+  solicitarResetPassword,
 };
 
 export default authService;

@@ -3,39 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button, Input, Select, Alert } from '@/shared/ui';
-import { authApi, organizacionesApi } from '@/services/endpoints';
+import { authApi } from '@/services/endpoints';
+import { RegistrarEmpresaRequestSchema, TipoOrganizacion } from '@/shared/types/api';
 import { useAuthStore, useTenantStore } from '@/store';
 
-/**
- * Decodifica el payload de un JWT sin verificar la firma.
- * Solo para uso en cliente — la verificación real ocurre en el backend.
- */
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-}
-
-/** Extrae el rol del JWT. Soporta claim 'role' y el claim largo de ASP.NET Identity. */
-function extractRoleFromToken(token: string): 'Admin' | 'Operador' | 'Analista' {
-  const payload = decodeJwtPayload(token);
-  if (!payload) return 'Operador';
-  const roleClaim =
-    (payload['role'] as string | undefined) ??
-    (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] as string | undefined);
-  const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
-    Admin: 'Admin',
-    Administrador: 'Admin',
-    Operador: 'Operador',
-    Analista: 'Analista',
-  };
-  return rolMap[roleClaim ?? ''] ?? 'Operador';
-}
+/** Mapea el rol del backend al tipo del frontend */
+const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
+  Admin: 'Admin',
+  Administrador: 'Admin',
+  Operador: 'Operador',
+  Analista: 'Analista',
+};
 
 /**
  * Página de Registro de Empresa B2B
@@ -56,6 +34,7 @@ export function RegistroPage() {
     nombreOrganizacion?: string;
     emailVerificado?: boolean;
     telefonoVerificado?: boolean;
+    isGoogle?: boolean;
     googleData?: {
       email: string;
       nombre: string;
@@ -71,6 +50,8 @@ export function RegistroPage() {
     state?.modoVerificacion ? 'verificacion' : 'datos'
   );
   const [isLoading, setIsLoading] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
   const [isResending, setIsResending] = useState<'email' | 'sms' | null>(null);
   const [error, setError] = useState('');
   const [resendSuccess, setResendSuccess] = useState('');
@@ -94,7 +75,7 @@ export function RegistroPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showAllErrors, setShowAllErrors] = useState(false);
 
   // Verification
   const [codigoEmail, setCodigoEmail] = useState('');
@@ -103,6 +84,8 @@ export function RegistroPage() {
   const [telefonoVerificado, setTelefonoVerificado] = useState<boolean>(false);
   const [codigoEmailError, setCodigoEmailError] = useState('');
   const [codigoTelefonoError, setCodigoTelefonoError] = useState('');
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [telefonoSuccess, setTelefonoSuccess] = useState('');
 
   // Inicializar datos si viene en modo verificación o con datos de Google
   useEffect(() => {
@@ -116,8 +99,14 @@ export function RegistroPage() {
         organizacionId: state.organizacionId || '',
         nombreOrganizacion: state.nombreOrganizacion || '',
       });
+
       setEmailVerificado(!!state.emailVerificado);
       setTelefonoVerificado(!!state.telefonoVerificado);
+
+      if (state.emailVerificado) {
+        setEmailSuccess(t(state.isGoogle ? 'auth.success.emailVerifiedGoogle' : 'auth.success.emailVerified'));
+      }
+
       setStep('verificacion');
       window.history.replaceState({}, document.title);
     } else if (state?.googleData) {
@@ -136,6 +125,30 @@ export function RegistroPage() {
   // (necesario porque commitE164 del PhoneInput llama updateField y luego onBlur en el mismo tick)
   const formDataRef = useRef(formData);
   formDataRef.current = formData;
+  const googleTokenRef = useRef<string | undefined>(state?.googleData?.idToken);
+
+  // Detectar autofill del navegador al montar
+  useEffect(() => {
+    const checkAutofill = () => {
+      const emailValue = emailInputRef.current?.value;
+      const passwordValue = passwordInputRef.current?.value;
+
+      if (emailValue && emailValue !== formDataRef.current.email) {
+        updateField('email', emailValue);
+      }
+      if (passwordValue && passwordValue !== formDataRef.current.password) {
+        updateField('password', passwordValue);
+      }
+    };
+
+    // Polling breve: algunos navegadores aplican autofill con un ligero delay
+    const timers = [
+      setTimeout(checkAutofill, 100),
+      setTimeout(checkAutofill, 500),
+      setTimeout(checkAutofill, 1000),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, []);
 
   const updateField = (field: keyof typeof formData, value: string | number | boolean) => {
     setFormData(prev => {
@@ -144,40 +157,14 @@ export function RegistroPage() {
       return next;
     });
     setError('');
-    // Limpiar error inline del campo al escribir
-    if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: '' }));
-    }
   };
 
-  const handleFocus = (field: string) => {
-    if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: '' }));
-    }
+  const handleFocus = (_field: string) => {
+    // No longer needed for fieldErrors but kept for consistency if needed later
   };
 
   const handleBlur = (field: string) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    const value = formDataRef.current[field as keyof typeof formData];
-    if (typeof value === 'string' && !value.trim()) {
-      setFieldErrors(prev => ({ ...prev, [field]: t('auth.errors.fieldRequired') }));
-    } else if (typeof value === 'number' && value === 0) {
-      setFieldErrors(prev => ({ ...prev, [field]: t('auth.errors.fieldRequired') }));
-    } else if (field === 'cuit' && formData.cuit && !validarCuit(formData.cuit)) {
-      setFieldErrors(prev => ({ ...prev, cuit: t('auth.errors.invalidCuit') }));
-    } else if (field === 'email' && formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setFieldErrors(prev => ({ ...prev, email: t('auth.errors.invalidEmail') }));
-    } else if (field === 'password' && formData.password) {
-      let pwErr = '';
-      if (formData.password.length < 8) pwErr = t('auth.errors.passwordMinLength');
-      else if (!/[A-Z]/.test(formData.password)) pwErr = t('auth.errors.passwordUppercase');
-      else if (!/[a-z]/.test(formData.password)) pwErr = t('auth.errors.passwordLowercase');
-      else if (!/[0-9]/.test(formData.password)) pwErr = t('auth.errors.passwordNumber');
-      else if (!/[^a-zA-Z0-9]/.test(formData.password)) pwErr = t('auth.errors.passwordSpecial');
-      if (pwErr) setFieldErrors(prev => ({ ...prev, password: pwErr }));
-    } else if (field === 'confirmPassword' && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-      setFieldErrors(prev => ({ ...prev, confirmPassword: t('auth.errors.passwordMismatch') }));
-    }
   };
 
   // Formatear CUIT: XX-XXXXXXXX-X
@@ -229,32 +216,62 @@ export function RegistroPage() {
     { value: 5, label: t('auth.orgTypes.empresaRenting') },
   ];
 
+  // Errores derivados del estado del formulario
+  const errors = useMemo(() => {
+    const errs: Record<string, string> = {};
+    const {
+      nombreEmpresa, cuit, tipoOrganizacion, nombreCompleto,
+      email, telefono, password, confirmPassword, aceptaTerminos
+    } = formData;
+
+    if (!nombreEmpresa.trim()) errs.nombreEmpresa = t('auth.errors.fieldRequired');
+
+    if (!cuit.trim()) {
+      errs.cuit = t('auth.errors.fieldRequired');
+    } else if (!validarCuit(cuit)) {
+      errs.cuit = t('auth.errors.invalidCuit');
+    }
+
+    if (!tipoOrganizacion) errs.tipoOrganizacion = t('auth.errors.fieldRequired');
+    if (!nombreCompleto.trim()) errs.nombreCompleto = t('auth.errors.fieldRequired');
+
+    if (!email.trim()) {
+      errs.email = t('auth.errors.fieldRequired');
+    } else {
+      const result = RegistrarEmpresaRequestSchema.shape.email.safeParse(email);
+      if (!result.success) errs.email = t(result.error.errors[0].message as any);
+    }
+
+    if (!telefono.trim()) errs.telefono = t('auth.errors.fieldRequired');
+
+    if (!password) {
+      errs.password = t('auth.errors.fieldRequired');
+    } else {
+      const result = RegistrarEmpresaRequestSchema.shape.password.safeParse(password);
+      if (!result.success) errs.password = t(result.error.errors[0].message as any);
+    }
+
+    if (!confirmPassword) {
+      errs.confirmPassword = t('auth.errors.fieldRequired');
+    } else if (password !== confirmPassword) {
+      errs.confirmPassword = t('auth.errors.passwordMismatch');
+    }
+
+    if (!aceptaTerminos) errs.aceptaTerminos = t('auth.errors.termsRequired');
+
+    return errs;
+  }, [formData, t]);
+
   // Validez reactiva del formulario
-  const isFormValid = useMemo(() => {
-    const { nombreEmpresa, cuit, tipoOrganizacion, nombreCompleto, email, telefono, password, confirmPassword, aceptaTerminos } = formData;
-    // Campos no vacíos
-    if (!nombreEmpresa.trim() || !cuit.trim() || !tipoOrganizacion || !nombreCompleto.trim() || !email.trim() || !telefono.trim() || !password || !confirmPassword) return false;
-    // CUIT válido
-    if (!validarCuit(cuit)) return false;
-    // Email válido
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
-    // Password requisitos
-    if (password.length < 8) return false;
-    if (!/[A-Z]/.test(password)) return false;
-    if (!/[a-z]/.test(password)) return false;
-    if (!/[0-9]/.test(password)) return false;
-    if (!/[^a-zA-Z0-9]/.test(password)) return false;
-    // Passwords coinciden
-    if (password !== confirmPassword) return false;
-    // Términos aceptados
-    if (!aceptaTerminos) return false;
-    // Sin errores de campo activos
-    if (Object.values(fieldErrors).some(e => e)) return false;
-    return true;
-  }, [formData, fieldErrors]);
+  const isFormValid = useMemo(() => Object.keys(errors).length === 0, [errors]);
 
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFormValid) {
+      setShowAllErrors(true);
+      return;
+    }
 
     setIsLoading(true);
     setError('');
@@ -269,6 +286,7 @@ export function RegistroPage() {
         nombreCompleto: formData.nombreCompleto,
         telefono: formData.telefono,
         aceptaTerminosYCondiciones: formData.aceptaTerminos as true,
+        googleToken: googleTokenRef.current,
       });
 
       setSuccessData({
@@ -330,45 +348,81 @@ export function RegistroPage() {
         payload.codigoTelefono = codigoTelefono;
       }
 
-
       const response = await authApi.verificarCuenta(payload);
 
-      // Verificación exitosa - auto-login con el token recibido
-      // F01-C01: Extraer rol real del JWT en lugar de hardcodear 'Admin'
-      const rolReal = extractRoleFromToken(response.token);
-      useAuthStore.getState().login(
-        {
-          id: successData.usuarioId,
-          nombre: formData.nombreCompleto,
-          email: formData.email,
-          rol: rolReal,
-          organizationId: successData.organizacionId,
-          organizationName: successData.nombreOrganizacion,
-        },
-        response.token
-      );
+      // Actualizar estados locales de verificación
+      const isEmailOk = response.emailVerificado ?? true;
+      const isTelefonoOk = response.telefonoVerificado ?? true;
 
-      // P0-FIX: Cargar datos de la organización en tenantStore para que se muestre el nombre/branding
-      try {
-        const orgDto = await organizacionesApi.getOrganizacionById(successData.organizacionId);
-        useTenantStore.getState().setOrganizationFromDto(orgDto);
-      } catch (orgError) {
-        console.error('Error loading organization details after verify:', orgError);
-        // F01-M03: Fallback sin tipoOrganizacion del formulario (puede diferir del backend)
-        useTenantStore.getState().setOrganization({
-          id: successData.organizacionId,
-          name: successData.nombreOrganizacion,
-          logo: '',
-          theme: {}
-        });
+      if (isEmailOk && !emailVerificado) {
+        setEmailVerificado(true);
+        setEmailSuccess(t('auth.success.emailVerified'));
+      }
+      if (isTelefonoOk && !telefonoVerificado) {
+        setTelefonoVerificado(true);
+        setTelefonoSuccess(t('auth.success.phoneVerified'));
       }
 
-      // Redirigir al dashboard
-      navigate('/', { replace: true });
+      // Si ambos están verificados, proceder al login usando datos del response
+      if (isEmailOk && isTelefonoOk) {
+        useAuthStore.getState().login(
+          {
+            id: response.usuarioId,
+            nombre: response.nombreUsuario,
+            email: response.email,
+            rol: rolMap[response.rol] || 'Operador',
+            organizationId: response.organizacionId,
+            organizationName: response.nombreOrganizacion,
+          },
+          response.token
+        );
 
-    } catch (err) {
+        // Usar datos de sesión del response directamente (sin request extra)
+        useTenantStore.getState().setOrganizationFromLogin({
+          id: response.organizacionId,
+          nombre: response.nombreOrganizacion,
+          tipoOrganizacion: response.tipoOrganizacion as TipoOrganizacion,
+          theme: response.theme,
+        });
+
+        navigate('/', { replace: true });
+      } else {
+        // Limpiar códigos ya usados
+        if (isEmailOk) setCodigoEmail('');
+        if (isTelefonoOk) setCodigoTelefono('');
+      }
+
+    } catch (err: any) {
+      // El backend puede retornar 403 (No verificado) o 400 (Código inválido)
+      // con información de verif parcial en el body
+      if ((err.status === 400 || err.status === 403) && err.problemDetails) {
+        const details = err.problemDetails;
+        const isEmailOk = details.emailVerificado ?? false;
+        const isTelefonoOk = details.telefonoVerificado ?? false;
+
+        if (isEmailOk && !emailVerificado) {
+          setEmailVerificado(true);
+          setEmailSuccess(t('auth.success.emailVerified'));
+          setCodigoEmail('');
+        }
+        if (isTelefonoOk && !telefonoVerificado) {
+          setTelefonoVerificado(true);
+          setTelefonoSuccess(t('auth.success.phoneVerified'));
+          setCodigoTelefono('');
+        }
+      }
+
       const message = err instanceof Error ? err.message : t('auth.errors.verifyError');
-      setError(message);
+
+      // Mostrar error debajo del campo correspondiente si el mensaje lo indica
+      const lowerMessage = message.toLowerCase();
+      if (lowerMessage.includes('email') || lowerMessage.includes('correo')) {
+        setCodigoEmailError(message);
+      } else if (lowerMessage.includes('sms') || lowerMessage.includes('teléfono') || lowerMessage.includes('telefono')) {
+        setCodigoTelefonoError(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -453,7 +507,7 @@ export function RegistroPage() {
                   disabled={isLoading}
                   onFocus={() => handleFocus('nombreEmpresa')}
                   onBlur={() => handleBlur('nombreEmpresa')}
-                  error={touched.nombreEmpresa ? fieldErrors.nombreEmpresa : ''}
+                  error={(touched.nombreEmpresa || showAllErrors) ? errors.nombreEmpresa : ''}
                 />
 
                 {/* CUIT */}
@@ -468,9 +522,10 @@ export function RegistroPage() {
                   onChange={(e) => updateField('cuit', formatCuit(e.target.value))}
                   placeholder={t('auth.cuitPlaceholder')}
                   disabled={isLoading}
+                  name="cuit"
                   onFocus={() => handleFocus('cuit')}
                   onBlur={() => handleBlur('cuit')}
-                  error={touched.cuit ? fieldErrors.cuit : ''}
+                  error={(touched.cuit || showAllErrors) ? errors.cuit : ''}
                 />
 
                 {/* Tipo de Organización */}
@@ -484,15 +539,14 @@ export function RegistroPage() {
                     value={formData.tipoOrganizacion || ''}
                     onChange={(val) => {
                       updateField('tipoOrganizacion', Number(val));
-                      if (fieldErrors.tipoOrganizacion) setFieldErrors(prev => ({ ...prev, tipoOrganizacion: '' }));
                     }}
                     options={tiposOrganizacion}
                     placeholder={t('auth.selectOrgType')}
                     disabled={isLoading}
+                    onFocus={() => handleFocus('tipoOrganizacion')}
+                    onBlur={() => handleBlur('tipoOrganizacion')}
+                    error={(touched.tipoOrganizacion || showAllErrors) ? errors.tipoOrganizacion : ''}
                   />
-                  {touched.tipoOrganizacion && fieldErrors.tipoOrganizacion && (
-                    <p className="mt-1.5 text-sm text-error">{fieldErrors.tipoOrganizacion}</p>
-                  )}
                 </div>
 
                 {/* Usuario */}
@@ -507,11 +561,11 @@ export function RegistroPage() {
                   value={formData.nombreCompleto}
                   onChange={(e) => updateField('nombreCompleto', e.target.value)}
                   placeholder={t('auth.fullNamePlaceholder')}
-                  autoComplete="name"
+                  autoComplete="off"
                   disabled={isLoading}
                   onFocus={() => handleFocus('nombreCompleto')}
                   onBlur={() => handleBlur('nombreCompleto')}
-                  error={touched.nombreCompleto ? fieldErrors.nombreCompleto : ''}
+                  error={(touched.nombreCompleto || showAllErrors) ? errors.nombreCompleto : ''}
                 />
                 {/* Email */}
                 <Input
@@ -522,14 +576,15 @@ export function RegistroPage() {
                   }
                   type="email"
                   name="email"
+                  ref={emailInputRef}
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
                   placeholder={t('auth.emailPlaceholderRegister')}
-                  autoComplete="email"
+                  autoComplete="off"
                   disabled={isLoading || isGoogleRegistro}
                   onFocus={() => handleFocus('email')}
                   onBlur={() => handleBlur('email')}
-                  error={touched.email ? fieldErrors.email : ''}
+                  error={(touched.email || showAllErrors) ? errors.email : ''}
                 />
                 {/* Telefono */}
                 <Input
@@ -543,11 +598,11 @@ export function RegistroPage() {
                   value={formData.telefono}
                   onChange={(e) => updateField('telefono', e.target.value)}
                   placeholder={t('auth.phonePlaceholder')}
-                  autoComplete="tel"
+                  autoComplete="off"
                   disabled={isLoading}
                   onFocus={() => handleFocus('telefono')}
                   onBlur={() => handleBlur('telefono')}
-                  error={touched.telefono ? fieldErrors.telefono : ''}
+                  error={(touched.telefono || showAllErrors) ? errors.telefono : ''}
                 />
                 {/* Password */}
                 <Input
@@ -557,14 +612,16 @@ export function RegistroPage() {
                     </span>
                   }
                   type={showPassword ? 'text' : 'password'}
+                  ref={passwordInputRef}
                   value={formData.password}
                   onChange={(e) => updateField('password', e.target.value)}
                   placeholder={t('auth.passwordPlaceholderRegister')}
+                  name="password"
                   autoComplete="new-password"
                   disabled={isLoading}
                   onFocus={() => handleFocus('password')}
                   onBlur={() => handleBlur('password')}
-                  error={touched.password ? fieldErrors.password : ''}
+                  error={(touched.password || showAllErrors) ? errors.password : ''}
                   rightElement={
                     <button
                       type="button"
@@ -587,11 +644,12 @@ export function RegistroPage() {
                   value={formData.confirmPassword}
                   onChange={(e) => updateField('confirmPassword', e.target.value)}
                   placeholder={t('auth.confirmPasswordPlaceholder')}
+                  name="confirmPassword"
                   autoComplete="new-password"
                   disabled={isLoading}
                   onFocus={() => handleFocus('confirmPassword')}
                   onBlur={() => handleBlur('confirmPassword')}
-                  error={touched.confirmPassword ? fieldErrors.confirmPassword : ''}
+                  error={(touched.confirmPassword || showAllErrors) ? errors.confirmPassword : ''}
                 />
                 {error && (
                   <Alert type="error" message={error} />
@@ -609,13 +667,16 @@ export function RegistroPage() {
                     {t('auth.legalRegister')}
                   </label>
                 </div>
+                {showAllErrors && errors.aceptaTerminos && (
+                  <p className="text-xs text-error -mt-3 mb-4">{errors.aceptaTerminos}</p>
+                )}
 
 
                 <Button
                   type="submit"
                   className="w-full"
                   size="lg"
-                  disabled={isLoading || !isFormValid}
+                  disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
@@ -646,15 +707,11 @@ export function RegistroPage() {
                 </p>
               </div>
 
-              {/* Mensaje de éxito de reenvío */}
-              {resendSuccess && (
-                <div className="p-3 rounded-lg bg-success/10 border border-success/20 text-success text-sm mb-4 flex items-center gap-2">
-                  <CheckCircle size={16} />
-                  {resendSuccess}
-                </div>
-              )}
 
               <form onSubmit={handleVerificar} noValidate className="space-y-4">
+                {emailVerificado && emailSuccess && (
+                  <Alert type="success" message={emailSuccess} />
+                )}
                 {!emailVerificado && (
                   <Input
                     label={t('auth.emailCodeLabel')}
@@ -668,6 +725,9 @@ export function RegistroPage() {
                   />
                 )}
 
+                {telefonoVerificado && telefonoSuccess && (
+                  <Alert type="success" message={telefonoSuccess} />
+                )}
                 {!telefonoVerificado && (
                   <Input
                     label={t('auth.smsCodeLabel')}
@@ -739,6 +799,14 @@ export function RegistroPage() {
                     </button>
                   )}
                 </div>
+
+                {/* Mensaje de éxito de reenvío sutil */}
+                {resendSuccess && (
+                  <p className="text-center text-xs text-success mt-3 flex items-center justify-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-300">
+                    <CheckCircle size={14} />
+                    {resendSuccess}
+                  </p>
+                )}
               </form>
             </>
           )}
