@@ -1016,6 +1016,10 @@
     "requestResetTitle": "Reset Password",
     "requestResetSubtitle": "Enter your email to receive a recovery link.",
     "requestResetButton": "Accept",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordSubtitle": "Enter and confirm your new password.",
+    "newPasswordLabel": "New Password",
+    "resetPasswordButton": "Save new password",
     "resendEmail": "Resend by email",
     "resendSms": "Resend by SMS",
     "legalRegister": "By registering, you agree to our terms of service and privacy policy.",
@@ -1025,7 +1029,8 @@
       "codeResentEmail": "Code resent successfully.",
       "codeResentSms": "Code resent via SMS successfully.",
       "resetPasswordEmailSent": "If the email is registered, you will receive a reset link.",
-      "resendCodeSuccess": "Verification code resent successfully"
+      "resendCodeSuccess": "Verification code resent successfully",
+      "passwordResetOk": "Password reset successfully."
     },
     "errors": {
       "invalidEmail": "Please enter a valid email address",

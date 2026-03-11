@@ -4,6 +4,7 @@ import { Lock, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import { Button, Input, Alert, Modal } from '@/shared/ui';
 import { authApi } from '@/services/endpoints';
 import { authService } from '@/services/auth.service';
+import { PasswordSchema } from '@/shared/types/api';
 import { useNavigate } from 'react-router-dom';
 
 interface ResetPasswordModalProps {
@@ -30,7 +31,11 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
 
     const validatePassword = (pass: string) => {
         if (!pass) return t('common.required');
-        if (pass.length < 8) return t('auth.errors.passwordMinLength');
+        const parseResult = PasswordSchema.safeParse(pass);
+        if (!parseResult.success) {
+            // Zod returns an array of issues, we just show the first one
+            return t(parseResult.error.issues[0].message);
+        }
         return '';
     };
 
@@ -99,10 +104,10 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                         </div>
                         <div>
                             <h2 className="font-semibold text-text text-lg leading-tight">
-                                {t('auth.resetPasswordTitle', 'Restablecer Contraseña')}
+                                {t('auth.resetPasswordTitle')}
                             </h2>
                             <p className="text-sm text-text-muted mt-1">
-                                {t('auth.resetPasswordSubtitle', 'Ingrese su nueva contraseña de acceso.')}
+                                {t('auth.resetPasswordSubtitle')}
                             </p>
                         </div>
                     </div>
@@ -118,7 +123,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                     <div className="py-4 space-y-4">
                         <Alert
                             type="success"
-                            message={t('auth.success.passwordResetOk', '¡Contraseña restablecida con éxito! Redirigiendo...')}
+                            message={t('auth.success.passwordResetOk')}
                         />
                         <div className="flex justify-center">
                             <Loader2 className="animate-spin text-primary" size={24} />
@@ -129,7 +134,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                         {error && <Alert type="error" message={error} />}
 
                         <Input
-                            label={t('auth.newPasswordLabel', 'Nueva Contraseña')}
+                            label={t('auth.newPasswordLabel')}
                             type={showPassword ? 'text' : 'password'}
                             value={nuevaPassword}
                             onChange={(e) => setNuevaPassword(e.target.value)}
@@ -179,10 +184,10 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                                 {isLoading ? (
                                     <>
                                         <Loader2 size={18} className="animate-spin mr-2" />
-                                        {t('common.processing', 'Procesando...')}
+                                        {t('common.processing')}
                                     </>
                                 ) : (
-                                    t('auth.resetPasswordButton', 'Cambiar Contraseña')
+                                    t('auth.resetPasswordButton')
                                 )}
                             </Button>
                         </div>

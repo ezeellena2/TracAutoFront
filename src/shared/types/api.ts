@@ -33,6 +33,23 @@ export enum TipoOrganizacion {
 
 // --- Requests ---
 
+// Schema reutilizable para validación fuerte de contraseñas
+export const PasswordSchema = z.string()
+  .min(8, "auth.errors.passwordMinLength")
+  .regex(/[A-Z]/, "auth.errors.passwordUppercase")
+  .regex(/[a-z]/, "auth.errors.passwordLowercase")
+  .regex(/[0-9]/, "auth.errors.passwordNumber")
+  .superRefine((val, ctx) => {
+    // Si tiene menos de 14 caracteres, obligamos a un carácter especial para aumentar entropía
+    // Si tiene 14 o más, asumimos que la longitud es suficiente seguridad
+    if (val.length < 14 && !/[^a-zA-Z0-9]/.test(val)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "auth.errors.passwordSpecial",
+      });
+    }
+  });
+
 export const RegistrarEmpresaRequestSchema = z.object({
   nombreEmpresa: z.string().min(2, "auth.errors.companyNameRequired"),
   razonSocial: z.string().optional(),
@@ -42,22 +59,7 @@ export const RegistrarEmpresaRequestSchema = z.object({
     .max(11, "auth.errors.cuitLength"),
   tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
   email: z.string().email("auth.errors.invalidEmail"),
-  password: z
-    .string()
-    .min(8, "auth.errors.passwordMinLength")
-    .regex(/[A-Z]/, "auth.errors.passwordUppercase")
-    .regex(/[a-z]/, "auth.errors.passwordLowercase")
-    .regex(/[0-9]/, "auth.errors.passwordNumber")
-    .superRefine((val, ctx) => {
-      // Si tiene menos de 14 caracteres, obligamos a un carácter especial para aumentar entropía
-      // Si tiene 14 o más, asumimos que la longitud es suficiente seguridad
-      if (val.length < 14 && !/[^a-zA-Z0-9]/.test(val)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "auth.errors.passwordSpecial",
-        });
-      }
-    }),
+  password: PasswordSchema,
   nombreCompleto: z.string().min(2, "auth.errors.fullNameRequired"),
   telefono: z
     .string()
@@ -110,7 +112,7 @@ export type SolicitarResetPasswordRequest = z.infer<
 export const ResetPasswordRequestSchema = z.object({
   email: z.string().email("auth.errors.invalidEmail"),
   token: z.string().min(1, "Obrigatório"),
-  nuevaPassword: z.string().min(8, "auth.errors.passwordMinLength"),
+  nuevaPassword: PasswordSchema,
 });
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
 
