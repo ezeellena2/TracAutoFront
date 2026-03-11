@@ -231,7 +231,7 @@ export function AsignarRecursosModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="3xl">
       <div className="p-6 max-w-3xl w-full">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

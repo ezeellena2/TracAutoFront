@@ -1,0 +1,40 @@
+# ===================================================
+# TracAutoFront - Docker Compose para PRODUCCION
+# ===================================================
+# Sirve los 3 subdominios desde un solo build:
+#   - www.traccarapp.com       (B2B)
+#   - marketplace.traccarapp.com (Marketplace)
+#   - alquiler.traccarapp.com  (Alquiler)
+#
+# La detección de app es en runtime via JavaScript (hostname).
+# nginx responde a los 3 server_name con el mismo SPA.
+# ===================================================
+
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE:-tracauto-frontend:latest}
+    container_name: tracauto-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    environment:
+      # URLs de subdominio — referencia para reverse proxy y CORS del backend
+      - APP_B2B_URL=${APP_B2B_URL:-https://www.traccarapp.com}
+      - APP_MARKETPLACE_URL=${APP_MARKETPLACE_URL:-https://marketplace.traccarapp.com}
+      - APP_ALQUILER_URL=${APP_ALQUILER_URL:-https://alquiler.traccarapp.com}
+      - APP_API_URL=${APP_API_URL:-https://api.traccarapp.com}
+    networks:
+      - tracauto-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    # Nota: En producción se necesita reverse proxy externo (Traefik/Nginx Proxy Manager)
+    # para TLS y routing por subdominio. Configuración de labels de reverse proxy
+    # se agrega según el proveedor elegido (fuera del scope de A1).
+
+networks:
+  tracauto-network:
+    driver: bridge

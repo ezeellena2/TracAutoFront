@@ -9,9 +9,9 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { 
-  DispositivoDto, 
-  ListaPaginada, 
+import {
+  DispositivoDto,
+  ListaPaginada,
   PaginacionParams,
   RecursoSharingStatusDto,
   ActualizarComparticionRequest,
@@ -26,18 +26,17 @@ export interface GetDispositivosParams extends PaginacionParams {
   soloActivos?: boolean;
   /** Si es true, solo retorna dispositivos propios (excluye compartidos/asociados) */
   soloPropios?: boolean;
+  /** Filtrar por ID específico. Útil para navegación directa desde tabla de conductores. */
+  filtroId?: string;
 }
 
 /**
  * Obtiene la lista paginada de dispositivos de la organización actual
- * El backend filtra automáticamente por organizationId desde el token
- *
- * @returns ListaPaginada con dispositivos y metadata
  */
 export async function getDispositivos(
   params: GetDispositivosParams = {}
 ): Promise<ListaPaginada<DispositivoDto>> {
-  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, soloPropios } = params;
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, soloPropios, filtroId } = params;
 
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
@@ -50,6 +49,10 @@ export async function getDispositivos(
 
   if (soloPropios !== undefined) {
     queryParams.soloPropios = soloPropios;
+  }
+
+  if (filtroId !== undefined) {
+    queryParams.filtroId = filtroId;
   }
 
   const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, {

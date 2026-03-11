@@ -40,7 +40,14 @@ export type Permission =
   | 'geofences:editar'
   | 'geofences:eliminar'
   // Organización
-  | 'organizacion:editar';
+  | 'organizacion:editar'
+  // Alquileres
+  | 'alquileres:ver'
+  | 'alquileres:crear'
+  | 'alquileres:editar'
+  | 'alquileres:eliminar'
+  | 'alquileres:configurar'
+  | 'alquileres:reportes';
 
 /**
  * Matriz de permisos por rol
@@ -81,6 +88,13 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'geofences:eliminar',
     // Organización
     'organizacion:editar',
+    // Alquileres
+    'alquileres:ver',
+    'alquileres:crear',
+    'alquileres:editar',
+    'alquileres:eliminar',
+    'alquileres:configurar',
+    'alquileres:reportes',
   ],
 
   Operador: [
@@ -104,6 +118,10 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'geofences:ver',
     'geofences:crear',
     'geofences:editar',
+    // Alquileres (operativo, sin config ni eliminar)
+    'alquileres:ver',
+    'alquileres:crear',
+    'alquileres:editar',
   ],
 
   Analista: [
@@ -120,6 +138,9 @@ export const PERMISSIONS_BY_ROLE: Record<UserRole, Permission[]> = {
     'conductores:ver',
     // Geofences (solo lectura)
     'geofences:ver',
+    // Alquileres (solo lectura + reportes)
+    'alquileres:ver',
+    'alquileres:reportes',
   ],
 };
 
@@ -142,6 +163,21 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/notificaciones': ['Admin', 'Operador', 'Analista'],
   '/usuarios': ['Admin'],
   '/configuracion/empresa/apariencia': ['Admin'],
+  '/configuracion/empresa/preferencias': ['Admin'],
   '/configuracion/empresa/relaciones': ['Admin'],
   '/configuracion/empresa/solicitudes-cambio': ['Admin'],
+  // Alquileres
+  '/alquileres': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/flota': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/sucursales': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/tarifas': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/recargos': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/coberturas': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/promociones': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/reservas': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/reservas/:id': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/clientes': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/contratos': ['Admin', 'Operador', 'Analista'],
+  '/alquileres/reportes': ['Admin', 'Analista'],
+  '/alquileres/configuracion': ['Admin'],
 };

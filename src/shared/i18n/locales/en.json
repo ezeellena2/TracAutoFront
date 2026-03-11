@@ -109,7 +109,9 @@
       "text": "Filter...",
       "select": "All"
     },
-    "noResults": "No results found with active filters."
+    "noResults": "No results found with active filters.",
+    "filteringByDirectLink": "Showing result from direct navigation",
+    "clearDirectFilter": "Show all"
   },
   "header": {
     "darkMode": "Dark mode",
@@ -131,9 +133,23 @@
     "organization": "Organization",
     "organizationLabel": "Organization",
     "organizationAppearance": "Appearance",
+    "organizationPreferences": "Preferences",
     "organizationRelations": "Relations",
     "geofences": "Geozones",
-    "imports": "Imports"
+    "imports": "Imports",
+    "alquileres": "Rentals",
+    "alquileresDashboard": "Dashboard",
+    "alquileresFlota": "Fleet",
+    "alquileresSucursales": "Branches",
+    "alquileresTarifas": "Rates",
+    "alquileresRecargos": "Surcharges",
+    "alquileresCoberturas": "Coverages",
+    "alquileresPromociones": "Promotions",
+    "alquileresReservas": "Reservations",
+    "alquileresClientes": "Clients",
+    "alquileresContratos": "Contracts",
+    "alquileresReportes": "Reports",
+    "alquileresConfiguracion": "Settings"
   },
   "solicitudesCambio": {
     "title": "Change Requests",
@@ -195,11 +211,13 @@
       "confirmAndSend": "Confirm and send to Jira",
       "describeChange": "Describe the change you need in",
       "thisElement": "this element",
+      "describeChangeHint": "The assistant may ask questions to better understand what you need.",
+      "replyToAssistant": "Answer the assistant's questions...",
       "messageLimit": "You have up to {{max}} messages to describe your request.",
       "processing": "Processing...",
       "limitReached": "Message limit reached. Review the assistant's response.",
       "limitReachedShort": "Message limit reached",
-      "readyToSend": "Ticket ready to send",
+      "readyToSend": "Ticket ready — you can review and edit it before sending",
       "viewAndConfirm": "View ticket and confirm",
       "inputPlaceholder": "Describe the change you need...",
       "readyForJira": "Ready for Jira",
@@ -339,7 +357,13 @@
       "editVehicle": "Edit vehicle",
       "deleteVehicle": "Delete vehicle",
       "associated": "Associated",
-      "manageSharing": "Manage sharing"
+      "manageSharing": "Manage sharing",
+      "drivers": "DRIVERS",
+      "viewDrivers": "View drivers"
+    },
+    "conductorsModal": {
+      "title": "Assigned drivers - {{patente}}",
+      "empty": "No drivers assigned to this vehicle."
     },
     "deleteTitle": "Delete vehicle",
     "deleteMessage": "Are you sure you want to delete the vehicle with license plate \"{{patente}}\"? This action will mark the vehicle as inactive.",
@@ -697,7 +721,14 @@
     "active": "Active",
     "inactive": "Inactive",
     "seeInActions": "See in actions",
+    "vehicle": "Vehicle",
+    "device": "Device",
+    "assignedToVehicle": "Assigned to a vehicle",
+    "assignedToDevice": "Assigned to a device",
+    "goToVehicle": "View assigned vehicle",
+    "goToDevice": "View assigned device",
     "assign": "Assign",
+    "manageSharing": "Manage sharing",
     "edit": "Edit",
     "delete": "Delete",
     "confirmDelete": "Are you sure you want to delete driver \"{{name}}\"? This action cannot be undone.",
@@ -720,7 +751,8 @@
       "phonePlaceholder": "+1 555 123-4567"
     },
     "table": {
-      "associated": "Associated"
+      "associated": "Associated",
+      "manageSharing": "Manage sharing"
     },
     "assignmentsModal": {
       "title": "Assignments - {{name}}",
@@ -1141,6 +1173,51 @@
       "relations_plural": "relationships",
       "since": "Since"
     },
+    "preferences": {
+      "title": "Localization Preferences",
+      "subtitle": "Configure the country, timezone, language, and measurement system of the organization.",
+      "country": "Country",
+      "countryPlaceholder": "Select country...",
+      "countryHelp": "Selecting a country auto-fills the default timezone, language, and measurement system.",
+      "timeZone": "Timezone",
+      "timeZonePlaceholder": "Automatic (browser timezone)",
+      "timeZoneHelp": "If left empty, each user will see dates in their browser's timezone.",
+      "culture": "Language / Regional Format",
+      "culturePlaceholder": "Select language...",
+      "measurementSystem": "Measurement System",
+      "metric": "Metric (km, kg)",
+      "imperial": "Imperial (mi, lb)",
+      "save": "Save preferences",
+      "saving": "Saving...",
+      "success": "Preferences updated successfully.",
+      "error": "Could not save preferences.",
+      "autoDetectBadge": "Automatic",
+      "configuredBadge": "Configured",
+      "countries": {
+        "AR": "Argentina",
+        "US": "United States",
+        "MX": "Mexico",
+        "BR": "Brazil",
+        "CL": "Chile",
+        "CO": "Colombia",
+        "PE": "Peru",
+        "ES": "Spain",
+        "GB": "United Kingdom",
+        "CA": "Canada"
+      },
+      "cultures": {
+        "esAR": "Spanish (Argentina)",
+        "esMX": "Spanish (Mexico)",
+        "esCL": "Spanish (Chile)",
+        "esCO": "Spanish (Colombia)",
+        "esPE": "Spanish (Peru)",
+        "esES": "Spanish (Spain)",
+        "enUS": "English (US)",
+        "enGB": "English (UK)",
+        "enCA": "English (Canada)",
+        "ptBR": "Portuguese (Brazil)"
+      }
+    },
     "relations": {
       "title": "Organization Relationships",
       "subtitle": "Manage relationships with other organizations",
@@ -1263,7 +1340,8 @@
       "sistema": "System",
       "seguridad": "Security",
       "solicitud": "Request",
-      "mantenimiento": "Maintenance"
+      "mantenimiento": "Maintenance",
+      "alquiler": "Rental"
     },
     "geofence": {
       "transition": {
@@ -1301,6 +1379,24 @@
       "login_riesgo": {
         "title": "New sign in",
         "message": "New sign in from {{ip}} at {{fechaUtc}} UTC."
+      }
+    },
+    "alquiler": {
+      "tardanza_devolucion": {
+        "title": "Late return - {{param0}}",
+        "message": "Reservation {{param0}} from client {{param1}} is {{param2}}h overdue for return. Vehicle: {{param3}}, Branch: {{param4}}"
+      },
+      "reserva_creada": {
+        "title": "New reservation - {{param0}}",
+        "message": "Reservation {{param0}} was created for {{param1}}"
+      },
+      "reserva_confirmada": {
+        "title": "Reservation confirmed - {{param0}}",
+        "message": "Reservation {{param0}} was confirmed by {{param1}}"
+      },
+      "reserva_cancelada": {
+        "title": "Reservation cancelled - {{param0}}",
+        "message": "Reservation {{param0}} was cancelled. Reason: {{param1}}"
       }
     }
   },
@@ -1447,7 +1543,8 @@
       "ConductorYaInactivo": "Driver is already inactive",
       "NoSePuedeEditarInactivo": "Cannot edit an inactive driver. Reactivate first.",
       "ConductorYaActivo": "Driver is already active",
-      "SinPermisoGestion": "You do not have management permission for this shared driver"
+      "SinPermisoGestion": "You do not have management permission for this shared driver",
+      "BatchLimiteExcedido": "The number of requested vehicles ({{param0}}) exceeds the maximum limit ({{param1}}) per batch request"
     },
     "Seguridad": {
       "IntentoAccesoTenantCruzado": "Unauthorized access: you cannot access data from another organization.",
@@ -1523,6 +1620,1704 @@
       "YaAsignadaAVehiculo": "The geofence is already assigned to this vehicle.",
       "AsignacionNoEncontrada": "The geofence-vehicle assignment was not found.",
       "VehiculoSinDispositivo": "The vehicle does not have an active device assigned."
+    },
+    "Alquiler": {
+      "VehiculoNoEncontrado": "Rental vehicle not found",
+      "VehiculoNoDisponible": "The vehicle is not available for rental on the requested dates",
+      "ReservaNoEncontrada": "Rental reservation not found",
+      "FechasInvalidas": "The start date must be before the end date of the rental",
+      "TransicionEstadoReservaInvalida": "Invalid reservation state transition: {{param0}} → {{param1}}",
+      "ReservaExpirada": "The reservation has expired and can no longer be confirmed",
+      "ConflictoConcurrenciaReserva": "The reservation was modified by another user. Please reload and try again",
+      "ContratoNoEncontrado": "Rental contract not found",
+      "ContratoYaFirmado": "The contract has already been signed and cannot be modified",
+      "TarifaNoEncontrada": "Rental rate not found",
+      "SinTarifaAplicable": "No applicable rate exists for the vehicle and requested period",
+      "PagoNoEncontrado": "Payment not found",
+      "MontoInvalido": "The payment amount must be greater than zero",
+      "PagoYaProcesado": "The payment has already been processed and cannot be modified",
+      "InspeccionNoEncontrada": "Inspection not found",
+      "ClienteNoEncontrado": "Rental customer not found",
+      "DocumentoDuplicado": "A customer with {{param0}} {{param1}} already exists in this organization",
+      "TardanzaDevolucionTitulo": "Late return - {{param0}}",
+      "TardanzaDevolucionMensaje": "Reservation {{param0}} from client {{param1}} is {{param2}}h overdue for return. Vehicle: {{param3}}, Branch: {{param4}}",
+      "ValidacionPromocion": {
+        "Inactiva": "The promotion is inactive",
+        "Expirada": "The promotion has expired or is not yet valid",
+        "UsosAgotados": "The promotion has reached its maximum usage limit",
+        "MontoMinimoInsuficiente": "The reservation amount does not meet the minimum required ({{montoMinimo}})"
+      }
+    },
+    "VehiculoAlquiler": {
+      "NoEncontrado": "Vehicle rental extension not found",
+      "YaTieneExtensionAlquiler": "The vehicle already has an active rental extension",
+      "SinSucursalAsignada": "The rental vehicle must have at least one assigned branch",
+      "NoDisponible": "The rental vehicle is not currently available",
+      "EnMantenimiento": "The rental vehicle is currently under maintenance",
+      "DatosRequeridos": "DatosAlquiler with SucursalPorDefectoId is required to create Alquiler extension",
+      "Inactivo": "The rental vehicle is inactive",
+      "TieneReservasActivas": "Cannot modify: the vehicle has active reservations",
+      "TieneReservasFuturas": "Cannot proceed: the vehicle has future reservations"
+    },
+    "Sucursal": {
+      "NoEncontrada": "Branch not found",
+      "NombreDuplicado": "A branch with this name already exists in the organization",
+      "NoPermiteOneWay": "This branch does not allow one-way returns",
+      "FueraDeHorario": "The operation is outside the branch's business hours",
+      "Inactiva": "The branch is inactive and cannot receive operations",
+      "YaInactiva": "The branch is already inactive",
+      "TieneReservasActivas": "Cannot deactivate branch because it has active or future reservations linked",
+      "CambioHorarioConReservas": "Cannot restrict operating hours because there are future reservations linked to this branch"
+    },
+    "ClienteAlquiler": {
+      "NoEncontrado": "Rental client not found",
+      "EmailDuplicado": "A client with email {{param0}} already exists in this organization",
+      "DocumentoDuplicado": "A client with document {{param0}} already exists in this organization",
+      "LicenciaVencida": "The client's driver license has expired",
+      "EdadInsuficiente": "The client does not meet the minimum age required to rent",
+      "CodigoOtpInvalido": "The verification code is invalid or has expired",
+      "EmailRequerido": "Email is required for registration",
+      "YaRegistrado": "A customer is already registered with this email"
+    },
+    "TarifaAlquiler": {
+      "NoEncontrada": "Rental rate not found",
+      "VigenciaSolapada": "A rate with overlapping validity already exists for the same category and branch",
+      "YaInactiva": "The rate is already inactive"
+    },
+    "RecargoAlquiler": {
+      "NoEncontrado": "Rental surcharge not found",
+      "TipoDuplicadoPorCategoria": "A surcharge of type {{param0}} already exists for this category",
+      "YaInactivo": "The surcharge is already inactive"
+    },
+    "CoberturaAlquiler": {
+      "NoEncontrada": "Rental coverage not found",
+      "YaInactiva": "The coverage is already inactive"
+    },
+    "PromocionAlquiler": {
+      "NoEncontrada": "Rental promotion not found",
+      "CodigoDuplicado": "A promotion with code {{param0}} already exists in this organization",
+      "Expirada": "The promotion has expired and is no longer valid",
+      "UsosAgotados": "The promotion has reached the maximum number of uses",
+      "YaInactiva": "The promotion is already inactive",
+      "NoAplicable": "The promotion is not applicable to this reservation"
+    },
+    "ReservaAlquiler": {
+      "NoEncontrada": "Rental reservation not found",
+      "TransicionInvalida": "Invalid state transition: {{param0}} → {{param1}}",
+      "VehiculoNoDisponible": "The vehicle is not available for the requested dates",
+      "FechaRecogidaPasada": "The pickup date cannot be earlier than the current date",
+      "DuracionMinima": "The reservation duration does not meet the required minimum",
+      "DuracionMaxima": "The reservation duration exceeds the allowed maximum",
+      "CancelacionFueraDePolitica": "Cancellation cannot be made outside the timeframe established by the cancellation policy",
+      "ModificacionNoPermitida": "The reservation cannot be modified in its current state",
+      "YaCompletada": "The reservation has already been completed and cannot be modified",
+      "NumeroReservaDuplicado": "A reservation with this number already exists in the organization",
+      "ConflictoConcurrencia": "The reservation was modified by another user. Please reload the data and try again",
+      "PromocionNoAplicable": "The promotion is not applicable to this reservation",
+      "SinDisponibilidadCategoria": "No vehicles available in the selected category for the requested dates",
+      "NoEsDelCliente": "You do not have permission to access this reservation",
+      "NoShowAntesDeRecogida": "Cannot mark as no-show before the pick-up date"
+    },
+    "CheckOut": {
+      "ReservaNoConfirmada": "The reservation must be in Confirmed state to perform the check-out",
+      "YaRealizado": "A check-out has already been performed for this reservation",
+      "VehiculoNoAsignado": "Cannot perform check-out without a vehicle assigned to the reservation",
+      "VehiculoNoEncontrado": "The vehicle assigned to the reservation was not found",
+      "SucursalNoEncontrada": "The branch indicated for the check-out was not found",
+      "TipoInspeccionInvalido": "The specified inspection type is not valid",
+      "FormatoArchivoNoPermitido": "Only image files are allowed (JPEG, PNG, WebP)"
+    },
+    "CheckIn": {
+      "SinCheckOut": "Cannot perform check-in without a prior check-out",
+      "YaRealizado": "A check-in has already been performed for this reservation",
+      "KilometrajeMenorAlInicial": "Final mileage cannot be less than the initial mileage from the check-out",
+      "ReservaNoEnCurso": "The reservation must be in InProgress status to perform check-in",
+      "ConfiguracionRequerida": "Rental configuration not found. Configure surcharge prices before performing check-in",
+      "ConfiguracionPreciosInvalida": "Surcharge prices in the configuration must be greater than zero"
+    },
+    "PlantillaContrato": {
+      "NoEncontrada": "Contract template not found",
+      "NombreDuplicado": "A template with this name already exists in the organization",
+      "Inactiva": "The contract template is inactive and cannot be used to generate contracts",
+      "NoHayDefault": "No default contract template found in the organization"
+    },
+    "ContratoAlquiler": {
+      "NoEncontrado": "Rental contract not found",
+      "YaFirmado": "The contract has already been signed and cannot be modified",
+      "YaExiste": "A contract already exists for this reservation",
+      "ConflictoConcurrencia": "The contract was modified by another user. Reload the data and try again",
+      "ReservaNoConfirmada": "The reservation must be confirmed or in progress to generate a contract"
+    },
+    "PagoAlquiler": {
+      "NoEncontrado": "Rental payment not found",
+      "MontoInvalido": "Payment amount must be greater than zero",
+      "YaProcesado": "The payment has already been processed and cannot be modified",
+      "ClaveIdempotenciaDuplicada": "A payment with this idempotency key already exists",
+      "MontoExcedeTotal": "Total payment amount exceeds the reservation total price plus surcharges",
+      "DepositoYaLiberado": "The deposit for this reservation has already been released or deducted",
+      "MontoExcedeDeposito": "The amount exceeds the available deposit balance",
+      "ReservaNoValida": "The reservation must be confirmed, in progress, or completed to register payments",
+      "TipoPagoNoPermitido": "This payment type cannot be registered manually. Use the specific endpoints for refunds",
+      "MontoExcedePrecioReserva": "Total payment and deposit amount exceeds the reservation total price",
+      "MontoExcedeMontoDeposito": "Total deposit amount exceeds the reservation deposit amount",
+      "PagoFallido": "Payment was declined by the payment processor",
+      "StripeError": "Error communicating with the payment service",
+      "WebhookFirmaInvalida": "The webhook signature is not valid",
+      "ReembolsoExcedido": "The refund amount exceeds the original payment amount",
+      "PaymentIntentNoEncontrado": "No payment was found associated with this PaymentIntent",
+      "StripeNoConfigurado": "The organization does not have Stripe Connect configured"
+    },
+    "ConfiguracionAlquiler": {
+      "NoEncontrada": "Rental configuration not found for this organization",
+      "YaExiste": "A rental configuration already exists for this organization",
+      "SinConfiguracionAlquiler": "No organization has the rental module configured"
+    },
+    "Cotizacion": {
+      "CategoriaOVehiculoRequerido": "You must specify a vehicle or a category to get a quote",
+      "RecargoNoEncontrado": "One or more selected surcharges were not found or are not active",
+      "CoberturaNoEncontrada": "One or more selected coverages were not found or are not active"
+    },
+    "Reporte": {
+      "TipoNoSoportado": "Report type not supported for export"
+    }
+  },
+  "catalogoMarketplace": {
+    "titulo": "Vehicle Catalog",
+    "subtitulo": "Explore our selection",
+    "catalogo": "Catalog",
+    "buscarPlaceholder": "Search by brand...",
+    "todasConcesionarias": "All dealerships",
+    "disponibles": "{{count}} vehicles available",
+    "sinVehiculos": "No vehicles",
+    "sinVehiculosHint": "There are no published vehicles at the moment",
+    "errorCarga": "Error loading vehicles",
+    "paginaIndicador": "Page {{current}} of {{total}}",
+    "volverCatalogo": "Back to catalog",
+    "vehiculoDefault": "Vehicle",
+    "vehiculoNoEncontrado": "Vehicle not found",
+    "sinImagen": "No image",
+    "destacado": "Featured",
+    "descripcion": "Description",
+    "sinDescripcion": "No description available.",
+    "caracteristicas": "Features",
+    "anio": "Year",
+    "kilometraje": "Mileage",
+    "publicadoEl": "Published on {{date}}",
+    "whatsapp": "WhatsApp",
+    "mensajeWhatsApp": "Hi, I'm interested in the vehicle {{title}}. {{url}}",
+    "contactoNoDisponible": "Contact information not available",
+    "consultarPrecio": "Contact for price",
+    "derechosReservados": "All rights reserved."
+  },
+  "alquileres": {
+    "proximamente": "Coming soon",
+    "dashboard": {
+      "titulo": "Rentals Dashboard",
+      "subtitulo": "General overview of the rental module",
+      "kpi": {
+        "totalReservas": "Reservations in period",
+        "totalReservasSubtitulo": "{{completadas}}% completed",
+        "vehiculosFlota": "Fleet vehicles",
+        "vehiculosFlotaSubtitulo": "{{total}} registered",
+        "ingresosMes": "Period revenue",
+        "ingresosMesSubtitulo": "{{reservas}} reservations",
+        "tasaOcupacion": "Occupancy rate",
+        "tasaOcupacionSubtitulo": "Global fleet average"
+      },
+      "graficos": {
+        "utilizacion": "Utilization by category",
+        "utilizacionSubtitulo": "Occupancy percentage by vehicle type",
+        "ingresos": "Revenue",
+        "ingresosSubtitulo": "Revenue evolution by period",
+        "ocupacion": "Occupancy",
+        "sinDatos": "No data available for the selected period"
+      }
+    },
+    "flota": {
+      "titulo": "Rental Fleet",
+      "subtitulo": "Manage vehicles available for rental",
+      "agregar": "Add vehicle",
+      "editar": "Edit vehicle",
+      "agregado": "Vehicle added to rental fleet successfully",
+      "editado": "Rental vehicle updated successfully",
+      "eliminado": "Vehicle deactivated from rental fleet successfully",
+      "confirmarEliminar": "Deactivate vehicle",
+      "confirmarEliminarMsg": "Deactivate vehicle \"{{patente}}\" from the rental fleet? Existing reservations will not be affected.",
+      "totalVehiculos": "Total vehicles",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "License plate, brand or model...",
+        "categoria": "Category",
+        "categoriaPlaceholder": "All categories",
+        "estado": "Status",
+        "estadoPlaceholder": "All statuses",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "All branches",
+        "soloActivos": "Active only"
+      },
+      "tabla": {
+        "vehiculo": "Vehicle",
+        "categoria": "Category",
+        "precioDia": "Price/day",
+        "estado": "Status",
+        "sucursal": "Branch",
+        "acciones": "Actions"
+      },
+      "acciones": {
+        "editar": "Edit",
+        "cambiarEstado": "Change status",
+        "verDisponibilidad": "View availability",
+        "desactivar": "Deactivate"
+      },
+      "form": {
+        "seccionVehiculo": "Base vehicle",
+        "buscarVehiculo": "Search vehicle",
+        "buscarVehiculoPlaceholder": "Search by license plate...",
+        "sinResultados": "No vehicles found",
+        "vehiculoRequerido": "You must select a vehicle",
+        "seccionDatosAlquiler": "Rental data",
+        "categoriaAlquiler": "Category",
+        "precioBaseDiario": "Base daily price",
+        "precioBaseDiarioPlaceholder": "E.g.: 25000",
+        "precioRequerido": "Price is required and must be greater than 0",
+        "depositoMinimo": "Minimum deposit",
+        "depositoMinimoPlaceholder": "E.g.: 50000",
+        "depositoRequerido": "Deposit is required and must be greater than or equal to 0",
+        "kilometrajeLimiteDiario": "Daily km limit",
+        "kilometrajeLimitePlaceholder": "No limit (empty)",
+        "kilometrajeInvalido": "Limit must be greater than 0",
+        "precioPorKmExcedente": "Price per excess km",
+        "precioPorKmPlaceholder": "E.g.: 150",
+        "precioPorKmRequerido": "Price per excess km is required and must be greater than or equal to 0",
+        "seccionPolitica": "Policy and requirements",
+        "politicaCombustible": "Fuel policy",
+        "edadMinimaConductor": "Minimum driver age",
+        "edadMinimaPlaceholder": "E.g.: 21",
+        "edadMinimaInvalida": "Age must be between 18 and 99",
+        "licenciaRequerida": "Required license",
+        "licenciaPlaceholder": "E.g.: B1, B2",
+        "licenciaRequeridaError": "License is required (max 100 characters)",
+        "seccionSucursales": "Available branches",
+        "sucursalDefecto": "Default",
+        "sucursalDefectoRequerida": "You must select a default branch",
+        "sucursalesRequeridas": "You must select at least one branch",
+        "sucursalesDebeIncluirDefecto": "Branches must include the default branch",
+        "cargandoSucursales": "Loading branches..."
+      },
+      "categorias": {
+        "1": "Economy",
+        "2": "Compact",
+        "3": "Intermediate",
+        "4": "Standard",
+        "5": "Full-Size",
+        "6": "SUV",
+        "7": "Pickup",
+        "8": "Van",
+        "9": "Luxury",
+        "10": "Sports",
+        "11": "Electric"
+      },
+      "estados": {
+        "1": "Available",
+        "2": "Reserved",
+        "3": "In Use",
+        "4": "In Maintenance",
+        "5": "Out of Service",
+        "6": "In Transit"
+      },
+      "politicas": {
+        "1": "Full/Full",
+        "2": "Prepaid fuel",
+        "3": "Free up to 1/4 tank"
+      },
+      "cambiarEstado": {
+        "titulo": "Change status",
+        "estadoActual": "Current status",
+        "nuevoEstado": "New status",
+        "seleccionar": "Select status...",
+        "confirmar": "Change",
+        "exito": "Status updated successfully"
+      },
+      "disponibilidad": {
+        "titulo": "Availability — {{patente}}",
+        "libre": "Available",
+        "ocupado": "Occupied",
+        "hoy": "Today"
+      }
+    },
+    "sucursales": {
+      "titulo": "Branches",
+      "subtitulo": "Pickup and return locations",
+      "crear": "Create branch",
+      "editar": "Edit branch",
+      "creada": "Branch created successfully",
+      "editada": "Branch updated successfully",
+      "eliminada": "Branch deactivated successfully",
+      "confirmarEliminar": "Deactivate branch",
+      "confirmarEliminarMsg": "Deactivate branch \"{{nombre}}\"? Existing reservations will not be affected.",
+      "totalSucursales": "Total branches",
+      "activas": "Active",
+      "inactivas": "Inactive",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Name, address or city...",
+        "ciudad": "City",
+        "ciudadPlaceholder": "Filter by city",
+        "estado": "Status"
+      },
+      "tabla": {
+        "nombre": "Name",
+        "direccion": "Address",
+        "ciudad": "City",
+        "provincia": "Province",
+        "estado": "Status",
+        "telefono": "Phone",
+        "permiteOneWay": "One-Way",
+        "acciones": "Actions"
+      },
+      "form": {
+        "datosGenerales": "General information",
+        "nombre": "Name",
+        "nombrePlaceholder": "Branch name",
+        "direccion": "Address",
+        "direccionPlaceholder": "Street, number, floor...",
+        "ciudad": "City",
+        "ciudadPlaceholder": "City",
+        "provincia": "Province",
+        "provinciaPlaceholder": "Province or state",
+        "codigoPostal": "Postal code",
+        "codigoPostalPlaceholder": "e.g.: 10001",
+        "telefono": "Phone",
+        "telefonoPlaceholder": "+1 555 123-4567",
+        "email": "Email",
+        "emailPlaceholder": "branch@company.com",
+        "permiteOneWay": "Allow return at a different branch (one-way)",
+        "notas": "Notes",
+        "notasPlaceholder": "Internal observations...",
+        "horarios": "Business hours",
+        "horaApertura": "Opening",
+        "horaCierre": "Closing",
+        "cerrado": "Closed",
+        "nombreRequerido": "Name is required",
+        "direccionRequerida": "Address is required",
+        "ciudadRequerida": "City is required",
+        "provinciaRequerida": "Province is required",
+        "emailInvalido": "Invalid email format",
+        "horaInvalida": "Opening time must be before closing time"
+      },
+      "dias": {
+        "lunes": "Monday",
+        "martes": "Tuesday",
+        "miercoles": "Wednesday",
+        "jueves": "Thursday",
+        "viernes": "Friday",
+        "sabado": "Saturday",
+        "domingo": "Sunday"
+      }
+    },
+    "tarifas": {
+      "titulo": "Rates",
+      "subtitulo": "Rental rates management",
+      "agregar": "Add rate",
+      "totalTarifas": "Total rates",
+      "editado": "Rate updated successfully",
+      "agregado": "Rate created successfully",
+      "eliminado": "Rate deactivated successfully",
+      "confirmarEliminar": "Deactivate rate",
+      "confirmarEliminarMsg": "Deactivate rate \"{{nombre}}\"? It will no longer be available for new reservations.",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Search by name...",
+        "categoria": "Category",
+        "categoriaPlaceholder": "All categories",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "All branches",
+        "unidadTiempo": "Time unit",
+        "unidadTiempoPlaceholder": "All units",
+        "soloActivas": "Active only"
+      },
+      "tabla": {
+        "nombre": "Name",
+        "categoria": "Category",
+        "unidadTiempo": "Unit",
+        "precio": "Price",
+        "vigencia": "Validity",
+        "prioridad": "Priority",
+        "estado": "Status",
+        "acciones": "Actions",
+        "todasCategorias": "All"
+      },
+      "form": {
+        "nombre": "Name",
+        "nombrePlaceholder": "Rate name",
+        "categoriaAlquiler": "Vehicle category",
+        "categoriaPlaceholder": "All categories (optional)",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "All branches (optional)",
+        "unidadTiempo": "Time unit",
+        "precioPorUnidad": "Price per unit",
+        "precioPorUnidadPlaceholder": "0.00",
+        "moneda": "Currency",
+        "monedaPlaceholder": "ARS",
+        "vigenciaDesde": "Valid from",
+        "vigenciaHasta": "Valid until",
+        "duracionMinimaDias": "Minimum duration (days)",
+        "duracionMinimaPlaceholder": "No minimum (optional)",
+        "duracionMaximaDias": "Maximum duration (days)",
+        "duracionMaximaPlaceholder": "No maximum (optional)",
+        "prioridad": "Priority",
+        "prioridadPlaceholder": "1",
+        "nombreRequerido": "Name is required (max 200 characters)",
+        "precioRequerido": "Price must be greater than 0",
+        "monedaRequerida": "Currency is required",
+        "vigenciaRequerida": "Validity dates are required",
+        "vigenciaInvalida": "End date must be after start date",
+        "duracionMinimaInvalida": "Minimum duration must be greater than 0",
+        "duracionMaximaInvalida": "Maximum duration must be greater than 0",
+        "duracionMaximaMenor": "Maximum duration must be greater than or equal to minimum",
+        "prioridadInvalida": "Priority must be greater than or equal to 1"
+      },
+      "acciones": {
+        "editar": "Edit",
+        "desactivar": "Deactivate"
+      },
+      "unidades": {
+        "1": "Hour",
+        "2": "Day",
+        "3": "Week",
+        "4": "Month"
+      }
+    },
+    "recargos": {
+      "titulo": "Surcharges",
+      "subtitulo": "Surcharges and additional services management",
+      "agregar": "Add surcharge",
+      "totalRecargos": "Total surcharges",
+      "editado": "Surcharge updated successfully",
+      "agregado": "Surcharge created successfully",
+      "eliminado": "Surcharge deactivated successfully",
+      "confirmarEliminar": "Deactivate surcharge",
+      "confirmarEliminarMsg": "Deactivate surcharge \"{{nombre}}\"?",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Search by name...",
+        "tipo": "Type",
+        "tipoPlaceholder": "All types",
+        "categoria": "Category",
+        "categoriaPlaceholder": "All categories",
+        "soloActivos": "Active only",
+        "soloObligatorios": "Mandatory only"
+      },
+      "tabla": {
+        "nombre": "Name",
+        "tipo": "Type",
+        "precios": "Prices",
+        "obligatorio": "Mandatory",
+        "categoria": "Category",
+        "estado": "Status",
+        "acciones": "Actions",
+        "si": "Yes",
+        "no": "No",
+        "todasCategorias": "All"
+      },
+      "form": {
+        "tipoRecargo": "Surcharge type",
+        "nombre": "Name",
+        "nombrePlaceholder": "Surcharge name",
+        "descripcion": "Description",
+        "descripcionPlaceholder": "Optional description (max 1000 characters)",
+        "precioFijo": "Fixed price",
+        "precioFijoPlaceholder": "0.00 (optional)",
+        "precioPorDia": "Price per day",
+        "precioPorDiaPlaceholder": "0.00 (optional)",
+        "porcentajeSobreTotal": "Percentage of total",
+        "porcentajePlaceholder": "0-100 (optional)",
+        "obligatorio": "Mandatory",
+        "categoriaAlquiler": "Vehicle category",
+        "categoriaPlaceholder": "All categories (optional)",
+        "seccionPrecios": "Prices (at least one required)",
+        "nombreRequerido": "Name is required (max 200 characters)",
+        "descripcionLarga": "Description cannot exceed 1000 characters",
+        "alMenosUnPrecio": "At least one price type must be specified",
+        "precioFijoInvalido": "Fixed price must be greater than 0",
+        "precioPorDiaInvalido": "Price per day must be greater than 0",
+        "porcentajeInvalido": "Percentage must be between 0 and 100"
+      },
+      "acciones": {
+        "editar": "Edit",
+        "desactivar": "Deactivate"
+      },
+      "tipos": {
+        "1": "Additional driver",
+        "2": "GPS",
+        "3": "Baby seat",
+        "4": "Basic insurance",
+        "5": "Premium insurance",
+        "6": "One way",
+        "7": "Fuel",
+        "8": "Late return",
+        "9": "Excess km",
+        "99": "Other"
+      }
+    },
+    "coberturas": {
+      "titulo": "Coverages",
+      "subtitulo": "Coverage and insurance management",
+      "agregar": "Add coverage",
+      "totalCoberturas": "Total coverages",
+      "editado": "Coverage updated successfully",
+      "agregado": "Coverage created successfully",
+      "eliminado": "Coverage deactivated successfully",
+      "confirmarEliminar": "Deactivate coverage",
+      "confirmarEliminarMsg": "Deactivate coverage \"{{nombre}}\"?",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Search by name...",
+        "soloActivas": "Active only",
+        "soloObligatorias": "Mandatory only"
+      },
+      "tabla": {
+        "nombre": "Name",
+        "precioPorDia": "Price/day",
+        "deducible": "Max deductible",
+        "coberturas": "Coverages",
+        "obligatoria": "Mandatory",
+        "estado": "Status",
+        "acciones": "Actions",
+        "robo": "Theft",
+        "vidrios": "Glass",
+        "neumaticos": "Tires",
+        "granizo": "Hail",
+        "si": "Yes",
+        "no": "No"
+      },
+      "form": {
+        "nombre": "Name",
+        "nombrePlaceholder": "Coverage name",
+        "descripcion": "Description",
+        "descripcionPlaceholder": "Optional description (max 1000 characters)",
+        "precioPorDia": "Price per day",
+        "precioPorDiaPlaceholder": "0.00",
+        "deducibleMaximo": "Maximum deductible",
+        "deduciblePlaceholder": "0.00",
+        "seccionCoberturas": "Coverage types",
+        "cubreRobo": "Covers theft",
+        "cubreVidrios": "Covers glass",
+        "cubreNeumaticos": "Covers tires",
+        "cubreGranizo": "Covers hail",
+        "obligatoria": "Mandatory",
+        "nombreRequerido": "Name is required (max 200 characters)",
+        "descripcionLarga": "Description cannot exceed 1000 characters",
+        "precioRequerido": "Price per day must be greater than 0",
+        "deducibleInvalido": "Deductible must be greater than or equal to 0"
+      },
+      "acciones": {
+        "editar": "Edit",
+        "desactivar": "Deactivate"
+      }
+    },
+    "promociones": {
+      "titulo": "Promotions",
+      "subtitulo": "Promotional codes and discounts management",
+      "agregar": "Add promotion",
+      "totalPromociones": "Total promotions",
+      "editado": "Promotion updated successfully",
+      "agregado": "Promotion created successfully",
+      "eliminado": "Promotion deactivated successfully",
+      "confirmarEliminar": "Deactivate promotion",
+      "confirmarEliminarMsg": "Deactivate promotion \"{{codigo}}\"?",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Search by code or description...",
+        "soloActivas": "Active only",
+        "soloVigentes": "Valid only"
+      },
+      "tabla": {
+        "codigo": "Code",
+        "descripcion": "Description",
+        "tipoDescuento": "Type",
+        "valorDescuento": "Value",
+        "vigencia": "Validity",
+        "usos": "Uses",
+        "estado": "Status",
+        "acciones": "Actions",
+        "vigente": "Valid",
+        "expirada": "Expired"
+      },
+      "form": {
+        "codigo": "Code",
+        "codigoPlaceholder": "PROMO2026",
+        "descripcion": "Description",
+        "descripcionPlaceholder": "Optional description (max 1000 characters)",
+        "tipoDescuento": "Discount type",
+        "valorDescuento": "Discount value",
+        "valorDescuentoPlaceholder": "0.00",
+        "vigenciaDesde": "Valid from",
+        "vigenciaHasta": "Valid until",
+        "usosMaximos": "Maximum uses",
+        "usosMaximosPlaceholder": "Unlimited (optional)",
+        "montoMinimoReserva": "Minimum reservation amount",
+        "montoMinimoPlaceholder": "No minimum (optional)",
+        "codigoRequerido": "Code is required (max 50 characters)",
+        "descripcionLarga": "Description cannot exceed 1000 characters",
+        "valorRequerido": "Value must be greater than 0",
+        "valorPorcentajeMax": "Percentage cannot be greater than 100",
+        "vigenciaRequerida": "Validity dates are required",
+        "vigenciaInvalida": "End date must be after start date",
+        "usosMaximosInvalido": "Maximum uses must be greater than 0",
+        "montoMinimoInvalido": "Minimum amount must be greater than 0"
+      },
+      "acciones": {
+        "editar": "Edit",
+        "desactivar": "Deactivate"
+      },
+      "tiposDescuento": {
+        "1": "Percentage",
+        "2": "Fixed amount"
+      }
+    },
+    "reservas": {
+      "titulo": "Reservations",
+      "subtitulo": "Rental reservation management",
+      "totalReservas": "Total reservations",
+      "vistaTabla": "Table",
+      "vistaCalendario": "Calendar",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Search by number, client or vehicle...",
+        "estado": "Status",
+        "estadoPlaceholder": "All statuses",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "All branches",
+        "origen": "Origin",
+        "origenPlaceholder": "All origins",
+        "fechaDesde": "From date",
+        "fechaHasta": "To date"
+      },
+      "estados": {
+        "1": "Tentative",
+        "2": "Confirmed",
+        "3": "In Progress",
+        "4": "Completed",
+        "5": "Cancelled",
+        "6": "No Show"
+      },
+      "origenes": {
+        "1": "Web",
+        "2": "Phone",
+        "3": "In Person",
+        "4": "App"
+      },
+      "tabla": {
+        "numero": "Reservation #",
+        "cliente": "Client",
+        "vehiculo": "Vehicle",
+        "fechas": "Dates",
+        "fechaRecogida": "Pickup",
+        "fechaDevolucion": "Return",
+        "sucursal": "Branch",
+        "estado": "Status",
+        "total": "Total",
+        "acciones": "Actions",
+        "sinVehiculo": "Unassigned",
+        "todasSucursales": "All"
+      },
+      "acciones": {
+        "verDetalle": "View details",
+        "confirmar": "Confirm",
+        "cancelar": "Cancel",
+        "noShow": "Mark No Show"
+      },
+      "confirmar": {
+        "titulo": "Confirm Reservation",
+        "mensaje": "Are you sure you want to confirm reservation #{{numero}}? This will transition the reservation from Tentative to Confirmed."
+      },
+      "cancelar": {
+        "titulo": "Cancel Reservation #{{numero}}",
+        "motivo": "Cancellation reason",
+        "motivoPlaceholder": "Enter the cancellation reason...",
+        "motivoRequerido": "Cancellation reason is required",
+        "confirmarCancelacion": "Confirm cancellation"
+      },
+      "noShow": {
+        "titulo": "Mark No Show",
+        "mensaje": "Are you sure you want to mark reservation #{{numero}} as No Show? The client did not show up to pick up the vehicle."
+      },
+      "calendario": {
+        "titulo": "Reservation Calendar",
+        "leyenda": "Legend",
+        "sinReservas": "No reservations in this period",
+        "sinVehiculo": "No vehicle",
+        "tentativa": "Tentative",
+        "confirmada": "Confirmed",
+        "enCurso": "In Progress",
+        "completada": "Completed",
+        "cancelada": "Cancelled",
+        "noShow": "No Show"
+      },
+      "toast": {
+        "confirmada": "Reservation confirmed successfully",
+        "cancelada": "Reservation cancelled successfully",
+        "noShow": "Reservation marked as No Show"
+      },
+      "crearReserva": "Create Reservation"
+    },
+    "wizard": {
+      "titulo": "New Reservation",
+      "pasos": {
+        "cliente": "Client",
+        "vehiculo": "Vehicle",
+        "opciones": "Options",
+        "resumen": "Summary"
+      },
+      "navegacion": {
+        "anterior": "Previous",
+        "siguiente": "Next",
+        "crearReserva": "Create Reservation",
+        "creando": "Creating reservation..."
+      },
+      "cliente": {
+        "titulo": "Client Information",
+        "buscarExistente": "Search existing client",
+        "buscarPlaceholder": "Name, email or document...",
+        "sinResultados": "No clients found",
+        "buscando": "Searching...",
+        "crearNuevo": "Create new client",
+        "usarExistente": "Use existing client",
+        "nombre": "First Name",
+        "nombrePlaceholder": "Client first name",
+        "apellido": "Last Name",
+        "apellidoPlaceholder": "Client last name",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "telefono": "Phone",
+        "telefonoPlaceholder": "+1 555-1234",
+        "tipoDocumento": "Document type",
+        "tipoDocumentoPlaceholder": "Select...",
+        "numeroDocumento": "Document number",
+        "numeroDocumentoPlaceholder": "e.g.: 12345678",
+        "fechaNacimiento": "Date of birth",
+        "licenciaConducir": "Driver's license #",
+        "licenciaPlaceholder": "License number",
+        "vencimientoLicencia": "License expiration",
+        "errores": {
+          "clienteRequerido": "You must select or create a client",
+          "nombreRequerido": "First name is required",
+          "apellidoRequerido": "Last name is required",
+          "emailRequerido": "Email is required",
+          "emailInvalido": "Invalid email format",
+          "tipoDocumentoRequerido": "Select a document type",
+          "numeroDocumentoRequerido": "Document number is required"
+        },
+        "tiposDocumento": {
+          "1": "National ID",
+          "2": "Passport",
+          "3": "Tax ID (CUIT)",
+          "4": "Identity Card",
+          "99": "Other"
+        }
+      },
+      "vehiculo": {
+        "titulo": "Vehicle & Dates",
+        "categoria": "Vehicle category",
+        "categoriaPlaceholder": "Select category...",
+        "vehiculoOpcional": "Specific vehicle (optional)",
+        "buscarVehiculo": "Search vehicle by plate...",
+        "sinResultados": "No vehicles found",
+        "sucursalRecogida": "Pickup branch",
+        "sucursalRecogidaPlaceholder": "Select branch...",
+        "sucursalDevolucion": "Return branch",
+        "sucursalDevolucionPlaceholder": "Select branch...",
+        "mismaSucursal": "Same as pickup",
+        "fechaHoraRecogida": "Pickup date and time",
+        "fechaHoraDevolucion": "Return date and time",
+        "errores": {
+          "categoriaRequerida": "You must select a category or a vehicle",
+          "sucursalRecogidaRequerida": "Pickup branch is required",
+          "sucursalDevolucionRequerida": "Return branch is required",
+          "fechaRecogidaRequerida": "Pickup date is required",
+          "fechaDevolucionRequerida": "Return date is required",
+          "fechaRecogidaFutura": "Pickup date must be in the future",
+          "fechaDevolucionPosterior": "Return date must be after pickup date",
+          "duracionMinima": "Minimum duration is 24 hours"
+        }
+      },
+      "opciones": {
+        "titulo": "Options & Pricing",
+        "recargos": "Surcharges",
+        "sinRecargos": "No surcharges available",
+        "obligatorio": "Required",
+        "coberturas": "Coverage",
+        "sinCoberturas": "No coverage available",
+        "obligatoria": "Required",
+        "codigoPromocion": "Promo code",
+        "codigoPromocionPlaceholder": "e.g.: SUMMER2026",
+        "validar": "Validate",
+        "validando": "Validating...",
+        "promoValida": "Valid promotion",
+        "promoInvalida": "Invalid code",
+        "previoPrecio": "Estimated price",
+        "calculando": "Calculating price...",
+        "errorCotizacion": "Could not calculate price",
+        "porDia": "{{precio}}/day",
+        "precioFijo": "{{precio}} flat"
+      },
+      "resumen": {
+        "titulo": "Reservation Summary",
+        "seccionCliente": "Client",
+        "seccionVehiculo": "Vehicle / Category",
+        "seccionFechas": "Dates",
+        "seccionOpciones": "Selected options",
+        "seccionPrecio": "Price Breakdown",
+        "precioBase": "Base price ({{dias}} days)",
+        "recargo": "Surcharge: {{nombre}}",
+        "cobertura": "Coverage: {{nombre}}",
+        "totalRecargos": "Total surcharges",
+        "totalCoberturas": "Total coverage",
+        "subtotal": "Subtotal",
+        "descuento": "Discount ({{codigo}})",
+        "deposito": "Required deposit",
+        "total": "TOTAL",
+        "notas": "Notes",
+        "notasPlaceholder": "Additional notes for the reservation...",
+        "origenReserva": "Reservation origin",
+        "origenPlaceholder": "Select origin...",
+        "duracion": "{{dias}} days",
+        "clienteExistente": "Existing client",
+        "clienteNuevo": "New client",
+        "sinRecargos": "No additional surcharges",
+        "sinCoberturas": "No additional coverage",
+        "sinPromocion": "No promo code",
+        "promoAplicada": "Promo: {{codigo}}",
+        "vehiculoAsignado": "Assigned vehicle",
+        "soloCategoria": "Category only",
+        "precioFallback": "The price was calculated using the category rate because the vehicle does not have its own rate assigned.",
+        "sinCotizacion": "Complete vehicle and date information to see the estimated price"
+      },
+      "toast": {
+        "reservaCreada": "Reservation created successfully"
+      },
+      "errores": {
+        "clienteNoSeleccionado": "You must select an existing client before continuing"
+      }
+    },
+    "reservaDetalle": {
+      "titulo": "Reservation Detail",
+      "subtitulo": "Full reservation information",
+      "volver": "Back to reservations",
+      "reservaNumero": "Reservation #{{numero}}",
+      "noEncontrada": "Reservation not found",
+      "resumen": {
+        "titulo": "Summary",
+        "sucursalRecogida": "Pick-up branch",
+        "sucursalDevolucion": "Drop-off branch",
+        "fechaRecogida": "Pick-up date",
+        "fechaDevolucion": "Drop-off date",
+        "categoria": "Category",
+        "origen": "Source"
+      },
+      "timeline": {
+        "titulo": "History",
+        "creada": "Reservation created",
+        "confirmada": "Confirmed",
+        "enCurso": "In progress (check-out)",
+        "completada": "Completed (check-in)",
+        "cancelada": "Cancelled",
+        "noShow": "No Show"
+      },
+      "cliente": {
+        "titulo": "Client",
+        "verFicha": "View client profile"
+      },
+      "vehiculo": {
+        "titulo": "Vehicle",
+        "sinAsignar": "No vehicle assigned",
+        "verFicha": "View vehicle profile"
+      },
+      "precio": {
+        "titulo": "Price Breakdown",
+        "precioBase": "Base price",
+        "recargo": "Surcharge",
+        "cobertura": "Coverage",
+        "totalRecargos": "Total surcharges",
+        "totalCoberturas": "Total coverage",
+        "descuento": "Discount",
+        "promocion": "Promotion: {{codigo}}",
+        "deposito": "Deposit",
+        "total": "Total"
+      },
+      "pagos": {
+        "titulo": "Payments",
+        "registrar": "Register payment",
+        "sinPagos": "No payments registered",
+        "tipo": "Type",
+        "monto": "Amount",
+        "metodo": "Method",
+        "estado": "Status",
+        "fecha": "Date",
+        "referencia": "Reference",
+        "totalPagado": "Total paid",
+        "saldo": "Outstanding balance"
+      },
+      "tiposPago": {
+        "1": "Deposit signal",
+        "2": "Full payment",
+        "3": "Security deposit",
+        "4": "Post-return surcharge",
+        "5": "Deposit refund",
+        "6": "Cancellation refund",
+        "7": "No Show penalty"
+      },
+      "metodosPago": {
+        "1": "Card",
+        "2": "Cash",
+        "3": "Bank transfer",
+        "4": "MercadoPago"
+      },
+      "estadosPago": {
+        "1": "Pending",
+        "2": "Processing",
+        "3": "Completed",
+        "4": "Failed",
+        "5": "Refunded",
+        "6": "Partial refund"
+      },
+      "contrato": {
+        "titulo": "Contract",
+        "generar": "Generate contract",
+        "descargarPdf": "Download PDF",
+        "sinContrato": "No contract generated",
+        "generando": "Generating...",
+        "firmado": "Signed",
+        "sinFirma": "Not signed",
+        "fechaFirma": "Signature date"
+      },
+      "checkOut": {
+        "titulo": "Check-Out (Delivery)",
+        "fecha": "Delivery date",
+        "kilometraje": "Initial mileage",
+        "combustible": "Fuel level",
+        "exterior": "Exterior condition",
+        "interior": "Interior condition",
+        "observaciones": "Observations",
+        "sucursal": "Branch",
+        "sinCheckOut": "No check-out registered",
+        "realizar": "Perform check-out"
+      },
+      "checkIn": {
+        "titulo": "Check-In (Return)",
+        "fecha": "Actual return date",
+        "kilometraje": "Final mileage",
+        "combustible": "Fuel level",
+        "exterior": "Exterior condition",
+        "interior": "Interior condition",
+        "danos": "Damages detected",
+        "si": "Yes",
+        "no": "No",
+        "descripcionDanos": "Damage description",
+        "recargoCombustible": "Fuel surcharge",
+        "recargoKm": "Excess mileage surcharge",
+        "recargoTardanza": "Late return surcharge",
+        "recargoDanos": "Damage surcharge",
+        "totalRecargos": "Total check-in surcharges",
+        "observaciones": "Observations",
+        "sucursal": "Branch",
+        "sinCheckIn": "No check-in registered",
+        "realizar": "Perform check-in",
+        "recargosPreview": "Calculated surcharges",
+        "sinRecargos": "No surcharges"
+      },
+      "fotos": {
+        "titulo": "Inspection Photos",
+        "checkOut": "Check-Out Photos",
+        "checkIn": "Check-In Photos",
+        "sinFotos": "No photos",
+        "subir": "Upload photos",
+        "cerrar": "Close",
+        "arrastrar": "Drag and drop photos here",
+        "oSeleccionar": "or click to select",
+        "formatos": "JPG, PNG or WebP — max {{max}} photos",
+        "comprimiendo": "Compressing images...",
+        "contador": "{{actual}}/{{max}} photos",
+        "errorTipo": "Format not allowed. Use JPG, PNG or WebP",
+        "errorCantidad": "You cannot upload more than {{max}} photos in total",
+        "errorTamano": "Total size exceeds the 50 MB limit",
+        "errorCompresion": "Error compressing images",
+        "subida": "Uploaded"
+      },
+      "acciones": {
+        "titulo": "Status & Actions",
+        "confirmar": "Confirm reservation",
+        "cancelar": "Cancel reservation",
+        "noShow": "Mark No Show",
+        "checkOut": "Perform check-out",
+        "checkIn": "Perform check-in",
+        "estadoTerminal": "This reservation has ended"
+      },
+      "notas": {
+        "titulo": "Internal Notes",
+        "sinNotas": "No internal notes"
+      },
+      "form": {
+        "kilometraje": "Mileage",
+        "nivelCombustible": "Fuel level (%)",
+        "estadoExterior": "Exterior condition",
+        "estadoExteriorPlaceholder": "Describe vehicle exterior condition...",
+        "estadoInterior": "Interior condition",
+        "estadoInteriorPlaceholder": "Describe vehicle interior condition...",
+        "observaciones": "Observations",
+        "observacionesPlaceholder": "Additional observations...",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "Select branch...",
+        "danosDetectados": "Damages detected",
+        "descripcionDanos": "Damage description",
+        "descripcionDanosPlaceholder": "Describe the damages found...",
+        "recargoDanos": "Damage surcharge amount",
+        "tipoPago": "Payment type",
+        "tipoPagoPlaceholder": "Select type...",
+        "monto": "Amount",
+        "metodoPago": "Payment method",
+        "metodoPagoPlaceholder": "Select method...",
+        "referenciaExterna": "External reference",
+        "referenciaPlaceholder": "Transaction #, check #, etc.",
+        "confirmar": "Confirm",
+        "tipoInspeccion": "Inspection type",
+        "seleccionarArchivos": "Select files",
+        "combustibleLabel": "{{valor}}%",
+        "estadoDetalles": "Additional details",
+        "estadoDetallesPlaceholder": "Describe additional details...",
+        "estadoOptions": {
+          "excelente": "Excellent",
+          "bueno": "Good",
+          "regular": "Fair",
+          "malo": "Poor",
+          "muyMalo": "Very poor"
+        }
+      },
+      "toast": {
+        "confirmada": "Reservation confirmed successfully",
+        "cancelada": "Reservation cancelled successfully",
+        "noShow": "Reservation marked as No Show",
+        "checkOutRealizado": "Check-out completed successfully",
+        "checkInRealizado": "Check-in completed successfully",
+        "pagoRegistrado": "Payment registered successfully",
+        "contratoGenerado": "Contract generated successfully",
+        "fotosSubidas": "Photos uploaded successfully",
+        "fotosError": "Check-out completed, but there was an error uploading the photos",
+        "fotosErrorCheckIn": "Check-in completed, but there was an error uploading the photos"
+      },
+      "confirmarModal": {
+        "titulo": "Confirm Reservation",
+        "mensaje": "Confirm reservation #{{numero}}? This will change the status to Confirmed."
+      },
+      "noShowModal": {
+        "titulo": "Mark No Show",
+        "mensaje": "Mark reservation #{{numero}} as No Show? This action is irreversible."
+      }
+    },
+    "clientes": {
+      "titulo": "Clients",
+      "subtitulo": "Rental client management",
+      "crear": "Create client",
+      "editar": "Edit client",
+      "detalle": "Client details",
+      "creado": "Client created successfully",
+      "editado": "Client updated successfully",
+      "totalClientes": "Total clients",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Name, email or document..."
+      },
+      "tabla": {
+        "nombre": "Name",
+        "email": "Email",
+        "telefono": "Phone",
+        "documento": "Document",
+        "fechaRegistro": "Registration date",
+        "acciones": "Actions",
+        "verDetalle": "View details"
+      },
+      "form": {
+        "datosPersonales": "Personal information",
+        "documentoSeccion": "Identity document",
+        "informacionAdicional": "Additional information",
+        "licenciaSeccion": "Driver's license",
+        "nombre": "First name",
+        "nombrePlaceholder": "Client's first name",
+        "apellido": "Last name",
+        "apellidoPlaceholder": "Client's last name",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "telefono": "Phone",
+        "telefonoPlaceholder": "+1 555 123-4567",
+        "tipoDocumento": "Document type",
+        "tipoDocumentoPlaceholder": "Select...",
+        "numeroDocumento": "Document number",
+        "numeroDocumentoPlaceholder": "E.g.: 12345678",
+        "fechaNacimiento": "Date of birth",
+        "direccion": "Address",
+        "direccionPlaceholder": "Street, number, floor...",
+        "ciudad": "City",
+        "ciudadPlaceholder": "City",
+        "provincia": "State / Province",
+        "provinciaPlaceholder": "State or province",
+        "codigoPostal": "Postal code",
+        "codigoPostalPlaceholder": "E.g.: 10001",
+        "licenciaConducir": "Driver's license number",
+        "licenciaPlaceholder": "License number",
+        "vencimientoLicencia": "License expiration",
+        "notas": "Notes",
+        "notasPlaceholder": "Internal notes...",
+        "nombreRequerido": "First name is required",
+        "apellidoRequerido": "Last name is required",
+        "emailRequerido": "Email is required",
+        "emailInvalido": "Invalid email format",
+        "tipoDocumentoRequerido": "Select a document type",
+        "numeroDocumentoRequerido": "Document number is required"
+      },
+      "tiposDocumento": {
+        "1": "National ID",
+        "2": "Passport",
+        "3": "Tax ID",
+        "4": "Identity Card",
+        "99": "Other"
+      },
+      "detalleModal": {
+        "datosCliente": "Client information",
+        "historialReservas": "Reservation history",
+        "totalReservas": "Total reservations",
+        "sinReservas": "This client has no reservations",
+        "mostrando": "Showing the latest {{mostradas}} of {{total}} reservations",
+        "verReserva": "View reservation",
+        "sinDato": "—"
+      }
+    },
+    "contratos": {
+      "titulo": "Contract templates",
+      "subtitulo": "Manage templates for rental contracts",
+      "crear": "Create template",
+      "editar": "Edit template",
+      "creada": "Template created successfully",
+      "editada": "Template updated successfully",
+      "totalPlantillas": "Total templates",
+      "filtros": {
+        "buscar": "Search",
+        "buscarPlaceholder": "Template name...",
+        "soloActivas": "Active only"
+      },
+      "tabla": {
+        "nombre": "Name",
+        "version": "Version",
+        "esDefault": "Default",
+        "activa": "Status",
+        "fechaActualizacion": "Last updated",
+        "acciones": "Actions"
+      },
+      "form": {
+        "nombre": "Template name",
+        "nombrePlaceholder": "E.g.: Standard rental contract",
+        "esDefault": "Default template",
+        "esDefaultHelp": "Will be used automatically when generating contracts",
+        "activa": "Active",
+        "contenidoHtml": "HTML content",
+        "nombreRequerido": "Name is required",
+        "contenidoRequerido": "HTML content is required"
+      },
+      "editor": {
+        "tabEditor": "Editor",
+        "tabPreview": "Preview",
+        "placeholders": "Available placeholders",
+        "placeholdersHelp": "Click to insert in editor",
+        "datosEjemplo": "Showing with example data"
+      },
+      "preview": {
+        "titulo": "Contract preview",
+        "datosReserva": "Preview with reservation data",
+        "sinPlantillaDefault": "No default template configured",
+        "datoServidor": "[filled on generation]",
+        "confirmarGenerar": "Generate this contract?",
+        "confirmarGenerarMsg": "A contract will be generated for reservation #{{numero}}. This action cannot be undone.",
+        "generar": "Generate contract",
+        "generando": "Generating...",
+        "cancelar": "Cancel"
+      },
+      "placeholders": {
+        "categorias": {
+          "cliente": "Client",
+          "vehiculo": "Vehicle",
+          "reserva": "Reservation",
+          "organizacion": "Organization",
+          "sucursal": "Branch",
+          "otros": "Other"
+        },
+        "cliente": {
+          "nombreCompleto": "Full name",
+          "email": "Email",
+          "telefono": "Phone",
+          "documento": "ID document",
+          "direccion": "Address"
+        },
+        "vehiculo": {
+          "marca": "Brand",
+          "modelo": "Model",
+          "patente": "License plate",
+          "anio": "Year",
+          "categoria": "Category"
+        },
+        "reserva": {
+          "numero": "Reservation number",
+          "fechaRecogida": "Pickup date",
+          "fechaDevolucion": "Return date",
+          "precioTotal": "Total price",
+          "deposito": "Deposit",
+          "moneda": "Currency"
+        },
+        "organizacion": {
+          "nombre": "Name",
+          "cuit": "Tax ID"
+        },
+        "sucursal": {
+          "recogidaNombre": "Pickup branch",
+          "recogidaDireccion": "Pickup address",
+          "devolucionNombre": "Return branch",
+          "devolucionDireccion": "Return address"
+        },
+        "otros": {
+          "fechaActual": "Current date",
+          "contratoNumero": "Contract number"
+        }
+      }
+    },
+    "reportes": {
+      "titulo": "Reports",
+      "subtitulo": "Rental module statistics and reports",
+      "filtros": {
+        "fechaInicio": "Start date",
+        "fechaFin": "End date",
+        "sucursal": "Branch",
+        "sucursalPlaceholder": "All branches",
+        "categoria": "Category",
+        "categoriaPlaceholder": "All categories",
+        "agrupacion": "Group by",
+        "agrupacionPlaceholder": "Select grouping"
+      },
+      "agrupacion": {
+        "dia": "Day",
+        "semana": "Week",
+        "mes": "Month"
+      },
+      "estadisticas": {
+        "titulo": "General statistics",
+        "totalReservas": "Total reservations",
+        "tasaCompletadas": "Completion rate",
+        "tasaCancelacion": "Cancellation rate",
+        "tasaNoShow": "No-show rate",
+        "duracionPromedio": "Average duration",
+        "dias": "days",
+        "revenuePromedio": "Average revenue",
+        "ingresosTotales": "Total revenue"
+      },
+      "tablas": {
+        "ingresosPorPeriodo": "Revenue by period",
+        "ingresosPorSucursal": "Revenue by branch",
+        "topVehiculos": "Top vehicles",
+        "periodo": "Period",
+        "sucursal": "Branch",
+        "ingresos": "Revenue",
+        "reservas": "Reservations",
+        "vehiculo": "Vehicle",
+        "patente": "Plate",
+        "categoria": "Category",
+        "totalAlquileres": "Rentals",
+        "revenue": "Generated revenue",
+        "ocupacion": "Occupancy"
+      },
+      "ordenar": {
+        "masAlquilados": "Most rented",
+        "masRentables": "Most profitable"
+      },
+      "exportar": {
+        "boton": "Export",
+        "exportando": "Exporting...",
+        "exito": "Report exported successfully",
+        "error": "Error exporting the report",
+        "tipo": "Report type",
+        "tipoIngresos": "Revenue",
+        "tipoUtilizacion": "Fleet utilization",
+        "tipoEstadisticas": "Reservation statistics",
+        "tipoTopVehiculos": "Top vehicles"
+      }
+    },
+    "configuracion": {
+      "titulo": "Rental Settings",
+      "subtitulo": "General parameters of the rental module",
+      "guardar": "Save changes",
+      "guardadoExito": "Settings saved successfully",
+      "errorCarga": "Failed to load configuration",
+      "secciones": {
+        "senal": "Deposit & Booking",
+        "senalDesc": "Deposit requirements when making a reservation",
+        "cancelacion": "Cancellation Policy",
+        "cancelacionDesc": "Cancellation and penalty rules for reservations",
+        "general": "General",
+        "generalDesc": "General module parameters",
+        "precios": "Additional Pricing",
+        "preciosDesc": "Fuel and extra hours pricing"
+      },
+      "campos": {
+        "requiereSenal": "Require deposit on booking",
+        "porcentajeSenal": "Deposit percentage (%)",
+        "stripeAccountId": "Stripe Account ID",
+        "politicaCancelacion": "Cancellation policy",
+        "diasGratis": "Free cancellation days",
+        "porcentajePenalizacion": "Penalty (%)",
+        "moneda": "Default currency",
+        "horasExpiracion": "Tentative expiration hours",
+        "emailNotificacion": "Notification email",
+        "precioCombustible": "Price per liter of fuel",
+        "precioHoraExtra": "Price per extra hour"
+      },
+      "helpers": {
+        "porcentajeSenal": "Percentage of total charged as deposit (0-100)",
+        "stripeAccountId": "Stripe account ID for processing online payments",
+        "diasGratis": "Days before pickup when cancellation is free of charge",
+        "porcentajePenalizacion": "Percentage charged as penalty for late cancellation",
+        "moneda": "ISO 4217 code (e.g.: ARS, USD, EUR)",
+        "horasExpiracion": "Hours before a tentative reservation expires",
+        "emailNotificacion": "Email where reservation notifications are sent",
+        "precioCombustible": "Price per liter to calculate missing fuel charge",
+        "precioHoraExtra": "Price per extra hour for late return"
+      },
+      "politicas": {
+        "flexible": "Flexible",
+        "moderada": "Moderate",
+        "estricta": "Strict"
+      },
+      "errores": {
+        "porcentaje0a100": "Must be a value between 0 and 100",
+        "politicaInvalida": "Invalid cancellation policy",
+        "diasMinimo0": "Must be 0 or greater",
+        "monedaRequerida": "Currency is required",
+        "monedaMax3": "Currency must be at most 3 characters",
+        "horasMinimo1": "Must be greater than 0",
+        "emailInvalido": "Invalid email format",
+        "emailMax320": "Email cannot exceed 320 characters",
+        "stripeMax255": "Stripe Account ID cannot exceed 255 characters",
+        "precioMinimo0": "Must be 0 or greater"
+      }
+    }
+  },
+  "alquilerPublico": {
+    "nav": {
+      "buscar": "Search",
+      "misReservas": "My Reservations",
+      "iniciarSesion": "Sign In",
+      "miCuenta": "My Account",
+      "abrirMenu": "Open menu",
+      "cerrarMenu": "Close menu",
+      "cerrarSesion": "Sign out"
+    },
+    "footer": {
+      "derechosReservados": "All rights reserved."
+    },
+    "paginas": {
+      "proximamente": "Coming soon",
+      "busqueda": "Vehicle Search",
+      "detalleVehiculo": "Vehicle Details",
+      "reservar": "Book Vehicle",
+      "login": "Sign In",
+      "registro": "Create Account",
+      "misReservas": "My Reservations",
+      "detalleReserva": "Reservation Details",
+      "resultados": "Search Results"
+    },
+    "busqueda": {
+      "titulo": "Find the ideal vehicle for your trip",
+      "subtitulo": "Compare prices and book online",
+      "errorSucursales": "Could not load branches. Please try again.",
+      "errorCategorias": "Could not load categories. Please try again."
+    },
+    "buscador": {
+      "sucursalRecogida": "Pickup branch",
+      "sucursalDevolucion": "Return branch",
+      "devolverOtraSucursal": "Return at different branch",
+      "fechaRecogida": "Pickup date and time",
+      "fechaDevolucion": "Return date and time",
+      "buscar": "Search available vehicles",
+      "buscarSucursal": "Search by name or city...",
+      "sinSucursales": "No branches found",
+      "oneWay": "One-Way",
+      "limpiarSeleccion": "Clear selection"
+    },
+    "validacion": {
+      "sucursalRequerida": "Select a branch",
+      "fechaRequerida": "Select date and time",
+      "sucursalCerrada": "Branch is closed on this day",
+      "fueraDeHorario": "Outside business hours ({{apertura}} - {{cierre}})",
+      "devolucionAnterior": "Return must be after pickup"
+    },
+    "categorias": {
+      "titulo": "Vehicle categories",
+      "desde": "From {{precio}}/day",
+      "disponibles_one": "{{count}} available",
+      "disponibles_other": "{{count}} available"
+    },
+    "resultados": {
+      "titulo": "Available vehicles",
+      "conteo_one": "{{count}} vehicle found",
+      "conteo_other": "{{count}} vehicles found",
+      "precioTotal": "Estimated total",
+      "precioDia": "/day",
+      "seleccionar": "Select",
+      "sinResultados": "No vehicles available",
+      "sinResultadosHint": "Try different dates or branch",
+      "sinResultadosFiltros": "No results with these filters",
+      "sinResultadosFiltrosHint": "Try clearing filters to see all vehicles",
+      "modificarBusqueda": "Modify search",
+      "ocultarBusqueda": "Hide search",
+      "busquedaActual": "Current search",
+      "parametrosInvalidos": "Invalid search parameters",
+      "volverABuscar": "Search again"
+    },
+    "filtros": {
+      "titulo": "Filters",
+      "categoria": "Category",
+      "todasCategorias": "All categories",
+      "precioMinimo": "Min price",
+      "precioMaximo": "Max price",
+      "limpiar": "Clear filters",
+      "ordenar": "Sort by",
+      "precioMenor": "Price: low to high",
+      "precioMayor": "Price: high to low",
+      "porCategoria": "Category",
+      "relevancia": "Relevance",
+      "mostrar": "Show filters",
+      "ocultar": "Hide filters"
+    },
+    "detalle": {
+      "titulo": "Vehicle detail",
+      "volver": "Back to results",
+      "especificaciones": "Specifications",
+      "anio": "Year",
+      "categoria": "Category",
+      "kmDiario": "Daily km limit",
+      "kmIlimitado": "Unlimited",
+      "precioPorKm": "Excess km price",
+      "politicaCombustible": "Fuel policy",
+      "deposito": "Minimum deposit",
+      "edadMinima": "Minimum driver age",
+      "edadAnios": "{{edad}} years",
+      "licencia": "Required license",
+      "disponibleEn": "Available at"
+    },
+    "cotizacion": {
+      "titulo": "Price summary",
+      "tarifa": "Rate",
+      "meses_one": "{{count}} month",
+      "meses_other": "{{count}} months",
+      "semanas_one": "{{count}} week",
+      "semanas_other": "{{count}} weeks",
+      "dias_one": "{{count}} day",
+      "dias_other": "{{count}} days",
+      "recargos": "Surcharges",
+      "obligatorio": "Mandatory",
+      "coberturas": "Coverages",
+      "subtotal": "Subtotal",
+      "descuento": "Discount",
+      "total": "Total",
+      "deposito": "Estimated deposit",
+      "reservar": "Book now",
+      "cargando": "Calculating price...",
+      "errorCotizacion": "Error calculating price",
+      "sinFechas": "Select dates to see price"
+    },
+    "promocion": {
+      "titulo": "Promo code",
+      "placeholder": "Enter your code",
+      "aplicar": "Apply",
+      "valida": "Code applied",
+      "descuento": "{{porcentaje}}% discount",
+      "descuentoFijo": "{{monto}} discount",
+      "invalida": "Invalid code",
+      "razon": {
+        "Inactiva": "Promotion is inactive",
+        "Expirada": "Promotion has expired",
+        "UsosAgotados": "Maximum uses reached",
+        "MontoMinimoInsuficiente": "Minimum amount not reached"
+      }
+    },
+    "reserva": {
+      "pasos": {
+        "datosPersonales": "Personal data",
+        "resumen": "Summary",
+        "confirmacion": "Confirmation"
+      },
+      "datosPersonales": {
+        "titulo": "Your details",
+        "nombre": "First name",
+        "apellido": "Last name",
+        "email": "Email",
+        "telefono": "Phone",
+        "tipoDocumento": "Document type",
+        "numeroDocumento": "Document number",
+        "fechaNacimiento": "Date of birth",
+        "licencia": "Driver's license number",
+        "vencimientoLicencia": "License expiration",
+        "seleccionarTipo": "Select type...",
+        "tipoDoc": {
+          "1": "DNI",
+          "2": "Passport",
+          "3": "CUIT",
+          "4": "Identity Card",
+          "99": "Other"
+        }
+      },
+      "resumen": {
+        "titulo": "Reservation summary",
+        "vehiculo": "Vehicle",
+        "fechas": "Dates",
+        "sucursales": "Branches",
+        "recogida": "Pickup",
+        "devolucion": "Return",
+        "duracion": "{{dias}} days"
+      },
+      "confirmacion": {
+        "titulo": "Reservation created",
+        "numero": "Reservation #",
+        "estado": "Status",
+        "tentativa": "Pending",
+        "mensaje": "Your reservation has been created successfully.",
+        "instrucciones": "We'll contact you to confirm the payment method and finalize your reservation.",
+        "volverInicio": "Back to home",
+        "verReservas": "View my reservations"
+      },
+      "pago": {
+        "fallback": "Your reservation will be created as pending confirmation.",
+        "fallbackDetalle": "We'll get in touch to arrange the payment method and confirm your reservation.",
+        "aceptarTerminos": "I accept the terms and conditions"
+      },
+      "errores": {
+        "nombreRequerido": "First name is required",
+        "apellidoRequerido": "Last name is required",
+        "emailRequerido": "Email is required",
+        "emailInvalido": "Invalid email format",
+        "tipoDocRequerido": "Document type is required",
+        "numDocRequerido": "Document number is required",
+        "errorCrear": "Error creating reservation"
+      },
+      "acciones": {
+        "anterior": "Back",
+        "siguiente": "Next",
+        "confirmar": "Confirm reservation",
+        "creando": "Creating reservation..."
+      }
+    },
+    "auth": {
+      "loginTitulo": "Sign In",
+      "loginSubtitulo": "Enter your email to receive a verification code",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "enviarCodigo": "Send code",
+      "enviandoCodigo": "Sending...",
+      "noEncontrado": "No account found with this email",
+      "irARegistro": "Create an account",
+      "noTenesCuenta": "Don't have an account?",
+      "yaTenesCuenta": "Already have an account?",
+      "irALogin": "Sign in",
+      "registroTitulo": "Create Account",
+      "registroSubtitulo": "Fill in your details to register",
+      "nombre": "First name",
+      "apellido": "Last name",
+      "telefono": "Phone (optional)",
+      "tipoDocumento": "Document type",
+      "seleccionarTipo": "Select type...",
+      "numeroDocumento": "Document number",
+      "crearCuenta": "Create account",
+      "creandoCuenta": "Creating account...",
+      "yaRegistrado": "An account with this email already exists",
+      "verificarTitulo": "Verify code",
+      "verificarSubtitulo": "Enter the 6-digit code sent to your email",
+      "codigoEnviadoA": "We sent a code to",
+      "codigoLabel": "Verification code",
+      "codigoPlaceholder": "000000",
+      "verificar": "Verify",
+      "verificando": "Verifying...",
+      "codigoInvalido": "The code is invalid or has expired",
+      "reenviarCodigo": "Resend code",
+      "reenviarEn": "Resend in {{segundos}}s",
+      "codigoReenviado": "Code resent successfully",
+      "reenviando": "Resending...",
+      "sesionExpirada": "Your session has expired. Please sign in again.",
+      "errores": {
+        "emailRequerido": "Email is required",
+        "emailInvalido": "Invalid email format",
+        "nombreRequerido": "First name is required",
+        "apellidoRequerido": "Last name is required",
+        "tipoDocRequerido": "Document type is required",
+        "numDocRequerido": "Document number is required"
+      }
+    },
+    "misReservas": {
+      "titulo": "My Reservations",
+      "tabs": {
+        "activas": "Active",
+        "pasadas": "Past",
+        "canceladas": "Cancelled"
+      },
+      "tarjeta": {
+        "reserva": "Reservation #{{numero}}",
+        "sinVehiculo": "No vehicle assigned",
+        "recogida": "Pick-up",
+        "devolucion": "Return"
+      },
+      "vacio": {
+        "activas": "You have no active reservations",
+        "activasHint": "When you make a reservation, it will appear here",
+        "pasadas": "You have no past reservations",
+        "pasadasHint": "Completed reservations will appear here",
+        "canceladas": "You have no cancelled reservations",
+        "canceladasHint": "Cancelled reservations will appear here"
+      },
+      "detalle": {
+        "titulo": "Reservation Detail",
+        "volver": "Back to my reservations",
+        "informacion": "Information",
+        "fechaCreacion": "Created on",
+        "canceladaEl": "Cancelled on",
+        "motivoCancelacion": "Reason"
+      },
+      "cancelar": {
+        "titulo": "Cancel reservation",
+        "subtitulo": "Are you sure you want to cancel reservation #{{numero}}?",
+        "advertencia": "Cancellation fees may apply according to the current cancellation policy.",
+        "motivo": "Cancellation reason (optional)",
+        "motivoPlaceholder": "Tell us why you want to cancel...",
+        "confirmar": "Confirm cancellation",
+        "cancelada": "Reservation cancelled successfully"
+      },
+      "error": {
+        "cargar": "Error loading your reservations",
+        "cargarDetalle": "Error loading reservation details",
+        "cancelar": "Error cancelling reservation",
+        "reintentar": "Retry"
+      }
+    },
+    "seo": {
+      "busqueda": {
+        "descripcion": "Rent cars online. Compare prices, choose your vehicle and book instantly."
+      },
+      "auth": {
+        "loginTitulo": "Sign In",
+        "registroTitulo": "Create Account",
+        "verificarTitulo": "Verify Code"
+      },
+      "reserva": {
+        "titulo": "Book Vehicle"
+      },
+      "misReservas": {
+        "titulo": "My Reservations",
+        "detalleTitulo": "Reservation Details"
+      }
     }
   }
 }

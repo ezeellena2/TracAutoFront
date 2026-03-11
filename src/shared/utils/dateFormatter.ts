@@ -94,6 +94,21 @@ export function formatDateShort(
 }
 
 /**
+ * Retorna la fecha de hoy en formato YYYY-MM-DD (para input type="date" o query params)
+ */
+export function hoyISO(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+/**
+ * Retorna el primer día del mes actual en formato YYYY-MM-DD
+ */
+export function primerDiaMesISO(): string {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+}
+
+/**
  * Formatea una fecha para usar en input type="datetime-local"
  * Formato: YYYY-MM-DDTHH:mm (hora local, sin timezone)
  * @param date Fecha a formatear

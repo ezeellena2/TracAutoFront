@@ -10,6 +10,7 @@ import type {
   UpdateVehiculoRequest,
   AssignDispositivoRequest,
 } from '@/features/vehicles/types';
+import type { ConductorVehiculoAsignacionDto } from '@/features/drivers/types';
 import type {
   ListaPaginada,
   PaginacionParams,
@@ -27,8 +28,10 @@ export interface GetVehiculosParams extends PaginacionParams {
   filtroPatente?: string;
   /** Si es true, solo retorna vehículos propios (excluye compartidos/asociados) */
   soloPropios?: boolean;
-  /** Advanced column filters from useTableFilters (e.g. 'filters[patente]': 'ABC') */
-  [key: string]: string | number | boolean | undefined;
+  /** Filtrar por ID específico. Útil para navegación directa desde tabla de conductores. */
+  filtroId?: string;
+  /** Filtros de columna de useTableFilters (e.g. { 'filters[patente]': 'ABC', 'op[patente]': 'contains' }) */
+  filterParams?: Record<string, string>;
 }
 
 /**
@@ -38,7 +41,7 @@ export interface GetVehiculosParams extends PaginacionParams {
 export async function getVehiculos(
   params: GetVehiculosParams = {}
 ): Promise<ListaPaginada<VehiculoDto>> {
-  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente, soloPropios, ...extraParams } = params;
+  const { numeroPagina = 1, tamanoPagina = 10, soloActivos, filtroPatente, soloPropios, filtroId, filterParams } = params;
 
   const queryParams: Record<string, string | number | boolean> = {
     numeroPagina,
@@ -54,13 +57,18 @@ export async function getVehiculos(
   if (soloPropios !== undefined) {
     queryParams.soloPropios = soloPropios;
   }
+  if (filtroId !== undefined) {
+    queryParams.filtroId = filtroId;
+  }
 
   // Forward advanced filter params (filters[key], op[key]) from useTableFilters
-  Object.entries(extraParams).forEach(([k, v]) => {
-    if (v !== undefined && v !== '') {
-      queryParams[k] = v;
-    }
-  });
+  if (filterParams) {
+    Object.entries(filterParams).forEach(([k, v]) => {
+      if (v !== undefined && v !== '') {
+        queryParams[k] = v;
+      }
+    });
+  }
 
   const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, {
     params: queryParams
@@ -129,6 +137,54 @@ export async function unassignDispositivo(
   );
 }
 
+/**
+ * Respuesta de conductores por vehículo en batch (una sola request para N vehículos).
+ */
+export interface VehiculoConductoresBatchItemDto {
+  vehiculoId: string;
+  conductores: ConductorVehiculoAsignacionDto[];
+}
+
+/**
+ * Obtiene en una sola petición los conductores asignados a varios vehículos.
+ * Evita N+1 cuando se muestra la lista de vehículos y se necesita el conteo por vehículo.
+ * @param vehiculoIds IDs de vehículos
+ * @param soloActivos Si true, solo asignaciones activas (sin fecha fin)
+ */
+export async function getConductoresAsignadosBatch(
+  vehiculoIds: string[],
+  soloActivos?: boolean
+): Promise<VehiculoConductoresBatchItemDto[]> {
+  if (vehiculoIds.length === 0) return [];
+  const params: Record<string, string | boolean> = {
+    vehiculoIds: vehiculoIds.join(','),
+  };
+  if (soloActivos !== undefined) params.soloActivos = soloActivos;
+  const response = await apiClient.get<VehiculoConductoresBatchItemDto[]>(
+    `${VEHICULOS_BASE}/conductores-batch`,
+    { params }
+  );
+  return response.data;
+}
+
+/**
+ * Obtiene los conductores asignados a un vehículo.
+ * @param vehiculoId ID del vehículo
+ * @param soloActivos Si true, solo asignaciones activas (sin fecha fin)
+ */
+export async function getConductoresAsignados(
+  vehiculoId: string,
+  soloActivos?: boolean
+): Promise<ConductorVehiculoAsignacionDto[]> {
+  const params: Record<string, boolean> = {};
+  if (soloActivos !== undefined) params.soloActivos = soloActivos;
+  const response = await apiClient.get<ConductorVehiculoAsignacionDto[]>(
+    `${VEHICULOS_BASE}/${vehiculoId}/conductores`,
+    { params: Object.keys(params).length ? params : undefined }
+  );
+  return response.data;
+}
+
 // ========================================
 // FUNCIONES DE COMPARTICIÓN
 // ========================================
@@ -164,6 +220,8 @@ export const vehiculosApi = {
   deleteVehiculo,
   assignDispositivo,
   unassignDispositivo,
+  getConductoresAsignados,
+  getConductoresAsignadosBatch,
   getSharingStatus,
   updateSharingStatus,
 };

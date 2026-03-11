@@ -17,6 +17,10 @@ export interface ConductorDto {
    */
   compartidoCon?: RecursoSharingInfoDto | null;
   permisoAcceso?: NivelPermisoCompartido;
+  /** ID del vehículo actualmente asignado. Null si no tiene asignación activa. */
+  vehiculoAsignadoId?: string | null;
+  /** ID del dispositivo actualmente asignado. Null si no tiene asignación activa. */
+  dispositivoAsignadoId?: string | null;
 }
 
 export interface ConductorVehiculoAsignacionDto {

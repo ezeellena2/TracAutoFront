@@ -1,0 +1,80 @@
+# TracAuto Frontend — Cursor Rules
+
+You are working on **TracAutoFront**, the main React frontend for TracAuto, a multi-tenant SaaS for automotive fleet management.
+Stack: React + TypeScript + Vite + TailwindCSS + i18next + React Query.
+
+## NON-NEGOTIABLE PRINCIPLES — Every piece of code MUST comply:
+
+### 1. API Calls
+- ALWAYS use `apiClient` (authenticated) or `publicApiClient` (public endpoints).
+- NEVER use `fetch` or `axios` directly without the configured client with interceptors.
+- The client handles auth headers, token refresh, and error interception automatically.
+
+### 2. Error Handling
+- All API-calling screens MUST use `useErrorHandler`, `ApiErrorBanner`, `EstadoError`, or equivalent.
+- Route tree MUST be wrapped in `ErrorBoundary` for React error recovery/reporting.
+- 5xx errors → backend `ISupportService` creates Jira ticket automatically.
+
+### 3. i18n (mandatory)
+- ALL user-facing text via `useTranslation()`. NO hardcoded strings.
+- Error messages: nested format `errors.{Contexto}.{Codigo}` with `{{param0}}`, `{{param1}}`.
+- When adding backend errors in `DomainErrors`, always add frontend translations in `es.json` + `en.json`.
+
+### 4. States (mandatory for every page/component)
+- **Loading**: spinner or skeleton.
+- **Empty**: `EstadoVacio` component or equivalent.
+- **Error**: `EstadoError`, `ApiErrorBanner`, or equivalent with retry option.
+
+### 5. Protected Routes
+- Routes requiring auth MUST be wrapped in `ProtectedRoute`.
+- B2C customer routes use separate auth flow.
+
+### 6. Multi-tenancy Awareness
+- `organizacion_id` from JWT claim. NO organization selector.
+- Each user belongs to EXACTLY ONE organization.
+- NEVER expose tenant IDs, internal IDs, or PII in UI/error messages.
+
+### 7. Cache Awareness
+- Backend uses Redis cache (`ICachedQuery`/`ICacheInvalidatingCommand`).
+- After mutations, invalidate/refetch relevant React Query caches.
+- Force refetch where consistency is critical (payments, reservation status).
+
+### 8. CQRS Contract Awareness
+- Each backend use case = one Command/Query. Frontend services mirror this 1:1.
+- API contracts are stable. No changes without explicit BREAKING label.
+- Prefer additive changes (new fields, new endpoints).
+
+### 9. Soft Delete Awareness
+- Backend uses `Activo` field. Lists show only active records by default.
+
+### 10. Clean Code
+- No legacy/dead code. No commented-out blocks. If unused, delete it.
+
+### 11. DTOs Only
+- Backend returns DTOs, never raw entities. TypeScript types match backend DTOs.
+- Don't assume internal DB fields exist in API responses.
+
+### 12. Rate Limiting Handling
+- Handle HTTP 429 gracefully: user-friendly message + retry with backoff or cooldown timer.
+- Public endpoints (B2C booking, login) are rate-limited per tenant.
+
+### 13. Tenant-Scoped Configuration
+- Each org has its own config (branding, Stripe keys, notifications) stored in backend DB.
+- Read via queries like `GetConfiguracionAlquiler`. Never hardcode org-specific values.
+
+### 14. Time Handling
+- Backend stores timestamps in UTC. Frontend converts to user's local timezone.
+- Use proper date formatting libraries (dayjs/date-fns) for display.
+
+### 15. Webhook-Driven Updates
+- Some states change asynchronously via backend webhooks (Stripe payments, etc.).
+- Use polling or WebSocket subscriptions where real-time updates are needed.
+
+### 16. Security
+- JWT access tokens: short-lived (~15 min). Refresh tokens: HttpOnly cookies.
+- API client interceptor handles automatic token refresh transparently.
+- NEVER store tokens in localStorage. NEVER expose tokens in URLs or console logs.
+
+## ErrorType → Expected HTTP Status
+- Validation → 400, Unauthorized → 401, Forbidden → 403, NotFound → 404
+- Conflict → 409, RateLimited → 429, Internal → 500, ServiceUnavailable → 503

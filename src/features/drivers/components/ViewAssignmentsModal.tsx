@@ -31,8 +31,8 @@ export function ViewAssignmentsModal({
 }: ViewAssignmentsModalProps) {
   const { t } = useTranslation();
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <div className="p-6 max-w-4xl w-full">
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+      <div className="p-6 w-full min-w-0">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-text">
             {conductor ? t('drivers.assignmentsModal.title', { name: conductor.nombreCompleto }) : t('drivers.assignmentsModal.title', { name: '' })}

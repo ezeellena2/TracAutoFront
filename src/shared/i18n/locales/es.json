@@ -141,7 +141,9 @@
     "noResults": "No se encontraron resultados con los filtros activos.",
     "noFiltersActive": "No hay filtros activos",
     "clearAll": "Limpiar todo",
-    "description": "Utilice los siguientes campos para filtrar los resultados de la tabla."
+    "description": "Utilice los siguientes campos para filtrar los resultados de la tabla.",
+    "filteringByDirectLink": "Mostrando resultado por navegación directa",
+    "clearDirectFilter": "Mostrar todos"
   },
   "header": {
     "darkMode": "Modo oscuro",
@@ -164,10 +166,24 @@
     "organization": "Organización",
     "organizationLabel": "Organización",
     "organizationAppearance": "Apariencia",
+    "organizationPreferences": "Preferencias",
     "organizationRelations": "Relaciones",
     "organizationChangeRequests": "Solicitudes de Cambio",
     "marketplace": "Marketplace",
-    "imports": "Importaciones"
+    "imports": "Importaciones",
+    "alquileres": "Alquileres",
+    "alquileresDashboard": "Dashboard",
+    "alquileresFlota": "Flota",
+    "alquileresSucursales": "Sucursales",
+    "alquileresTarifas": "Tarifas",
+    "alquileresRecargos": "Recargos",
+    "alquileresCoberturas": "Coberturas",
+    "alquileresPromociones": "Promociones",
+    "alquileresReservas": "Reservas",
+    "alquileresClientes": "Clientes",
+    "alquileresContratos": "Contratos",
+    "alquileresReportes": "Reportes",
+    "alquileresConfiguracion": "Configuración"
   },
   "solicitudesCambio": {
     "title": "Solicitudes de Cambio",
@@ -229,11 +245,13 @@
       "confirmAndSend": "Confirmar y enviar a Jira",
       "describeChange": "Describí el cambio que necesitás en",
       "thisElement": "este elemento",
+      "describeChangeHint": "El asistente puede hacerte preguntas para entender mejor qué necesitás.",
+      "replyToAssistant": "Respondé las preguntas del asistente...",
       "messageLimit": "Tenés hasta {{max}} mensajes para describir tu solicitud.",
       "processing": "Procesando...",
       "limitReached": "Límite de mensajes alcanzado. Revisá la respuesta del asistente.",
       "limitReachedShort": "Límite de mensajes alcanzado",
-      "readyToSend": "Ticket listo para enviar",
+      "readyToSend": "Ticket listo — podés revisarlo y ajustarlo antes de enviarlo",
       "viewAndConfirm": "Ver ticket y confirmar",
       "inputPlaceholder": "Describí el cambio que necesitás...",
       "readyForJira": "Listo para Jira",
@@ -373,7 +391,13 @@
       "editVehicle": "Editar vehículo",
       "deleteVehicle": "Eliminar vehículo",
       "associated": "Asociado",
-      "manageSharing": "Gestionar compartición"
+      "manageSharing": "Gestionar compartición",
+      "drivers": "CONDUCTORES",
+      "viewDrivers": "Ver conductores"
+    },
+    "conductorsModal": {
+      "title": "Conductores asignados - {{patente}}",
+      "empty": "No hay conductores asignados a este vehículo."
     },
     "deleteTitle": "Eliminar vehículo",
     "deleteMessage": "¿Está seguro de eliminar el vehículo con patente \"{{patente}}\"? Esta acción marcará el vehículo como inactivo.",
@@ -616,7 +640,14 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "seeInActions": "Ver en acciones",
+    "vehicle": "Vehículo",
+    "device": "Dispositivo",
+    "assignedToVehicle": "Asignado a un vehículo",
+    "assignedToDevice": "Asignado a un dispositivo",
+    "goToVehicle": "Ver vehículo asignado",
+    "goToDevice": "Ver dispositivo asignado",
     "assign": "Asignar",
+    "manageSharing": "Gestionar compartición",
     "edit": "Editar",
     "delete": "Eliminar",
     "confirmDelete": "¿Estás seguro de que deseas eliminar al conductor \"{{name}}\"? Esta acción no se puede deshacer.",
@@ -640,7 +671,8 @@
       "phonePlaceholder": "+54 11 1234-5678"
     },
     "table": {
-      "associated": "Asociado"
+      "associated": "Asociado",
+      "manageSharing": "Gestionar compartición"
     },
     "assignmentsModal": {
       "title": "Asignaciones - {{name}}",
@@ -744,11 +776,7 @@
       "draft": "Borrador",
       "published": "Publicado",
       "paused": "Pausado",
-      "sold": "Vendido",
-      "borrador": "Borrador",
-      "publicado": "Publicado",
-      "pausado": "Pausado",
-      "vendido": "Vendido"
+      "sold": "Vendido"
     },
     "stats": {
       "published": "Publicados",
@@ -1160,6 +1188,51 @@
       "relations_plural": "relaciones",
       "since": "Desde"
     },
+    "preferences": {
+      "title": "Preferencias de Localización",
+      "subtitle": "Configura el país, zona horaria, idioma y sistema métrico de la organización.",
+      "country": "País",
+      "countryPlaceholder": "Seleccionar país...",
+      "countryHelp": "Al seleccionar un país se auto-completan los valores por defecto de zona horaria, idioma y sistema métrico.",
+      "timeZone": "Zona horaria",
+      "timeZonePlaceholder": "Automática (zona del navegador)",
+      "timeZoneHelp": "Si se deja vacío, cada usuario verá las fechas en la zona horaria de su navegador.",
+      "culture": "Idioma / Formato regional",
+      "culturePlaceholder": "Seleccionar idioma...",
+      "measurementSystem": "Sistema de medición",
+      "metric": "Métrico (km, kg)",
+      "imperial": "Imperial (mi, lb)",
+      "save": "Guardar preferencias",
+      "saving": "Guardando...",
+      "success": "Preferencias actualizadas correctamente.",
+      "error": "No se pudieron guardar las preferencias.",
+      "autoDetectBadge": "Automático",
+      "configuredBadge": "Configurado",
+      "countries": {
+        "AR": "Argentina",
+        "US": "Estados Unidos",
+        "MX": "México",
+        "BR": "Brasil",
+        "CL": "Chile",
+        "CO": "Colombia",
+        "PE": "Perú",
+        "ES": "España",
+        "GB": "Reino Unido",
+        "CA": "Canadá"
+      },
+      "cultures": {
+        "esAR": "Español (Argentina)",
+        "esMX": "Español (México)",
+        "esCL": "Español (Chile)",
+        "esCO": "Español (Colombia)",
+        "esPE": "Español (Perú)",
+        "esES": "Español (España)",
+        "enUS": "Inglés (Estados Unidos)",
+        "enGB": "Inglés (Reino Unido)",
+        "enCA": "Inglés (Canadá)",
+        "ptBR": "Portugués (Brasil)"
+      }
+    },
     "relations": {
       "title": "Relaciones entre Organizaciones",
       "subtitle": "Gestiona las relaciones con otras organizaciones",
@@ -1335,7 +1408,8 @@
       "sistema": "Sistema",
       "seguridad": "Seguridad",
       "solicitud": "Solicitud",
-      "mantenimiento": "Mantenimiento"
+      "mantenimiento": "Mantenimiento",
+      "alquiler": "Alquiler"
     },
     "geofence": {
       "transition": {
@@ -1373,6 +1447,24 @@
       "login_riesgo": {
         "title": "Nuevo inicio de sesion",
         "message": "Nuevo inicio de sesion desde {{ip}} el {{fechaUtc}} UTC."
+      }
+    },
+    "alquiler": {
+      "tardanza_devolucion": {
+        "title": "Devolución tardía - {{param0}}",
+        "message": "La reserva {{param0}} del cliente {{param1}} lleva {{param2}}h de retraso en la devolución. Vehículo: {{param3}}, Sucursal: {{param4}}"
+      },
+      "reserva_creada": {
+        "title": "Nueva reserva - {{param0}}",
+        "message": "Se creó la reserva {{param0}} para {{param1}}"
+      },
+      "reserva_confirmada": {
+        "title": "Reserva confirmada - {{param0}}",
+        "message": "La reserva {{param0}} fue confirmada por {{param1}}"
+      },
+      "reserva_cancelada": {
+        "title": "Reserva cancelada - {{param0}}",
+        "message": "La reserva {{param0}} fue cancelada. Motivo: {{param1}}"
       }
     }
   },
@@ -1519,7 +1611,8 @@
       "ConductorYaInactivo": "El conductor ya se encuentra inactivo",
       "NoSePuedeEditarInactivo": "No se puede editar un conductor inactivo. Primero debe reactivarlo.",
       "ConductorYaActivo": "El conductor ya se encuentra activo",
-      "SinPermisoGestion": "No tiene permiso de gestión sobre este conductor compartido"
+      "SinPermisoGestion": "No tiene permiso de gestión sobre este conductor compartido",
+      "BatchLimiteExcedido": "La cantidad de vehículos solicitados ({{param0}}) excede el límite máximo ({{param1}}) por petición batch"
     },
     "Seguridad": {
       "IntentoAccesoTenantCruzado": "Acceso no autorizado: no puede acceder a datos de otra organización.",
@@ -1595,6 +1688,1725 @@
       "YaAsignadaAVehiculo": "La geofence ya está asignada a este vehículo.",
       "AsignacionNoEncontrada": "La asignación geofence-vehículo no fue encontrada.",
       "VehiculoSinDispositivo": "El vehículo no tiene un dispositivo activo asignado."
+    },
+    "Alquiler": {
+      "VehiculoNoEncontrado": "Vehículo de alquiler no encontrado",
+      "VehiculoNoDisponible": "El vehículo no está disponible para alquiler en las fechas solicitadas",
+      "ReservaNoEncontrada": "Reserva de alquiler no encontrada",
+      "FechasInvalidas": "La fecha de inicio debe ser anterior a la fecha de fin del alquiler",
+      "TransicionEstadoReservaInvalida": "Transición de estado de reserva inválida: {{param0}} → {{param1}}",
+      "ReservaExpirada": "La reserva ha expirado y ya no puede confirmarse",
+      "ConflictoConcurrenciaReserva": "La reserva fue modificada por otro usuario. Recargue los datos y vuelva a intentar",
+      "ContratoNoEncontrado": "Contrato de alquiler no encontrado",
+      "ContratoYaFirmado": "El contrato ya fue firmado y no puede modificarse",
+      "TarifaNoEncontrada": "Tarifa de alquiler no encontrada",
+      "SinTarifaAplicable": "No existe una tarifa aplicable para el vehículo y período solicitado",
+      "PagoNoEncontrado": "Pago no encontrado",
+      "MontoInvalido": "El monto del pago debe ser mayor a cero",
+      "PagoYaProcesado": "El pago ya fue procesado y no puede modificarse",
+      "InspeccionNoEncontrada": "Inspección no encontrada",
+      "ClienteNoEncontrado": "Cliente de alquiler no encontrado",
+      "DocumentoDuplicado": "Ya existe un cliente con {{param0}} {{param1}} en esta organización",
+      "ValidacionPromocion": {
+        "Inactiva": "La promoción está inactiva",
+        "Expirada": "La promoción ha expirado o aún no es vigente",
+        "UsosAgotados": "La promoción ha alcanzado el límite máximo de usos",
+        "MontoMinimoInsuficiente": "El monto de la reserva no alcanza el mínimo requerido ({{montoMinimo}})"
+      },
+      "TardanzaDevolucionTitulo": "Devolución tardía - {{param0}}",
+      "TardanzaDevolucionMensaje": "La reserva {{param0}} del cliente {{param1}} lleva {{param2}}h de retraso en la devolución. Vehículo: {{param3}}, Sucursal: {{param4}}"
+    },
+    "VehiculoAlquiler": {
+      "NoEncontrado": "Extensión de alquiler del vehículo no encontrada",
+      "YaTieneExtensionAlquiler": "El vehículo ya tiene una extensión de alquiler activa",
+      "SinSucursalAsignada": "El vehículo de alquiler debe tener al menos una sucursal asignada",
+      "NoDisponible": "El vehículo de alquiler no está disponible actualmente",
+      "EnMantenimiento": "El vehículo de alquiler se encuentra en mantenimiento",
+      "DatosRequeridos": "DatosAlquiler con SucursalPorDefectoId es requerido para crear extensión Alquiler",
+      "Inactivo": "El vehículo de alquiler está inactivo",
+      "TieneReservasActivas": "No se puede modificar: el vehículo tiene reservas activas",
+      "TieneReservasFuturas": "No se puede realizar la operación: el vehículo tiene reservas futuras"
+    },
+    "Sucursal": {
+      "NoEncontrada": "Sucursal no encontrada",
+      "NombreDuplicado": "Ya existe una sucursal con este nombre en la organización",
+      "NoPermiteOneWay": "La sucursal no permite devolución en otra sucursal (one-way)",
+      "FueraDeHorario": "La operación está fuera del horario de atención de la sucursal",
+      "Inactiva": "La sucursal está inactiva y no puede recibir operaciones",
+      "YaInactiva": "La sucursal ya se encuentra inactiva",
+      "TieneReservasActivas": "No se puede desactivar la sucursal porque tiene reservas activas o futuras vinculadas",
+      "CambioHorarioConReservas": "No se pueden restringir los horarios porque hay reservas futuras vinculadas a esta sucursal"
+    },
+    "ClienteAlquiler": {
+      "NoEncontrado": "Cliente de alquiler no encontrado",
+      "EmailDuplicado": "Ya existe un cliente con el email {{param0}} en esta organización",
+      "DocumentoDuplicado": "Ya existe un cliente con el documento {{param0}} en esta organización",
+      "LicenciaVencida": "La licencia de conducir del cliente está vencida",
+      "EdadInsuficiente": "El cliente no cumple con la edad mínima requerida para alquilar",
+      "CodigoOtpInvalido": "El codigo de verificacion es invalido o ha expirado",
+      "EmailRequerido": "El email es requerido para el registro",
+      "YaRegistrado": "Ya existe un cliente registrado con este email"
+    },
+    "TarifaAlquiler": {
+      "NoEncontrada": "Tarifa de alquiler no encontrada",
+      "VigenciaSolapada": "Ya existe una tarifa con vigencia solapada para la misma categoría y sucursal",
+      "YaInactiva": "La tarifa ya se encuentra inactiva"
+    },
+    "RecargoAlquiler": {
+      "NoEncontrado": "Recargo de alquiler no encontrado",
+      "TipoDuplicadoPorCategoria": "Ya existe un recargo activo del mismo tipo para esta categoría",
+      "YaInactivo": "El recargo ya se encuentra inactivo"
+    },
+    "CoberturaAlquiler": {
+      "NoEncontrada": "Cobertura de alquiler no encontrada",
+      "YaInactiva": "La cobertura ya se encuentra inactiva"
+    },
+    "PromocionAlquiler": {
+      "NoEncontrada": "Promoción de alquiler no encontrada",
+      "CodigoDuplicado": "Ya existe una promoción con el código {{param0}} en esta organización",
+      "Expirada": "La promoción ha expirado y ya no es válida",
+      "UsosAgotados": "La promoción ha alcanzado el límite máximo de usos",
+      "YaInactiva": "La promoción ya se encuentra inactiva",
+      "NoAplicable": "La promoción no cumple las condiciones para ser aplicada"
+    },
+    "ReservaAlquiler": {
+      "NoEncontrada": "Reserva de alquiler no encontrada",
+      "TransicionInvalida": "Transición de estado inválida: {{param0}} → {{param1}}",
+      "VehiculoNoDisponible": "El vehículo no está disponible en las fechas solicitadas",
+      "FechaRecogidaPasada": "La fecha de recogida no puede ser anterior a la fecha actual",
+      "DuracionMinima": "La duración de la reserva no alcanza el mínimo requerido",
+      "DuracionMaxima": "La duración de la reserva excede el máximo permitido",
+      "CancelacionFueraDePolitica": "La cancelación no puede realizarse fuera del plazo establecido por la política de cancelación",
+      "ModificacionNoPermitida": "La reserva no puede ser modificada en su estado actual",
+      "YaCompletada": "La reserva ya fue completada y no puede modificarse",
+      "NumeroReservaDuplicado": "Ya existe una reserva con este número en la organización",
+      "ConflictoConcurrencia": "La reserva fue modificada por otro usuario. Recargue los datos y vuelva a intentar",
+      "PromocionNoAplicable": "La promoción no es aplicable a esta reserva",
+      "SinDisponibilidadCategoria": "No hay vehículos disponibles en la categoría seleccionada para las fechas solicitadas",
+      "NoEsDelCliente": "No tiene permiso para acceder a esta reserva",
+      "NoShowAntesDeRecogida": "No se puede marcar como no-show antes de la fecha de recogida"
+    },
+    "CheckOut": {
+      "ReservaNoConfirmada": "La reserva debe estar en estado Confirmada para realizar el check-out",
+      "YaRealizado": "Ya se realizó un check-out para esta reserva",
+      "VehiculoNoAsignado": "No se puede realizar el check-out sin un vehículo asignado a la reserva",
+      "VehiculoNoEncontrado": "El vehículo asignado a la reserva no fue encontrado",
+      "SucursalNoEncontrada": "La sucursal indicada para el check-out no fue encontrada",
+      "TipoInspeccionInvalido": "El tipo de inspección especificado no es válido",
+      "FormatoArchivoNoPermitido": "Solo se permiten archivos de imagen (JPEG, PNG, WebP)"
+    },
+    "CheckIn": {
+      "SinCheckOut": "No se puede realizar el check-in sin un check-out previo",
+      "YaRealizado": "Ya se realizó un check-in para esta reserva",
+      "KilometrajeMenorAlInicial": "El kilometraje final no puede ser menor al kilometraje inicial del check-out",
+      "ReservaNoEnCurso": "La reserva debe estar en estado EnCurso para realizar el check-in",
+      "ConfiguracionRequerida": "No se encontró la configuración de alquiler. Configure precios de recargos antes de realizar check-in",
+      "ConfiguracionPreciosInvalida": "Los precios de recargos en la configuración deben ser mayores a cero"
+    },
+    "PlantillaContrato": {
+      "NoEncontrada": "Plantilla de contrato no encontrada",
+      "NombreDuplicado": "Ya existe una plantilla con este nombre en la organización",
+      "Inactiva": "La plantilla de contrato está inactiva y no puede usarse para generar contratos",
+      "NoHayDefault": "No hay una plantilla de contrato marcada como default en la organización"
+    },
+    "ContratoAlquiler": {
+      "NoEncontrado": "Contrato de alquiler no encontrado",
+      "YaFirmado": "El contrato ya fue firmado y no puede modificarse",
+      "YaExiste": "Ya existe un contrato para esta reserva",
+      "ConflictoConcurrencia": "El contrato fue modificado por otro usuario. Recargue los datos y vuelva a intentar",
+      "ReservaNoConfirmada": "La reserva debe estar confirmada o en curso para generar un contrato"
+    },
+    "PagoAlquiler": {
+      "NoEncontrado": "Pago de alquiler no encontrado",
+      "MontoInvalido": "El monto del pago debe ser mayor a cero",
+      "YaProcesado": "El pago ya fue procesado y no puede modificarse",
+      "ClaveIdempotenciaDuplicada": "Ya existe un pago con esta clave de idempotencia",
+      "MontoExcedeTotal": "El monto total de pagos excede el precio total de la reserva más recargos",
+      "DepositoYaLiberado": "El depósito de esta reserva ya fue liberado o deducido",
+      "MontoExcedeDeposito": "El monto excede el saldo disponible del depósito",
+      "ReservaNoValida": "La reserva debe estar confirmada, en curso o completada para registrar pagos",
+      "TipoPagoNoPermitido": "Este tipo de pago no puede registrarse manualmente. Use los endpoints específicos para reembolsos",
+      "MontoExcedePrecioReserva": "El monto total de señas y pagos excede el precio total de la reserva",
+      "MontoExcedeMontoDeposito": "El monto total de depósitos excede el monto de depósito de la reserva",
+      "PagoFallido": "El pago fue rechazado por el procesador de pagos",
+      "StripeError": "Error al comunicarse con el servicio de pagos",
+      "WebhookFirmaInvalida": "La firma del webhook no es válida",
+      "ReembolsoExcedido": "El monto de reembolso excede el monto del pago original",
+      "PaymentIntentNoEncontrado": "No se encontró un pago asociado a este PaymentIntent",
+      "StripeNoConfigurado": "La organización no tiene Stripe Connect configurado"
+    },
+    "ConfiguracionAlquiler": {
+      "NoEncontrada": "Configuración de alquiler no encontrada para esta organización",
+      "YaExiste": "Ya existe una configuración de alquiler para esta organización",
+      "SinConfiguracionAlquiler": "No hay ninguna organización con módulo de alquiler configurado"
+    },
+    "Cotizacion": {
+      "CategoriaOVehiculoRequerido": "Debe especificar un vehículo o una categoría para cotizar",
+      "RecargoNoEncontrado": "Uno o más recargos seleccionados no fueron encontrados o no están activos",
+      "CoberturaNoEncontrada": "Una o más coberturas seleccionadas no fueron encontradas o no están activas"
+    },
+    "Reporte": {
+      "TipoNoSoportado": "Tipo de reporte no soportado para exportación"
+    }
+  },
+  "catalogoMarketplace": {
+    "titulo": "Catálogo de Vehículos",
+    "subtitulo": "Explorá nuestra selección",
+    "catalogo": "Catálogo",
+    "buscarPlaceholder": "Buscar por marca...",
+    "todasConcesionarias": "Todas las concesionarias",
+    "disponibles": "{{count}} vehículos disponibles",
+    "sinVehiculos": "No hay vehículos",
+    "sinVehiculosHint": "Por el momento no hay vehículos publicados",
+    "errorCarga": "Error al cargar los vehículos",
+    "paginaIndicador": "Página {{current}} de {{total}}",
+    "volverCatalogo": "Volver al catálogo",
+    "vehiculoDefault": "Vehículo",
+    "vehiculoNoEncontrado": "Vehículo no encontrado",
+    "sinImagen": "Sin imagen",
+    "destacado": "Destacado",
+    "descripcion": "Descripción",
+    "sinDescripcion": "Sin descripción disponible.",
+    "caracteristicas": "Características",
+    "anio": "Año",
+    "kilometraje": "Kilometraje",
+    "publicadoEl": "Publicado el {{date}}",
+    "whatsapp": "WhatsApp",
+    "mensajeWhatsApp": "Hola, me interesa el vehículo {{title}}. {{url}}",
+    "contactoNoDisponible": "Información de contacto no disponible",
+    "consultarPrecio": "Consultar",
+    "derechosReservados": "Todos los derechos reservados."
+  },
+  "alquileres": {
+    "proximamente": "Próximamente",
+    "dashboard": {
+      "titulo": "Dashboard de Alquileres",
+      "subtitulo": "Resumen general del módulo de alquileres",
+      "kpi": {
+        "totalReservas": "Reservas del período",
+        "totalReservasSubtitulo": "{{completadas}}% completadas",
+        "vehiculosFlota": "Vehículos en flota",
+        "vehiculosFlotaSubtitulo": "{{total}} registrados",
+        "ingresosMes": "Ingresos del período",
+        "ingresosMesSubtitulo": "{{reservas}} reservas",
+        "tasaOcupacion": "Tasa de ocupación",
+        "tasaOcupacionSubtitulo": "Promedio global de flota"
+      },
+      "graficos": {
+        "utilizacion": "Utilización por categoría",
+        "utilizacionSubtitulo": "Porcentaje de ocupación por tipo de vehículo",
+        "ingresos": "Ingresos",
+        "ingresosSubtitulo": "Evolución de ingresos por período",
+        "ocupacion": "Ocupación",
+        "sinDatos": "No hay datos disponibles para el período seleccionado"
+      }
+    },
+    "flota": {
+      "titulo": "Flota de Alquiler",
+      "subtitulo": "Gestión de vehículos disponibles para alquiler",
+      "agregar": "Agregar vehículo",
+      "editar": "Editar vehículo",
+      "agregado": "Vehículo agregado a la flota de alquiler exitosamente",
+      "editado": "Vehículo de alquiler actualizado exitosamente",
+      "eliminado": "Vehículo desactivado de la flota de alquiler exitosamente",
+      "confirmarEliminar": "Desactivar vehículo",
+      "confirmarEliminarMsg": "¿Desactivar el vehículo \"{{patente}}\" de la flota de alquiler? Las reservas existentes no se verán afectadas.",
+      "totalVehiculos": "Total vehículos",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Patente, marca o modelo...",
+        "categoria": "Categoría",
+        "categoriaPlaceholder": "Todas las categorías",
+        "estado": "Estado",
+        "estadoPlaceholder": "Todos los estados",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Todas las sucursales",
+        "soloActivos": "Solo activos"
+      },
+      "tabla": {
+        "vehiculo": "Vehículo",
+        "categoria": "Categoría",
+        "precioDia": "Precio/día",
+        "estado": "Estado",
+        "sucursal": "Sucursal",
+        "acciones": "Acciones"
+      },
+      "acciones": {
+        "editar": "Editar",
+        "cambiarEstado": "Cambiar estado",
+        "verDisponibilidad": "Ver disponibilidad",
+        "desactivar": "Desactivar"
+      },
+      "form": {
+        "seccionVehiculo": "Vehículo base",
+        "buscarVehiculo": "Buscar vehículo",
+        "buscarVehiculoPlaceholder": "Buscar por patente...",
+        "sinResultados": "No se encontraron vehículos",
+        "vehiculoRequerido": "Debe seleccionar un vehículo",
+        "seccionDatosAlquiler": "Datos de alquiler",
+        "categoriaAlquiler": "Categoría",
+        "precioBaseDiario": "Precio base diario",
+        "precioBaseDiarioPlaceholder": "Ej: 25000",
+        "precioRequerido": "El precio es requerido y debe ser mayor a 0",
+        "depositoMinimo": "Depósito mínimo",
+        "depositoMinimoPlaceholder": "Ej: 50000",
+        "depositoRequerido": "El depósito es requerido y debe ser mayor o igual a 0",
+        "kilometrajeLimiteDiario": "Límite km/día",
+        "kilometrajeLimitePlaceholder": "Sin límite (vacío)",
+        "kilometrajeInvalido": "El límite debe ser mayor a 0",
+        "precioPorKmExcedente": "Precio por km excedente",
+        "precioPorKmPlaceholder": "Ej: 150",
+        "precioPorKmRequerido": "El precio por km excedente es requerido y debe ser mayor o igual a 0",
+        "seccionPolitica": "Política y requisitos",
+        "politicaCombustible": "Política de combustible",
+        "edadMinimaConductor": "Edad mínima conductor",
+        "edadMinimaPlaceholder": "Ej: 21",
+        "edadMinimaInvalida": "La edad debe estar entre 18 y 99",
+        "licenciaRequerida": "Licencia requerida",
+        "licenciaPlaceholder": "Ej: B1, B2",
+        "licenciaRequeridaError": "La licencia es requerida (máx. 100 caracteres)",
+        "seccionSucursales": "Sucursales disponibles",
+        "sucursalDefecto": "Por defecto",
+        "sucursalDefectoRequerida": "Debe seleccionar una sucursal por defecto",
+        "sucursalesRequeridas": "Debe seleccionar al menos una sucursal",
+        "sucursalesDebeIncluirDefecto": "Las sucursales deben incluir la sucursal por defecto",
+        "cargandoSucursales": "Cargando sucursales..."
+      },
+      "categorias": {
+        "1": "Económico",
+        "2": "Compacto",
+        "3": "Intermedio",
+        "4": "Estándar",
+        "5": "Full-Size",
+        "6": "SUV",
+        "7": "Pickup",
+        "8": "Van",
+        "9": "Lujo",
+        "10": "Deportivo",
+        "11": "Eléctrico"
+      },
+      "estados": {
+        "1": "Disponible",
+        "2": "Reservado",
+        "3": "En Uso",
+        "4": "En Mantenimiento",
+        "5": "Fuera de Servicio",
+        "6": "En Tránsito"
+      },
+      "politicas": {
+        "1": "Full/Full",
+        "2": "Combustible prepago",
+        "3": "Libre hasta 1/4 tanque"
+      },
+      "transmision": {
+        "0": "Manual",
+        "1": "Automática"
+      },
+      "cambiarEstado": {
+        "titulo": "Cambiar estado",
+        "estadoActual": "Estado actual",
+        "nuevoEstado": "Nuevo estado",
+        "seleccionar": "Seleccionar estado...",
+        "confirmar": "Cambiar",
+        "exito": "Estado actualizado exitosamente"
+      },
+      "disponibilidad": {
+        "titulo": "Disponibilidad — {{patente}}",
+        "libre": "Libre",
+        "ocupado": "Ocupado",
+        "hoy": "Hoy"
+      }
+    },
+    "sucursales": {
+      "titulo": "Sucursales",
+      "subtitulo": "Puntos de retiro y devolución de vehículos",
+      "crear": "Crear sucursal",
+      "editar": "Editar sucursal",
+      "creada": "Sucursal creada exitosamente",
+      "editada": "Sucursal actualizada exitosamente",
+      "eliminada": "Sucursal desactivada exitosamente",
+      "confirmarEliminar": "Desactivar sucursal",
+      "confirmarEliminarMsg": "¿Desactivar la sucursal \"{{nombre}}\"? Las reservas existentes no se verán afectadas.",
+      "totalSucursales": "Total sucursales",
+      "activas": "Activas",
+      "inactivas": "Inactivas",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Nombre, dirección o ciudad...",
+        "ciudad": "Ciudad",
+        "ciudadPlaceholder": "Filtrar por ciudad",
+        "estado": "Estado"
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "direccion": "Dirección",
+        "ciudad": "Ciudad",
+        "provincia": "Provincia",
+        "estado": "Estado",
+        "telefono": "Teléfono",
+        "permiteOneWay": "One-Way",
+        "acciones": "Acciones"
+      },
+      "form": {
+        "datosGenerales": "Datos generales",
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre de la sucursal",
+        "direccion": "Dirección",
+        "direccionPlaceholder": "Calle, número, piso...",
+        "ciudad": "Ciudad",
+        "ciudadPlaceholder": "Ciudad",
+        "provincia": "Provincia",
+        "provinciaPlaceholder": "Provincia o estado",
+        "codigoPostal": "Código postal",
+        "codigoPostalPlaceholder": "Ej: C1425",
+        "telefono": "Teléfono",
+        "telefonoPlaceholder": "+54 11 1234-5678",
+        "email": "Email",
+        "emailPlaceholder": "sucursal@empresa.com",
+        "permiteOneWay": "Permite devolución en otra sucursal (one-way)",
+        "notas": "Notas",
+        "notasPlaceholder": "Observaciones internas...",
+        "horarios": "Horarios de atención",
+        "horaApertura": "Apertura",
+        "horaCierre": "Cierre",
+        "cerrado": "Cerrado",
+        "nombreRequerido": "El nombre es requerido",
+        "direccionRequerida": "La dirección es requerida",
+        "ciudadRequerida": "La ciudad es requerida",
+        "provinciaRequerida": "La provincia es requerida",
+        "emailInvalido": "El formato de email no es válido",
+        "horaInvalida": "La hora de apertura debe ser anterior a la de cierre"
+      },
+      "dias": {
+        "lunes": "Lunes",
+        "martes": "Martes",
+        "miercoles": "Miércoles",
+        "jueves": "Jueves",
+        "viernes": "Viernes",
+        "sabado": "Sábado",
+        "domingo": "Domingo"
+      }
+    },
+    "tarifas": {
+      "titulo": "Tarifas",
+      "subtitulo": "Gestión de tarifas de alquiler",
+      "agregar": "Agregar tarifa",
+      "totalTarifas": "Total tarifas",
+      "editado": "Tarifa actualizada correctamente",
+      "agregado": "Tarifa creada correctamente",
+      "eliminado": "Tarifa desactivada correctamente",
+      "confirmarEliminar": "Desactivar tarifa",
+      "confirmarEliminarMsg": "¿Desactivar la tarifa \"{{nombre}}\"? No se podrá usar en nuevas reservas.",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Buscar por nombre...",
+        "categoria": "Categoría",
+        "categoriaPlaceholder": "Todas las categorías",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Todas las sucursales",
+        "unidadTiempo": "Unidad de tiempo",
+        "unidadTiempoPlaceholder": "Todas las unidades",
+        "soloActivas": "Solo activas"
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "categoria": "Categoría",
+        "unidadTiempo": "Unidad",
+        "precio": "Precio",
+        "vigencia": "Vigencia",
+        "prioridad": "Prioridad",
+        "estado": "Estado",
+        "acciones": "Acciones",
+        "todasCategorias": "Todas"
+      },
+      "form": {
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre de la tarifa",
+        "categoriaAlquiler": "Categoría de vehículo",
+        "categoriaPlaceholder": "Todas las categorías (opcional)",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Todas las sucursales (opcional)",
+        "unidadTiempo": "Unidad de tiempo",
+        "precioPorUnidad": "Precio por unidad",
+        "precioPorUnidadPlaceholder": "0.00",
+        "moneda": "Moneda",
+        "monedaPlaceholder": "ARS",
+        "vigenciaDesde": "Vigencia desde",
+        "vigenciaHasta": "Vigencia hasta",
+        "duracionMinimaDias": "Duración mínima (días)",
+        "duracionMinimaPlaceholder": "Sin mínimo (opcional)",
+        "duracionMaximaDias": "Duración máxima (días)",
+        "duracionMaximaPlaceholder": "Sin máximo (opcional)",
+        "prioridad": "Prioridad",
+        "prioridadPlaceholder": "1",
+        "nombreRequerido": "El nombre es requerido (máx. 200 caracteres)",
+        "precioRequerido": "El precio debe ser mayor a 0",
+        "monedaRequerida": "La moneda es requerida",
+        "vigenciaRequerida": "Las fechas de vigencia son requeridas",
+        "vigenciaInvalida": "La fecha de fin debe ser posterior a la de inicio",
+        "duracionMinimaInvalida": "La duración mínima debe ser mayor a 0",
+        "duracionMaximaInvalida": "La duración máxima debe ser mayor a 0",
+        "duracionMaximaMenor": "La duración máxima debe ser mayor o igual a la mínima",
+        "prioridadInvalida": "La prioridad debe ser mayor o igual a 1"
+      },
+      "acciones": {
+        "editar": "Editar",
+        "desactivar": "Desactivar"
+      },
+      "unidades": {
+        "1": "Hora",
+        "2": "Día",
+        "3": "Semana",
+        "4": "Mes"
+      }
+    },
+    "recargos": {
+      "titulo": "Recargos",
+      "subtitulo": "Gestión de recargos y servicios adicionales",
+      "agregar": "Agregar recargo",
+      "totalRecargos": "Total recargos",
+      "editado": "Recargo actualizado correctamente",
+      "agregado": "Recargo creado correctamente",
+      "eliminado": "Recargo desactivado correctamente",
+      "confirmarEliminar": "Desactivar recargo",
+      "confirmarEliminarMsg": "¿Desactivar el recargo \"{{nombre}}\"?",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Buscar por nombre...",
+        "tipo": "Tipo",
+        "tipoPlaceholder": "Todos los tipos",
+        "categoria": "Categoría",
+        "categoriaPlaceholder": "Todas las categorías",
+        "soloActivos": "Solo activos",
+        "soloObligatorios": "Solo obligatorios"
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "tipo": "Tipo",
+        "precios": "Precios",
+        "obligatorio": "Obligatorio",
+        "categoria": "Categoría",
+        "estado": "Estado",
+        "acciones": "Acciones",
+        "si": "Sí",
+        "no": "No",
+        "todasCategorias": "Todas"
+      },
+      "form": {
+        "tipoRecargo": "Tipo de recargo",
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre del recargo",
+        "descripcion": "Descripción",
+        "descripcionPlaceholder": "Descripción opcional (máx. 1000 caracteres)",
+        "precioFijo": "Precio fijo",
+        "precioFijoPlaceholder": "0.00 (opcional)",
+        "precioPorDia": "Precio por día",
+        "precioPorDiaPlaceholder": "0.00 (opcional)",
+        "porcentajeSobreTotal": "Porcentaje sobre total",
+        "porcentajePlaceholder": "0-100 (opcional)",
+        "obligatorio": "Obligatorio",
+        "categoriaAlquiler": "Categoría de vehículo",
+        "categoriaPlaceholder": "Todas las categorías (opcional)",
+        "seccionPrecios": "Precios (al menos uno requerido)",
+        "nombreRequerido": "El nombre es requerido (máx. 200 caracteres)",
+        "descripcionLarga": "La descripción no puede exceder 1000 caracteres",
+        "alMenosUnPrecio": "Debe especificar al menos un tipo de precio",
+        "precioFijoInvalido": "El precio fijo debe ser mayor a 0",
+        "precioPorDiaInvalido": "El precio por día debe ser mayor a 0",
+        "porcentajeInvalido": "El porcentaje debe estar entre 0 y 100"
+      },
+      "acciones": {
+        "editar": "Editar",
+        "desactivar": "Desactivar"
+      },
+      "tipos": {
+        "1": "Conductor adicional",
+        "2": "GPS",
+        "3": "Silla bebé",
+        "4": "Seguro básico",
+        "5": "Seguro premium",
+        "6": "One way",
+        "7": "Combustible",
+        "8": "Devolución tardía",
+        "9": "Km excedente",
+        "99": "Otro"
+      }
+    },
+    "coberturas": {
+      "titulo": "Coberturas",
+      "subtitulo": "Gestión de coberturas y seguros",
+      "agregar": "Agregar cobertura",
+      "totalCoberturas": "Total coberturas",
+      "editado": "Cobertura actualizada correctamente",
+      "agregado": "Cobertura creada correctamente",
+      "eliminado": "Cobertura desactivada correctamente",
+      "confirmarEliminar": "Desactivar cobertura",
+      "confirmarEliminarMsg": "¿Desactivar la cobertura \"{{nombre}}\"?",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Buscar por nombre...",
+        "soloActivas": "Solo activas",
+        "soloObligatorias": "Solo obligatorias"
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "precioPorDia": "Precio/día",
+        "deducible": "Deducible máx.",
+        "coberturas": "Coberturas",
+        "obligatoria": "Obligatoria",
+        "estado": "Estado",
+        "acciones": "Acciones",
+        "robo": "Robo",
+        "vidrios": "Vidrios",
+        "neumaticos": "Neumáticos",
+        "granizo": "Granizo",
+        "si": "Sí",
+        "no": "No"
+      },
+      "form": {
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre de la cobertura",
+        "descripcion": "Descripción",
+        "descripcionPlaceholder": "Descripción opcional (máx. 1000 caracteres)",
+        "precioPorDia": "Precio por día",
+        "precioPorDiaPlaceholder": "0.00",
+        "deducibleMaximo": "Deducible máximo",
+        "deduciblePlaceholder": "0.00",
+        "seccionCoberturas": "Tipos de cobertura",
+        "cubreRobo": "Cubre robo",
+        "cubreVidrios": "Cubre vidrios",
+        "cubreNeumaticos": "Cubre neumáticos",
+        "cubreGranizo": "Cubre granizo",
+        "obligatoria": "Obligatoria",
+        "nombreRequerido": "El nombre es requerido (máx. 200 caracteres)",
+        "descripcionLarga": "La descripción no puede exceder 1000 caracteres",
+        "precioRequerido": "El precio por día debe ser mayor a 0",
+        "deducibleInvalido": "El deducible debe ser mayor o igual a 0"
+      },
+      "acciones": {
+        "editar": "Editar",
+        "desactivar": "Desactivar"
+      }
+    },
+    "promociones": {
+      "titulo": "Promociones",
+      "subtitulo": "Gestión de códigos promocionales y descuentos",
+      "agregar": "Agregar promoción",
+      "totalPromociones": "Total promociones",
+      "editado": "Promoción actualizada correctamente",
+      "agregado": "Promoción creada correctamente",
+      "eliminado": "Promoción desactivada correctamente",
+      "confirmarEliminar": "Desactivar promoción",
+      "confirmarEliminarMsg": "¿Desactivar la promoción \"{{codigo}}\"?",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Buscar por código o descripción...",
+        "soloActivas": "Solo activas",
+        "soloVigentes": "Solo vigentes"
+      },
+      "tabla": {
+        "codigo": "Código",
+        "descripcion": "Descripción",
+        "tipoDescuento": "Tipo",
+        "valorDescuento": "Valor",
+        "vigencia": "Vigencia",
+        "usos": "Usos",
+        "estado": "Estado",
+        "acciones": "Acciones",
+        "vigente": "Vigente",
+        "expirada": "Expirada"
+      },
+      "form": {
+        "codigo": "Código",
+        "codigoPlaceholder": "PROMO2026",
+        "descripcion": "Descripción",
+        "descripcionPlaceholder": "Descripción opcional (máx. 1000 caracteres)",
+        "tipoDescuento": "Tipo de descuento",
+        "valorDescuento": "Valor del descuento",
+        "valorDescuentoPlaceholder": "0.00",
+        "vigenciaDesde": "Vigencia desde",
+        "vigenciaHasta": "Vigencia hasta",
+        "usosMaximos": "Usos máximos",
+        "usosMaximosPlaceholder": "Ilimitado (opcional)",
+        "montoMinimoReserva": "Monto mínimo de reserva",
+        "montoMinimoPlaceholder": "Sin mínimo (opcional)",
+        "codigoRequerido": "El código es requerido (máx. 50 caracteres)",
+        "descripcionLarga": "La descripción no puede exceder 1000 caracteres",
+        "valorRequerido": "El valor debe ser mayor a 0",
+        "valorPorcentajeMax": "El porcentaje no puede ser mayor a 100",
+        "vigenciaRequerida": "Las fechas de vigencia son requeridas",
+        "vigenciaInvalida": "La fecha de fin debe ser posterior a la de inicio",
+        "usosMaximosInvalido": "Los usos máximos deben ser mayor a 0",
+        "montoMinimoInvalido": "El monto mínimo debe ser mayor a 0"
+      },
+      "acciones": {
+        "editar": "Editar",
+        "desactivar": "Desactivar"
+      },
+      "tiposDescuento": {
+        "1": "Porcentaje",
+        "2": "Monto fijo"
+      }
+    },
+    "reservas": {
+      "titulo": "Reservas",
+      "subtitulo": "Gestión de reservas de alquiler",
+      "totalReservas": "Total de reservas",
+      "vistaTabla": "Tabla",
+      "vistaCalendario": "Calendario",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Buscar por número, cliente o vehículo...",
+        "estado": "Estado",
+        "estadoPlaceholder": "Todos los estados",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Todas las sucursales",
+        "origen": "Origen",
+        "origenPlaceholder": "Todos los orígenes",
+        "fechaDesde": "Fecha desde",
+        "fechaHasta": "Fecha hasta"
+      },
+      "estados": {
+        "1": "Tentativa",
+        "2": "Confirmada",
+        "3": "En Curso",
+        "4": "Completada",
+        "5": "Cancelada",
+        "6": "No Show"
+      },
+      "origenes": {
+        "1": "Web",
+        "2": "Teléfono",
+        "3": "Presencial",
+        "4": "App"
+      },
+      "tabla": {
+        "numero": "N° Reserva",
+        "cliente": "Cliente",
+        "vehiculo": "Vehículo",
+        "fechas": "Fechas",
+        "fechaRecogida": "Recogida",
+        "fechaDevolucion": "Devolución",
+        "sucursal": "Sucursal",
+        "estado": "Estado",
+        "total": "Total",
+        "acciones": "Acciones",
+        "sinVehiculo": "Sin asignar",
+        "todasSucursales": "Todas"
+      },
+      "acciones": {
+        "verDetalle": "Ver detalle",
+        "confirmar": "Confirmar",
+        "cancelar": "Cancelar",
+        "noShow": "Marcar No Show"
+      },
+      "confirmar": {
+        "titulo": "Confirmar Reserva",
+        "mensaje": "¿Está seguro que desea confirmar la reserva #{{numero}}? Esta acción transicionará la reserva de Tentativa a Confirmada."
+      },
+      "cancelar": {
+        "titulo": "Cancelar Reserva #{{numero}}",
+        "motivo": "Motivo de cancelación",
+        "motivoPlaceholder": "Ingrese el motivo de la cancelación...",
+        "motivoRequerido": "El motivo de cancelación es requerido",
+        "confirmarCancelacion": "Confirmar cancelación"
+      },
+      "noShow": {
+        "titulo": "Marcar No Show",
+        "mensaje": "¿Está seguro que desea marcar la reserva #{{numero}} como No Show? El cliente no se presentó a retirar el vehículo."
+      },
+      "calendario": {
+        "titulo": "Calendario de Reservas",
+        "leyenda": "Leyenda",
+        "sinReservas": "Sin reservas en este período",
+        "sinVehiculo": "Sin vehículo",
+        "tentativa": "Tentativa",
+        "confirmada": "Confirmada",
+        "enCurso": "En Curso",
+        "completada": "Completada",
+        "cancelada": "Cancelada",
+        "noShow": "No Show"
+      },
+      "toast": {
+        "confirmada": "Reserva confirmada exitosamente",
+        "cancelada": "Reserva cancelada exitosamente",
+        "noShow": "Reserva marcada como No Show"
+      },
+      "crearReserva": "Crear Reserva"
+    },
+    "wizard": {
+      "titulo": "Nueva Reserva",
+      "pasos": {
+        "cliente": "Cliente",
+        "vehiculo": "Vehículo",
+        "opciones": "Opciones",
+        "resumen": "Resumen"
+      },
+      "navegacion": {
+        "anterior": "Anterior",
+        "siguiente": "Siguiente",
+        "crearReserva": "Crear Reserva",
+        "creando": "Creando reserva..."
+      },
+      "cliente": {
+        "titulo": "Datos del Cliente",
+        "buscarExistente": "Buscar cliente existente",
+        "buscarPlaceholder": "Nombre, email o documento...",
+        "sinResultados": "No se encontraron clientes",
+        "buscando": "Buscando...",
+        "crearNuevo": "Crear nuevo cliente",
+        "usarExistente": "Usar cliente existente",
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre del cliente",
+        "apellido": "Apellido",
+        "apellidoPlaceholder": "Apellido del cliente",
+        "email": "Email",
+        "emailPlaceholder": "email@ejemplo.com",
+        "telefono": "Teléfono",
+        "telefonoPlaceholder": "+54 11 1234-5678",
+        "tipoDocumento": "Tipo de documento",
+        "tipoDocumentoPlaceholder": "Seleccionar...",
+        "numeroDocumento": "Número de documento",
+        "numeroDocumentoPlaceholder": "Ej: 12345678",
+        "fechaNacimiento": "Fecha de nacimiento",
+        "licenciaConducir": "N° licencia de conducir",
+        "licenciaPlaceholder": "Número de licencia",
+        "vencimientoLicencia": "Vencimiento de licencia",
+        "errores": {
+          "clienteRequerido": "Debe seleccionar o crear un cliente",
+          "nombreRequerido": "El nombre es requerido",
+          "apellidoRequerido": "El apellido es requerido",
+          "emailRequerido": "El email es requerido",
+          "emailInvalido": "El formato de email no es válido",
+          "tipoDocumentoRequerido": "Seleccione un tipo de documento",
+          "numeroDocumentoRequerido": "El número de documento es requerido"
+        },
+        "tiposDocumento": {
+          "1": "DNI",
+          "2": "Pasaporte",
+          "3": "CUIT/CUIL",
+          "4": "Cédula de Identidad",
+          "99": "Otro"
+        }
+      },
+      "vehiculo": {
+        "titulo": "Vehículo y Fechas",
+        "categoria": "Categoría de vehículo",
+        "categoriaPlaceholder": "Seleccionar categoría...",
+        "vehiculoOpcional": "Vehículo específico (opcional)",
+        "buscarVehiculo": "Buscar vehículo por patente...",
+        "sinResultados": "No se encontraron vehículos",
+        "sucursalRecogida": "Sucursal de recogida",
+        "sucursalRecogidaPlaceholder": "Seleccionar sucursal...",
+        "sucursalDevolucion": "Sucursal de devolución",
+        "sucursalDevolucionPlaceholder": "Seleccionar sucursal...",
+        "mismaSucursal": "Misma que recogida",
+        "fechaHoraRecogida": "Fecha y hora de recogida",
+        "fechaHoraDevolucion": "Fecha y hora de devolución",
+        "errores": {
+          "categoriaRequerida": "Debe seleccionar una categoría o un vehículo",
+          "sucursalRecogidaRequerida": "La sucursal de recogida es requerida",
+          "sucursalDevolucionRequerida": "La sucursal de devolución es requerida",
+          "fechaRecogidaRequerida": "La fecha de recogida es requerida",
+          "fechaDevolucionRequerida": "La fecha de devolución es requerida",
+          "fechaRecogidaFutura": "La fecha de recogida debe ser en el futuro",
+          "fechaDevolucionPosterior": "La fecha de devolución debe ser posterior a la recogida",
+          "duracionMinima": "La duración mínima es de 24 horas"
+        }
+      },
+      "opciones": {
+        "titulo": "Opciones y Precio",
+        "recargos": "Recargos",
+        "sinRecargos": "No hay recargos disponibles",
+        "obligatorio": "Obligatorio",
+        "coberturas": "Coberturas",
+        "sinCoberturas": "No hay coberturas disponibles",
+        "obligatoria": "Obligatoria",
+        "codigoPromocion": "Código de promoción",
+        "codigoPromocionPlaceholder": "Ej: VERANO2026",
+        "validar": "Validar",
+        "validando": "Validando...",
+        "promoValida": "Promoción válida",
+        "promoInvalida": "Código inválido",
+        "previoPrecio": "Precio estimado",
+        "calculando": "Calculando precio...",
+        "errorCotizacion": "No se pudo calcular el precio",
+        "porDia": "{{precio}}/día",
+        "precioFijo": "{{precio}} fijo"
+      },
+      "resumen": {
+        "titulo": "Resumen de la Reserva",
+        "seccionCliente": "Cliente",
+        "seccionVehiculo": "Vehículo / Categoría",
+        "seccionFechas": "Fechas",
+        "seccionOpciones": "Opciones seleccionadas",
+        "seccionPrecio": "Desglose de Precio",
+        "precioBase": "Precio base ({{dias}} días)",
+        "recargo": "Recargo: {{nombre}}",
+        "cobertura": "Cobertura: {{nombre}}",
+        "totalRecargos": "Total recargos",
+        "totalCoberturas": "Total coberturas",
+        "subtotal": "Subtotal",
+        "descuento": "Descuento ({{codigo}})",
+        "deposito": "Depósito requerido",
+        "total": "TOTAL",
+        "notas": "Notas",
+        "notasPlaceholder": "Observaciones adicionales para la reserva...",
+        "origenReserva": "Origen de la reserva",
+        "origenPlaceholder": "Seleccionar origen...",
+        "duracion": "{{dias}} días",
+        "clienteExistente": "Cliente existente",
+        "clienteNuevo": "Nuevo cliente",
+        "sinRecargos": "Sin recargos adicionales",
+        "sinCoberturas": "Sin coberturas adicionales",
+        "sinPromocion": "Sin código de promoción",
+        "promoAplicada": "Promo: {{codigo}}",
+        "vehiculoAsignado": "Vehículo asignado",
+        "soloCategoria": "Solo categoría",
+        "precioFallback": "El precio se calculó usando la tarifa de la categoría porque el vehículo no tiene tarifa propia asignada.",
+        "sinCotizacion": "Complete los datos del vehículo y fechas para ver el precio estimado"
+      },
+      "toast": {
+        "reservaCreada": "Reserva creada exitosamente"
+      },
+      "errores": {
+        "clienteNoSeleccionado": "Debe seleccionar un cliente existente antes de continuar"
+      }
+    },
+    "reservaDetalle": {
+      "titulo": "Detalle de Reserva",
+      "subtitulo": "Información completa de la reserva",
+      "volver": "Volver a reservas",
+      "reservaNumero": "Reserva #{{numero}}",
+      "noEncontrada": "Reserva no encontrada",
+      "resumen": {
+        "titulo": "Resumen",
+        "sucursalRecogida": "Sucursal de recogida",
+        "sucursalDevolucion": "Sucursal de devolución",
+        "fechaRecogida": "Fecha de recogida",
+        "fechaDevolucion": "Fecha de devolución",
+        "categoria": "Categoría",
+        "origen": "Origen"
+      },
+      "timeline": {
+        "titulo": "Historial",
+        "creada": "Reserva creada",
+        "confirmada": "Confirmada",
+        "enCurso": "En curso (check-out)",
+        "completada": "Completada (check-in)",
+        "cancelada": "Cancelada",
+        "noShow": "No Show"
+      },
+      "cliente": {
+        "titulo": "Cliente",
+        "verFicha": "Ver ficha del cliente"
+      },
+      "vehiculo": {
+        "titulo": "Vehículo",
+        "sinAsignar": "Sin vehículo asignado",
+        "verFicha": "Ver ficha del vehículo"
+      },
+      "precio": {
+        "titulo": "Desglose de Precio",
+        "precioBase": "Precio base",
+        "recargo": "Recargo",
+        "cobertura": "Cobertura",
+        "totalRecargos": "Total recargos",
+        "totalCoberturas": "Total coberturas",
+        "descuento": "Descuento",
+        "promocion": "Promoción: {{codigo}}",
+        "deposito": "Depósito",
+        "total": "Total"
+      },
+      "pagos": {
+        "titulo": "Pagos",
+        "registrar": "Registrar pago",
+        "sinPagos": "Sin pagos registrados",
+        "tipo": "Tipo",
+        "monto": "Monto",
+        "metodo": "Método",
+        "estado": "Estado",
+        "fecha": "Fecha",
+        "referencia": "Referencia",
+        "totalPagado": "Total pagado",
+        "saldo": "Saldo pendiente"
+      },
+      "tiposPago": {
+        "1": "Señal",
+        "2": "Pago total",
+        "3": "Depósito",
+        "4": "Recargo post-devolución",
+        "5": "Reembolso depósito",
+        "6": "Reembolso cancelación",
+        "7": "Penalización No Show"
+      },
+      "metodosPago": {
+        "1": "Tarjeta",
+        "2": "Efectivo",
+        "3": "Transferencia",
+        "4": "MercadoPago"
+      },
+      "estadosPago": {
+        "1": "Pendiente",
+        "2": "Procesando",
+        "3": "Completado",
+        "4": "Fallido",
+        "5": "Reembolsado",
+        "6": "Reembolso parcial"
+      },
+      "contrato": {
+        "titulo": "Contrato",
+        "generar": "Generar contrato",
+        "descargarPdf": "Descargar PDF",
+        "sinContrato": "Sin contrato generado",
+        "generando": "Generando...",
+        "firmado": "Firmado",
+        "sinFirma": "Sin firma",
+        "fechaFirma": "Firmado el"
+      },
+      "checkOut": {
+        "titulo": "Check-Out (Entrega)",
+        "fecha": "Fecha de entrega",
+        "kilometraje": "Kilometraje inicial",
+        "combustible": "Nivel de combustible",
+        "exterior": "Estado exterior",
+        "interior": "Estado interior",
+        "observaciones": "Observaciones",
+        "sucursal": "Sucursal",
+        "sinCheckOut": "Sin check-out registrado",
+        "realizar": "Realizar check-out"
+      },
+      "checkIn": {
+        "titulo": "Check-In (Devolución)",
+        "fecha": "Fecha de devolución real",
+        "kilometraje": "Kilometraje final",
+        "combustible": "Nivel de combustible",
+        "exterior": "Estado exterior",
+        "interior": "Estado interior",
+        "danos": "Daños detectados",
+        "si": "Sí",
+        "no": "No",
+        "descripcionDanos": "Descripción de daños",
+        "recargoCombustible": "Recargo combustible",
+        "recargoKm": "Recargo km excedente",
+        "recargoTardanza": "Recargo tardanza",
+        "recargoDanos": "Recargo daños",
+        "totalRecargos": "Total recargos check-in",
+        "observaciones": "Observaciones",
+        "sucursal": "Sucursal",
+        "sinCheckIn": "Sin check-in registrado",
+        "realizar": "Realizar check-in",
+        "recargosPreview": "Recargos calculados",
+        "sinRecargos": "Sin recargos"
+      },
+      "fotos": {
+        "titulo": "Fotos de Inspección",
+        "checkOut": "Fotos Check-Out",
+        "checkIn": "Fotos Check-In",
+        "sinFotos": "Sin fotos",
+        "subir": "Subir fotos",
+        "cerrar": "Cerrar",
+        "arrastrar": "Arrastra y suelta fotos aquí",
+        "oSeleccionar": "o haz clic para seleccionar",
+        "formatos": "JPG, PNG o WebP — máx. {{max}} fotos",
+        "comprimiendo": "Comprimiendo imágenes...",
+        "contador": "{{actual}}/{{max}} fotos",
+        "errorTipo": "Formato no permitido. Usa JPG, PNG o WebP",
+        "errorCantidad": "No puedes subir más de {{max}} fotos en total",
+        "errorTamano": "El tamaño total excede el límite de 50 MB",
+        "errorCompresion": "Error al comprimir las imágenes",
+        "subida": "Subida"
+      },
+      "acciones": {
+        "titulo": "Estado y Acciones",
+        "confirmar": "Confirmar reserva",
+        "cancelar": "Cancelar reserva",
+        "noShow": "Marcar No Show",
+        "checkOut": "Realizar check-out",
+        "checkIn": "Realizar check-in",
+        "estadoTerminal": "Esta reserva ha finalizado"
+      },
+      "notas": {
+        "titulo": "Notas Internas",
+        "sinNotas": "Sin notas internas"
+      },
+      "form": {
+        "kilometraje": "Kilometraje",
+        "nivelCombustible": "Nivel de combustible (%)",
+        "estadoExterior": "Estado exterior",
+        "estadoExteriorPlaceholder": "Describir estado exterior del vehículo...",
+        "estadoInterior": "Estado interior",
+        "estadoInteriorPlaceholder": "Describir estado interior del vehículo...",
+        "observaciones": "Observaciones",
+        "observacionesPlaceholder": "Observaciones adicionales...",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Seleccionar sucursal...",
+        "danosDetectados": "Se detectaron daños",
+        "descripcionDanos": "Descripción de los daños",
+        "descripcionDanosPlaceholder": "Describir los daños encontrados...",
+        "recargoDanos": "Monto del recargo por daños",
+        "tipoPago": "Tipo de pago",
+        "tipoPagoPlaceholder": "Seleccionar tipo...",
+        "monto": "Monto",
+        "metodoPago": "Método de pago",
+        "metodoPagoPlaceholder": "Seleccionar método...",
+        "referenciaExterna": "Referencia externa",
+        "referenciaPlaceholder": "N° de transacción, cheque, etc.",
+        "confirmar": "Confirmar",
+        "tipoInspeccion": "Tipo de inspección",
+        "seleccionarArchivos": "Seleccionar archivos",
+        "combustibleLabel": "{{valor}}%",
+        "estadoDetalles": "Detalles adicionales",
+        "estadoDetallesPlaceholder": "Describir detalles adicionales...",
+        "estadoOptions": {
+          "excelente": "Excelente",
+          "bueno": "Bueno",
+          "regular": "Regular",
+          "malo": "Malo",
+          "muyMalo": "Muy malo"
+        }
+      },
+      "toast": {
+        "confirmada": "Reserva confirmada exitosamente",
+        "cancelada": "Reserva cancelada exitosamente",
+        "noShow": "Reserva marcada como No Show",
+        "checkOutRealizado": "Check-out realizado exitosamente",
+        "checkInRealizado": "Check-in realizado exitosamente",
+        "pagoRegistrado": "Pago registrado exitosamente",
+        "contratoGenerado": "Contrato generado exitosamente",
+        "fotosSubidas": "Fotos subidas exitosamente",
+        "fotosError": "Check-out realizado, pero hubo un error al subir las fotos",
+        "fotosErrorCheckIn": "Check-in realizado, pero hubo un error al subir las fotos"
+      },
+      "confirmarModal": {
+        "titulo": "Confirmar Reserva",
+        "mensaje": "¿Confirmar la reserva #{{numero}}? Esta acción cambiará el estado a Confirmada."
+      },
+      "noShowModal": {
+        "titulo": "Marcar No Show",
+        "mensaje": "¿Marcar como No Show la reserva #{{numero}}? Esta acción es irreversible."
+      }
+    },
+    "clientes": {
+      "titulo": "Clientes",
+      "subtitulo": "Gestión de clientes de alquiler",
+      "crear": "Crear cliente",
+      "editar": "Editar cliente",
+      "detalle": "Detalle del cliente",
+      "creado": "Cliente creado exitosamente",
+      "editado": "Cliente actualizado exitosamente",
+      "totalClientes": "Total clientes",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Nombre, email o documento..."
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "email": "Email",
+        "telefono": "Teléfono",
+        "documento": "Documento",
+        "fechaRegistro": "Fecha registro",
+        "acciones": "Acciones",
+        "verDetalle": "Ver detalle"
+      },
+      "form": {
+        "datosPersonales": "Datos personales",
+        "documentoSeccion": "Documento de identidad",
+        "informacionAdicional": "Información adicional",
+        "licenciaSeccion": "Licencia de conducir",
+        "nombre": "Nombre",
+        "nombrePlaceholder": "Nombre del cliente",
+        "apellido": "Apellido",
+        "apellidoPlaceholder": "Apellido del cliente",
+        "email": "Email",
+        "emailPlaceholder": "email@ejemplo.com",
+        "telefono": "Teléfono",
+        "telefonoPlaceholder": "+54 11 1234-5678",
+        "tipoDocumento": "Tipo de documento",
+        "tipoDocumentoPlaceholder": "Seleccionar...",
+        "numeroDocumento": "Número de documento",
+        "numeroDocumentoPlaceholder": "Ej: 12345678",
+        "fechaNacimiento": "Fecha de nacimiento",
+        "direccion": "Dirección",
+        "direccionPlaceholder": "Calle, número, piso...",
+        "ciudad": "Ciudad",
+        "ciudadPlaceholder": "Ciudad",
+        "provincia": "Provincia",
+        "provinciaPlaceholder": "Provincia o estado",
+        "codigoPostal": "Código postal",
+        "codigoPostalPlaceholder": "Ej: C1425",
+        "licenciaConducir": "N° licencia de conducir",
+        "licenciaPlaceholder": "Número de licencia",
+        "vencimientoLicencia": "Vencimiento de licencia",
+        "notas": "Notas",
+        "notasPlaceholder": "Observaciones internas...",
+        "nombreRequerido": "El nombre es requerido",
+        "apellidoRequerido": "El apellido es requerido",
+        "emailRequerido": "El email es requerido",
+        "emailInvalido": "El formato de email no es válido",
+        "tipoDocumentoRequerido": "Seleccione un tipo de documento",
+        "numeroDocumentoRequerido": "El número de documento es requerido"
+      },
+      "tiposDocumento": {
+        "1": "DNI",
+        "2": "Pasaporte",
+        "3": "CUIT/CUIL",
+        "4": "Cédula de Identidad",
+        "99": "Otro"
+      },
+      "detalleModal": {
+        "datosCliente": "Datos del cliente",
+        "historialReservas": "Historial de reservas",
+        "totalReservas": "Total de reservas",
+        "sinReservas": "Este cliente no tiene reservas registradas",
+        "mostrando": "Mostrando las últimas {{mostradas}} de {{total}} reservas",
+        "verReserva": "Ver reserva",
+        "sinDato": "—"
+      }
+    },
+    "contratos": {
+      "titulo": "Plantillas de contratos",
+      "subtitulo": "Gestión de plantillas para contratos de alquiler",
+      "crear": "Crear plantilla",
+      "editar": "Editar plantilla",
+      "creada": "Plantilla creada exitosamente",
+      "editada": "Plantilla actualizada exitosamente",
+      "totalPlantillas": "Total plantillas",
+      "filtros": {
+        "buscar": "Buscar",
+        "buscarPlaceholder": "Nombre de plantilla...",
+        "soloActivas": "Solo activas"
+      },
+      "tabla": {
+        "nombre": "Nombre",
+        "version": "Versión",
+        "esDefault": "Default",
+        "activa": "Estado",
+        "fechaActualizacion": "Última actualización",
+        "acciones": "Acciones"
+      },
+      "form": {
+        "nombre": "Nombre de la plantilla",
+        "nombrePlaceholder": "Ej: Contrato estándar de alquiler",
+        "esDefault": "Plantilla por defecto",
+        "esDefaultHelp": "Se usará automáticamente al generar contratos",
+        "activa": "Activa",
+        "contenidoHtml": "Contenido HTML",
+        "nombreRequerido": "El nombre es requerido",
+        "contenidoRequerido": "El contenido HTML es requerido"
+      },
+      "editor": {
+        "tabEditor": "Editor",
+        "tabPreview": "Vista previa",
+        "placeholders": "Placeholders disponibles",
+        "placeholdersHelp": "Clic para insertar en el editor",
+        "datosEjemplo": "Mostrando con datos de ejemplo"
+      },
+      "preview": {
+        "titulo": "Vista previa del contrato",
+        "datosReserva": "Vista previa con datos de la reserva",
+        "sinPlantillaDefault": "No hay una plantilla por defecto configurada",
+        "datoServidor": "[se completará al generar]",
+        "confirmarGenerar": "¿Generar este contrato?",
+        "confirmarGenerarMsg": "Se generará el contrato para la reserva #{{numero}}. Esta acción no se puede deshacer.",
+        "generar": "Generar contrato",
+        "generando": "Generando...",
+        "cancelar": "Cancelar"
+      },
+      "placeholders": {
+        "categorias": {
+          "cliente": "Cliente",
+          "vehiculo": "Vehículo",
+          "reserva": "Reserva",
+          "organizacion": "Organización",
+          "sucursal": "Sucursal",
+          "otros": "Otros"
+        },
+        "cliente": {
+          "nombreCompleto": "Nombre completo",
+          "email": "Email",
+          "telefono": "Teléfono",
+          "documento": "Documento",
+          "direccion": "Dirección"
+        },
+        "vehiculo": {
+          "marca": "Marca",
+          "modelo": "Modelo",
+          "patente": "Patente",
+          "anio": "Año",
+          "categoria": "Categoría"
+        },
+        "reserva": {
+          "numero": "Número de reserva",
+          "fechaRecogida": "Fecha de recogida",
+          "fechaDevolucion": "Fecha de devolución",
+          "precioTotal": "Precio total",
+          "deposito": "Depósito",
+          "moneda": "Moneda"
+        },
+        "organizacion": {
+          "nombre": "Nombre",
+          "cuit": "CUIT"
+        },
+        "sucursal": {
+          "recogidaNombre": "Sucursal recogida",
+          "recogidaDireccion": "Dirección recogida",
+          "devolucionNombre": "Sucursal devolución",
+          "devolucionDireccion": "Dirección devolución"
+        },
+        "otros": {
+          "fechaActual": "Fecha actual",
+          "contratoNumero": "Número de contrato"
+        }
+      }
+    },
+    "reportes": {
+      "titulo": "Reportes",
+      "subtitulo": "Estadísticas y reportes del módulo de alquileres",
+      "filtros": {
+        "fechaInicio": "Fecha inicio",
+        "fechaFin": "Fecha fin",
+        "sucursal": "Sucursal",
+        "sucursalPlaceholder": "Todas las sucursales",
+        "categoria": "Categoría",
+        "categoriaPlaceholder": "Todas las categorías",
+        "agrupacion": "Agrupar por",
+        "agrupacionPlaceholder": "Seleccionar agrupación"
+      },
+      "agrupacion": {
+        "dia": "Día",
+        "semana": "Semana",
+        "mes": "Mes"
+      },
+      "estadisticas": {
+        "titulo": "Estadísticas generales",
+        "totalReservas": "Total reservas",
+        "tasaCompletadas": "Tasa completadas",
+        "tasaCancelacion": "Tasa cancelación",
+        "tasaNoShow": "Tasa no-show",
+        "duracionPromedio": "Duración promedio",
+        "dias": "días",
+        "revenuePromedio": "Ingreso promedio",
+        "ingresosTotales": "Ingresos totales"
+      },
+      "tablas": {
+        "ingresosPorPeriodo": "Ingresos por período",
+        "ingresosPorSucursal": "Ingresos por sucursal",
+        "topVehiculos": "Top vehículos",
+        "periodo": "Período",
+        "sucursal": "Sucursal",
+        "ingresos": "Ingresos",
+        "reservas": "Reservas",
+        "vehiculo": "Vehículo",
+        "patente": "Patente",
+        "categoria": "Categoría",
+        "totalAlquileres": "Alquileres",
+        "revenue": "Ingresos generados",
+        "ocupacion": "Ocupación"
+      },
+      "ordenar": {
+        "masAlquilados": "Más alquilados",
+        "masRentables": "Más rentables"
+      },
+      "exportar": {
+        "boton": "Exportar",
+        "exportando": "Exportando...",
+        "exito": "Reporte exportado exitosamente",
+        "error": "Error al exportar el reporte",
+        "tipo": "Tipo de reporte",
+        "tipoIngresos": "Ingresos",
+        "tipoUtilizacion": "Utilización de flota",
+        "tipoEstadisticas": "Estadísticas de reservas",
+        "tipoTopVehiculos": "Top vehículos"
+      }
+    },
+    "configuracion": {
+      "titulo": "Configuración de Alquileres",
+      "subtitulo": "Parámetros generales del módulo de alquileres",
+      "guardar": "Guardar cambios",
+      "guardadoExito": "Configuración guardada correctamente",
+      "errorCarga": "No se pudo cargar la configuración",
+      "secciones": {
+        "senal": "Señal y Reserva",
+        "senalDesc": "Configuración de señal requerida al momento de reservar",
+        "cancelacion": "Política de Cancelación",
+        "cancelacionDesc": "Reglas de cancelación y penalización para reservas",
+        "general": "General",
+        "generalDesc": "Parámetros generales del módulo",
+        "precios": "Precios Adicionales",
+        "preciosDesc": "Precios por combustible y horas extra"
+      },
+      "campos": {
+        "requiereSenal": "Requiere señal al reservar",
+        "porcentajeSenal": "Porcentaje de señal (%)",
+        "stripeAccountId": "Stripe Account ID",
+        "politicaCancelacion": "Política de cancelación",
+        "diasGratis": "Días de cancelación gratis",
+        "porcentajePenalizacion": "Penalización (%)",
+        "moneda": "Moneda por defecto",
+        "horasExpiracion": "Horas de expiración tentativa",
+        "emailNotificacion": "Email de notificaciones",
+        "precioCombustible": "Precio por litro de combustible",
+        "precioHoraExtra": "Precio por hora extra"
+      },
+      "helpers": {
+        "porcentajeSenal": "Porcentaje del total que se cobra como señal (0-100)",
+        "stripeAccountId": "ID de cuenta Stripe para procesar pagos online",
+        "diasGratis": "Días antes del retiro en los que se puede cancelar sin cargo",
+        "porcentajePenalizacion": "Porcentaje que se cobra como penalización por cancelación tardía",
+        "moneda": "Código ISO 4217 (ej: ARS, USD, EUR)",
+        "horasExpiracion": "Horas antes de que expire una reserva tentativa",
+        "emailNotificacion": "Email donde se envían las notificaciones de reserva",
+        "precioCombustible": "Precio por litro para calcular cargo por combustible faltante",
+        "precioHoraExtra": "Precio por cada hora extra de devolución tardía"
+      },
+      "politicas": {
+        "flexible": "Flexible",
+        "moderada": "Moderada",
+        "estricta": "Estricta"
+      },
+      "errores": {
+        "porcentaje0a100": "Debe ser un valor entre 0 y 100",
+        "politicaInvalida": "La política de cancelación no es válida",
+        "diasMinimo0": "Debe ser 0 o mayor",
+        "monedaRequerida": "La moneda es requerida",
+        "monedaMax3": "La moneda debe tener máximo 3 caracteres",
+        "horasMinimo1": "Debe ser mayor a 0",
+        "emailInvalido": "El email no tiene un formato válido",
+        "emailMax320": "El email no puede exceder 320 caracteres",
+        "stripeMax255": "El Stripe Account ID no puede exceder 255 caracteres",
+        "precioMinimo0": "Debe ser 0 o mayor"
+      }
+    }
+  },
+  "alquilerPublico": {
+    "nav": {
+      "buscar": "Buscar",
+      "misReservas": "Mis Reservas",
+      "iniciarSesion": "Iniciar Sesión",
+      "miCuenta": "Mi Cuenta",
+      "abrirMenu": "Abrir menú",
+      "cerrarMenu": "Cerrar menú",
+      "cerrarSesion": "Cerrar sesión"
+    },
+    "footer": {
+      "derechosReservados": "Todos los derechos reservados."
+    },
+    "paginas": {
+      "proximamente": "Próximamente",
+      "busqueda": "Búsqueda de Vehículos",
+      "detalleVehiculo": "Detalle del Vehículo",
+      "reservar": "Reservar Vehículo",
+      "login": "Iniciar Sesión",
+      "registro": "Crear Cuenta",
+      "misReservas": "Mis Reservas",
+      "detalleReserva": "Detalle de Reserva",
+      "resultados": "Resultados de Búsqueda"
+    },
+    "busqueda": {
+      "titulo": "Encontrá el vehículo ideal para tu viaje",
+      "subtitulo": "Compará precios y reservá online",
+      "errorSucursales": "No se pudieron cargar las sucursales. Por favor, intentá de nuevo.",
+      "errorCategorias": "No se pudieron cargar las categorías. Por favor, intentá de nuevo."
+    },
+    "buscador": {
+      "sucursalRecogida": "Sucursal de recogida",
+      "sucursalDevolucion": "Sucursal de devolución",
+      "devolverOtraSucursal": "Devolver en otra sucursal",
+      "fechaRecogida": "Fecha y hora de recogida",
+      "fechaDevolucion": "Fecha y hora de devolución",
+      "buscar": "Buscar vehículos disponibles",
+      "buscarSucursal": "Buscar por nombre o ciudad...",
+      "sinSucursales": "No se encontraron sucursales",
+      "oneWay": "One-Way",
+      "limpiarSeleccion": "Limpiar selección",
+      "horarioSucursal": "Horario: {{horario}}"
+    },
+    "validacion": {
+      "sucursalRequerida": "Seleccioná una sucursal",
+      "fechaRequerida": "Seleccioná fecha y hora",
+      "sucursalCerrada": "La sucursal está cerrada este día",
+      "fueraDeHorario": "Fuera del horario de atención ({{apertura}} - {{cierre}})",
+      "devolucionAnterior": "La devolución debe ser posterior a la recogida"
+    },
+    "categorias": {
+      "titulo": "Categorías de vehículos",
+      "desde": "Desde {{precio}}/día",
+      "rango": "{{precioDesde}} — {{precioHasta}}/día",
+      "disponibles_one": "{{count}} disponible",
+      "disponibles_other": "{{count}} disponibles"
+    },
+    "resultados": {
+      "titulo": "Vehículos disponibles",
+      "conteo_one": "{{count}} vehículo encontrado",
+      "conteo_other": "{{count}} vehículos encontrados",
+      "precioTotal": "Total estimado",
+      "precioDia": "/día",
+      "seleccionar": "Seleccionar",
+      "sinResultados": "No hay vehículos disponibles",
+      "sinResultadosHint": "Intentá con otras fechas o sucursal",
+      "sinResultadosFiltros": "Sin resultados con estos filtros",
+      "sinResultadosFiltrosHint": "Probá limpiar los filtros para ver todos los vehículos",
+      "modificarBusqueda": "Modificar búsqueda",
+      "ocultarBusqueda": "Ocultar búsqueda",
+      "busquedaActual": "Búsqueda actual",
+      "parametrosInvalidos": "Parámetros de búsqueda inválidos",
+      "volverABuscar": "Volver a buscar"
+    },
+    "filtros": {
+      "titulo": "Filtros",
+      "categoria": "Categoría",
+      "todasCategorias": "Todas las categorías",
+      "precioMinimo": "Precio mínimo",
+      "precioMaximo": "Precio máximo",
+      "limpiar": "Limpiar filtros",
+      "ordenar": "Ordenar por",
+      "precioMenor": "Precio: menor a mayor",
+      "precioMayor": "Precio: mayor a menor",
+      "porCategoria": "Categoría",
+      "relevancia": "Relevancia",
+      "mostrar": "Mostrar filtros",
+      "ocultar": "Ocultar filtros",
+      "transmision": "Transmisión",
+      "todasTransmisiones": "Todas",
+      "manual": "Manual",
+      "automatica": "Automática",
+      "pasajerosMinimo": "Pasajeros mínimo"
+    },
+    "detalle": {
+      "titulo": "Detalle del vehículo",
+      "volver": "Volver a resultados",
+      "especificaciones": "Especificaciones",
+      "anio": "Año",
+      "categoria": "Categoría",
+      "kmDiario": "Km límite diario",
+      "kmIlimitado": "Ilimitado",
+      "precioPorKm": "Precio por km excedente",
+      "politicaCombustible": "Política de combustible",
+      "deposito": "Depósito mínimo",
+      "edadMinima": "Edad mínima conductor",
+      "edadAnios": "{{edad}} años",
+      "licencia": "Licencia requerida",
+      "transmision": "Transmisión",
+      "pasajeros": "Pasajeros",
+      "puertas": "Puertas",
+      "equipaje": "Equipaje",
+      "disponibleEn": "Disponible en",
+      "opcionesAdicionales": "Coberturas y extras",
+      "coberturas": "Coberturas de seguro",
+      "recargos": "Servicios adicionales",
+      "obligatoria": "Incluida",
+      "obligatorio": "Incluido",
+      "dia": "día"
+    },
+    "cotizacion": {
+      "titulo": "Resumen de precio",
+      "tarifa": "Tarifa",
+      "meses_one": "{{count}} mes",
+      "meses_other": "{{count}} meses",
+      "semanas_one": "{{count}} semana",
+      "semanas_other": "{{count}} semanas",
+      "dias_one": "{{count}} día",
+      "dias_other": "{{count}} días",
+      "recargos": "Recargos",
+      "obligatorio": "Obligatorio",
+      "coberturas": "Coberturas",
+      "subtotal": "Subtotal",
+      "descuento": "Descuento",
+      "total": "Total",
+      "deposito": "Depósito estimado",
+      "reservar": "Reservar",
+      "cargando": "Calculando precio...",
+      "errorCotizacion": "Error al calcular precio",
+      "sinFechas": "Seleccioná fechas para ver el precio"
+    },
+    "promocion": {
+      "titulo": "Código promocional",
+      "placeholder": "Ingresá tu código",
+      "aplicar": "Aplicar",
+      "valida": "Código aplicado",
+      "descuento": "{{porcentaje}}% de descuento",
+      "descuentoFijo": "{{monto}} de descuento",
+      "invalida": "Código inválido",
+      "razon": {
+        "Inactiva": "La promoción está inactiva",
+        "Expirada": "La promoción ha expirado",
+        "UsosAgotados": "Usos máximos alcanzados",
+        "MontoMinimoInsuficiente": "Monto mínimo no alcanzado"
+      }
+    },
+    "reserva": {
+      "pasos": {
+        "datosPersonales": "Datos personales",
+        "resumen": "Resumen",
+        "confirmacion": "Confirmación"
+      },
+      "datosPersonales": {
+        "titulo": "Tus datos",
+        "nombre": "Nombre",
+        "apellido": "Apellido",
+        "email": "Email",
+        "telefono": "Teléfono",
+        "tipoDocumento": "Tipo de documento",
+        "numeroDocumento": "Número de documento",
+        "fechaNacimiento": "Fecha de nacimiento",
+        "licencia": "Número de licencia de conducir",
+        "vencimientoLicencia": "Vencimiento licencia",
+        "seleccionarTipo": "Seleccionar tipo...",
+        "tipoDoc": {
+          "1": "DNI",
+          "2": "Pasaporte",
+          "3": "CUIT",
+          "4": "Cédula de identidad",
+          "99": "Otro"
+        }
+      },
+      "resumen": {
+        "titulo": "Resumen de reserva",
+        "vehiculo": "Vehículo",
+        "fechas": "Fechas",
+        "sucursales": "Sucursales",
+        "recogida": "Recogida",
+        "devolucion": "Devolución",
+        "duracion": "{{dias}} días"
+      },
+      "confirmacion": {
+        "titulo": "Reserva creada",
+        "numero": "Reserva #",
+        "estado": "Estado",
+        "tentativa": "Pendiente",
+        "mensaje": "Tu reserva fue creada exitosamente.",
+        "instrucciones": "Te contactaremos para confirmar el método de pago y finalizar la reserva.",
+        "volverInicio": "Volver al inicio",
+        "verReservas": "Ver mis reservas"
+      },
+      "pago": {
+        "fallback": "Tu reserva será creada como pendiente de confirmación.",
+        "fallbackDetalle": "Nos pondremos en contacto para coordinar el método de pago y confirmar tu reserva.",
+        "aceptarTerminos": "Acepto los términos y condiciones"
+      },
+      "errores": {
+        "nombreRequerido": "El nombre es obligatorio",
+        "apellidoRequerido": "El apellido es obligatorio",
+        "emailRequerido": "El email es obligatorio",
+        "emailInvalido": "Formato de email inválido",
+        "tipoDocRequerido": "El tipo de documento es obligatorio",
+        "numDocRequerido": "El número de documento es obligatorio",
+        "errorCrear": "Error al crear la reserva"
+      },
+      "acciones": {
+        "anterior": "Anterior",
+        "siguiente": "Siguiente",
+        "confirmar": "Confirmar reserva",
+        "creando": "Creando reserva..."
+      }
+    },
+    "auth": {
+      "loginTitulo": "Iniciar Sesión",
+      "loginSubtitulo": "Ingresá tu email para recibir un código de verificación",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "enviarCodigo": "Enviar código",
+      "enviandoCodigo": "Enviando...",
+      "noEncontrado": "No encontramos una cuenta con este email",
+      "irARegistro": "Crear una cuenta",
+      "noTenesCuenta": "¿No tenés cuenta?",
+      "yaTenesCuenta": "¿Ya tenés cuenta?",
+      "irALogin": "Iniciar sesión",
+      "registroTitulo": "Crear Cuenta",
+      "registroSubtitulo": "Completá tus datos para registrarte",
+      "nombre": "Nombre",
+      "apellido": "Apellido",
+      "telefono": "Teléfono (opcional)",
+      "tipoDocumento": "Tipo de documento",
+      "seleccionarTipo": "Seleccionar tipo...",
+      "numeroDocumento": "Número de documento",
+      "crearCuenta": "Crear cuenta",
+      "creandoCuenta": "Creando cuenta...",
+      "yaRegistrado": "Ya existe una cuenta con este email",
+      "verificarTitulo": "Verificar código",
+      "verificarSubtitulo": "Ingresá el código de 6 dígitos enviado a tu email",
+      "codigoEnviadoA": "Enviamos un código a",
+      "codigoLabel": "Código de verificación",
+      "codigoPlaceholder": "000000",
+      "verificar": "Verificar",
+      "verificando": "Verificando...",
+      "codigoInvalido": "El código es inválido o ha expirado",
+      "reenviarCodigo": "Reenviar código",
+      "reenviarEn": "Reenviar en {{segundos}}s",
+      "codigoReenviado": "Código reenviado exitosamente",
+      "reenviando": "Reenviando...",
+      "sesionExpirada": "Tu sesión ha expirado. Por favor iniciá sesión nuevamente.",
+      "errores": {
+        "emailRequerido": "El email es obligatorio",
+        "emailInvalido": "Formato de email inválido",
+        "nombreRequerido": "El nombre es obligatorio",
+        "apellidoRequerido": "El apellido es obligatorio",
+        "tipoDocRequerido": "El tipo de documento es obligatorio",
+        "numDocRequerido": "El número de documento es obligatorio"
+      }
+    },
+    "misReservas": {
+      "titulo": "Mis Reservas",
+      "tabs": {
+        "activas": "Activas",
+        "pasadas": "Pasadas",
+        "canceladas": "Canceladas"
+      },
+      "tarjeta": {
+        "reserva": "Reserva #{{numero}}",
+        "sinVehiculo": "Sin vehículo asignado",
+        "recogida": "Recogida",
+        "devolucion": "Devolución"
+      },
+      "vacio": {
+        "activas": "No tenés reservas activas",
+        "activasHint": "Cuando hagas una reserva, aparecerá acá",
+        "pasadas": "No tenés reservas finalizadas",
+        "pasadasHint": "Las reservas completadas aparecerán acá",
+        "canceladas": "No tenés reservas canceladas",
+        "canceladasHint": "Las reservas canceladas aparecerán acá"
+      },
+      "detalle": {
+        "titulo": "Detalle de Reserva",
+        "volver": "Volver a mis reservas",
+        "informacion": "Información",
+        "fechaCreacion": "Creada el",
+        "canceladaEl": "Cancelada el",
+        "motivoCancelacion": "Motivo"
+      },
+      "cancelar": {
+        "titulo": "Cancelar reserva",
+        "subtitulo": "¿Estás seguro que querés cancelar la reserva #{{numero}}?",
+        "advertencia": "Podrían aplicarse cargos según la política de cancelación vigente.",
+        "motivo": "Motivo de cancelación (opcional)",
+        "motivoPlaceholder": "Contanos por qué querés cancelar...",
+        "confirmar": "Confirmar cancelación",
+        "cancelada": "Reserva cancelada exitosamente"
+      },
+      "error": {
+        "cargar": "Error al cargar tus reservas",
+        "cargarDetalle": "Error al cargar el detalle",
+        "cancelar": "Error al cancelar la reserva",
+        "reintentar": "Reintentar"
+      }
+    },
+    "seo": {
+      "busqueda": {
+        "descripcion": "Alquilá autos online. Compará precios, elegí tu vehículo y reservá al instante."
+      },
+      "auth": {
+        "loginTitulo": "Iniciar Sesión",
+        "registroTitulo": "Crear Cuenta",
+        "verificarTitulo": "Verificar Código"
+      },
+      "reserva": {
+        "titulo": "Reservar Vehículo"
+      },
+      "misReservas": {
+        "titulo": "Mis Reservas",
+        "detalleTitulo": "Detalle de Reserva"
+      }
     }
   }
 }

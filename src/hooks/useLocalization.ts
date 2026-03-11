@@ -20,7 +20,7 @@ export function useLocalization() {
   }, [store.preferences, store.isLoading, store.error, store]);
 
   return {
-    timeZoneId: store.preferences?.timeZoneId ?? 'UTC',
+    timeZoneId: store.preferences?.timeZoneId || Intl.DateTimeFormat().resolvedOptions().timeZone,
     culture: store.preferences?.culture ?? 'es-AR',
     measurementSystem: store.preferences?.measurementSystem ?? 0, // Metric
     country: store.preferences?.country ?? null,

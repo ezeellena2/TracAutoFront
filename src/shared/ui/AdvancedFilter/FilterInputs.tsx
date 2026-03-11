@@ -104,11 +104,28 @@ export const FilterBoolean = ({ config, value, onChange }: FilterInputProps) => 
     );
 };
 
+export const FilterDate = ({ config, value, onChange }: FilterInputProps) => {
+    return (
+        <div className="space-y-1.5">
+            <label className="text-sm font-medium text-text block">
+                {config.label}
+            </label>
+            <input
+                type="date"
+                value={value || ''}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+            />
+        </div>
+    );
+};
+
 export const FilterFactory = (props: FilterInputProps) => {
     switch (props.config.type) {
         case 'select': return <FilterSelect {...props} />;
         case 'boolean': return <FilterBoolean {...props} />;
         case 'number': return <FilterNumber {...props} />;
+        case 'date': return <FilterDate {...props} />;
         case 'text':
         default: return <FilterText {...props} />;
     }

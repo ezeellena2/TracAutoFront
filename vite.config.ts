@@ -21,15 +21,19 @@ export default defineConfig({
     ],
   },
   // Configuración de build para mejor code-splitting
+  // Cada app (b2b, marketplace, alquiler) se carga via lazy import en main.tsx,
+  // generando chunks separados automáticamente. Manual chunks solo para vendor.
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-query': ['@tanstack/react-query'],
+          'vendor-state': ['zustand'],
           'vendor-ui': ['lucide-react'],
           'vendor-map': ['leaflet', 'react-leaflet'],
           'vendor-i18n': ['i18next', 'react-i18next'],
+          'vendor-http': ['axios'],
         },
       },
     },
@@ -40,9 +44,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png', 'icons/*.svg'],
       manifest: {
-        name: 'TracAuto - Gestión de Flotas',
+        name: 'TracAuto',
         short_name: 'TracAuto',
-        description: 'Plataforma B2B para gestión de flotas y telemetría vehicular',
+        description: 'Plataforma de gestión vehicular, alquiler y telemetría',
         theme_color: '#2563eb',
         background_color: '#0f172a',
         display: 'standalone',

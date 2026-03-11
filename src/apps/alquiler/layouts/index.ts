@@ -1,0 +1,1 @@
+export { AlquilerLayout } from './AlquilerLayout';

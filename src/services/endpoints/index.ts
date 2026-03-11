@@ -11,3 +11,21 @@ export { notificacionesApi } from './notificaciones.api';
 export { reportarError } from './support.api';
 export type { ReportarErrorRequest, ReportarErrorResponse } from './support.api';
 export * from './system.api';
+export { marketplacePublicoApi } from './marketplace-publico.api';
+export { alquilerPublicoApi, authClienteApi } from './alquiler-publico.api';
+// Alquileres
+export {
+  sucursalesApi,
+  vehiculosAlquilerApi,
+  tarifasApi,
+  recargosApi,
+  coberturasApi,
+  promocionesApi,
+  clientesAlquilerApi,
+  reservasApi,
+  contratosApi,
+  pagosAlquilerApi,
+  cotizacionApi,
+  configuracionAlquilerApi,
+  reportesAlquilerApi,
+} from './alquiler.api';

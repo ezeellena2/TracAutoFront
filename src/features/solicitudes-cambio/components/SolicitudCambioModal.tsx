@@ -9,6 +9,7 @@ import { useErrorHandler } from '@/hooks';
 import type { SolicitudContext } from '@/store/modoSolicitud.store';
 import { Modal } from '@/shared/ui/Modal';
 import { SolicitudCambioLimits } from '../constants';
+import { EstadoSolicitudCambio } from '@/shared/types/api';
 
 const MAX_MENSAJES_USUARIO = SolicitudCambioLimits.MAX_MENSAJES_USUARIO;
 
@@ -120,8 +121,9 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
             )}
           </div>
           <div className="flex items-center gap-3">
-            {!jiraIssueKey && (
-              <span className="text-xs font-medium text-text-muted bg-background px-2 py-1 rounded-full border border-border">
+            {/* Counter discreto: solo aparece cuando se acerca al límite */}
+            {!jiraIssueKey && mensajesUsuario >= Math.floor(MAX_MENSAJES_USUARIO * 0.7) && (
+              <span className="text-xs font-medium text-warning bg-warning/10 px-2 py-1 rounded-full border border-warning/20">
                 {mensajesUsuario}/{MAX_MENSAJES_USUARIO} {t('solicitudesCambio.modal.messages', 'mensajes')}
               </span>
             )}
@@ -207,11 +209,11 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
               <div className="flex flex-col flex-1 gap-4 overflow-y-auto pr-2 scrollbar-thin">
                 {mensajes.length === 0 && !isSending && (
                   <div className="flex flex-col items-center justify-center text-center p-6 bg-surface/50 border border-border border-dashed rounded-xl m-auto max-w-sm">
-                    <p className="text-sm text-text mb-2">
+                    <p className="text-sm text-text mb-1">
                       {t('solicitudesCambio.modal.describeChange', 'Describí el cambio que necesitás en')} <strong className="font-semibold text-primary">{solicitud?.label ?? contexto?.label ?? t('solicitudesCambio.modal.thisElement', 'este elemento')}</strong>.
                     </p>
                     <p className="text-xs text-text-muted">
-                      {t('solicitudesCambio.modal.messageLimit', 'Tenés hasta {{max}} mensajes para describir tu solicitud.', { max: MAX_MENSAJES_USUARIO })}
+                      {t('solicitudesCambio.modal.describeChangeHint', 'El asistente puede hacerte preguntas para entender mejor qué necesitás.')}
                     </p>
                   </div>
                 )}
@@ -243,15 +245,15 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
 
               {/* Ready for Jira action */}
               {readyForJira && !jiraIssueKey && (
-                <div className="flexitems-center justify-between gap-4 bg-primary/10 border border-primary/20 p-3 rounded-xl mt-3 shrink-0">
+                <div className="flex items-center justify-between gap-4 bg-primary/10 border border-primary/20 p-3 rounded-xl mt-3 shrink-0">
                   <span className="font-medium text-sm text-primary flex items-center gap-2">
-                    ✅ {t('solicitudesCambio.modal.readyToSend', 'Ticket listo para enviar')}
+                    ✅ {t('solicitudesCambio.modal.readyToSend', 'Ticket listo — podés revisarlo y ajustarlo antes de enviarlo')}
                   </span>
                   <button
                     className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors ml-auto mt-2 sm:mt-0"
                     onClick={() => setShowConfirm(true)}
                   >
-                    {t('solicitudesCambio.modal.viewAndConfirm', 'Ver ticket y confirmar')} <ChevronRight size={14} />
+                    {t('solicitudesCambio.modal.viewAndConfirm', 'Ver y confirmar')} <ChevronRight size={14} />
                   </button>
                 </div>
               )}
@@ -265,7 +267,9 @@ export function SolicitudCambioModal({ isOpen, contexto, onClose, onEnviadoAJira
                     placeholder={
                       limitAlcanzado
                         ? t('solicitudesCambio.modal.limitReachedShort', 'Límite de mensajes alcanzado')
-                        : t('solicitudesCambio.modal.inputPlaceholder', 'Describí el cambio que necesitás...')
+                        : solicitud?.estado === EstadoSolicitudCambio.NeedsInfo && mensajes.length > 0
+                          ? t('solicitudesCambio.modal.replyToAssistant', 'Respondé las preguntas del asistente...')
+                          : t('solicitudesCambio.modal.inputPlaceholder', 'Describí el cambio que necesitás...')
                     }
                   />
                 </div>

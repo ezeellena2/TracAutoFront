@@ -1,0 +1,13 @@
+export { DashboardAlquileresPage } from './pages/DashboardAlquileresPage';
+export { FlotaAlquilerPage } from './pages/FlotaAlquilerPage';
+export { SucursalesPage } from './pages/SucursalesPage';
+export { TarifasPage } from './pages/TarifasPage';
+export { RecargosPage } from './pages/RecargosPage';
+export { CoberturasPage } from './pages/CoberturasPage';
+export { PromocionesPage } from './pages/PromocionesPage';
+export { ReservasPage } from './pages/ReservasPage';
+export { ReservaDetallePage } from './pages/ReservaDetallePage';
+export { ClientesAlquilerPage } from './pages/ClientesAlquilerPage';
+export { ContratosPage } from './pages/ContratosPage';
+export { ReportesAlquilerPage } from './pages/ReportesAlquilerPage';
+export { ConfiguracionAlquilerPage } from './pages/ConfiguracionAlquilerPage';

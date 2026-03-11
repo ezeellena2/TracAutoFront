@@ -1,20 +1,27 @@
 import { useTranslation } from 'react-i18next';
 import { Search, Car, AlertTriangle, Moon } from 'lucide-react';
 import { useTraccarMapStore, useFilteredVehicles } from '../store/traccarMap.store';
+import { formatDate } from '@/shared/utils/dateFormatter';
+import { useLocalization } from '@/hooks/useLocalization';
 import { VehiclePosition } from '../types';
 
-function formatLastUpdate(date: Date, t: (key: string, options?: { minutes?: number; hours?: number }) => string): string {
+function formatLastUpdate(
+  date: Date,
+  t: (key: string, options?: { minutes?: number; hours?: number }) => string,
+  culture: string,
+  timeZoneId: string,
+): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
-  
+
   if (diffMins < 1) return t('map.now');
   if (diffMins < 60) return t('map.minutesAgo', { minutes: diffMins });
-  
+
   const diffHours = Math.floor(diffMins / 60);
   if (diffHours < 24) return t('map.hoursAgo', { hours: diffHours });
-  
-  return date.toLocaleDateString();
+
+  return formatDate(date, culture, timeZoneId);
 }
 
 function getStatusIcon(estado: VehiclePosition['estado']) {
@@ -43,6 +50,7 @@ function getStatusColor(estado: VehiclePosition['estado']) {
 
 export function VehiclesSidebar() {
   const { t } = useTranslation();
+  const { culture, timeZoneId } = useLocalization();
   const { searchText, setSearchText, selectedVehicleId, setSelectedVehicle } = useTraccarMapStore();
   const filteredVehicles = useFilteredVehicles();
 
@@ -108,7 +116,7 @@ export function VehiclesSidebar() {
                       </p>
                     )}
                     <div className="flex items-center gap-2 mt-1 text-xs text-text-muted">
-                      <span>{formatLastUpdate(vehicle.lastUpdate, t)}</span>
+                      <span>{formatLastUpdate(vehicle.lastUpdate, t, culture, timeZoneId)}</span>
                       {vehicle.velocidad > 0 && (
                         <>
                           <span>•</span>

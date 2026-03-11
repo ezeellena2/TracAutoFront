@@ -17,9 +17,22 @@ import {
   MapPin,
   X,
   FileSpreadsheet,
-  FileText
+  FileText,
+  KeyRound,
+  CarFront,
+  Store,
+  DollarSign,
+  ReceiptText,
+  Shield,
+  Tag,
+  CalendarCheck,
+  Contact,
+  ScrollText,
+  BarChart3,
+  Settings,
+  Globe
 } from 'lucide-react';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
@@ -32,8 +45,8 @@ interface NavItem {
   icon: React.ElementType;
   /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
   requiredPermission?: Permission;
-  /** Tipo de organización requerido para ver este ítem */
-  requiredOrganizationType?: TipoOrganizacion;
+  /** Tipo(s) de organización requerido(s) para ver este ítem */
+  requiredOrganizationType?: TipoOrganizacion | TipoOrganizacion[];
   /** Items hijos para submenús */
   children?: NavItem[];
 }
@@ -54,12 +67,33 @@ const navItems: NavItem[] = [
   { path: '/geozonas', labelKey: 'sidebar.geofences', icon: MapPin },
   { path: '/importaciones', labelKey: 'sidebar.imports', icon: FileSpreadsheet },
   {
+    labelKey: 'sidebar.alquileres',
+    icon: KeyRound,
+    requiredPermission: 'alquileres:ver',
+    requiredOrganizationType: [TipoOrganizacion.EmpresaRenting, TipoOrganizacion.ConcesionarioAutos],
+    children: [
+      { path: '/alquileres', labelKey: 'sidebar.alquileresDashboard', icon: LayoutDashboard },
+      { path: '/alquileres/flota', labelKey: 'sidebar.alquileresFlota', icon: CarFront },
+      { path: '/alquileres/sucursales', labelKey: 'sidebar.alquileresSucursales', icon: Store },
+      { path: '/alquileres/tarifas', labelKey: 'sidebar.alquileresTarifas', icon: DollarSign },
+      { path: '/alquileres/recargos', labelKey: 'sidebar.alquileresRecargos', icon: ReceiptText },
+      { path: '/alquileres/coberturas', labelKey: 'sidebar.alquileresCoberturas', icon: Shield },
+      { path: '/alquileres/promociones', labelKey: 'sidebar.alquileresPromociones', icon: Tag },
+      { path: '/alquileres/reservas', labelKey: 'sidebar.alquileresReservas', icon: CalendarCheck },
+      { path: '/alquileres/clientes', labelKey: 'sidebar.alquileresClientes', icon: Contact },
+      { path: '/alquileres/contratos', labelKey: 'sidebar.alquileresContratos', icon: ScrollText },
+      { path: '/alquileres/reportes', labelKey: 'sidebar.alquileresReportes', icon: BarChart3, requiredPermission: 'alquileres:reportes' },
+      { path: '/alquileres/configuracion', labelKey: 'sidebar.alquileresConfiguracion', icon: Settings, requiredPermission: 'alquileres:configurar' },
+    ]
+  },
+  {
     labelKey: 'sidebar.organization',
     icon: Building,
     requiredPermission: 'organizacion:editar',
     children: [
       { path: '/usuarios', labelKey: 'sidebar.users', icon: Users, requiredPermission: 'usuarios:ver' },
       { path: '/configuracion/empresa/apariencia', labelKey: 'sidebar.organizationAppearance', icon: Palette },
+      { path: '/configuracion/empresa/preferencias', labelKey: 'sidebar.organizationPreferences', icon: Globe },
       { path: '/configuracion/empresa/relaciones', labelKey: 'sidebar.organizationRelations', icon: Link2 },
       { path: '/configuracion/empresa/solicitudes-cambio', labelKey: 'sidebar.organizationChangeRequests', icon: FileText },
     ]
@@ -73,6 +107,25 @@ export function Sidebar() {
   const { can } = usePermissions();
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMenuMouseEnter = (menuKey: string) => {
+    if (!isCollapsed) return;
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredMenu(menuKey);
+  };
+
+  const handleMenuMouseLeave = () => {
+    if (!isCollapsed) return;
+    hoverTimeoutRef.current = setTimeout(() => setHoveredMenu(null), 150);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   // Close mobile drawer when route changes
   useEffect(() => {
@@ -81,16 +134,25 @@ export function Sidebar() {
 
   // Filtrar items según permisos del usuario y tipo de organización
   const visibleNavItems = useMemo(() => {
-    return navItems.filter(item => {
-      // Validar permiso
-      const hasPermission = !item.requiredPermission || can(item.requiredPermission);
+    return navItems
+      .filter(item => {
+        // Validar permiso
+        const hasPermission = !item.requiredPermission || can(item.requiredPermission);
 
-      // Validar tipo de organización
-      const hasOrganizationType = !item.requiredOrganizationType ||
-        (currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
+        // Validar tipo de organización (soporta valor único o array)
+        const hasOrganizationType = !item.requiredOrganizationType ||
+          (Array.isArray(item.requiredOrganizationType)
+            ? item.requiredOrganizationType.includes(currentOrganization?.tipoOrganizacion as TipoOrganizacion)
+            : currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
 
-      return hasPermission && hasOrganizationType;
-    });
+        return hasPermission && hasOrganizationType;
+      })
+      .map(item => ({
+        ...item,
+        children: item.children?.filter(child =>
+          !child.requiredPermission || can(child.requiredPermission)
+        ),
+      }));
   }, [can, currentOrganization]);
 
   // Auto-expandir submenús cuando la ruta actual coincide con algún hijo
@@ -180,7 +242,12 @@ export function Sidebar() {
               );
 
               return (
-                <div key={menuKey} className="space-y-1">
+                <div
+                  key={menuKey}
+                  className="relative space-y-1"
+                  onMouseEnter={() => handleMenuMouseEnter(menuKey)}
+                  onMouseLeave={handleMenuMouseLeave}
+                >
                   <button
                     onClick={() => !isCollapsed && toggleMenu(menuKey)}
                     className={`
@@ -191,7 +258,6 @@ export function Sidebar() {
                       }
                     ${isCollapsed ? 'justify-center' : ''}
                   `}
-                    disabled={isCollapsed}
                   >
                     <item.icon size={20} />
                     {!isCollapsed && (
@@ -205,7 +271,35 @@ export function Sidebar() {
                     )}
                   </button>
 
-                  {/* Submenú items */}
+                  {/* Collapsed popover */}
+                  {isCollapsed && hoveredMenu === menuKey && (
+                    <div className="absolute left-full top-0 ml-2 z-50 w-56 bg-surface border border-border rounded-lg shadow-lg py-2">
+                      <p className="px-4 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                        {t(item.labelKey)}
+                      </p>
+                      {item.children.map((child) => {
+                        const isActive = child.path === location.pathname;
+                        return (
+                          <NavLink
+                            key={child.path}
+                            to={child.path!}
+                            className={`
+                              flex items-center gap-3 px-4 py-2 transition-all duration-200
+                              ${isActive
+                                ? 'bg-primary text-white'
+                                : 'text-text-muted hover:text-text hover:bg-background'
+                              }
+                            `}
+                          >
+                            <child.icon size={16} />
+                            <span className="font-medium text-sm">{t(child.labelKey)}</span>
+                          </NavLink>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Expanded submenú items */}
                   {!isCollapsed && isExpanded && (
                     <div className="ml-4 space-y-1 border-l-2 border-border pl-2">
                       {item.children.map((child) => {

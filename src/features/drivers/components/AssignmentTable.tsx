@@ -61,8 +61,8 @@ export function AssignmentTable<T extends Assignment>({
           {assignments.map((asignacion) => (
             <tr key={asignacion.id}>
               <td className="px-4 py-2 text-text">{getAssignmentName(asignacion)}</td>
-              <td className="px-4 py-2 text-text-muted">{formatDateTime(asignacion.inicioUtc)}</td>
-              <td className="px-4 py-2 text-text-muted">
+              <td className="px-4 py-2 text-text-muted whitespace-nowrap">{formatDateTime(asignacion.inicioUtc)}</td>
+              <td className="px-4 py-2 text-text-muted whitespace-nowrap">
                 {asignacion.finUtc ? formatDateTime(asignacion.finUtc) : '-'}
               </td>
               <td className="px-4 py-2">
