@@ -78,11 +78,7 @@ export const VerificarCuentaRequestSchema = z.object({
   usuarioId: z.string().uuid(),
   codigoEmail: z
     .string()
-<<<<<<< HEAD
-    .regex(/^\d{6}$/, "Código de email debe tener 6 dígitos")
-=======
     .length(6, "auth.errors.codeFormat")
->>>>>>> aea21e0 (Reset pass  modal + fix verificación cuenta)
     .optional(),
   codigoTelefono: z
     .string()

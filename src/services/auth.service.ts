@@ -230,16 +230,12 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
   } catch (error: unknown) {
     const err = error as Record<string, unknown> & { response?: { data?: { errorCode?: string; code?: string } } };
     const message = error instanceof Error ? error.message : 'Error al iniciar sesión con Google';
-<<<<<<< HEAD
     const rawCode =
       err?.response?.data?.errorCode ??
       (err?.errorCode as string | undefined) ??
       err?.code ??
       (err?.response?.data?.code as string | undefined);
     const errorCode: string | undefined = typeof rawCode === 'string' ? rawCode : undefined;
-    return { success: false, error: message, errorCode };
-=======
-    const errorCode = (error as any)?.code as string | undefined;
     const status = (error as any)?.status as number | undefined;
 
     // ASP.NET Core serializa ProblemDetails.Extensions como propiedades de primer nivel
@@ -256,7 +252,6 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
       email,
       status
     };
->>>>>>> aea21e0 (Reset pass  modal + fix verificación cuenta)
   }
 }
 
