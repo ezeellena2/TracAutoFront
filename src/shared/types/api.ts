@@ -33,30 +33,41 @@ export enum TipoOrganizacion {
 
 // --- Requests ---
 
+// Schema reutilizable para validación fuerte de contraseñas
+export const PasswordSchema = z.string()
+  .min(8, "auth.errors.passwordMinLength")
+  .regex(/[A-Z]/, "auth.errors.passwordUppercase")
+  .regex(/[a-z]/, "auth.errors.passwordLowercase")
+  .regex(/[0-9]/, "auth.errors.passwordNumber")
+  .superRefine((val, ctx) => {
+    // Si tiene menos de 14 caracteres, obligamos a un carácter especial para aumentar entropía
+    // Si tiene 14 o más, asumimos que la longitud es suficiente seguridad
+    if (val.length < 14 && !/[^a-zA-Z0-9]/.test(val)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "auth.errors.passwordSpecial",
+      });
+    }
+  });
+
 export const RegistrarEmpresaRequestSchema = z.object({
-  nombreEmpresa: z.string().min(2, "Nombre de empresa requerido"),
+  nombreEmpresa: z.string().min(2, "auth.errors.companyNameRequired"),
   razonSocial: z.string().optional(),
   cuit: z
     .string()
-    .min(11, "El CUIT debe tener 11 dígitos.")
-    .max(11, "El CUIT debe tener 11 dígitos."),
+    .min(11, "auth.errors.cuitLength")
+    .max(11, "auth.errors.cuitLength"),
   tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
-  email: z.string().email("Email inválido"),
-  password: z
-    .string()
-    .min(8, "La contraseña debe tener al menos 8 caracteres")
-    .regex(/[A-Z]/, "La contraseña debe contener al menos una mayúscula")
-    .regex(/[a-z]/, "La contraseña debe contener al menos una minúscula")
-    .regex(/[0-9]/, "La contraseña debe contener al menos un número")
-    .regex(/[^a-zA-Z0-9]/, "La contraseña debe contener al menos un carácter especial"),
-  nombreCompleto: z.string().min(2, "Nombre completo requerido"),
+  email: z.string().email("auth.errors.invalidEmail"),
+  password: PasswordSchema,
+  nombreCompleto: z.string().min(2, "auth.errors.fullNameRequired"),
   telefono: z
     .string()
-    .regex(/^[\d\+\-\s\(\)]+$/, "Formato de teléfono inválido")
-    .max(20, "Teléfono no puede exceder 20 caracteres."),
+    .regex(/^[\d\+\-\s\(\)]+$/, "auth.errors.invalidPhone")
+    .max(20, "auth.errors.phoneMaxLength"),
   googleToken: z.string().optional(),
   aceptaTerminosYCondiciones: z.literal(true, {
-    errorMap: () => ({ message: "Debes aceptar los términos y condiciones." }),
+    errorMap: () => ({ message: "auth.errors.termsRequired" }),
   }),
 });
 export const RegistrarEmpresaFormSchema = RegistrarEmpresaRequestSchema;
@@ -69,11 +80,11 @@ export const VerificarCuentaRequestSchema = z.object({
   usuarioId: z.string().uuid(),
   codigoEmail: z
     .string()
-    .regex(/^\d{6}$/, "Código de email debe tener 6 dígitos")
+    .length(6, "auth.errors.codeFormat")
     .optional(),
   codigoTelefono: z
     .string()
-    .length(6, "Código de teléfono debe tener 6 dígitos")
+    .length(6, "auth.errors.codeFormat")
     .optional(),
 });
 export type VerificarCuentaRequest = z.infer<
@@ -81,15 +92,29 @@ export type VerificarCuentaRequest = z.infer<
 >;
 
 export const ReenviarCodigoRequestSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: z.string().email("auth.errors.invalidEmail"),
   canal: z.nativeEnum(CanalEnvio),
 });
 export type ReenviarCodigoRequest = z.infer<typeof ReenviarCodigoRequestSchema>;
 
 export const LoginConGoogleRequestSchema = z.object({
-  idToken: z.string().min(100, "Token de Google inválido"),
+  idToken: z.string().min(100, "auth.errors.googleTokenInvalid"),
 });
 export type LoginConGoogleRequest = z.infer<typeof LoginConGoogleRequestSchema>;
+
+export const SolicitarResetPasswordRequestSchema = z.object({
+  email: z.string().email("auth.errors.invalidEmail"),
+});
+export type SolicitarResetPasswordRequest = z.infer<
+  typeof SolicitarResetPasswordRequestSchema
+>;
+
+export const ResetPasswordRequestSchema = z.object({
+  email: z.string().email("auth.errors.invalidEmail"),
+  token: z.string().min(1, "Obrigatório"),
+  nuevaPassword: PasswordSchema,
+});
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
 
 // --- Responses ---
 
@@ -103,8 +128,17 @@ export interface RegistroEmpresaResponse {
 
 export interface VerificacionCuentaResponse {
   token: string;
+  usuarioId: string;
   organizacionId: string;
+  nombreUsuario: string;
+  email: string;
+  nombreOrganizacion: string;
+  rol: string;
+  tipoOrganizacion: number;
+  theme?: OrganizacionThemeDto | null;
   mensaje: string;
+  emailVerificado?: boolean;
+  telefonoVerificado?: boolean;
 }
 
 export interface ReenviarCodigoResponse {
@@ -340,6 +374,10 @@ export interface ProblemDetails {
   detail?: string;
   instance?: string;
   code?: string;
+  // Campos adicionales de TracAuto para flujos de verificación/auth
+  emailVerificado?: boolean;
+  telefonoVerificado?: boolean;
+  usuarioId?: string;
   traceId?: string;
   timestamp?: string;
   /** Retry-after in seconds (rate limiting) */

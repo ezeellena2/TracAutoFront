@@ -15,6 +15,8 @@ import {
   LoginConGoogleRequest,
   GoogleAuthResponse,
   OrganizacionThemeDto,
+  SolicitarResetPasswordRequest,
+  ResetPasswordRequest,
 } from '@/shared/types/api';
 
 const AUTH_BASE = 'auth';
@@ -129,8 +131,24 @@ export async function loginConGoogle(data: LoginConGoogleRequest): Promise<Googl
  * Logout - revoca el refresh token en el backend
  * Best-effort: si falla, el frontend igual limpiará la sesión
  */
+/**
+ * Solicita un link de reseteo de password
+ * POST /api/v1/auth/solicitar-reset-password
+ */
+export async function solicitarResetPassword(data: SolicitarResetPasswordRequest): Promise<void> {
+  await apiClient.post(`${AUTH_BASE}/solicitar-reset-password`, data);
+}
+
 export async function logout(): Promise<void> {
   await apiClient.post(`${AUTH_BASE}/logout`);
+}
+
+/**
+ * Resetea el password usando el token recibido por email
+ * POST /api/v1/auth/reset-password
+ */
+export async function resetPassword(data: ResetPasswordRequest): Promise<void> {
+  await apiClient.post(`${AUTH_BASE}/reset-password`, data);
 }
 
 export const authApi = {
@@ -139,5 +157,7 @@ export const authApi = {
   verificarCuenta,
   reenviarCodigo,
   loginConGoogle,
+  solicitarResetPassword,
+  resetPassword,
   logout,
 };
