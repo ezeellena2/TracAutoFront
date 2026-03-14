@@ -614,7 +614,7 @@
     "alreadyHaveAccount": "¿Ya es usuario?",
     "login": "Iniciar sesión",
     "goToLogin": "Ir al Login",
-    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
     "expired": {
       "title": "Invitación Expirada",
       "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
@@ -633,7 +633,7 @@
     },
     "success": {
       "title": "¡Bienvenido!",
-      "text": "Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión."
+      "text": "Su cuenta ha sido creada exitosamente. Ya puede iniciar sesión."
     },
     "form": {
       "email": "Email",
@@ -646,7 +646,7 @@
       "confirmPasswordPlaceholder": "••••••••",
       "phone": "Teléfono",
       "phonePlaceholder": "+54 11 1234-5678",
-      "creating": "Creando cuenta...",
+      "creating": "Creando usuario...",
       "submit": "Crear usuario"
     }
   },
@@ -1573,22 +1573,22 @@
       "PasswordReuseNotAllowed": "Contraseña inválida. Ingrese otra."
     },
     "Usuario": {
-      "NoEncontrado": "Usuario no encontrado",
-      "EmailDuplicado": "Ya existe un usuario con este email",
-      "Inactivo": "El usuario está deshabilitado",
-      "SinOrganizacion": "El usuario no tiene organización asignada",
-      "SinPermisos": "No tiene permisos para realizar esta acción",
-      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas",
-      "EsDuenio": "No se puede cambiar el rol del dueño de la organización",
-      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización",
-      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización",
-      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación",
-      "CuentaYaVerificada": "La cuenta ya está verificada",
-      "CuentaInactiva": "La cuenta de usuario está inactiva",
-      "SinTelefono": "El usuario no tiene número de teléfono registrado",
-      "CreacionFallida": "Error al crear el usuario: {{param0}}",
-      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}",
-      "NoAutenticado": "El usuario no está autenticado"
+      "NoEncontrado": "Usuario no encontrado.",
+      "EmailDuplicado": "Ya existe un usuario con este email.",
+      "Inactivo": "El usuario está deshabilitado.",
+      "SinOrganizacion": "El usuario no tiene organización asignada.",
+      "SinPermisos": "No tiene permisos para realizar esta acción.",
+      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas.",
+      "EsDuenio": "No se puede cambiar el rol del dueño de la organización.",
+      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización.",
+      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización.",
+      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación.",
+      "CuentaYaVerificada": "La cuenta ya está verificada.",
+      "CuentaInactiva": "La cuenta de usuario está inactiva.",
+      "SinTelefono": "El usuario no tiene número de teléfono registrado.",
+      "CreacionFallida": "Error al crear el usuario: {{param0}}.",
+      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}.",
+      "NoAutenticado": "El usuario no está autenticado."
     },
     "Organizacion": {
       "NoEncontrada": "Organización no encontrada",

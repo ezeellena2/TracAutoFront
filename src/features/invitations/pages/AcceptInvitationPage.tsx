@@ -77,7 +77,7 @@ export function AcceptInvitationPage() {
         setInvitation(data);
         setPageState('valid');
       } catch (err: unknown) {
-        const parsed = handleApiError(err, { showToast: false });
+        const parsed = handleApiError(err, { showToast: false, showReportModal: false });
         const code = parsed.code;
 
         if (code === 'errors.Invitacion.Expirada' || code === 'Invitacion.Expirada') {
@@ -107,8 +107,14 @@ export function AcceptInvitationPage() {
       });
       setPageState('success');
     } catch (err: unknown) {
-      const parsed = handleApiError(err, { showToast: false });
-      setGeneralError(parsed.message);
+      const parsed = handleApiError(err, { showToast: false, showReportModal: false });
+
+      // Si es un error 500, mostramos el mensaje genérico de servidor
+      if (parsed.status === 500) {
+        setGeneralError(t('errors.HTTP_500'));
+      } else {
+        setGeneralError(parsed.message);
+      }
     }
   };
 
@@ -374,7 +380,7 @@ export function AcceptInvitationPage() {
 
         <div className="mt-6 text-center space-y-2">
           <p className="text-text-muted inline-block">
-            {t('invitations.alreadyHaveAccount', '¿Ya es usuario?')}
+            {t('invitations.alreadyHaveAccount')}
           </p>
           <Link
             to="/login"

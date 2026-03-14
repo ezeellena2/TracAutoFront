@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
-import { Modal, Input, Button } from '@/shared/ui';
+import { X, Mail } from 'lucide-react';
+import { Modal, Input, Button, Select, Alert } from '@/shared/ui';
 import { invitacionesApi } from '@/services/endpoints';
-import { toast } from '@/store';
 import { useErrorHandler } from '@/hooks';
 
 interface InviteUserModalProps {
@@ -20,21 +19,29 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
   const [email, setEmail] = useState('');
   const [rol, setRol] = useState<RolOption>('Analista');
   const [isLoading, setIsLoading] = useState(false);
+  const [generalError, setGeneralError] = useState<string | null>(null);
+
+  const roleOptions = [
+    { value: 'Analista', label: t('users.roles.analista') },
+    { value: 'Operador', label: t('users.roles.operador') },
+    { value: 'Admin', label: t('users.roles.admin') },
+  ];
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setGeneralError(null);
 
     try {
       await invitacionesApi.createInvitacion(email, rol);
-      toast.success(t('users.success.invitationSent', { email }));
       setEmail('');
       setRol('Analista');
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      handleApiError(err);
+      const parsed = handleApiError(err, { showToast: false, showReportModal: false });
+      setGeneralError(parsed.message);
     } finally {
       setIsLoading(false);
     }
@@ -44,44 +51,49 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-text">{t('users.inviteUser')}</h2>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Mail size={18} className="text-primary" />
+            </div>
+            <h2 className="text-xl font-semibold text-text">{t('users.inviteUser')}</h2>
+          </div>
           <button onClick={onClose} className="text-text-muted hover:text-text">
             <X size={20} />
           </button>
         </div>
 
+        {generalError && (
+          <Alert type="error" message={generalError} className="mb-6" />
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text mb-1">
-              {t('users.form.emailLabel')}
-            </label>
+
             <Input
+              label={
+                <span>
+                  {t('users.form.emailLabel')} <span className="text-error">*</span>
+                </span>
+              }
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t('users.form.emailPlaceholder')}
               required
+              autoComplete="off"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text mb-1">
-              {t('users.form.roleLabel')}
-            </label>
-            <select
+            <Select
+              label=<span>
+                {t('users.form.roleLabel')} <span className="text-error">*</span>
+              </span>
               value={rol}
-              onChange={(e) => setRol(e.target.value as RolOption)}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-text focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="Analista">{t('users.roles.analista')}</option>
-              <option value="Operador">{t('users.roles.operador')}</option>
-              <option value="Admin">{t('users.roles.admin')}</option>
-            </select>
-            <p className="text-xs text-text-muted mt-1">
-              {rol === 'Admin' && t('users.form.roleAdminHint')}
-              {rol === 'Operador' && t('users.form.roleOperadorHint')}
-              {rol === 'Analista' && t('users.form.roleAnalistaHint')}
-            </p>
+              onChange={(val) => setRol(val as RolOption)}
+              options={roleOptions}
+              required
+            />
           </div>
 
 
@@ -89,7 +101,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
           <div className="flex gap-3 pt-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={onClose}
               className="flex-1"
             >
@@ -98,6 +110,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             <Button
               type="submit"
               variant="primary"
+              isLoading={isLoading}
               disabled={isLoading || !email}
               className="flex-1"
             >
