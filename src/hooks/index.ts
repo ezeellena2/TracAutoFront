@@ -10,4 +10,5 @@ export * from './useTableFilters';
 export { useOnlineStatus } from './useOnlineStatus';
 export { useModoSolicitudDetection } from './useModoSolicitudDetection';
 export { useImportJobPolling } from './useImportJobPolling';
+export { useDebounce } from './useDebounce';
 

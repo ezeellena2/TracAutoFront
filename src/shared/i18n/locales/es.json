@@ -1053,7 +1053,7 @@
     "resetPasswordTitle": "Restablecer contraseña",
     "resetPasswordSubtitle": "Ingrese y confirme su nueva contraseña.",
     "newPasswordLabel": "Nueva Contraseña",
-    "resetPasswordButton": "Guardar nueva contraseña",
+    "resetPasswordButton": "Guardar contraseña",
     "resendEmail": "Reenviar por email",
     "resendSms": "Reenviar por SMS",
     "legalRegister": "Al registrarse, acepta nuestros términos de servicio y políticas de privacidad.",
@@ -1526,7 +1526,8 @@
       "CooldownSms": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por SMS",
       "EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
       "CodigoEmailRequerido": "El código de verificación de email es requerido",
-      "SesionExpirada": "La sesión ha expirado"
+      "SesionExpirada": "La sesión ha expirado",
+      "PasswordReuseNotAllowed": "Contraseña inválida. Ingrese otra."
     },
     "Usuario": {
       "NoEncontrado": "Usuario no encontrado",
@@ -3411,6 +3412,48 @@
       "misReservas": {
         "titulo": "Mis Reservas",
         "detalleTitulo": "Detalle de Reserva"
+      }
+    },
+    "invitations": {
+      "validating": "Validando invitación...",
+      "joinOrg": "Únete a {{org}}",
+      "invitedAs": "Has sido invitado como",
+      "alreadyHaveAccount": "¿Ya tienes cuenta?",
+      "login": "Iniciar sesión",
+      "goToLogin": "Ir al Login",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden",
+      "expired": {
+        "title": "Invitación Expirada",
+        "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
+      },
+      "invalid": {
+        "title": "Invitación Inválida",
+        "text": "El enlace de invitación no es válido o ya no existe."
+      },
+      "cancelled": {
+        "title": "Invitación Cancelada",
+        "text": "Esta invitación fue cancelada por el administrador. Solicitá una nueva invitación."
+      },
+      "alreadyAccepted": {
+        "title": "Invitación Ya Utilizada",
+        "text": "Esta invitación ya fue aceptada anteriormente."
+      },
+      "success": {
+        "title": "¡Bienvenido!",
+        "text": "Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión."
+      },
+      "form": {
+        "email": "Email",
+        "fullName": "Nombre completo",
+        "fullNamePlaceholder": "Juan Pérez",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Mínimo 8 caracteres",
+        "confirmPassword": "Confirmar contraseña",
+        "confirmPasswordPlaceholder": "Repetir contraseña",
+        "phone": "Teléfono",
+        "phonePlaceholder": "+54 11 1234-5678",
+        "creating": "Creando cuenta...",
+        "submit": "Crear mi cuenta"
       }
     }
   }

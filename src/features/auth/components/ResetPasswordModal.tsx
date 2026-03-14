@@ -6,6 +6,7 @@ import { authApi } from '@/services/endpoints';
 import { authService } from '@/services/auth.service';
 import { PasswordSchema } from '@/shared/types/api';
 import { useNavigate } from 'react-router-dom';
+import { useErrorHandler, useDebounce } from '@/hooks';
 
 interface ResetPasswordModalProps {
     isOpen: boolean;
@@ -17,12 +18,16 @@ interface ResetPasswordModalProps {
 export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPasswordModalProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { parseError } = useErrorHandler();
     const [nuevaPassword, setNuevaPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+
+    const debouncedNuevaPassword = useDebounce(nuevaPassword, 800);
+    const debouncedConfirmPassword = useDebounce(confirmPassword, 800);
 
     const [touched, setTouched] = useState({
         nuevaPassword: false,
@@ -41,12 +46,19 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
 
     const validateConfirm = (conf: string) => {
         if (!conf) return t('common.required');
-        if (conf !== nuevaPassword) return t('auth.errors.passwordsMustMatch');
+        if (conf !== nuevaPassword) return t('auth.errors.passwordMismatch');
         return '';
     };
 
-    const nuevaPasswordError = touched.nuevaPassword ? validatePassword(nuevaPassword) : '';
-    const confirmPasswordError = touched.confirmPassword ? validateConfirm(confirmPassword) : '';
+    const nuevaPasswordError = (touched.nuevaPassword && nuevaPassword === debouncedNuevaPassword) 
+        ? validatePassword(debouncedNuevaPassword) 
+        : '';
+
+    // Solo mostramos el error si el usuario dejó de escribir (value === debouncedValue)
+    const confirmPasswordError = (touched.confirmPassword && confirmPassword === debouncedConfirmPassword) 
+        ? validateConfirm(debouncedConfirmPassword) 
+        : '';
+
     const isFormValid = !validatePassword(nuevaPassword) && !validateConfirm(confirmPassword);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -86,8 +98,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
             }
 
         } catch (err: any) {
-            // El usuario prefiere un mensaje genérico para el error de reset
-            setError(t('auth.errors.resetPasswordError'));
+            setError(parseError(err).message);
         } finally {
             setIsLoading(false);
         }
@@ -182,10 +193,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                                 disabled={isLoading || !isFormValid}
                             >
                                 {isLoading ? (
-                                    <>
-                                        <Loader2 size={18} className="animate-spin mr-2" />
-                                        {t('common.processing')}
-                                    </>
+                                    <Loader2 size={18} className="animate-spin" />
                                 ) : (
                                     t('auth.resetPasswordButton')
                                 )}

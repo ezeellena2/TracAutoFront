@@ -4,7 +4,7 @@
 
 ## Project Context
 
-- **Stack**: React + TypeScript + Vite + TailwindCSS + i18next + React Query.
+- **Stack**: React + TypeScript + Vite + TailwindCSS + i18next + React Query + React Hook Form + Zod.
 - **Type**: Main frontend for TracAuto, a multi-tenant SaaS for automotive fleet management.
 - **Includes**: Fleet management, marketplace, B2B/B2C rental modules.
 

@@ -7,7 +7,7 @@ import { Button, Input, Alert, Modal } from '@/shared/ui';
 import { ResetPasswordModal } from '../components/ResetPasswordModal';
 import { useAuthStore } from '@/store';
 import { authService } from '@/services/auth.service';
-import { authApi } from '@/services/endpoints';
+import { authApi, invitacionesApi } from '@/services/endpoints';
 import { CanalEnvio } from '@/shared/types/api';
 
 /**
@@ -62,21 +62,35 @@ export function LoginPage() {
       window.history.replaceState({}, document.title);
     }
 
-    // Detectar token de reseteo en la URL
+    // Detectar token en la URL
     const searchParams = new URLSearchParams(location.search);
     const token = searchParams.get('token');
     const emailParam = searchParams.get('email');
 
     if (token) {
-      setResetToken(token);
-      if (emailParam) setResetTargetEmail(emailParam);
-      setShowFinalResetModal(true);
+        const handleTokenDetection = async () => {
+            try {
+                // 1. Intentar validar como invitación
+                await invitacionesApi.validarInvitacion(token);
+                // Si no falla, es una invitación válida -> Redirigir
+                navigate(`/invitacion/${token}`, { replace: true });
+            } catch (err: any) {
+                // 2. Si falla como invitación (o es otro error), tratarlo como reset de password
+                // El reset de password suele fallar aquí solo si el token es totalmente inválido,
+                // pero dejamos que el modal de reset maneje su propio estado de error.
+                setResetToken(token);
+                if (emailParam) setResetTargetEmail(emailParam);
+                setShowFinalResetModal(true);
 
-      // Limpiar URL para no dejar el token visible después de abrir el modal
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+                // Limpiar URL para evitar que aparezca el modal de nuevo al refrescar
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        };
+
+        handleTokenDetection();
     }
-  }, [location]);
+  }, [location.search, navigate]); // Updated dependencies
 
   // Redirigir si ya está autenticado
   useEffect(() => {

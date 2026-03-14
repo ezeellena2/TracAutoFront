@@ -1051,7 +1051,7 @@
     "resetPasswordTitle": "Reset Password",
     "resetPasswordSubtitle": "Enter and confirm your new password.",
     "newPasswordLabel": "New Password",
-    "resetPasswordButton": "Save new password",
+    "resetPasswordButton": "Save password",
     "resendEmail": "Resend by email",
     "resendSms": "Resend by SMS",
     "legalRegister": "By registering, you agree to our terms of service and privacy policy.",
@@ -1441,7 +1441,8 @@
       "CooldownSms": "Please wait {{retryAfter}} seconds before requesting a new SMS code",
       "EmailNoCoincide": "The email from the Google token does not match the provided email",
       "CodigoEmailRequerido": "Email verification code is required",
-      "SesionExpirada": "Session has expired. Please sign in again"
+      "SesionExpirada": "Session has expired",
+      "PasswordReuseNotAllowed": "Invalid password. Please enter a different one."
     },
     "Usuario": {
       "NoEncontrado": "User not found",
@@ -3322,6 +3323,48 @@
       "misReservas": {
         "titulo": "My Reservations",
         "detalleTitulo": "Reservation Details"
+      }
+    },
+    "invitations": {
+      "validating": "Validating invitation...",
+      "joinOrg": "Join {{org}}",
+      "invitedAs": "You have been invited as",
+      "alreadyHaveAccount": "Already have an account?",
+      "login": "Log in",
+      "goToLogin": "Go to Login",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "expired": {
+        "title": "Invitation Expired",
+        "text": "This invitation has expired. Please request a new invitation from the administrator."
+      },
+      "invalid": {
+        "title": "Invalid Invitation",
+        "text": "The invitation link is invalid or no longer exists."
+      },
+      "cancelled": {
+        "title": "Invitation Cancelled",
+        "text": "This invitation was cancelled by the administrator. Please request a new invitation."
+      },
+      "alreadyAccepted": {
+        "title": "Invitation Already Used",
+        "text": "This invitation has already been previously accepted."
+      },
+      "success": {
+        "title": "Welcome!",
+        "text": "Your account has been successfully created. You can now log in."
+      },
+      "form": {
+        "email": "Email",
+        "fullName": "Full name",
+        "fullNamePlaceholder": "John Doe",
+        "password": "Password",
+        "passwordPlaceholder": "Minimum 8 characters",
+        "confirmPassword": "Confirm password",
+        "confirmPasswordPlaceholder": "Repeat password",
+        "phone": "Phone",
+        "phonePlaceholder": "+1 555 123-4567",
+        "creating": "Creating account...",
+        "submit": "Create my account"
       }
     }
   }
