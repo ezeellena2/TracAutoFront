@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocalizationStore } from '@/store/localization.store';
+import { useAuthStore } from '@/store/auth.store';
 
 /**
  * Hook para acceder a las preferencias de localización de la organización.
@@ -11,13 +12,15 @@ import { useLocalizationStore } from '@/store/localization.store';
  */
 export function useLocalization() {
   const store = useLocalizationStore();
+  const { isAuthenticated, token } = useAuthStore();
 
-  // Cargar preferencias si no están cargadas y no hay carga en progreso
+  // Cargar preferencias si no están cargadas, no hay carga en progreso y estamos autenticados
+  // No intentamos cargar si no hay token para evitar que el interceptor fuerce un redirect a /login en rutas públicas
   useEffect(() => {
-    if (!store.preferences && !store.isLoading && !store.error) {
+    if (isAuthenticated && token && !store.preferences && !store.isLoading && !store.error) {
       store.loadPreferences();
     }
-  }, [store.preferences, store.isLoading, store.error, store]);
+  }, [isAuthenticated, token, store.preferences, store.isLoading, store.error, store]);
 
   return {
     timeZoneId: store.preferences?.timeZoneId || Intl.DateTimeFormat().resolvedOptions().timeZone,

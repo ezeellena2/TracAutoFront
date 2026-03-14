@@ -607,6 +607,49 @@
       "cancelInvitation": "Error al cancelar invitación"
     }
   },
+  "invitations": {
+    "validating": "Validando invitación...",
+    "joinOrg": "Ha sido invitado a {{org}}",
+    "subtitle": "Complete sus datos para crear su cuenta.",
+    "alreadyHaveAccount": "¿Ya es usuario?",
+    "login": "Iniciar sesión",
+    "goToLogin": "Ir al Login",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "expired": {
+      "title": "Invitación Expirada",
+      "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
+    },
+    "invalid": {
+      "title": "Invitación Inválida",
+      "text": "El enlace de invitación no es válido o ya no existe."
+    },
+    "cancelled": {
+      "title": "Invitación Cancelada",
+      "text": "Esta invitación fue cancelada por el administrador. Solicitá una nueva invitación."
+    },
+    "alreadyAccepted": {
+      "title": "Invitación ya utilizada",
+      "text": "Esta invitación ya fue aceptada anteriormente."
+    },
+    "success": {
+      "title": "¡Bienvenido!",
+      "text": "Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión."
+    },
+    "form": {
+      "email": "Email",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "role": "Rol",
+      "password": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "••••••••",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+54 11 1234-5678",
+      "creating": "Creando cuenta...",
+      "submit": "Crear usuario"
+    }
+  },
   "drivers": {
     "title": "Conductores",
     "subtitle": "Gestión de conductores de la organización",
@@ -994,7 +1037,6 @@
     "subtitle": "Plataforma de Gestión Telemática",
     "signIn": "Iniciar Sesión",
     "signInSubtitle": "Ingrese sus credenciales para acceder.",
-    "forgotPassword": "¿Olvidó su contraseña?",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "usuario@empresa.com",
     "passwordLabel": "Contraseña",
@@ -1003,7 +1045,8 @@
     "signingIn": "Ingresando...",
     "signInButton": "Ingresar",
     "continueGoogle": "Continuar con Google",
-    "registerCompany": "Registrar mi Empresa",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "registerCompany": "Registrar Empresa",
     "contactSupport": "Contactar Soporte",
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
@@ -3412,48 +3455,6 @@
       "misReservas": {
         "titulo": "Mis Reservas",
         "detalleTitulo": "Detalle de Reserva"
-      }
-    },
-    "invitations": {
-      "validating": "Validando invitación...",
-      "joinOrg": "Únete a {{org}}",
-      "invitedAs": "Has sido invitado como",
-      "alreadyHaveAccount": "¿Ya tienes cuenta?",
-      "login": "Iniciar sesión",
-      "goToLogin": "Ir al Login",
-      "passwordsDoNotMatch": "Las contraseñas no coinciden",
-      "expired": {
-        "title": "Invitación Expirada",
-        "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
-      },
-      "invalid": {
-        "title": "Invitación Inválida",
-        "text": "El enlace de invitación no es válido o ya no existe."
-      },
-      "cancelled": {
-        "title": "Invitación Cancelada",
-        "text": "Esta invitación fue cancelada por el administrador. Solicitá una nueva invitación."
-      },
-      "alreadyAccepted": {
-        "title": "Invitación Ya Utilizada",
-        "text": "Esta invitación ya fue aceptada anteriormente."
-      },
-      "success": {
-        "title": "¡Bienvenido!",
-        "text": "Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión."
-      },
-      "form": {
-        "email": "Email",
-        "fullName": "Nombre completo",
-        "fullNamePlaceholder": "Juan Pérez",
-        "password": "Contraseña",
-        "passwordPlaceholder": "Mínimo 8 caracteres",
-        "confirmPassword": "Confirmar contraseña",
-        "confirmPasswordPlaceholder": "Repetir contraseña",
-        "phone": "Teléfono",
-        "phonePlaceholder": "+54 11 1234-5678",
-        "creating": "Creando cuenta...",
-        "submit": "Crear mi cuenta"
       }
     }
   }
