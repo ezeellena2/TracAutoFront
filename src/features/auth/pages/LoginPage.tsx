@@ -9,6 +9,8 @@ import { useAuthStore } from '@/store';
 import { authService } from '@/services/auth.service';
 import { authApi } from '@/services/endpoints';
 import { CanalEnvio } from '@/shared/types/api';
+import { useErrorHandler } from '@/hooks';
+import { LinkErrorState, LinkErrorType } from '@/shared/ui';
 
 /**
  * Página de Login B2B Empresarial
@@ -43,6 +45,11 @@ export function LoginPage() {
   const [isResetLoading, setIsResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
+  const { parseError } = useErrorHandler();
+
+  // Reset Password Token Validation
+  const [isValidatingToken, setIsValidatingToken] = useState(false);
+  const [tokenErrorType, setTokenErrorType] = useState<LinkErrorType | null>(null);
 
 
   // Reset Password Finalization State
@@ -64,19 +71,38 @@ export function LoginPage() {
 
     // Detectar token de reseteo en la URL
     const searchParams = new URLSearchParams(location.search);
-    const token = searchParams.get('token');
+    const urlToken = searchParams.get('token');
     const emailParam = searchParams.get('email');
 
-    if (token) {
-      setResetToken(token);
-      if (emailParam) setResetTargetEmail(emailParam);
-      setShowFinalResetModal(true);
+    if (urlToken) {
+      const validateToken = async () => {
+        setIsValidatingToken(true);
+        setTokenErrorType(null);
+        try {
+          // Valida el token contra el backend
+          const data = await authApi.validarResetToken(urlToken);
+          setResetToken(urlToken);
+          setResetTargetEmail(data.email || emailParam || '');
+          setShowFinalResetModal(true);
+        } catch (err: any) {
+          const parsed = parseError(err);
+          // Si el token expiró o es inválido, mostramos la pantalla de error
+          if (parsed.code.includes('Expirado') || parsed.code.includes('Expired')) {
+            setTokenErrorType('expired');
+          } else {
+            setTokenErrorType('invalid');
+          }
+        } finally {
+          setIsValidatingToken(false);
+          // Limpiar URL para evitar que aparezca el modal de nuevo al refrescar
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+      };
 
-      // Limpiar URL para no dejar el token visible después de abrir el modal
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+      validateToken();
     }
-  }, [location]);
+  }, [location.search]);
 
   // Redirigir si ya está autenticado
   useEffect(() => {
@@ -340,6 +366,26 @@ export function LoginPage() {
   };
 
 
+  if (isValidatingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-text-muted">{t('invitations.validating')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (tokenErrorType) {
+    return (
+      <LinkErrorState
+        type={tokenErrorType}
+        onButtonClick={() => setTokenErrorType(null)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4" onClick={() => { if (error) setError(''); if (successMessage) setSuccessMessage(''); }}>
       <div className="w-full max-w-md">
@@ -527,9 +573,8 @@ export function LoginPage() {
             </div>
           </form>
 
-          {/* Register link */}
-          <div className="mt-6 pt-6 border-t border-border text-center">
-            <p className="text-sm text-text-muted mb-3">
+          <div className="mt-8 space-y-4">
+            <p className="text-center text-sm text-text-muted mb-2">
               {t('auth.noAccount')}
             </p>
             <Link to="/registro">

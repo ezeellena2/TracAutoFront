@@ -253,6 +253,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, InputComponentProps>(
               }}
               onFocus={(e) => {
                 setIsEditing(true);
+                setLocalError(null);
                 props.onFocus?.(e);
               }}
               onBlur={(e) => {

@@ -477,7 +477,7 @@
       "imeiLabel": "IMEI / ID Traccar",
       "phoneNumber": "Número de teléfono (opcional)",
       "phoneNumberPlaceholder": "+5491112345678",
-      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina). Se guarda y normaliza en el servidor."
+      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina)."
     },
     "table": {
       "associated": "Asociado",
@@ -535,7 +535,7 @@
   },
   "users": {
     "title": "Usuarios",
-    "subtitle": "Gestión de usuarios de la organización",
+    "subtitle": "Gestión de usuarios de la organización.",
     "totalUsers": "Total Usuarios",
     "active": "Activos",
     "pending": "Pendientes",
@@ -578,13 +578,13 @@
       "active": "Activo",
       "pending": "Pendiente"
     },
-    "pendingInvitations": "Invitaciones Pendientes",
-    "noPendingInvitations": "No hay invitaciones pendientes",
-    "confirmDelete": "¿Estás seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
+    "pendingInvitations": "Invitaciones pendientes",
+    "noPendingInvitations": "No hay invitaciones pendientes.",
+    "confirmDelete": "¿Está seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
     "deleteUser": "Eliminar Usuario",
     "loadingInvitations": "Cargando invitaciones...",
     "sent": "Enviada",
-    "confirmCancelInvitation": "¿Estás seguro de que deseas cancelar esta invitación? El enlace enviado dejará de ser válido.",
+    "confirmCancelInvitation": "¿Está seguro de que desea cancelar esta invitación? El enlace enviado dejará de ser válido.",
     "yesCancel": "Sí, cancelar",
     "sending": "Enviando...",
     "sendInvitation": "Enviar Invitación",
@@ -605,6 +605,49 @@
       "sendInvitation": "Error al enviar invitación",
       "resendInvitation": "Error al reenviar invitación",
       "cancelInvitation": "Error al cancelar invitación"
+    }
+  },
+  "invitations": {
+    "validating": "Validando invitación...",
+    "joinOrg": "Ha sido invitado a {{org}}",
+    "subtitle": "Complete sus datos para crear su cuenta.",
+    "alreadyHaveAccount": "¿Ya es usuario?",
+    "login": "Iniciar sesión",
+    "goToLogin": "Ir al Login",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "expired": {
+      "title": "Invitación Expirada",
+      "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
+    },
+    "invalid": {
+      "title": "Invitación Inválida",
+      "text": "El enlace de invitación no es válido o ya no existe."
+    },
+    "cancelled": {
+      "title": "Invitación Cancelada",
+      "text": "Esta invitación fue cancelada por el administrador. Solicite una nueva invitación."
+    },
+    "alreadyAccepted": {
+      "title": "Invitación ya utilizada",
+      "text": "Esta invitación ya fue aceptada anteriormente."
+    },
+    "success": {
+      "title": "¡Bienvenido!",
+      "text": "Su cuenta ha sido creada exitosamente. Ya puede iniciar sesión."
+    },
+    "form": {
+      "email": "Email",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "role": "Rol",
+      "password": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "••••••••",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+54 11 1234-5678",
+      "creating": "Creando usuario...",
+      "submit": "Crear usuario"
     }
   },
   "drivers": {
@@ -994,7 +1037,6 @@
     "subtitle": "Plataforma de Gestión Telemática",
     "signIn": "Iniciar Sesión",
     "signInSubtitle": "Ingrese sus credenciales para acceder.",
-    "forgotPassword": "¿Olvidó su contraseña?",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "usuario@empresa.com",
     "passwordLabel": "Contraseña",
@@ -1003,7 +1045,8 @@
     "signingIn": "Ingresando...",
     "signInButton": "Ingresar",
     "continueGoogle": "Continuar con Google",
-    "registerCompany": "Registrar mi Empresa",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "registerCompany": "Registrar Empresa",
     "contactSupport": "Contactar Soporte",
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
@@ -1053,7 +1096,8 @@
     "resetPasswordTitle": "Restablecer contraseña",
     "resetPasswordSubtitle": "Ingrese y confirme su nueva contraseña.",
     "newPasswordLabel": "Nueva Contraseña",
-    "resetPasswordButton": "Guardar nueva contraseña",
+    "resetPasswordButton": "Guardar contraseña",
+    "resettingPasswordButton": "Restableciendo contraseña...",
     "resendEmail": "Reenviar por email",
     "resendSms": "Reenviar por SMS",
     "legalRegister": "Al registrarse, acepta nuestros términos de servicio y políticas de privacidad.",
@@ -1526,25 +1570,26 @@
       "CooldownSms": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por SMS",
       "EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
       "CodigoEmailRequerido": "El código de verificación de email es requerido",
-      "SesionExpirada": "La sesión ha expirado"
+      "SesionExpirada": "La sesión ha expirado",
+      "PasswordReuseNotAllowed": "La contraseña ingresada es inválida. Intente con otra."
     },
     "Usuario": {
-      "NoEncontrado": "Usuario no encontrado",
-      "EmailDuplicado": "Ya existe un usuario con este email",
-      "Inactivo": "El usuario está deshabilitado",
-      "SinOrganizacion": "El usuario no tiene organización asignada",
-      "SinPermisos": "No tiene permisos para realizar esta acción",
-      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas",
-      "EsDuenio": "No se puede cambiar el rol del dueño de la organización",
-      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización",
-      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización",
-      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación",
-      "CuentaYaVerificada": "La cuenta ya está verificada",
-      "CuentaInactiva": "La cuenta de usuario está inactiva",
-      "SinTelefono": "El usuario no tiene número de teléfono registrado",
-      "CreacionFallida": "Error al crear el usuario: {{param0}}",
-      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}",
-      "NoAutenticado": "El usuario no está autenticado"
+      "NoEncontrado": "Usuario no encontrado.",
+      "EmailDuplicado": "Ya existe un usuario con este email.",
+      "Inactivo": "El usuario está deshabilitado.",
+      "SinOrganizacion": "El usuario no tiene organización asignada.",
+      "SinPermisos": "No tiene permisos para realizar esta acción.",
+      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas.",
+      "EsDuenio": "No se puede cambiar el rol del dueño de la organización.",
+      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización.",
+      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización.",
+      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación.",
+      "CuentaYaVerificada": "La cuenta ya está verificada.",
+      "CuentaInactiva": "La cuenta de usuario está inactiva.",
+      "SinTelefono": "El usuario no tiene número de teléfono registrado.",
+      "CreacionFallida": "Error al crear el usuario: {{param0}}.",
+      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}.",
+      "NoAutenticado": "El usuario no está autenticado."
     },
     "Organizacion": {
       "NoEncontrada": "Organización no encontrada",
@@ -1572,7 +1617,7 @@
       "YaAceptada": "Esta invitación ya fue aceptada",
       "Cancelada": "Esta invitación fue cancelada",
       "EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
-      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
+      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización.",
       "RolInvalido": "El rol asignado no es válido",
       "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}",
       "UsuarioVinculado": "El usuario existente fue vinculado a la organización exitosamente",

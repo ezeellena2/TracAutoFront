@@ -3,7 +3,7 @@
  * Conecta con AuthController del backend
  */
 
-import { apiClient } from '../http/apiClient';
+import { apiClient, publicApiClient } from '../http/apiClient';
 import { AuthUser } from '@/shared/types';
 import {
   RegistrarEmpresaRequest,
@@ -52,7 +52,7 @@ export async function login(email: string, password: string, rememberMe: boolean
   tipoOrganizacion: number;
   theme?: OrganizacionThemeDto | null;
 }> {
-  const response = await apiClient.post<LoginResponse>(`${AUTH_BASE}/login`, {
+  const response = await publicApiClient.post<LoginResponse>(`${AUTH_BASE}/login`, {
     email,
     password,
     rememberMe,
@@ -87,7 +87,7 @@ export async function login(email: string, password: string, rememberMe: boolean
  * Registra una nueva empresa y su usuario propietario
  */
 export async function registrarEmpresa(data: RegistrarEmpresaRequest): Promise<RegistroEmpresaResponse> {
-  const response = await apiClient.post<RegistroEmpresaResponse>(
+  const response = await publicApiClient.post<RegistroEmpresaResponse>(
     `${AUTH_BASE}/registrar-empresa`,
     data
   );
@@ -98,7 +98,7 @@ export async function registrarEmpresa(data: RegistrarEmpresaRequest): Promise<R
  * Verifica la cuenta con códigos de email y teléfono
  */
 export async function verificarCuenta(data: VerificarCuentaRequest): Promise<VerificacionCuentaResponse> {
-  const response = await apiClient.post<VerificacionCuentaResponse>(
+  const response = await publicApiClient.post<VerificacionCuentaResponse>(
     `${AUTH_BASE}/verificar-cuenta`,
     data
   );
@@ -109,7 +109,7 @@ export async function verificarCuenta(data: VerificarCuentaRequest): Promise<Ver
  * Reenvía códigos de verificación
  */
 export async function reenviarCodigo(data: ReenviarCodigoRequest): Promise<ReenviarCodigoResponse> {
-  const response = await apiClient.post<ReenviarCodigoResponse>(
+  const response = await publicApiClient.post<ReenviarCodigoResponse>(
     `${AUTH_BASE}/reenviar-codigo`,
     data
   );
@@ -120,7 +120,7 @@ export async function reenviarCodigo(data: ReenviarCodigoRequest): Promise<Reenv
  * Login con Google (Token Exchange)
  */
 export async function loginConGoogle(data: LoginConGoogleRequest): Promise<GoogleAuthResponse> {
-  const response = await apiClient.post<GoogleAuthResponse>(
+  const response = await publicApiClient.post<GoogleAuthResponse>(
     `${AUTH_BASE}/google`,
     data
   );
@@ -136,7 +136,7 @@ export async function loginConGoogle(data: LoginConGoogleRequest): Promise<Googl
  * POST /api/v1/auth/solicitar-reset-password
  */
 export async function solicitarResetPassword(data: SolicitarResetPasswordRequest): Promise<void> {
-  await apiClient.post(`${AUTH_BASE}/solicitar-reset-password`, data);
+  await publicApiClient.post(`${AUTH_BASE}/solicitar-reset-password`, data);
 }
 
 export async function logout(): Promise<void> {
@@ -148,7 +148,16 @@ export async function logout(): Promise<void> {
  * POST /api/v1/auth/reset-password
  */
 export async function resetPassword(data: ResetPasswordRequest): Promise<void> {
-  await apiClient.post(`${AUTH_BASE}/reset-password`, data);
+  await publicApiClient.post(`${AUTH_BASE}/reset-password`, data);
+}
+
+/**
+ * Valida un token de reseteo de password
+ * GET /api/v1/auth/reset-password/{token}
+ */
+export async function validarResetToken(token: string): Promise<{ email: string }> {
+  const response = await publicApiClient.get(`${AUTH_BASE}/reset-password/${token}`);
+  return response.data;
 }
 
 export const authApi = {
@@ -158,6 +167,7 @@ export const authApi = {
   reenviarCodigo,
   loginConGoogle,
   solicitarResetPassword,
+  validarResetToken,
   resetPassword,
   logout,
 };
