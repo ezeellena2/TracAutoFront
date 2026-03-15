@@ -26,6 +26,7 @@ setupInterceptors(apiClient);
 const publicApiClient: AxiosInstance = axios.create({
   baseURL: `${env.apiBaseUrl}/${env.apiVersion}`,
   timeout: 120_000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

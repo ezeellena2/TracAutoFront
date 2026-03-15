@@ -98,17 +98,18 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
 
         } catch (err: any) {
             const parsed = parseError(err);
-            
+
             if (parsed.status === 500) {
                 const newCount = retryCount + 1;
                 setRetryCount(newCount);
-                
+
                 if (newCount >= 3) {
                     setError(t('errors.HTTP_500'));
                 } else {
                     setError(parsed.message);
                 }
             } else {
+                setRetryCount(0);
                 setError(parsed.message);
             }
         } finally {
@@ -196,9 +197,9 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                         />
 
                         {error && (
-                            <Alert 
-                                type="error" 
-                                message={error} 
+                            <Alert
+                                type="error"
+                                message={error}
                                 onRetry={(retryCount > 0 && retryCount < 3) ? handleResetPassword : undefined}
                             />
                         )}

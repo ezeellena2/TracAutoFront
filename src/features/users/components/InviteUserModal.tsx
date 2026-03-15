@@ -77,11 +77,11 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
       onClose();
     } catch (err: unknown) {
       const parsed = handleApiError(err, { showToast: false, showReportModal: false });
-      
+
       if (parsed.status === 500) {
         const newCount = retryCount + 1;
         setRetryCount(newCount);
-        
+
         if (newCount >= 3) {
           setGeneralError(t('errors.HTTP_500'));
         } else {
@@ -89,6 +89,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
         }
       } else {
         setGeneralError(parsed.message);
+        setRetryCount(0);
       }
     }
   };
@@ -151,7 +152,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
           </div>
 
           {generalError && (
-            <Alert 
+            <Alert
               type="error"
               message={generalError}
               onRetry={isServerError && retryCount < 3 ? () => handleSubmit(onFormSubmit)() : undefined}
