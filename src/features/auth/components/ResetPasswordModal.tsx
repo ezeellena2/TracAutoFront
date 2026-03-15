@@ -25,6 +25,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [retryCount, setRetryCount] = useState(0);
 
     const debouncedNuevaPassword = useDebounce(nuevaPassword, 800);
     const debouncedConfirmPassword = useDebounce(confirmPassword, 800);
@@ -50,21 +51,18 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
         return '';
     };
 
-    const nuevaPasswordError = (touched.nuevaPassword && nuevaPassword === debouncedNuevaPassword) 
-        ? validatePassword(debouncedNuevaPassword) 
+    const nuevaPasswordError = (touched.nuevaPassword && nuevaPassword === debouncedNuevaPassword)
+        ? validatePassword(debouncedNuevaPassword)
         : '';
 
     // Solo mostramos el error si el usuario dejó de escribir (value === debouncedValue)
-    const confirmPasswordError = (touched.confirmPassword && confirmPassword === debouncedConfirmPassword) 
-        ? validateConfirm(debouncedConfirmPassword) 
+    const confirmPasswordError = (touched.confirmPassword && confirmPassword === debouncedConfirmPassword)
+        ? validateConfirm(debouncedConfirmPassword)
         : '';
 
     const isFormValid = !validatePassword(nuevaPassword) && !validateConfirm(confirmPassword);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isFormValid) return;
-
+    const handleResetPassword = async () => {
         setIsLoading(true);
         setError('');
 
@@ -76,6 +74,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
             });
 
             setSuccess(true);
+            setRetryCount(0);
 
             // Intentar login automático con la nueva contraseña
             const loginResult = await authService.login(email, nuevaPassword, true);
@@ -98,10 +97,29 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
             }
 
         } catch (err: any) {
-            setError(parseError(err).message);
+            const parsed = parseError(err);
+            
+            if (parsed.status === 500) {
+                const newCount = retryCount + 1;
+                setRetryCount(newCount);
+                
+                if (newCount >= 3) {
+                    setError(t('errors.HTTP_500'));
+                } else {
+                    setError(parsed.message);
+                }
+            } else {
+                setError(parsed.message);
+            }
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!isFormValid) return;
+        await handleResetPassword();
     };
 
     return (
@@ -142,8 +160,6 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                        {error && <Alert type="error" message={error} />}
-
                         <Input
                             label={t('auth.newPasswordLabel')}
                             type={showPassword ? 'text' : 'password'}
@@ -177,6 +193,14 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                             disabled={isLoading}
                         />
 
+                        {error && (
+                            <Alert 
+                                type="error" 
+                                message={error} 
+                                onRetry={(retryCount > 0 && retryCount < 3) ? handleResetPassword : undefined}
+                            />
+                        )}
+
                         <div className="flex gap-3 pt-4">
                             <Button
                                 type="button"
@@ -193,7 +217,10 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                                 disabled={isLoading || !isFormValid}
                             >
                                 {isLoading ? (
-                                    <Loader2 size={18} className="animate-spin" />
+                                    <>
+                                        <Loader2 size={18} className="animate-spin mr-2" aria-hidden="true" />
+                                        <span>{t('auth.resettingPasswordButton')}</span>
+                                    </>
                                 ) : (
                                     t('auth.resetPasswordButton')
                                 )}

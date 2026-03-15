@@ -32,3 +32,5 @@ export { EstadoError } from './EstadoError';
 export { Spinner, SpinnerPantalla } from './Spinner';
 export { Alert } from './Alert';
 export type { AlertType } from './Alert';
+export { LinkErrorState } from './LinkErrorState';
+export type { LinkErrorType } from './LinkErrorState';

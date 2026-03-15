@@ -1052,6 +1052,7 @@
     "resetPasswordSubtitle": "Enter and confirm your new password.",
     "newPasswordLabel": "New Password",
     "resetPasswordButton": "Save password",
+    "resettingPasswordButton": "Resetting password...",
     "resendEmail": "Resend by email",
     "resendSms": "Resend by SMS",
     "legalRegister": "By registering, you agree to our terms of service and privacy policy.",
@@ -1061,31 +1062,31 @@
       "codeResentEmail": "Code resent successfully.",
       "codeResentSms": "Code resent via SMS successfully.",
       "resetPasswordEmailSent": "If the email is registered, you will receive a reset link.",
-      "resendCodeSuccess": "Verification code resent successfully",
+      "resendCodeSuccess": "Verification code resent successfully.",
       "passwordResetOk": "Password reset successfully."
     },
     "errors": {
-      "invalidEmail": "Please enter a valid email address",
-      "completeFields": "Complete all fields",
-      "passwordMismatch": "Passwords do not match",
-      "passwordMinLength": "Password must be at least 8 characters",
-      "passwordUppercase": "Password must contain at least one uppercase letter",
-      "passwordLowercase": "Password must contain at least one lowercase letter",
-      "passwordNumber": "Password must contain at least one number",
-      "passwordSpecial": "Password must contain at least one special character",
+      "invalidEmail": "Please enter a valid email address.",
+      "completeFields": "Complete all fields.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordMinLength": "Password must be at least 8 characters.",
+      "passwordUppercase": "Password must contain at least one uppercase letter.",
+      "passwordLowercase": "Password must contain at least one lowercase letter.",
+      "passwordNumber": "Password must contain at least one number.",
+      "passwordSpecial": "Password must contain at least one special character.",
       "accountNotVerified": "Your account is not verified. Please check your email.",
       "emailPending": "Email verification is pending.",
       "phonePending": "Phone verification is pending.",
       "accountBlocked": "Your account has been blocked. Contact support.",
-      "invalidCuit": "The tax ID entered is not valid",
+      "invalidCuit": "The tax ID entered is not valid.",
       "authError": "Authentication error",
-      "registerError": "Error registering company",
-      "verifyError": "Error verifying account",
-      "resendError": "Error resending code",
+      "registerError": "Error registering company.",
+      "verifyError": "Error verifying account.",
+      "resendError": "Error resending code.",
       "resendCodeError": "Error resending verification code.",
-      "googleNotAvailable": "Google login will be available soon",
-      "termsRequired": "You must accept the terms and conditions to continue",
-      "phoneMinLength": "Phone number must be at least 10 digits",
+      "googleNotAvailable": "Google login will be available soon.",
+      "termsRequired": "You must accept the terms and conditions to continue.",
+      "phoneMinLength": "Phone number must be at least 10 digits.",
       "fieldRequired": "This field is required.",
       "emailCodeRequired": "Email code is required.",
       "smsCodeRequired": "SMS code is required.",
@@ -1097,9 +1098,9 @@
       "phoneMaxLength": "Phone cannot exceed 20 characters.",
       "googleTokenInvalid": "Invalid Google token."
     },
-    "resendVerificationCode": "Resend verification code",
-    "invalidPhone": "Invalid phone number",
-    "whatsappRequired": "Must be a WhatsApp number (mobile)"
+    "resendVerificationCode": "Resend verification code.",
+    "invalidPhone": "Invalid phone number.",
+    "whatsappRequired": "Must be a WhatsApp number (mobile)."
   },
   "invitations": {
     "validating": "Validating invitation...",
@@ -1108,7 +1109,7 @@
     "alreadyHaveAccount": "Already have an account?",
     "login": "Log in",
     "goToLogin": "Go to Login",
-    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordsDoNotMatch": "Passwords do not match.",
     "expired": {
       "title": "Invitation Expired",
       "text": "This invitation has expired. Please request a new invitation from the administrator."
@@ -1140,7 +1141,7 @@
       "confirmPasswordPlaceholder": "••••••••",
       "phone": "Phone number",
       "phonePlaceholder": "+1 555 123-4567",
-      "creating": "Creating account...",
+      "creating": "Creating user...",
       "submit": "Create user"
     }
   },
@@ -1485,7 +1486,7 @@
       "EmailNoCoincide": "The email from the Google token does not match the provided email",
       "CodigoEmailRequerido": "Email verification code is required",
       "SesionExpirada": "Session has expired",
-      "PasswordReuseNotAllowed": "Invalid password. Please enter a different one."
+      "PasswordReuseNotAllowed": "The password entered is invalid. Please try another one."
     },
     "Usuario": {
       "NoEncontrado": "User not found",

@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { X, Mail } from 'lucide-react';
 import { Modal, Input, Button, Select, Alert } from '@/shared/ui';
 import { invitacionesApi } from '@/services/endpoints';
@@ -13,13 +16,50 @@ interface InviteUserModalProps {
 
 type RolOption = 'Admin' | 'Operador' | 'Analista';
 
+const InviteUserSchema = z.object({
+  email: z.string().min(1, "common.required").email("auth.errors.invalidEmail"),
+  rol: z.enum(['Admin', 'Operador', 'Analista'], {
+    required_error: "common.required",
+  }),
+});
+
+type InviteUserFormData = z.infer<typeof InviteUserSchema>;
+
 export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalProps) {
   const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
-  const [email, setEmail] = useState('');
-  const [rol, setRol] = useState<RolOption>('Analista');
-  const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    clearErrors,
+    formState: { errors: formErrors, isSubmitting },
+  } = useForm<InviteUserFormData>({
+    resolver: zodResolver(InviteUserSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      email: '',
+      rol: 'Analista',
+    }
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        email: '',
+        rol: 'Analista',
+      });
+      setGeneralError(null);
+      setRetryCount(0);
+      clearErrors();
+    }
+  }, [isOpen, reset, clearErrors]);
 
   const roleOptions = [
     { value: 'Analista', label: t('users.roles.analista') },
@@ -27,25 +67,33 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
     { value: 'Admin', label: t('users.roles.admin') },
   ];
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const onFormSubmit = async (data: InviteUserFormData) => {
     setGeneralError(null);
 
     try {
-      await invitacionesApi.createInvitacion(email, rol);
-      setEmail('');
-      setRol('Analista');
+      await invitacionesApi.createInvitacion(data.email, data.rol as RolOption);
+      reset();
       onSuccess();
       onClose();
     } catch (err: unknown) {
       const parsed = handleApiError(err, { showToast: false, showReportModal: false });
-      setGeneralError(parsed.message);
-    } finally {
-      setIsLoading(false);
+      
+      if (parsed.status === 500) {
+        const newCount = retryCount + 1;
+        setRetryCount(newCount);
+        
+        if (newCount >= 3) {
+          setGeneralError(t('errors.HTTP_500'));
+        } else {
+          setGeneralError(parsed.message);
+        }
+      } else {
+        setGeneralError(parsed.message);
+      }
     }
   };
+
+  const isServerError = !!generalError && retryCount > 0; // If retryCount > 0 it means it was a 500
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -62,13 +110,9 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
           </button>
         </div>
 
-        {generalError && (
-          <Alert type="error" message={generalError} className="mb-6" />
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4" noValidate>
           <div>
-
             <Input
               label={
                 <span>
@@ -76,27 +120,37 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
                 </span>
               }
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register('email')}
+              onFocus={() => clearErrors('email')}
               placeholder={t('users.form.emailPlaceholder')}
-              required
+              error={formErrors.email?.message ? t(formErrors.email.message as any) : ''}
               autoComplete="off"
+              disabled={isSubmitting}
             />
           </div>
 
           <div>
             <Select
-              label=<span>
-                {t('users.form.roleLabel')} <span className="text-error">*</span>
-              </span>
-              value={rol}
-              onChange={(val) => setRol(val as RolOption)}
+              label={
+                <span>
+                  {t('users.form.roleLabel')} <span className="text-error">*</span>
+                </span>
+              }
+              value={watch('rol')}
+              onChange={(val) => setValue('rol', val as any, { shouldValidate: true })}
+              onFocus={() => clearErrors('rol')}
               options={roleOptions}
-              required
+              disabled={isSubmitting}
             />
           </div>
 
-
+          {generalError && (
+            <Alert 
+              type="error"
+              message={generalError}
+              onRetry={isServerError && retryCount < 3 ? () => handleSubmit(onFormSubmit)() : undefined}
+            />
+          )}
 
           <div className="flex gap-3 pt-2">
             <Button
@@ -110,11 +164,10 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             <Button
               type="submit"
               variant="primary"
-              isLoading={isLoading}
-              disabled={isLoading || !email}
+              isLoading={isSubmitting}
               className="flex-1"
             >
-              {isLoading ? t('users.sending') : t('users.sendInvitation')}
+              {isSubmitting ? t('users.sending') : t('users.sendInvitation')}
             </Button>
           </div>
         </form>

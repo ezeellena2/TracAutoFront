@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CheckCircle, XCircle, Loader2, AlertTriangle, Ban, Car, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { CheckCircle, Loader2, Car, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { invitacionesApi } from '@/services/endpoints';
 import { InvitacionDto, PasswordSchema } from '@/shared/types/api';
-import { Button, Input, Alert } from '@/shared/ui';
+import { Button, Input, Alert, LinkErrorState } from '@/shared/ui';
 import { useErrorHandler } from '@/hooks';
 
 // Esquema de validación alineado con el registro
@@ -132,58 +132,39 @@ export function AcceptInvitationPage() {
 
   // Error states
   if (pageState === 'expired' || pageState === 'invalid' || pageState === 'already_accepted' || pageState === 'cancelled') {
-    const messages = {
-      expired: {
-        icon: <AlertTriangle className="w-16 h-16 text-amber-500" />,
-        title: t('invitations.expired.title'),
-        text: t('invitations.expired.text'),
-      },
-      invalid: {
-        icon: <XCircle className="w-16 h-16 text-red-500" />,
-        title: t('invitations.invalid.title'),
-        text: t('invitations.invalid.text'),
-      },
-      cancelled: {
-        icon: <Ban className="w-16 h-16 text-red-400" />,
-        title: t('invitations.cancelled.title'),
-        text: t('invitations.cancelled.text'),
-      },
-      already_accepted: {
-        icon: <CheckCircle className="w-16 h-16 text-blue-500" />,
-        title: t('invitations.alreadyAccepted.title'),
-        text: t('invitations.alreadyAccepted.text'),
-      },
-    };
-
-    const { icon, title, text } = messages[pageState];
-
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md w-full text-center">
-          <div className="mb-6">{icon}</div>
-          <h1 className="text-2xl font-bold text-text mb-2">{title}</h1>
-          <p className="text-text-muted mb-6">{text}</p>
-          <Link to="/login">
-            <Button variant="primary">{t('invitations.goToLogin')}</Button>
-          </Link>
-        </div>
-      </div>
+      <LinkErrorState
+        type={pageState}
+        buttonText={t('invitations.goToLogin')}
+      />
     );
   }
 
   // Success state
   if (pageState === 'success') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md w-full text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-bold text-text mb-2">{t('invitations.success.title')}</h1>
-          <p className="text-text-muted mb-6">
-            {t('invitations.success.text')}
-          </p>
-          <Button variant="primary" onClick={() => navigate('/login')}>
-            {t('invitations.login')}
-          </Button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center gap-5 mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary shadow-lg shadow-primary/20">
+              <Car size={38} className="text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold text-text">{t('auth.title')}</h1>
+              <p className="text-base text-text-muted mt-1">{t('auth.subtitle')}</p>
+            </div>
+          </div>
+
+          <div className="bg-surface border border-border rounded-2xl p-8 shadow-sm text-center">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+            <h1 className="text-2xl font-bold text-text mb-2">{t('invitations.success.title')}</h1>
+            <p className="text-text-muted mb-8">
+              {t('invitations.success.text')}
+            </p>
+            <Button variant="primary" onClick={() => navigate('/login')} className="w-full">
+              {t('invitations.login')}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -194,7 +175,6 @@ export function AcceptInvitationPage() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 pt-6">
       <div className="w-full max-w-md">
         {/* Logo and App Name */}
-        {/* Logo */}
         <div className="flex items-center justify-center gap-5 mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary shadow-lg shadow-primary/20">
             <Car size={38} className="text-white" />
@@ -386,7 +366,7 @@ export function AcceptInvitationPage() {
             to="/login"
             className="inline-block text-primary font-semibold hover:underline transition-all pl-2"
           >
-            {t('invitations.login', 'Iniciar Sesión')}
+            {t('invitations.login')}
           </Link>
         </div>
       </div>

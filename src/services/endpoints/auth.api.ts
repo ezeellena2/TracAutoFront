@@ -151,6 +151,15 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<void> {
   await apiClient.post(`${AUTH_BASE}/reset-password`, data);
 }
 
+/**
+ * Valida un token de reseteo de password
+ * GET /api/v1/auth/reset-password/{token}
+ */
+export async function validarResetToken(token: string): Promise<{ email: string }> {
+  const response = await apiClient.get(`${AUTH_BASE}/reset-password/${token}`);
+  return response.data;
+}
+
 export const authApi = {
   login,
   registrarEmpresa,
@@ -158,6 +167,7 @@ export const authApi = {
   reenviarCodigo,
   loginConGoogle,
   solicitarResetPassword,
+  validarResetToken,
   resetPassword,
   logout,
 };

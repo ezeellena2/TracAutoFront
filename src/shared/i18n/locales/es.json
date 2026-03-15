@@ -477,7 +477,7 @@
       "imeiLabel": "IMEI / ID Traccar",
       "phoneNumber": "Número de teléfono (opcional)",
       "phoneNumberPlaceholder": "+5491112345678",
-      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina). Se guarda y normaliza en el servidor."
+      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina)."
     },
     "table": {
       "associated": "Asociado",
@@ -535,7 +535,7 @@
   },
   "users": {
     "title": "Usuarios",
-    "subtitle": "Gestión de usuarios de la organización",
+    "subtitle": "Gestión de usuarios de la organización.",
     "totalUsers": "Total Usuarios",
     "active": "Activos",
     "pending": "Pendientes",
@@ -578,13 +578,13 @@
       "active": "Activo",
       "pending": "Pendiente"
     },
-    "pendingInvitations": "Invitaciones Pendientes",
-    "noPendingInvitations": "No hay invitaciones pendientes",
-    "confirmDelete": "¿Estás seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
+    "pendingInvitations": "Invitaciones pendientes",
+    "noPendingInvitations": "No hay invitaciones pendientes.",
+    "confirmDelete": "¿Está seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
     "deleteUser": "Eliminar Usuario",
     "loadingInvitations": "Cargando invitaciones...",
     "sent": "Enviada",
-    "confirmCancelInvitation": "¿Estás seguro de que deseas cancelar esta invitación? El enlace enviado dejará de ser válido.",
+    "confirmCancelInvitation": "¿Está seguro de que desea cancelar esta invitación? El enlace enviado dejará de ser válido.",
     "yesCancel": "Sí, cancelar",
     "sending": "Enviando...",
     "sendInvitation": "Enviar Invitación",
@@ -625,7 +625,7 @@
     },
     "cancelled": {
       "title": "Invitación Cancelada",
-      "text": "Esta invitación fue cancelada por el administrador. Solicitá una nueva invitación."
+      "text": "Esta invitación fue cancelada por el administrador. Solicite una nueva invitación."
     },
     "alreadyAccepted": {
       "title": "Invitación ya utilizada",
@@ -1097,6 +1097,7 @@
     "resetPasswordSubtitle": "Ingrese y confirme su nueva contraseña.",
     "newPasswordLabel": "Nueva Contraseña",
     "resetPasswordButton": "Guardar contraseña",
+    "resettingPasswordButton": "Restableciendo contraseña...",
     "resendEmail": "Reenviar por email",
     "resendSms": "Reenviar por SMS",
     "legalRegister": "Al registrarse, acepta nuestros términos de servicio y políticas de privacidad.",
@@ -1570,7 +1571,7 @@
       "EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
       "CodigoEmailRequerido": "El código de verificación de email es requerido",
       "SesionExpirada": "La sesión ha expirado",
-      "PasswordReuseNotAllowed": "Contraseña inválida. Ingrese otra."
+      "PasswordReuseNotAllowed": "La contraseña ingresada es inválida. Intente con otra."
     },
     "Usuario": {
       "NoEncontrado": "Usuario no encontrado.",
@@ -1616,7 +1617,7 @@
       "YaAceptada": "Esta invitación ya fue aceptada",
       "Cancelada": "Esta invitación fue cancelada",
       "EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
-      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
+      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización.",
       "RolInvalido": "El rol asignado no es válido",
       "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}",
       "UsuarioVinculado": "El usuario existente fue vinculado a la organización exitosamente",
