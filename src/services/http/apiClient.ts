@@ -19,5 +19,18 @@ const apiClient: AxiosInstance = axios.create({
 // Configurar interceptores
 setupInterceptors(apiClient);
 
-export { apiClient, buildApiUrl };
+/**
+ * Cliente HTTP para endpoints públicos (sin auth)
+ * Evita interceptores de sesión que pueden causar redirecciones indeseadas
+ */
+const publicApiClient: AxiosInstance = axios.create({
+  baseURL: `${env.apiBaseUrl}/${env.apiVersion}`,
+  timeout: 120_000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
+
+export { apiClient, publicApiClient, buildApiUrl };
 export default apiClient;

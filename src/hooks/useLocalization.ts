@@ -12,15 +12,15 @@ import { useAuthStore } from '@/store/auth.store';
  */
 export function useLocalization() {
   const store = useLocalizationStore();
-  const { isAuthenticated, token } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Cargar preferencias si no están cargadas, no hay carga en progreso y estamos autenticados
-  // No intentamos cargar si no hay token para evitar que el interceptor fuerce un redirect a /login en rutas públicas
+  // No bloqueamos por falta de token; el apiClient se encargará del auto-refresh tras un F5.
   useEffect(() => {
-    if (isAuthenticated && token && !store.preferences && !store.isLoading && !store.error) {
+    if (isAuthenticated && !store.preferences && !store.isLoading && !store.error) {
       store.loadPreferences();
     }
-  }, [isAuthenticated, token, store.preferences, store.isLoading, store.error, store]);
+  }, [isAuthenticated, store.preferences, store.isLoading, store.error, store]);
 
   return {
     timeZoneId: store.preferences?.timeZoneId || Intl.DateTimeFormat().resolvedOptions().timeZone,

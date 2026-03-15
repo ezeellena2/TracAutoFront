@@ -121,7 +121,10 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
               }
               type="email"
               {...register('email')}
-              onFocus={() => clearErrors('email')}
+              onFocus={() => {
+                clearErrors('email');
+                setGeneralError('');
+              }}
               placeholder={t('users.form.emailPlaceholder')}
               error={formErrors.email?.message ? t(formErrors.email.message as any) : ''}
               autoComplete="off"
@@ -138,7 +141,10 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
               }
               value={watch('rol')}
               onChange={(val) => setValue('rol', val as any, { shouldValidate: true })}
-              onFocus={() => clearErrors('rol')}
+              onFocus={() => {
+                clearErrors('rol');
+                setGeneralError('');
+              }}
               options={roleOptions}
               disabled={isSubmitting}
             />

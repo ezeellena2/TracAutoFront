@@ -165,6 +165,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                             type={showPassword ? 'text' : 'password'}
                             value={nuevaPassword}
                             onChange={(e) => setNuevaPassword(e.target.value)}
+                            onFocus={() => setError('')}
                             onBlur={() => setTouched(prev => ({ ...prev, nuevaPassword: true }))}
                             placeholder="••••••••"
                             autoComplete="new-password"
@@ -186,6 +187,7 @@ export function ResetPasswordModal({ isOpen, onClose, email, token }: ResetPassw
                             type={showPassword ? 'text' : 'password'}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            onFocus={() => setError('')}
                             onBlur={() => setTouched(prev => ({ ...prev, confirmPassword: true }))}
                             placeholder="••••••••"
                             autoComplete="new-password"

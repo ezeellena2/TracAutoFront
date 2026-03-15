@@ -3,7 +3,7 @@
  * Conecta con InvitacionesController del backend
  */
 
-import { apiClient } from '../http/apiClient';
+import { apiClient, publicApiClient } from '../http/apiClient';
 import { useAuthStore } from '@/store';
 import { 
   InvitacionDto,
@@ -91,7 +91,7 @@ export async function cancelInvitacion(invitacionId: string): Promise<void> {
  * Endpoint público - no requiere autenticación
  */
 export async function validarInvitacion(token: string): Promise<InvitacionDto> {
-  const response = await apiClient.get<InvitacionDto>(
+  const response = await publicApiClient.get<InvitacionDto>(
     `${INVITACIONES_BASE}/${token}`
   );
   return response.data;
@@ -105,7 +105,7 @@ export async function aceptarInvitacion(
   token: string,
   data: AceptarInvitacionRequest
 ): Promise<AceptarInvitacionResponse> {
-  const response = await apiClient.post<AceptarInvitacionResponse>(
+  const response = await publicApiClient.post<AceptarInvitacionResponse>(
     `${INVITACIONES_BASE}/${token}/aceptar`,
     data
   );
