@@ -238,7 +238,7 @@ function wktToLayer(wkt: string): L.Layer | null {
     }
     return null;
   } catch {
-    console.error('Error parsing WKT:', wkt);
+    if (import.meta.env.DEV) console.error('Error parsing WKT:', wkt);
     return null;
   }
 }
@@ -423,7 +423,7 @@ function GeomanController({
     isInitializedRef.current = true;
 
     // ── Evento map: forma creada ──
-    const onCreated = (e: any) => {
+    const onCreated = (e: { layer: L.Layer }) => {
       const { layer } = e;
 
       // Solo 1 geometría a la vez: reemplazar la anterior
@@ -445,7 +445,7 @@ function GeomanController({
     };
 
     // ── Evento map: forma eliminada vía RemovalMode ──
-    const onRemove = (e: any) => {
+    const onRemove = (e: { layer: L.Layer }) => {
       const { layer } = e;
       if (layer === activeLayerRef.current) {
         detachLayerListeners();

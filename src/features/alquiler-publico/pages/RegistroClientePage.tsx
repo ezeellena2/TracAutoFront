@@ -9,8 +9,7 @@ import { useAuthClienteStore, selectIsAuthenticated } from '@/store/authCliente.
 import { authClienteApi } from '@/services/endpoints/alquiler-publico.api';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useBrandingPublico } from '../hooks/useBrandingPublico';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { registroClienteSchema } from '@/shared/validation/schemas';
 
 interface RegistroForm {
   nombre: string;
@@ -68,28 +67,22 @@ export default function RegistroClientePage() {
   }, []);
 
   const validar = useCallback((): boolean => {
+    const schema = registroClienteSchema(t);
+    const result = schema.safeParse(form);
+    if (result.success) {
+      setErrores({});
+      return true;
+    }
+
     const e: Record<string, string> = {};
-
-    if (!form.nombre.trim()) {
-      e.nombre = t('alquilerPublico.auth.errores.nombreRequerido');
+    for (const issue of result.error.issues) {
+      const field = String(issue.path[0]);
+      if (field && !e[field]) {
+        e[field] = issue.message;
+      }
     }
-    if (!form.apellido.trim()) {
-      e.apellido = t('alquilerPublico.auth.errores.apellidoRequerido');
-    }
-    if (!form.email.trim()) {
-      e.email = t('alquilerPublico.auth.errores.emailRequerido');
-    } else if (!EMAIL_REGEX.test(form.email.trim())) {
-      e.email = t('alquilerPublico.auth.errores.emailInvalido');
-    }
-    if (!form.tipoDocumento) {
-      e.tipoDocumento = t('alquilerPublico.auth.errores.tipoDocRequerido');
-    }
-    if (!form.numeroDocumento.trim()) {
-      e.numeroDocumento = t('alquilerPublico.auth.errores.numDocRequerido');
-    }
-
     setErrores(e);
-    return Object.keys(e).length === 0;
+    return false;
   }, [form, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 interface FilterInputProps {
     config: FilterConfig;
-    value: any;
-    onChange: (value: any) => void;
+    value: string;
+    onChange: (value: string) => void;
 }
 
 export const FilterText = ({ config, value, onChange }: FilterInputProps) => {
@@ -69,8 +69,8 @@ export const FilterBoolean = ({ config, value, onChange }: FilterInputProps) => 
     const { t } = useTranslation();
 
     // Convert boolean/string value to string for select
-    const normalizedValue = value === true || value === 'true' ? 'true' :
-        value === false || value === 'false' ? 'false' : '';
+    const normalizedValue = value === 'true' ? 'true' :
+        value === 'false' ? 'false' : '';
 
     return (
         <div className="space-y-1.5">

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Input, Select, Button, ApiErrorBanner } from '@/shared/ui';
 import type { ParsedError } from '@/hooks';
 import { TIPO_DOCUMENTO_VALUES } from '../types/cliente';
+import { clienteFormSchema } from '@/shared/validation/schemas';
 
 // --- Tipos y constantes compartidos ---
 
@@ -52,16 +53,17 @@ export function validateClienteForm(
   form: ClienteFormState,
   t: (key: string) => string,
 ): ClienteFormErrors {
+  const schema = clienteFormSchema(t);
+  const result = schema.safeParse(form);
+  if (result.success) return {};
+
   const errs: ClienteFormErrors = {};
-  if (!form.nombre.trim()) errs.nombre = t('alquileres.clientes.form.nombreRequerido');
-  if (!form.apellido.trim()) errs.apellido = t('alquileres.clientes.form.apellidoRequerido');
-  if (!form.email.trim()) {
-    errs.email = t('alquileres.clientes.form.emailRequerido');
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-    errs.email = t('alquileres.clientes.form.emailInvalido');
+  for (const issue of result.error.issues) {
+    const field = issue.path[0] as keyof ClienteFormErrors;
+    if (field && !errs[field]) {
+      errs[field] = issue.message;
+    }
   }
-  if (form.tipoDocumento <= 0) errs.tipoDocumento = t('alquileres.clientes.form.tipoDocumentoRequerido');
-  if (!form.numeroDocumento.trim()) errs.numeroDocumento = t('alquileres.clientes.form.numeroDocumentoRequerido');
   return errs;
 }
 

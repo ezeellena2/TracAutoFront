@@ -9,8 +9,8 @@ import { FilterFactory } from './FilterInputs';
 
 interface AdvancedFilterBarProps {
     config: FilterConfig[];
-    filters: Record<string, any>;
-    onFilterChange: (key: string, value: any) => void;
+    filters: Record<string, string>;
+    onFilterChange: (key: string, value: string) => void;
     onClearFilters: () => void;
 }
 
@@ -26,12 +26,12 @@ export function AdvancedFilterBar({
     const activeFiltersCount = Object.keys(filters).length;
 
     // Helper to get display label for a filter
-    const getFilterLabel = (key: string, value: any) => {
+    const getFilterLabel = (key: string, value: string) => {
         const conf = config.find(c => c.key === key);
         if (!conf) return `${key}: ${value}`;
 
         if (conf.type === 'boolean') {
-            const isTrue = value === 'true' || value === true;
+            const isTrue = value === 'true';
             return `${conf.label}: ${isTrue ? t('common.yes') : t('common.no')}`;
         }
 

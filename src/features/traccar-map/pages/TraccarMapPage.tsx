@@ -5,6 +5,7 @@ import { VehiclesSidebar } from '../components/VehiclesSidebar';
 import { MapView } from '../components/MapView';
 import { useTraccarMapStore } from '../store/traccarMap.store';
 import { getVehiclePositions } from '@/services/traccar/traccarMap.api';
+import { useMapRealTime } from '../hooks/useMapRealTime';
 import { Loader2, AlertCircle, MapPin } from 'lucide-react';
 
 // Loading skeleton for sidebar
@@ -86,6 +87,9 @@ export function TraccarMapPage() {
   const { isLoading, error, vehicles, setVehicles, setLoading, setError, resetState } =
     useTraccarMapStore();
 
+  // Real-time updates via SignalR (con fallback a polling)
+  useMapRealTime();
+
   const loadData = async () => {
     setLoading(true);
     setError(null);
@@ -101,7 +105,7 @@ export function TraccarMapPage() {
 
   useEffect(() => {
     loadData();
-    
+
     // Cleanup on unmount
     return () => {
       resetState();

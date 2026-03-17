@@ -43,9 +43,12 @@ export default function ReservaFlowPage() {
   const isClienteAuth = useAuthClienteStore(selectIsAuthenticated);
   const clienteEmail = useAuthClienteStore(s => s.email);
 
-  // Wizard state
+  // Wizard state — inicializar email del cliente autenticado directamente
   const [paso, setPaso] = useState<1 | 2 | 3>(1);
-  const [datosPersonales, setDatosPersonales] = useState<DatosPersonalesForm>(DATOS_PERSONALES_INITIAL);
+  const [datosPersonales, setDatosPersonales] = useState<DatosPersonalesForm>(() => ({
+    ...DATOS_PERSONALES_INITIAL,
+    email: (isClienteAuth && clienteEmail) ? clienteEmail : DATOS_PERSONALES_INITIAL.email,
+  }));
   const [errores, setErrores] = useState<Record<string, string>>({});
 
   // Promo state
@@ -65,13 +68,6 @@ export default function ReservaFlowPage() {
 
   // Idempotencia — generada una sola vez al montar
   const claveIdempotencia = useRef(crypto.randomUUID());
-
-  // Pre-fill email del cliente autenticado
-  useEffect(() => {
-    if (isClienteAuth && clienteEmail) {
-      setDatosPersonales(prev => ({ ...prev, email: clienteEmail }));
-    }
-  }, [isClienteAuth, clienteEmail]);
 
   // Cotizar
   const cotizar = useCallback(async (codigoPromocion?: string) => {

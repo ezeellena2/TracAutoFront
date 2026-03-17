@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -96,22 +96,53 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', dataTracautoSolicitudModal, ariaLabelledBy }: ModalProps) {
-  // Cerrar con Escape
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap: mantener el foco dentro del modal para accesibilidad (WCAG 2.1)
+  const handleFocusTrap = useCallback((e: KeyboardEvent) => {
+    if (e.key !== 'Tab' || !modalRef.current) return;
+
+    const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(focusableSelectors);
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }, []);
+
+  // Cerrar con Escape + focus trap
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      handleFocusTrap(e);
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
+      // Mover foco al modal al abrirse
+      requestAnimationFrame(() => {
+        modalRef.current?.focus();
+      });
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'visible';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, handleFocusTrap]);
 
   if (!isOpen) return null;
 
@@ -150,10 +181,12 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
 
       {/* Modal */}
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
-        className={`relative w-full ${sizes[size]} ${className} mx-4 max-h-[90vh] overflow-y-auto bg-surface rounded-xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200`}
+        tabIndex={-1}
+        className={`relative w-full ${sizes[size]} ${className} mx-4 max-h-[90vh] overflow-y-auto bg-surface rounded-xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200 outline-none`}
       >
         {/* Legacy header — retrocompatible con title prop */}
         {title && !hasSubComponents && (

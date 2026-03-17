@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
-import { Badge, Button, Card, CardHeader, SpinnerPantalla, EstadoError, ConfirmationModal } from '@/shared/ui';
+import { Badge, Button, Card, CardHeader, EstadoError, SpinnerPantalla } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { usePermissions } from '@/hooks';
 import { useReservaDetalle } from '../hooks/useReservaDetalle';
 import { EstadoReserva, OrigenReserva } from '../types/reserva';
 import { ResumenReservaCard } from '../components/ResumenReservaCard';
 import { TimelineReserva } from '../components/TimelineReserva';
+import { HistorialAuditoriaReservaCard } from '../components/HistorialAuditoriaReservaCard';
 import { ClienteReservaCard } from '../components/ClienteReservaCard';
 import { VehiculoReservaCard } from '../components/VehiculoReservaCard';
 import { CheckOutCard } from '../components/CheckOutCard';
@@ -55,9 +57,11 @@ export function ReservaDetallePage() {
     fotos,
     contrato,
     timeline,
+    historialAuditoria,
     sucursalOptions,
     isLoading,
     isFotosLoading,
+    isHistorialAuditoriaLoading,
     isContratoLoading,
     error,
     refetch,
@@ -80,11 +84,15 @@ export function ReservaDetallePage() {
     marcarNoShow,
     registrarPago,
     descargarPdf,
+    enviarFirmaDigital,
+    descargarChecklistCheckOut,
+    descargarChecklistCheckIn,
     // Mutation states
     isConfirming,
     isCancelling,
     isMarkingNoShow,
     isGenerandoContrato,
+    isEnviandoFirmaDigital,
   } = useReservaDetalle(id ?? '');
 
   const [isPreviewContratoOpen, setIsPreviewContratoOpen] = useState(false);
@@ -131,6 +139,10 @@ export function ReservaDetallePage() {
         <div className="lg:col-span-2 space-y-6">
           <ResumenReservaCard reserva={reserva} />
           <TimelineReserva entries={timeline} />
+          <HistorialAuditoriaReservaCard
+            entries={historialAuditoria}
+            isLoading={isHistorialAuditoriaLoading}
+          />
           <ClienteReservaCard
             nombreCompleto={reserva.clienteNombreCompleto}
             clienteId={reserva.clienteAlquilerId}
@@ -144,6 +156,7 @@ export function ReservaDetallePage() {
             <CheckOutCard
               checkOut={checkOut}
               onRealizar={() => setIsCheckOutOpen(true)}
+              onDescargarPdf={descargarChecklistCheckOut}
               puedeEditar={puedeEditar}
               mostrarBoton={reserva.estado === EstadoReserva.Confirmada}
             />
@@ -154,6 +167,7 @@ export function ReservaDetallePage() {
               checkIn={checkIn}
               moneda={reserva.moneda}
               onRealizar={() => setIsCheckInOpen(true)}
+              onDescargarPdf={descargarChecklistCheckIn}
               puedeEditar={puedeEditar}
               mostrarBoton={reserva.estado === EstadoReserva.EnCurso}
             />
@@ -194,8 +208,10 @@ export function ReservaDetallePage() {
             isLoading={isContratoLoading}
             onPreviewGenerar={() => setIsPreviewContratoOpen(true)}
             onDescargarPdf={descargarPdf}
+            onEnviarFirmaDigital={enviarFirmaDigital}
             isGenerando={isGenerandoContrato}
             puedeConfigurar={puedeConfigurar}
+            isEnviandoFirmaDigital={isEnviandoFirmaDigital}
           />
 
           {/* Notas internas */}
@@ -210,7 +226,7 @@ export function ReservaDetallePage() {
         </div>
       </div>
 
-      {/* ──── Modales ──── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Modales Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
 
       {/* Confirmar reserva */}
       <ConfirmationModal
@@ -282,3 +298,4 @@ export function ReservaDetallePage() {
     </div>
   );
 }
+

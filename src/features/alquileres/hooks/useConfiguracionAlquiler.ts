@@ -9,6 +9,16 @@ import type { UpdateConfiguracionAlquilerRequest } from '../types/configuracion'
 import { PoliticaCancelacion } from '../types/configuracion';
 
 export interface ConfigFormState {
+  enviarRecordatoriosRecogida: boolean;
+  horasAnticipacionRecordatorioRecogida: string;
+  enviarRecordatoriosDevolucion: boolean;
+  horasAnticipacionRecordatorioDevolucion: string;
+  enviarRecordatoriosVencimientoDocumentos: boolean;
+  diasAnticipacionRecordatorioDocumentos: string;
+  enviarRecordatoriosVencimientoLicenciasClientes: boolean;
+  enviarRecordatoriosVencimientoVtvVehiculos: boolean;
+  enviarRecordatoriosVencimientoSeguroVehiculos: boolean;
+  enviarRecordatoriosVencimientoPolizaVehiculos: boolean;
   requiereSenalAlReservar: boolean;
   porcentajeSenal: string;
   politicaCancelacion: PoliticaCancelacion;
@@ -20,9 +30,25 @@ export interface ConfigFormState {
   emailNotificacionReservas: string;
   precioPorLitroCombustible: string;
   precioPorHoraExtra: string;
+  enviarLinkTrackingAlConfirmar: boolean;
+  duracionLinkTrackingHoras: string;
+  alertarStockOciosoHabilitado: boolean;
+  diasAnticipacionStockOcioso: string;
+  umbralMinimoVehiculosOciosos: string;
+  sugerenciaRotacionHabilitada: boolean;
+  aniosFlotaParaRotarAMarketplace: string;
+  kilometrajeLimiteParaRotarAMarketplace: string;
+  diasPublicacionSinVentaParaRotarAAlquiler: string;
+  ajusteAutomaticoTarifasHabilitado: boolean;
+  indiceAjusteTarifas: string;
+  porcentajeAjusteMaximo: string;
+  diaDelMesAjuste: string;
 }
 
 export interface ConfigFormErrors {
+  horasAnticipacionRecordatorioRecogida?: string;
+  horasAnticipacionRecordatorioDevolucion?: string;
+  diasAnticipacionRecordatorioDocumentos?: string;
   porcentajeSenal?: string;
   politicaCancelacion?: string;
   diasAntesCancelacionGratis?: string;
@@ -36,6 +62,16 @@ export interface ConfigFormErrors {
 }
 
 const INITIAL_FORM: ConfigFormState = {
+  enviarRecordatoriosRecogida: true,
+  horasAnticipacionRecordatorioRecogida: '24',
+  enviarRecordatoriosDevolucion: true,
+  horasAnticipacionRecordatorioDevolucion: '24',
+  enviarRecordatoriosVencimientoDocumentos: true,
+  diasAnticipacionRecordatorioDocumentos: '30, 15, 7',
+  enviarRecordatoriosVencimientoLicenciasClientes: true,
+  enviarRecordatoriosVencimientoVtvVehiculos: false,
+  enviarRecordatoriosVencimientoSeguroVehiculos: false,
+  enviarRecordatoriosVencimientoPolizaVehiculos: false,
   requiereSenalAlReservar: false,
   porcentajeSenal: '0',
   politicaCancelacion: PoliticaCancelacion.Flexible,
@@ -47,13 +83,63 @@ const INITIAL_FORM: ConfigFormState = {
   emailNotificacionReservas: '',
   precioPorLitroCombustible: '0',
   precioPorHoraExtra: '0',
+  enviarLinkTrackingAlConfirmar: false,
+  duracionLinkTrackingHoras: '48',
+  alertarStockOciosoHabilitado: false,
+  diasAnticipacionStockOcioso: '0',
+  umbralMinimoVehiculosOciosos: '0',
+  sugerenciaRotacionHabilitada: false,
+  aniosFlotaParaRotarAMarketplace: '3',
+  kilometrajeLimiteParaRotarAMarketplace: '100000',
+  diasPublicacionSinVentaParaRotarAAlquiler: '60',
+  ajusteAutomaticoTarifasHabilitado: false,
+  indiceAjusteTarifas: '',
+  porcentajeAjusteMaximo: '20',
+  diaDelMesAjuste: '1',
 };
+
+function parseDiasAnticipacion(raw: string): number[] {
+  return raw
+    .split(',')
+    .map((value) => Number(value.trim()))
+    .filter((value) => Number.isInteger(value) && value > 0);
+}
+
+function validateReminderHours(value: string): boolean {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 720;
+}
 
 function validateForm(form: ConfigFormState, t: (key: string) => string): ConfigFormErrors {
   const errors: ConfigFormErrors = {};
 
+  if (!validateReminderHours(form.horasAnticipacionRecordatorioRecogida)) {
+    errors.horasAnticipacionRecordatorioRecogida = t('alquileres.configuracion.errores.horasRecordatorioRango');
+  }
+
+  if (!validateReminderHours(form.horasAnticipacionRecordatorioDevolucion)) {
+    errors.horasAnticipacionRecordatorioDevolucion = t('alquileres.configuracion.errores.horasRecordatorioRango');
+  }
+
+  const diasDocumentos = parseDiasAnticipacion(form.diasAnticipacionRecordatorioDocumentos);
+  const diasUnicos = new Set(diasDocumentos);
+  const diasTokens = form.diasAnticipacionRecordatorioDocumentos
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (
+    diasDocumentos.length === 0 ||
+    diasDocumentos.length !== diasTokens.length ||
+    diasDocumentos.length > 10 ||
+    diasDocumentos.some((dia) => dia < 1 || dia > 365) ||
+    diasUnicos.size !== diasDocumentos.length
+  ) {
+    errors.diasAnticipacionRecordatorioDocumentos = t('alquileres.configuracion.errores.diasDocumentosInvalidos');
+  }
+
   const senal = Number(form.porcentajeSenal);
-  if (isNaN(senal) || senal < 0 || senal > 100) {
+  if (Number.isNaN(senal) || senal < 0 || senal > 100) {
     errors.porcentajeSenal = t('alquileres.configuracion.errores.porcentaje0a100');
   }
 
@@ -62,12 +148,12 @@ function validateForm(form: ConfigFormState, t: (key: string) => string): Config
   }
 
   const dias = Number(form.diasAntesCancelacionGratis);
-  if (isNaN(dias) || dias < 0 || !Number.isInteger(dias)) {
+  if (Number.isNaN(dias) || dias < 0 || !Number.isInteger(dias)) {
     errors.diasAntesCancelacionGratis = t('alquileres.configuracion.errores.diasMinimo0');
   }
 
   const penalizacion = Number(form.porcentajePenalizacion);
-  if (isNaN(penalizacion) || penalizacion < 0 || penalizacion > 100) {
+  if (Number.isNaN(penalizacion) || penalizacion < 0 || penalizacion > 100) {
     errors.porcentajePenalizacion = t('alquileres.configuracion.errores.porcentaje0a100');
   }
 
@@ -78,7 +164,7 @@ function validateForm(form: ConfigFormState, t: (key: string) => string): Config
   }
 
   const horas = Number(form.horasExpiracionTentativa);
-  if (isNaN(horas) || horas <= 0 || !Number.isInteger(horas)) {
+  if (Number.isNaN(horas) || horas <= 0 || !Number.isInteger(horas)) {
     errors.horasExpiracionTentativa = t('alquileres.configuracion.errores.horasMinimo1');
   }
 
@@ -96,12 +182,12 @@ function validateForm(form: ConfigFormState, t: (key: string) => string): Config
   }
 
   const precioLitro = Number(form.precioPorLitroCombustible);
-  if (isNaN(precioLitro) || precioLitro < 0) {
+  if (Number.isNaN(precioLitro) || precioLitro < 0) {
     errors.precioPorLitroCombustible = t('alquileres.configuracion.errores.precioMinimo0');
   }
 
   const precioHora = Number(form.precioPorHoraExtra);
-  if (isNaN(precioHora) || precioHora < 0) {
+  if (Number.isNaN(precioHora) || precioHora < 0) {
     errors.precioPorHoraExtra = t('alquileres.configuracion.errores.precioMinimo0');
   }
 
@@ -130,6 +216,16 @@ export function useConfiguracionAlquiler() {
   useEffect(() => {
     if (data) {
       setForm({
+        enviarRecordatoriosRecogida: data.enviarRecordatoriosRecogida,
+        horasAnticipacionRecordatorioRecogida: String(data.horasAnticipacionRecordatorioRecogida),
+        enviarRecordatoriosDevolucion: data.enviarRecordatoriosDevolucion,
+        horasAnticipacionRecordatorioDevolucion: String(data.horasAnticipacionRecordatorioDevolucion),
+        enviarRecordatoriosVencimientoDocumentos: data.enviarRecordatoriosVencimientoDocumentos,
+        diasAnticipacionRecordatorioDocumentos: data.diasAnticipacionRecordatorioDocumentos.join(', '),
+        enviarRecordatoriosVencimientoLicenciasClientes: data.enviarRecordatoriosVencimientoLicenciasClientes,
+        enviarRecordatoriosVencimientoVtvVehiculos: data.enviarRecordatoriosVencimientoVtvVehiculos,
+        enviarRecordatoriosVencimientoSeguroVehiculos: data.enviarRecordatoriosVencimientoSeguroVehiculos,
+        enviarRecordatoriosVencimientoPolizaVehiculos: data.enviarRecordatoriosVencimientoPolizaVehiculos,
         requiereSenalAlReservar: data.requiereSenalAlReservar,
         porcentajeSenal: String(data.porcentajeSenal),
         politicaCancelacion: data.politicaCancelacion,
@@ -141,13 +237,25 @@ export function useConfiguracionAlquiler() {
         emailNotificacionReservas: data.emailNotificacionReservas ?? '',
         precioPorLitroCombustible: String(data.precioPorLitroCombustible),
         precioPorHoraExtra: String(data.precioPorHoraExtra),
+        enviarLinkTrackingAlConfirmar: data.enviarLinkTrackingAlConfirmar,
+        duracionLinkTrackingHoras: String(data.duracionLinkTrackingHoras),
+        alertarStockOciosoHabilitado: data.alertarStockOciosoHabilitado,
+        diasAnticipacionStockOcioso: String(data.diasAnticipacionStockOcioso),
+        umbralMinimoVehiculosOciosos: String(data.umbralMinimoVehiculosOciosos),
+        sugerenciaRotacionHabilitada: data.sugerenciaRotacionHabilitada,
+        aniosFlotaParaRotarAMarketplace: String(data.aniosFlotaParaRotarAMarketplace),
+        kilometrajeLimiteParaRotarAMarketplace: String(data.kilometrajeLimiteParaRotarAMarketplace),
+        diasPublicacionSinVentaParaRotarAAlquiler: String(data.diasPublicacionSinVentaParaRotarAAlquiler),
+        ajusteAutomaticoTarifasHabilitado: data.ajusteAutomaticoTarifasHabilitado,
+        indiceAjusteTarifas: data.indiceAjusteTarifas ?? '',
+        porcentajeAjusteMaximo: String(data.porcentajeAjusteMaximo),
+        diaDelMesAjuste: String(data.diaDelMesAjuste),
       });
     }
   }, [data]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: UpdateConfiguracionAlquilerRequest) =>
-      configuracionAlquilerApi.update(data),
+    mutationFn: (data: UpdateConfiguracionAlquilerRequest) => configuracionAlquilerApi.update(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alquiler-configuracion'] });
       toast.success(t('alquileres.configuracion.guardadoExito'));
@@ -159,21 +267,30 @@ export function useConfiguracionAlquiler() {
     },
   });
 
-  const handleChange = useCallback(
-    (field: keyof ConfigFormState, value: string | boolean | number) => {
-      setForm((prev) => ({ ...prev, [field]: value }));
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    },
-    [],
-  );
+  const handleChange = useCallback((field: keyof ConfigFormState, value: string | boolean | number) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }, []);
 
   const handleSubmit = useCallback(() => {
     const validationErrors = validateForm(form, t);
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length > 0) return;
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
 
     const request: UpdateConfiguracionAlquilerRequest = {
+      enviarRecordatoriosRecogida: form.enviarRecordatoriosRecogida,
+      horasAnticipacionRecordatorioRecogida: Number(form.horasAnticipacionRecordatorioRecogida),
+      enviarRecordatoriosDevolucion: form.enviarRecordatoriosDevolucion,
+      horasAnticipacionRecordatorioDevolucion: Number(form.horasAnticipacionRecordatorioDevolucion),
+      enviarRecordatoriosVencimientoDocumentos: form.enviarRecordatoriosVencimientoDocumentos,
+      diasAnticipacionRecordatorioDocumentos: parseDiasAnticipacion(form.diasAnticipacionRecordatorioDocumentos),
+      enviarRecordatoriosVencimientoLicenciasClientes: form.enviarRecordatoriosVencimientoLicenciasClientes,
+      enviarRecordatoriosVencimientoVtvVehiculos: form.enviarRecordatoriosVencimientoVtvVehiculos,
+      enviarRecordatoriosVencimientoSeguroVehiculos: form.enviarRecordatoriosVencimientoSeguroVehiculos,
+      enviarRecordatoriosVencimientoPolizaVehiculos: form.enviarRecordatoriosVencimientoPolizaVehiculos,
       requiereSenalAlReservar: form.requiereSenalAlReservar,
       porcentajeSenal: Number(form.porcentajeSenal),
       politicaCancelacion: form.politicaCancelacion,
@@ -185,6 +302,19 @@ export function useConfiguracionAlquiler() {
       emailNotificacionReservas: form.emailNotificacionReservas.trim() || null,
       precioPorLitroCombustible: Number(form.precioPorLitroCombustible),
       precioPorHoraExtra: Number(form.precioPorHoraExtra),
+      enviarLinkTrackingAlConfirmar: form.enviarLinkTrackingAlConfirmar,
+      duracionLinkTrackingHoras: Number(form.duracionLinkTrackingHoras),
+      alertarStockOciosoHabilitado: form.alertarStockOciosoHabilitado,
+      diasAnticipacionStockOcioso: Number(form.diasAnticipacionStockOcioso),
+      umbralMinimoVehiculosOciosos: Number(form.umbralMinimoVehiculosOciosos),
+      sugerenciaRotacionHabilitada: form.sugerenciaRotacionHabilitada,
+      aniosFlotaParaRotarAMarketplace: Number(form.aniosFlotaParaRotarAMarketplace),
+      kilometrajeLimiteParaRotarAMarketplace: Number(form.kilometrajeLimiteParaRotarAMarketplace),
+      diasPublicacionSinVentaParaRotarAAlquiler: Number(form.diasPublicacionSinVentaParaRotarAAlquiler),
+      ajusteAutomaticoTarifasHabilitado: form.ajusteAutomaticoTarifasHabilitado,
+      indiceAjusteTarifas: form.indiceAjusteTarifas.trim() || null,
+      porcentajeAjusteMaximo: Number(form.porcentajeAjusteMaximo),
+      diaDelMesAjuste: Number(form.diaDelMesAjuste),
     };
 
     updateMutation.mutate(request);

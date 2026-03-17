@@ -2,8 +2,6 @@
  * Tipos para organización y theming white-label
  */
 
-import { TipoOrganizacion } from './api';
-
 export interface ThemeColors {
   primary: string;
   primaryDark: string;
@@ -35,7 +33,8 @@ export interface OrganizationTheme {
   id: string;
   name: string;
   logo: string;
-  tipoOrganizacion?: TipoOrganizacion;
+  /** Módulos activos de la organización (valores de ModuloSistema) */
+  modulosActivos: number[];
   /**
    * Override parcial del tema base
    * Solo se especifican los valores que la organización quiere personalizar

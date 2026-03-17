@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { systemApi } from '@/services/endpoints';
 import { CurrencyInfo } from '@/shared/types/api';
 
@@ -14,6 +15,7 @@ interface UseCurrenciesReturn {
 let currenciesCache: CurrencyInfo[] | null = null;
 
 export const useCurrencies = (): UseCurrenciesReturn => {
+    const { t } = useTranslation();
     const [currencies, setCurrencies] = useState<CurrencyInfo[]>(currenciesCache || []);
     const [isLoading, setIsLoading] = useState(!currenciesCache);
     const [error, setError] = useState<string | null>(null);
@@ -27,8 +29,8 @@ export const useCurrencies = (): UseCurrenciesReturn => {
                 currenciesCache = data;
                 setCurrencies(data);
             } catch (err) {
-                console.error('Error loading currencies configuration:', err);
-                setError('Error al cargar configuración de monedas');
+                if (import.meta.env.DEV) console.error('Error loading currencies configuration:', err);
+                setError(t('common.currencies.errorCarga'));
                 // Fallback default para que la UI no se rompa totalmente
                 setCurrencies([
                     { code: 'ARS', symbol: '$', name: 'Peso Argentino', cultureInfo: 'es-AR' },
@@ -61,7 +63,7 @@ export const useCurrencies = (): UseCurrenciesReturn => {
                 maximumFractionDigits: 0,
             }).format(amount);
         } catch (error) {
-            console.warn(`Error formatting currency ${currencyCode}:`, error);
+            if (import.meta.env.DEV) console.warn(`Error formatting currency ${currencyCode}:`, error);
             return `${currencyCode} ${amount}`;
         }
     }, [getCurrencyInfo]);

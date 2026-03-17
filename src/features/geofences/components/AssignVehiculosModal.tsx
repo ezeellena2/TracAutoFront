@@ -56,7 +56,7 @@ export function AssignVehiculosModal({
         })
         .catch((err) => {
           if (!cancelled) {
-            console.error('Error al cargar vehículos asignados:', err);
+            if (import.meta.env.DEV) console.error('Error al cargar vehículos asignados:', err);
             toast.error(t('geofences.errorCargarAsignados', 'Error al cargar asignaciones actuales'));
             setAsignados(new Set());
           }

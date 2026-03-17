@@ -23,8 +23,27 @@ export enum OrdenTopVehiculos {
   MasRentables = 2,
 }
 
+export interface AlquilerDashboardKpiDto {
+  reservasTotales: number;
+  reservasConfirmadas: number;
+  reservasEnCurso: number;
+  reservasCanceladas: number;
+  reservasTentativas: number;
+  ingresosTotales: number;
+  ingresosDelMes: number;
+  vehiculosTotales: number;
+  vehiculosDisponibles: number;
+  vehiculosEnAlquiler: number;
+  tasaOcupacion: number;
+  clientesTotales: number;
+  clientesNuevosDelMes: number;
+  checkOutsDelMes: number;
+  checkInsDelMes: number;
+  recargosTotalesDelMes: number;
+}
+
 // =====================================================
-// Utilización de flota
+// Utilizacion de flota
 // =====================================================
 
 export interface UtilizacionFlotaItemDto {
@@ -92,7 +111,7 @@ export interface IngresosDto {
 }
 
 // =====================================================
-// Estadísticas de reservas
+// Estadisticas de reservas
 // =====================================================
 
 export interface ReservasPorEstadoDto {
@@ -115,7 +134,7 @@ export interface EstadisticasReservasDto {
 }
 
 // =====================================================
-// Top vehículos
+// Top vehiculos
 // =====================================================
 
 export interface TopVehiculoItemDto {

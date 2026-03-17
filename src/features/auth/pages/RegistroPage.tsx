@@ -2,52 +2,20 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
-import { Button, Input, Select, Alert } from '@/shared/ui';
-import { authApi, organizacionesApi } from '@/services/endpoints';
-import { useAuthStore, useTenantStore } from '@/store';
+import { Button, Input, Alert } from '@/shared/ui';
+import { authApi } from '@/services/endpoints';
+import { hydrateAuthenticatedSession } from '@/services/auth/sessionHydration';
 
 /**
- * Decodifica el payload de un JWT sin verificar la firma.
- * Solo para uso en cliente — la verificación real ocurre en el backend.
- */
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-}
-
-/** Extrae el rol del JWT. Soporta claim 'role' y el claim largo de ASP.NET Identity. */
-function extractRoleFromToken(token: string): 'Admin' | 'Operador' | 'Analista' {
-  const payload = decodeJwtPayload(token);
-  if (!payload) return 'Operador';
-  const roleClaim =
-    (payload['role'] as string | undefined) ??
-    (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] as string | undefined);
-  const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
-    Admin: 'Admin',
-    Administrador: 'Admin',
-    Operador: 'Operador',
-    Analista: 'Analista',
-  };
-  return rolMap[roleClaim ?? ''] ?? 'Operador';
-}
-
-/**
- * Página de Registro de Empresa B2B
- * Flujo: Datos → Registro → Verificación → Auto-login → Dashboard
+ * PÃ¡gina de Registro de Empresa B2B
+ * Flujo: Datos â†’ Registro â†’ VerificaciÃ³n â†’ Auto-login â†’ Dashboard
  */
 export function RegistroPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  // const { login } = useAuthStore(); // Removed: accessed directly via getState() to ensure latest state and consistency
 
-  // Verificar si viene en modo verificación o con datos de Google desde LoginPage
+  // Verificar si viene en modo verificaciÃ³n o con datos de Google desde LoginPage
   const state = location.state as {
     modoVerificacion?: boolean;
     email?: string;
@@ -84,7 +52,6 @@ export function RegistroPage() {
   const [formData, setFormData] = useState({
     nombreEmpresa: '',
     cuit: '',
-    tipoOrganizacion: 0, // 0 = no seleccionado
     nombreCompleto: '',
     email: '',
     telefono: '',
@@ -104,7 +71,7 @@ export function RegistroPage() {
   const [codigoEmailError, setCodigoEmailError] = useState('');
   const [codigoTelefonoError, setCodigoTelefonoError] = useState('');
 
-  // Inicializar datos si viene en modo verificación o con datos de Google
+  // Inicializar datos si viene en modo verificaciÃ³n o con datos de Google
   useEffect(() => {
     if (state?.modoVerificacion && state.email && state.usuarioId) {
       setFormData(prev => ({
@@ -132,7 +99,7 @@ export function RegistroPage() {
     }
   }, [state]);
 
-  // Ref para que handleBlur siempre lea el valor más reciente
+  // Ref para que handleBlur siempre lea el valor mÃ¡s reciente
   // (necesario porque commitE164 del PhoneInput llama updateField y luego onBlur en el mismo tick)
   const formDataRef = useRef(formData);
   formDataRef.current = formData;
@@ -182,7 +149,7 @@ export function RegistroPage() {
 
   // Formatear CUIT: XX-XXXXXXXX-X
   const formatCuit = (value: string) => {
-    // Solo números, máx 11 dígitos
+    // Solo nÃºmeros, mÃ¡x 11 dÃ­gitos
     const digits = value.replace(/\D/g, '').slice(0, 11);
     let res = digits;
 
@@ -195,19 +162,19 @@ export function RegistroPage() {
     return res;
   };
 
-  // Validación de CUIT argentino (algoritmo módulo 11)
+  // ValidaciÃ³n de CUIT argentino (algoritmo mÃ³dulo 11)
   const validarCuit = (cuit: string): boolean => {
     // Normalizar: remover guiones y espacios
     const cuitNormalizado = cuit.replace(/[^\d]/g, '');
 
     if (cuitNormalizado.length !== 11) return false;
 
-    // Validar tipos válidos (primeros 2 dígitos)
+    // Validar tipos vÃ¡lidos (primeros 2 dÃ­gitos)
     const tipo = parseInt(cuitNormalizado.substring(0, 2), 10);
     const tiposValidos = [20, 23, 24, 27, 30, 33, 34];
     if (!tiposValidos.includes(tipo)) return false;
 
-    // Calcular dígito verificador (módulo 11)
+    // Calcular dÃ­gito verificador (mÃ³dulo 11)
     const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
     let suma = 0;
     for (let i = 0; i < 10; i++) {
@@ -220,23 +187,14 @@ export function RegistroPage() {
     return digitoCalculado === digitoReal;
   };
 
-  // Tipos de organización disponibles
-  const tiposOrganizacion = [
-    { value: 1, label: t('auth.orgTypes.flotaPrivada') },
-    { value: 2, label: t('auth.orgTypes.aseguradora') },
-    { value: 3, label: t('auth.orgTypes.tallerMecanico') },
-    { value: 4, label: t('auth.orgTypes.concesionario') },
-    { value: 5, label: t('auth.orgTypes.empresaRenting') },
-  ];
-
   // Validez reactiva del formulario
   const isFormValid = useMemo(() => {
-    const { nombreEmpresa, cuit, tipoOrganizacion, nombreCompleto, email, telefono, password, confirmPassword, aceptaTerminos } = formData;
-    // Campos no vacíos
-    if (!nombreEmpresa.trim() || !cuit.trim() || !tipoOrganizacion || !nombreCompleto.trim() || !email.trim() || !telefono.trim() || !password || !confirmPassword) return false;
-    // CUIT válido
+    const { nombreEmpresa, cuit, nombreCompleto, email, telefono, password, confirmPassword, aceptaTerminos } = formData;
+    // Campos no vacÃ­os
+    if (!nombreEmpresa.trim() || !cuit.trim() || !nombreCompleto.trim() || !email.trim() || !telefono.trim() || !password || !confirmPassword) return false;
+    // CUIT vÃ¡lido
     if (!validarCuit(cuit)) return false;
-    // Email válido
+    // Email vÃ¡lido
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
     // Password requisitos
     if (password.length < 8) return false;
@@ -246,7 +204,7 @@ export function RegistroPage() {
     if (!/[^a-zA-Z0-9]/.test(password)) return false;
     // Passwords coinciden
     if (password !== confirmPassword) return false;
-    // Términos aceptados
+    // TÃ©rminos aceptados
     if (!aceptaTerminos) return false;
     // Sin errores de campo activos
     if (Object.values(fieldErrors).some(e => e)) return false;
@@ -263,7 +221,6 @@ export function RegistroPage() {
       const response = await authApi.registrarEmpresa({
         nombreEmpresa: formData.nombreEmpresa,
         cuit: formData.cuit.replace(/[^\d]/g, ''), // Enviar normalizado
-        tipoOrganizacion: formData.tipoOrganizacion,
         email: formData.email,
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
@@ -292,7 +249,7 @@ export function RegistroPage() {
 
     if (!successData) return;
 
-    // Validación por campo
+    // ValidaciÃ³n por campo
     let hasFieldError = false;
     setCodigoEmailError('');
     setCodigoTelefonoError('');
@@ -321,7 +278,7 @@ export function RegistroPage() {
     setError('');
 
     try {
-      const payload: any = { usuarioId: successData.usuarioId };
+      const payload: { usuarioId: string; codigoEmail?: string; codigoTelefono?: string } = { usuarioId: successData.usuarioId };
 
       if (!emailVerificado) {
         payload.codigoEmail = codigoEmail;
@@ -329,41 +286,8 @@ export function RegistroPage() {
       if (!telefonoVerificado) {
         payload.codigoTelefono = codigoTelefono;
       }
-
-
       const response = await authApi.verificarCuenta(payload);
-
-      // Verificación exitosa - auto-login con el token recibido
-      // F01-C01: Extraer rol real del JWT en lugar de hardcodear 'Admin'
-      const rolReal = extractRoleFromToken(response.token);
-      useAuthStore.getState().login(
-        {
-          id: successData.usuarioId,
-          nombre: formData.nombreCompleto,
-          email: formData.email,
-          rol: rolReal,
-          organizationId: successData.organizacionId,
-          organizationName: successData.nombreOrganizacion,
-        },
-        response.token
-      );
-
-      // P0-FIX: Cargar datos de la organización en tenantStore para que se muestre el nombre/branding
-      try {
-        const orgDto = await organizacionesApi.getOrganizacionById(successData.organizacionId);
-        useTenantStore.getState().setOrganizationFromDto(orgDto);
-      } catch (orgError) {
-        console.error('Error loading organization details after verify:', orgError);
-        // F01-M03: Fallback sin tipoOrganizacion del formulario (puede diferir del backend)
-        useTenantStore.getState().setOrganization({
-          id: successData.organizacionId,
-          name: successData.nombreOrganizacion,
-          logo: '',
-          theme: {}
-        });
-      }
-
-      // Redirigir al dashboard
+      hydrateAuthenticatedSession(response, response.token);
       navigate('/', { replace: true });
 
     } catch (err) {
@@ -391,7 +315,7 @@ export function RegistroPage() {
           ? t('auth.success.codeResentEmail')
           : t('auth.success.codeResentSms')
       );
-      // Limpiar mensaje de éxito después de 5 segundos
+      // Limpiar mensaje de Ã©xito despuÃ©s de 5 segundos
       setTimeout(() => setResendSuccess(''), 5000);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('auth.errors.resendError');
@@ -472,28 +396,6 @@ export function RegistroPage() {
                   onBlur={() => handleBlur('cuit')}
                   error={touched.cuit ? fieldErrors.cuit : ''}
                 />
-
-                {/* Tipo de Organización */}
-                <div className="space-y-1.5">
-                  <Select
-                    label={
-                      <span>
-                        {t('auth.orgTypeLabel')} <span className="text-error">*</span>
-                      </span>
-                    }
-                    value={formData.tipoOrganizacion || ''}
-                    onChange={(val) => {
-                      updateField('tipoOrganizacion', Number(val));
-                      if (fieldErrors.tipoOrganizacion) setFieldErrors(prev => ({ ...prev, tipoOrganizacion: '' }));
-                    }}
-                    options={tiposOrganizacion}
-                    placeholder={t('auth.selectOrgType')}
-                    disabled={isLoading}
-                  />
-                  {touched.tipoOrganizacion && fieldErrors.tipoOrganizacion && (
-                    <p className="mt-1.5 text-sm text-error">{fieldErrors.tipoOrganizacion}</p>
-                  )}
-                </div>
 
                 {/* Usuario */}
                 <Input
@@ -646,7 +548,7 @@ export function RegistroPage() {
                 </p>
               </div>
 
-              {/* Mensaje de éxito de reenvío */}
+              {/* Mensaje de Ã©xito de reenvÃ­o */}
               {resendSuccess && (
                 <div className="p-3 rounded-lg bg-success/10 border border-success/20 text-success text-sm mb-4 flex items-center gap-2">
                   <CheckCircle size={16} />
@@ -701,7 +603,7 @@ export function RegistroPage() {
                   )}
                 </Button>
 
-                {/* Botones de reenvío */}
+                {/* Botones de reenvÃ­o */}
                 <div className="flex flex-wrap gap-3 justify-center pt-2 items-center">
                   {!emailVerificado && (
                     <button
@@ -747,3 +649,5 @@ export function RegistroPage() {
     </div>
   );
 }
+
+

@@ -19,8 +19,8 @@ export interface FilterConfig {
 
 export interface AdvancedFilterProps {
     config: FilterConfig[];
-    filters: Record<string, any>;
-    onFilterChange: (key: string, value: any) => void;
+    filters: Record<string, string>;
+    onFilterChange: (key: string, value: string) => void;
     onClearFilters: () => void;
     isOpen: boolean;
     onClose: () => void;

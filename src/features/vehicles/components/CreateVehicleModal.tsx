@@ -7,7 +7,7 @@ import { toast } from '@/store/toast.store';
 import { useTenantStore } from '@/store';
 import { TipoExtensionVehiculo, CreateVehiculoRequest, VehiculoAseguradoraCreateData, VehiculoTaxiCreateData, VehiculoOtrosCreateData } from '../types';
 import { DispositivoDto } from '@/shared/types/api';
-import { shouldShowExtensionForm, getExtensionTypeForOrgType } from '../utils/extensionHelpers';
+import { shouldShowExtensionForm, getExtensionTypeForModulos } from '../utils/extensionHelpers';
 import { AseguradoraExtensionForm } from './AseguradoraExtensionForm';
 import { TaxiExtensionForm } from './TaxiExtensionForm';
 import { OtrosExtensionForm } from './OtrosExtensionForm';
@@ -25,9 +25,9 @@ export function CreateVehicleModal({ isOpen, onClose, onSuccess, devices }: Crea
 
     // Organization Context
     const { currentOrganization } = useTenantStore();
-    const orgType = currentOrganization?.tipoOrganizacion;
-    const showExtensionForm = shouldShowExtensionForm(orgType);
-    const extensionType = getExtensionTypeForOrgType(orgType);
+    const modulosActivos = currentOrganization?.modulosActivos ?? [];
+    const showExtensionForm = shouldShowExtensionForm(modulosActivos);
+    const extensionType = getExtensionTypeForModulos(modulosActivos);
 
     // Form State
     const [createForm, setCreateForm] = useState<CreateVehiculoRequest>({

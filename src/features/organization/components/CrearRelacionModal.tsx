@@ -44,7 +44,7 @@ export function CrearRelacionModal({
       });
       setOrganizaciones(result.items);
     } catch (err) {
-      console.error('Error loading organizations:', err);
+      if (import.meta.env.DEV) console.error('Error loading organizations:', err);
     } finally {
       setIsLoadingOrgs(false);
     }

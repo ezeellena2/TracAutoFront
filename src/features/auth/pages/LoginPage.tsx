@@ -254,7 +254,7 @@ export function LoginPage() {
       authApi.reenviarCodigo({
         email,
         canal: canalesAReenviar,
-      }).catch(err => console.error("Error silencioso enviando codigos bg:", err));
+      }).catch(() => { /* fire-and-forget */ });
 
       // Navegar a la página de verificación INMEDIATAMENTE para que el usuario no espere
       navigate('/registro', {
@@ -269,7 +269,7 @@ export function LoginPage() {
         },
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Error si falla el navigate
       const message = error instanceof Error ? error.message : t('auth.errors.resendCodeError');
       setError(message);

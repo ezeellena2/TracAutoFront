@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
@@ -388,7 +388,13 @@ export function VehiclesPage() {
       render: (v: VehiculoDto) => {
         const identifier = getDeviceIdentifier(v);
         return identifier ? (
-          <Badge variant="info">{identifier}</Badge>
+          <RouterLink
+            to={`/dispositivos?filtroId=${v.dispositivoActivoId}`}
+            className="hover:opacity-80 transition-opacity"
+            title={t('vehicles.table.viewDevice', { defaultValue: 'Ver dispositivo' })}
+          >
+            <Badge variant="info">{identifier}</Badge>
+          </RouterLink>
         ) : (
           <span className="text-text-muted">{t('vehicles.table.unassigned')}</span>
         );

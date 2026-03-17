@@ -3,6 +3,7 @@
  */
 
 import { useCallback, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useReplayStore } from '../store/replay.store';
 import { getReplayPositions } from '../api/replay.api';
 import { DatePreset, ReplayPosition, PlaybackSpeed } from '../types';
@@ -43,6 +44,7 @@ interface UseReplayDataReturn {
 }
 
 export function useReplayData(): UseReplayDataReturn {
+  const { t } = useTranslation();
   const store = useReplayStore();
   const { handleApiError } = useErrorHandler();
   const playIntervalRef = useRef<number | null>(null);
@@ -58,7 +60,7 @@ export function useReplayData(): UseReplayDataReturn {
   // Fetch positions with cancellation support
   const fetchPositions = useCallback(async () => {
     if (!store.selectedDispositivoId) {
-      store.setError('Seleccione un dispositivo');
+      store.setError(t('common.replay.seleccioneDispositivo'));
       return;
     }
 

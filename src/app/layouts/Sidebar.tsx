@@ -30,14 +30,22 @@ import {
   ScrollText,
   BarChart3,
   Settings,
-  Globe
+  Globe,
+  Gauge,
+  MessageSquare,
+  Sparkles,
+  CreditCard,
+  AlertTriangle,
+  Activity,
+  ShieldCheck,
 } from 'lucide-react';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTenantStore, useSidebarStore } from '@/store';
 import { usePermissions } from '@/hooks';
 import { Permission } from '@/config/permissions';
-import { TipoOrganizacion } from '@/shared/types/api';
+import { ModuloSistema } from '@/shared/types/api';
+import type { UserRole } from '@/shared/types';
 
 interface NavItem {
   path?: string; // Opcional si tiene children
@@ -45,32 +53,42 @@ interface NavItem {
   icon: React.ElementType;
   /** Permiso requerido para ver este ítem. Si no se especifica, visible para todos */
   requiredPermission?: Permission;
-  /** Tipo(s) de organización requerido(s) para ver este ítem */
-  requiredOrganizationType?: TipoOrganizacion | TipoOrganizacion[];
+  /** Rol requerido (ej. Solo SuperAdmin para Admin Panel). Si se especifica, el ítem solo se muestra cuando user.rol === requiredRole */
+  requiredRole?: UserRole;
+  /** Módulo(s) requerido(s) para ver este ítem. Si no se especifica, visible para todos */
+  requiredModule?: ModuloSistema | ModuloSistema[];
   /** Items hijos para submenús */
   children?: NavItem[];
 }
 
 const navItems: NavItem[] = [
+  { path: '/admin', labelKey: 'sidebar.admin', icon: ShieldCheck, requiredPermission: 'admin:panel', requiredRole: 'SuperAdmin' },
   { path: '/', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
   { path: '/mapa', labelKey: 'sidebar.map', icon: Map },
   {
     path: '/marketplace',
     labelKey: 'marketplace.title',
     icon: ShoppingCart,
-    requiredOrganizationType: TipoOrganizacion.ConcesionarioAutos
+    requiredModule: ModuloSistema.Marketplace
   },
   { path: '/vehiculos', labelKey: 'sidebar.vehicles', icon: Car },
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
-  { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
+  { path: '/eventos', labelKey: 'sidebar.events', icon: Bell, requiredModule: ModuloSistema.Telematica },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
   { path: '/geozonas', labelKey: 'sidebar.geofences', icon: MapPin },
   { path: '/importaciones', labelKey: 'sidebar.imports', icon: FileSpreadsheet },
+  { path: '/tracking-links', labelKey: 'sidebar.trackingLinks', icon: Link2 },
+  { path: '/preferencias-notificacion', labelKey: 'sidebar.preferenciasNotificacion', icon: MessageSquare },
+  { path: '/resumen-ia', labelKey: 'sidebar.resumenIA', icon: Sparkles },
+  { path: '/alertas/reglas', labelKey: 'sidebar.alertRules', icon: AlertTriangle, requiredModule: ModuloSistema.Telematica },
+  { path: '/diagnosticos-obd', labelKey: 'sidebar.obdDiagnostics', icon: Activity, requiredModule: ModuloSistema.Telematica },
+  { path: '/suscripcion', labelKey: 'sidebar.billing', icon: CreditCard, requiredPermission: 'billing:ver' },
+  { path: '/scoring', labelKey: 'sidebar.scoring', icon: Gauge, requiredModule: ModuloSistema.Scoring },
   {
     labelKey: 'sidebar.alquileres',
     icon: KeyRound,
     requiredPermission: 'alquileres:ver',
-    requiredOrganizationType: [TipoOrganizacion.EmpresaRenting, TipoOrganizacion.ConcesionarioAutos],
+    requiredModule: ModuloSistema.Alquiler,
     children: [
       { path: '/alquileres', labelKey: 'sidebar.alquileresDashboard', icon: LayoutDashboard },
       { path: '/alquileres/flota', labelKey: 'sidebar.alquileresFlota', icon: CarFront },
@@ -104,7 +122,7 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { isCollapsed, toggleCollapsed, isMobileOpen, closeMobile } = useSidebarStore();
   const { currentOrganization } = useTenantStore();
-  const { can } = usePermissions();
+  const { can, role } = usePermissions();
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
@@ -132,20 +150,25 @@ export function Sidebar() {
     closeMobile();
   }, [location.pathname, closeMobile]);
 
-  // Filtrar items según permisos del usuario y tipo de organización
+  // Filtrar items según permisos del usuario y módulos activos de la organización
   const visibleNavItems = useMemo(() => {
+    const modulosActivos = currentOrganization?.modulosActivos ?? [];
+
     return navItems
       .filter(item => {
+        // Admin Panel: solo visible para rol SuperAdmin (evita que usuarios de empresa vean el enlace si el backend devolvió mal el rol)
+        if (item.requiredRole && role !== item.requiredRole) return false;
+
         // Validar permiso
         const hasPermission = !item.requiredPermission || can(item.requiredPermission);
 
-        // Validar tipo de organización (soporta valor único o array)
-        const hasOrganizationType = !item.requiredOrganizationType ||
-          (Array.isArray(item.requiredOrganizationType)
-            ? item.requiredOrganizationType.includes(currentOrganization?.tipoOrganizacion as TipoOrganizacion)
-            : currentOrganization?.tipoOrganizacion === item.requiredOrganizationType);
+        // Validar módulo requerido (soporta valor único o array)
+        const hasModule = !item.requiredModule ||
+          (Array.isArray(item.requiredModule)
+            ? item.requiredModule.some(m => modulosActivos.includes(m))
+            : modulosActivos.includes(item.requiredModule));
 
-        return hasPermission && hasOrganizationType;
+        return hasPermission && hasModule;
       })
       .map(item => ({
         ...item,
@@ -153,7 +176,7 @@ export function Sidebar() {
           !child.requiredPermission || can(child.requiredPermission)
         ),
       }));
-  }, [can, currentOrganization]);
+  }, [can, role, currentOrganization]);
 
   // Auto-expandir submenús cuando la ruta actual coincide con algún hijo
   useEffect(() => {

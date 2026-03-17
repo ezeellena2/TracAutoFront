@@ -1,4 +1,6 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Download } from 'lucide-react';
 import { Card, CardHeader, Button } from '@/shared/ui';
 import { formatDateTime } from '@/shared/utils/dateFormatter';
 import { useLocalization } from '@/hooks/useLocalization';
@@ -7,11 +9,12 @@ import type { CheckOutAlquilerDto } from '../types/reserva';
 interface CheckOutCardProps {
   checkOut: CheckOutAlquilerDto | null;
   onRealizar: () => void;
+  onDescargarPdf: () => void;
   puedeEditar: boolean;
   mostrarBoton: boolean;
 }
 
-export function CheckOutCard({ checkOut, onRealizar, puedeEditar, mostrarBoton }: CheckOutCardProps) {
+export const CheckOutCard = memo(function CheckOutCard({ checkOut, onRealizar, onDescargarPdf, puedeEditar, mostrarBoton }: CheckOutCardProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
 
@@ -19,11 +22,18 @@ export function CheckOutCard({ checkOut, onRealizar, puedeEditar, mostrarBoton }
     <Card>
       <CardHeader
         title={t('alquileres.reservaDetalle.checkOut.titulo')}
-        action={mostrarBoton && puedeEditar && !checkOut ? (
-          <Button variant="primary" onClick={onRealizar} className="text-xs">
-            {t('alquileres.reservaDetalle.checkOut.realizar')}
-          </Button>
-        ) : undefined}
+        action={
+          checkOut ? (
+            <Button variant="ghost" onClick={onDescargarPdf} className="text-xs">
+              <Download size={14} className="mr-1" />
+              {t('alquileres.reservaDetalle.contrato.descargarPdf')}
+            </Button>
+          ) : mostrarBoton && puedeEditar ? (
+            <Button variant="primary" onClick={onRealizar} className="text-xs">
+              {t('alquileres.reservaDetalle.checkOut.realizar')}
+            </Button>
+          ) : undefined
+        }
       />
 
       {!checkOut ? (
@@ -43,7 +53,7 @@ export function CheckOutCard({ checkOut, onRealizar, puedeEditar, mostrarBoton }
       )}
     </Card>
   );
-}
+});
 
 function Field({ label, value, fullWidth }: { label: string; value: string; fullWidth?: boolean }) {
   return (

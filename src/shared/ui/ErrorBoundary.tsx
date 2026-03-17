@@ -87,7 +87,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       this.setState({ copied: true });
       setTimeout(() => this.setState({ copied: false }), 2000);
     } catch {
-      console.log('Error ID:', this.state.errorId);
+      console.info('Error ID:', this.state.errorId);
     }
   };
 

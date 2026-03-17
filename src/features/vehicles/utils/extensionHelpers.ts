@@ -1,57 +1,53 @@
 /**
  * Helpers para manejar extensiones de vehículos
+ * Migrado de TipoOrganizacion a ModuloSistema (feature gating por módulos)
  */
 
-import { TipoOrganizacion } from '@/shared/types/api';
+import { ModuloSistema } from '@/shared/types/api';
 import { TipoExtensionVehiculo } from '../types';
 
 /**
- * Obtiene la extensión predeterminada según el tipo de organización
+ * Obtiene la extensión predeterminada según los módulos activos
  */
-export function getDefaultExtensionForOrgType(
-  orgType: TipoOrganizacion | undefined
+export function getDefaultExtensionForModulos(
+  modulosActivos: number[]
 ): TipoExtensionVehiculo {
-  switch (orgType) {
-    case TipoOrganizacion.Aseguradora:
-      return TipoExtensionVehiculo.Aseguradora;
-    case TipoOrganizacion.ConcesionarioAutos:
-      return TipoExtensionVehiculo.Marketplace;
-    default:
-      return TipoExtensionVehiculo.Ninguno;
+  if (modulosActivos.includes(ModuloSistema.Seguros)) {
+    return TipoExtensionVehiculo.Aseguradora;
   }
+  if (modulosActivos.includes(ModuloSistema.Marketplace)) {
+    return TipoExtensionVehiculo.Marketplace;
+  }
+  return TipoExtensionVehiculo.Ninguno;
 }
 
 /**
- * Determina si una organización debe mostrar formulario de extensión en VehiclesPage
+ * Determina si se debe mostrar el formulario de extensión según los módulos activos
  */
-export function shouldShowExtensionForm(orgType: TipoOrganizacion | undefined): boolean {
-  switch (orgType) {
-    case TipoOrganizacion.Aseguradora:
-    case TipoOrganizacion.FlotaPrivada:
-    case TipoOrganizacion.TallerMecanico:
-    case TipoOrganizacion.ConcesionarioAutos:
-      return true;
-    default:
-      return false;
-  }
+export function shouldShowExtensionForm(modulosActivos: number[]): boolean {
+  return modulosActivos.includes(ModuloSistema.Seguros) ||
+    modulosActivos.includes(ModuloSistema.Marketplace) ||
+    modulosActivos.includes(ModuloSistema.Flota) ||
+    modulosActivos.includes(ModuloSistema.Taller);
 }
 
 /**
- * Obtiene el tipo de extensión que debe mostrarse para una organización
+ * Obtiene el tipo de extensión que debe mostrarse según los módulos activos
  */
-export function getExtensionTypeForOrgType(
-  orgType: TipoOrganizacion | undefined
+export function getExtensionTypeForModulos(
+  modulosActivos: number[]
 ): TipoExtensionVehiculo {
-  switch (orgType) {
-    case TipoOrganizacion.Aseguradora:
-      return TipoExtensionVehiculo.Aseguradora;
-    case TipoOrganizacion.ConcesionarioAutos:
-      return TipoExtensionVehiculo.Marketplace;
-    case TipoOrganizacion.FlotaPrivada:
-      return TipoExtensionVehiculo.Taxi;
-    case TipoOrganizacion.TallerMecanico:
-      return TipoExtensionVehiculo.Otros;
-    default:
-      return TipoExtensionVehiculo.Ninguno;
+  if (modulosActivos.includes(ModuloSistema.Seguros)) {
+    return TipoExtensionVehiculo.Aseguradora;
   }
+  if (modulosActivos.includes(ModuloSistema.Marketplace)) {
+    return TipoExtensionVehiculo.Marketplace;
+  }
+  if (modulosActivos.includes(ModuloSistema.Flota)) {
+    return TipoExtensionVehiculo.Taxi;
+  }
+  if (modulosActivos.includes(ModuloSistema.Taller)) {
+    return TipoExtensionVehiculo.Otros;
+  }
+  return TipoExtensionVehiculo.Ninguno;
 }

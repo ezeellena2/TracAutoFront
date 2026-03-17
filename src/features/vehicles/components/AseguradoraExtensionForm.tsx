@@ -5,7 +5,7 @@
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/shared/ui';
 import { useTenantStore } from '@/store';
-import { TipoOrganizacion } from '@/shared/types/api';
+import { ModuloSistema } from '@/shared/types/api';
 import type { VehiculoAseguradoraCreateData } from '../types';
 
 interface AseguradoraExtensionFormProps {
@@ -21,7 +21,7 @@ export function AseguradoraExtensionForm({
 }: AseguradoraExtensionFormProps) {
   const { t } = useTranslation();
   const { currentOrganization } = useTenantStore();
-  const isAseguradora = currentOrganization?.tipoOrganizacion === TipoOrganizacion.Aseguradora;
+  const isAseguradora = currentOrganization?.modulosActivos?.includes(ModuloSistema.Seguros) ?? false;
 
   const updateField = <K extends keyof VehiculoAseguradoraCreateData>(
     field: K,

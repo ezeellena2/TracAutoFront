@@ -1,5 +1,9 @@
 /**
- * Sanitizador de payloads para remover campos server-managed
+ * Removedor de campos server-managed en payloads de request.
+ *
+ * NOTA: El nombre "sanitizer" NO refiere a sanitización de seguridad (XSS/inyección).
+ * Su única función es eliminar campos que el backend asigna automáticamente
+ * para evitar que el frontend los envíe accidentalmente.
  *
  * Campos que son server-managed y NO deben enviarse en requests:
  * - organizacionId (se obtiene del JWT token)
@@ -66,9 +70,15 @@ export function sanitizePayload<T extends Record<string, unknown>>(payload: T): 
   if (
     payload instanceof FormData ||
     payload instanceof Blob ||
-    payload instanceof File ||
-    Array.isArray(payload)
+    payload instanceof File
   ) {
+    return payload;
+  }
+
+  // TODO: Los payloads de tipo array se devuelven sin sanitizar.
+  // Si el array contiene objetos con campos server-managed, no se limpian.
+  // Evaluar iterar el array y sanitizar cada elemento individualmente.
+  if (Array.isArray(payload)) {
     return payload;
   }
 

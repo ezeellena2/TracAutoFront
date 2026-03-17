@@ -34,6 +34,8 @@ function ToastItem({ toast }: { toast: Toast }) {
 
   return (
     <div
+      role="alert"
+      aria-live={toast.type === 'error' || toast.type === 'warning' ? 'assertive' : 'polite'}
       className={`
         flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg
         animate-slide-in-right
@@ -45,8 +47,9 @@ function ToastItem({ toast }: { toast: Toast }) {
       <button
         onClick={() => removeToast(toast.id)}
         className="p-1 hover:opacity-70 transition-opacity"
+        aria-label="Cerrar"
       >
-        <X size={16} />
+        <X size={16} aria-hidden="true" />
       </button>
     </div>
   );
@@ -58,7 +61,7 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm" aria-live="polite" role="status">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download } from 'lucide-react';
+import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download, QrCode, Package, History } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { dispositivosApi, reportesApi } from '@/services/endpoints';
@@ -13,6 +13,9 @@ import { NivelPermisoCompartido } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { GestionarComparticionModal } from '@/features/organization';
+import { DeviceQrModal, stockBadgeVariants, stockStatusLabels } from '@/features/devices/components/DeviceQrModal';
+import { DeviceStockChangeModal } from '@/features/devices/components/DeviceStockChangeModal';
+import { DeviceStockHistoryModal } from '@/features/devices/components/DeviceStockHistoryModal';
 
 const getDeviceFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
   { key: 'soloActivos', label: t('devices.onlyActive', { defaultValue: 'Solo Activos' }), type: 'boolean' },
@@ -66,6 +69,11 @@ export function DevicesPage() {
   // Sharing modal
   const [deviceToShare, setDeviceToShare] = useState<DispositivoDto | null>(null);
 
+  // Stock / QR modals
+  const [deviceForQr, setDeviceForQr] = useState<DispositivoDto | null>(null);
+  const [deviceForStockChange, setDeviceForStockChange] = useState<DispositivoDto | null>(null);
+  const [deviceForStockHistory, setDeviceForStockHistory] = useState<DispositivoDto | null>(null);
+
   // Import modals
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImportResultsModalOpen, setIsImportResultsModalOpen] = useState(false);
@@ -96,11 +104,8 @@ export function DevicesPage() {
     setError(null);
 
     try {
-      if (import.meta.env.DEV) {
-        console.log('[DevicesPage] Loading devices...');
-      }
       // Prepare params
-      const backendParams: any = {
+      const backendParams: Record<string, string | number | boolean> = {
         ...paginationParams,
       };
       // Si hay filtroId (navegación directa desde conductores), no aplicar soloActivos
@@ -114,15 +119,9 @@ export function DevicesPage() {
 
       const result = await dispositivosApi.getDispositivos(backendParams);
       setDevicesData(result);
-      if (import.meta.env.DEV) {
-        console.log('[DevicesPage] Devices loaded:', result.items, 'Total:', result.totalRegistros);
-      }
     } catch (e) {
       const parsed = handleApiError(e, { showToast: false });
       setError(parsed.message);
-      if (import.meta.env.DEV) {
-        console.error('[DevicesPage] Error loading devices:', e);
-      }
     } finally {
       setIsLoading(false);
     }
@@ -185,9 +184,6 @@ export function DevicesPage() {
     } catch (e) {
       // Mantener contexto en Dispositivos, usando modal para errores graves.
       handleApiError(e);
-      if (import.meta.env.DEV) {
-        console.error('[DevicesPage] Error creating device:', e);
-      }
     } finally {
       setIsCreating(false);
     }
@@ -224,9 +220,6 @@ export function DevicesPage() {
       await loadDevices();
     } catch (e) {
       handleApiError(e);
-      if (import.meta.env.DEV) {
-        console.error('[DevicesPage] Error updating device:', e);
-      }
     } finally {
       setIsUpdating(false);
     }
@@ -253,9 +246,6 @@ export function DevicesPage() {
       await loadDevices();
     } catch (e) {
       handleApiError(e);
-      if (import.meta.env.DEV) {
-        console.error('[DevicesPage] Error deleting device:', e);
-      }
     } finally {
       setIsDeleting(false);
     }
@@ -414,6 +404,15 @@ export function DevicesPage() {
       },
     },
     {
+      key: 'estadoStock',
+      header: t('devices.stock.statusLabel'),
+      render: (d: DispositivoDto) => (
+        <Badge variant={stockBadgeVariants[d.estadoStock]}>
+          {t(stockStatusLabels[d.estadoStock])}
+        </Badge>
+      )
+    },
+    {
       key: 'ultimaActualizacionUtc',
       header: t('devices.lastUpdate'),
       render: (d: DispositivoDto) => d.ultimaActualizacionUtc
@@ -429,7 +428,40 @@ export function DevicesPage() {
 
         return (
           <div className="flex items-center gap-2">
-            {/* Botón de compartición - solo para recursos propios */}
+            {/* QR Code */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeviceForQr(d)}
+                title={t('devices.qr.viewQr')}
+              >
+                <QrCode size={16} className="text-primary" />
+              </Button>
+            )}
+            {/* Stock Change */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeviceForStockChange(d)}
+                title={t('devices.stock.changeStock')}
+              >
+                <Package size={16} />
+              </Button>
+            )}
+            {/* Stock History */}
+            {!d.esRecursoAsociado && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeviceForStockHistory(d)}
+                title={t('devices.stock.viewHistory')}
+              >
+                <History size={16} />
+              </Button>
+            )}
+            {/* Sharing */}
             {!d.esRecursoAsociado && (
               <Button
                 variant="ghost"
@@ -468,6 +500,99 @@ export function DevicesPage() {
     },
   ];
 
+  // Modales que deben estar siempre disponibles independientemente del estado de la página
+  const modals = (
+    <>
+      {/* Modal de creación */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
+          setCreateErrors({});
+        }}
+        title={t('devices.createDevice')}
+      >
+        <div className="space-y-4">
+          <Input
+            label={t('devices.form.traccarId')}
+            type="number"
+            value={createForm.traccarDeviceId}
+            onChange={(e) => setCreateForm({ ...createForm, traccarDeviceId: e.target.value })}
+            placeholder={t('devices.form.traccarIdPlaceholder')}
+            error={createErrors.traccarDeviceId}
+            helperText={t('devices.form.traccarIdHelper')}
+            required
+          />
+          <Input
+            label={t('devices.form.alias')}
+            type="text"
+            value={createForm.alias}
+            onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
+            placeholder={t('devices.form.aliasPlaceholder')}
+            helperText={t('devices.form.aliasHelper')}
+          />
+          <Input
+            label={t('devices.form.phoneNumber')}
+            type="tel"
+            value={createForm.numeroTelefono}
+            onChange={(e) => setCreateForm({ ...createForm, numeroTelefono: e.target.value })}
+            placeholder={t('devices.form.phoneNumberPlaceholder')}
+            helperText={t('devices.form.phoneNumberHelper')}
+          />
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
+                setCreateErrors({});
+              }}
+              disabled={isCreating}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleCreateDevice} disabled={isCreating}>
+              {isCreating ? t('devices.creating') : t('common.create')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Import Modal */}
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportDevices}
+        title={t('imports.importDevices', { defaultValue: 'Importar Dispositivos' })}
+        onDownloadTemplate={async () => {
+          const blob = await reportesApi.downloadTemplateDispositivosExcel();
+          downloadBlob(blob, 'template_dispositivos.xlsx');
+        }}
+        templateLabel={t('imports.downloadDeviceTemplate', { defaultValue: 'Template de Dispositivos' })}
+      />
+
+      {/* Import Processing Modal */}
+      <ImportProcessingModal
+        isOpen={isImportProcessingModalOpen}
+        tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
+      />
+
+      {/* Import Results Modal */}
+      {importResults && (
+        <ImportResultsModal
+          isOpen={isImportResultsModalOpen}
+          onClose={() => {
+            setIsImportResultsModalOpen(false);
+            setImportResults(null);
+          }}
+          results={importResults}
+          tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
+        />
+      )}
+    </>
+  );
+
   // Loading state
   if (isLoading) {
     return (
@@ -486,6 +611,7 @@ export function DevicesPage() {
             </div>
           </div>
         </Card>
+        {modals}
       </div>
     );
   }
@@ -520,6 +646,7 @@ export function DevicesPage() {
             <Button onClick={loadDevices}>{t('devices.retry')}</Button>
           </div>
         </Card>
+        {modals}
       </div>
     );
   }
@@ -565,7 +692,7 @@ export function DevicesPage() {
             )}
           </div>
         </Card>
-
+        {modals}
       </div>
     );
   }
@@ -690,62 +817,6 @@ export function DevicesPage() {
         </Card>
       </div>
 
-      {/* Modal de creación */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={() => {
-          setIsCreateModalOpen(false);
-          setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
-          setCreateErrors({});
-        }}
-        title={t('devices.createDevice')}
-      >
-        <div className="space-y-4">
-          <Input
-            label={t('devices.form.traccarId')}
-            type="number"
-            value={createForm.traccarDeviceId}
-            onChange={(e) => setCreateForm({ ...createForm, traccarDeviceId: e.target.value })}
-            placeholder={t('devices.form.traccarIdPlaceholder')}
-            error={createErrors.traccarDeviceId}
-            helperText={t('devices.form.traccarIdHelper')}
-            required
-          />
-          <Input
-            label={t('devices.form.alias')}
-            type="text"
-            value={createForm.alias}
-            onChange={(e) => setCreateForm({ ...createForm, alias: e.target.value })}
-            placeholder={t('devices.form.aliasPlaceholder')}
-            helperText={t('devices.form.aliasHelper')}
-          />
-          <Input
-            label={t('devices.form.phoneNumber')}
-            type="tel"
-            value={createForm.numeroTelefono}
-            onChange={(e) => setCreateForm({ ...createForm, numeroTelefono: e.target.value })}
-            placeholder={t('devices.form.phoneNumberPlaceholder')}
-            helperText={t('devices.form.phoneNumberHelper')}
-          />
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsCreateModalOpen(false);
-                setCreateForm({ traccarDeviceId: '', alias: '', numeroTelefono: '' });
-                setCreateErrors({});
-              }}
-              disabled={isCreating}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={handleCreateDevice} disabled={isCreating}>
-              {isCreating ? t('devices.creating') : t('common.create')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
       {/* Modal de edición */}
       <Modal
         isOpen={isEditModalOpen}
@@ -840,37 +911,29 @@ export function DevicesPage() {
         />
       )}
 
-      {/* Import Processing Modal */}
-      <ImportProcessingModal
-        isOpen={isImportProcessingModalOpen}
-        tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
+      {/* QR Modal */}
+      <DeviceQrModal
+        device={deviceForQr}
+        isOpen={!!deviceForQr}
+        onClose={() => setDeviceForQr(null)}
       />
 
-      {/* Import Modal */}
-      <ImportExcelModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImportDevices}
-        title={t('imports.importDevices', { defaultValue: 'Importar Dispositivos' })}
-        onDownloadTemplate={async () => {
-          const blob = await reportesApi.downloadTemplateDispositivosExcel();
-          downloadBlob(blob, 'template_dispositivos.xlsx');
-        }}
-        templateLabel={t('imports.downloadDeviceTemplate', { defaultValue: 'Template de Dispositivos' })}
+      {/* Stock Change Modal */}
+      <DeviceStockChangeModal
+        device={deviceForStockChange}
+        isOpen={!!deviceForStockChange}
+        onClose={() => setDeviceForStockChange(null)}
+        onSuccess={loadDevices}
       />
 
-      {/* Import Results Modal */}
-      {importResults && (
-        <ImportResultsModal
-          isOpen={isImportResultsModalOpen}
-          onClose={() => {
-            setIsImportResultsModalOpen(false);
-            setImportResults(null);
-          }}
-          results={importResults}
-          tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
-        />
-      )}
+      {/* Stock History Modal */}
+      <DeviceStockHistoryModal
+        device={deviceForStockHistory}
+        isOpen={!!deviceForStockHistory}
+        onClose={() => setDeviceForStockHistory(null)}
+      />
+
+      {modals}
     </div>
   );
 }

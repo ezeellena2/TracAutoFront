@@ -99,6 +99,7 @@ export const useLocalizationStore = create<LocalizationState>()(
       name: 'tracauto-localization',
       partialize: (state) => ({
         userLanguage: state.userLanguage,
+        preferences: state.preferences,
       }),
     }
   )

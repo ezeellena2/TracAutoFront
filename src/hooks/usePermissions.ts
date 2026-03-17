@@ -3,6 +3,7 @@
  */
 
 import { useCallback, useMemo } from 'react';
+import { matchPath } from 'react-router-dom';
 import { useAuthStore } from '@/store';
 import { Permission, PERMISSIONS_BY_ROLE, ROUTE_ACCESS } from '@/config/permissions';
 import { UserRole } from '@/shared/types';
@@ -15,6 +16,7 @@ interface UsePermissionsReturn {
   /** Rol actual del usuario */
   role: UserRole | null;
   /** Shortcuts para verificar rol */
+  isSuperAdmin: boolean;
   isAdmin: boolean;
   isOperador: boolean;
   isAnalista: boolean;
@@ -37,18 +39,24 @@ export function usePermissions(): UsePermissionsReturn {
     [role, permissions]
   );
 
+  // FIX H-F4: Usar matchPath de react-router-dom para soportar rutas dinamicas
+  // (ej. /alquileres/reservas/:id, /scoring/conductores/:id).
+  // Antes se usaba startsWith que no matcheaba parametros de ruta correctamente.
   const canAccessRoute = useCallback(
     (route: string): boolean => {
       if (!role) return false;
-      // Exact match first
-      const exactMatch = ROUTE_ACCESS[route];
-      if (exactMatch) return exactMatch.includes(role);
-      // Prefix match: /geozonas/abc/editar hereda permisos de /geozonas
-      const prefixMatch = Object.keys(ROUTE_ACCESS)
-        .filter(key => route.startsWith(key + '/'))
-        .sort((a, b) => b.length - a.length)[0];
-      if (prefixMatch) return ROUTE_ACCESS[prefixMatch].includes(role);
-      return false; // Deny unknown routes
+
+      // Buscar la mejor coincidencia usando matchPath (soporta :param)
+      // Ordenar por longitud descendente para priorizar rutas mas especificas
+      const patterns = Object.keys(ROUTE_ACCESS).sort((a, b) => b.length - a.length);
+
+      for (const pattern of patterns) {
+        if (matchPath({ path: pattern, end: true }, route)) {
+          return ROUTE_ACCESS[pattern].includes(role);
+        }
+      }
+
+      return false; // Denegar rutas desconocidas
     },
     [role]
   );
@@ -57,7 +65,8 @@ export function usePermissions(): UsePermissionsReturn {
     can,
     canAccessRoute,
     role,
-    isAdmin: role === 'Admin',
+    isSuperAdmin: role === 'SuperAdmin',
+    isAdmin: role === 'Admin' || role === 'SuperAdmin',
     isOperador: role === 'Operador',
     isAnalista: role === 'Analista',
   };

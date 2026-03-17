@@ -4,6 +4,7 @@ import type { ParsedError } from '@/hooks';
 import type { SucursalDto } from '../types/sucursal';
 import { CategoriaAlquiler, PoliticaCombustible } from '../types/vehiculoAlquiler';
 import { BuscadorVehiculo } from './BuscadorVehiculo';
+import { vehiculoAlquilerFormSchema } from '@/shared/validation/schemas';
 
 // --- Tipos exportados ---
 
@@ -56,53 +57,17 @@ export function validateVehiculoAlquilerForm(
   t: (key: string) => string,
   isEditMode: boolean,
 ): VehiculoAlquilerFormErrors {
+  const schema = vehiculoAlquilerFormSchema(t, isEditMode);
+  const result = schema.safeParse(form);
+  if (result.success) return {};
+
   const errs: VehiculoAlquilerFormErrors = {};
-
-  if (!isEditMode && !form.vehiculoId) {
-    errs.vehiculoId = t('alquileres.flota.form.vehiculoRequerido');
-  }
-
-  const precio = parseFloat(form.precioBaseDiario);
-  if (isNaN(precio) || precio <= 0) {
-    errs.precioBaseDiario = t('alquileres.flota.form.precioRequerido');
-  }
-
-  const deposito = parseFloat(form.depositoMinimo);
-  if (isNaN(deposito) || deposito < 0) {
-    errs.depositoMinimo = t('alquileres.flota.form.depositoRequerido');
-  }
-
-  if (form.kilometrajeLimiteDiario.trim() !== '') {
-    const km = parseInt(form.kilometrajeLimiteDiario, 10);
-    if (isNaN(km) || km <= 0) {
-      errs.kilometrajeLimiteDiario = t('alquileres.flota.form.kilometrajeInvalido');
+  for (const issue of result.error.issues) {
+    const field = issue.path[0] as keyof VehiculoAlquilerFormErrors;
+    if (field && !errs[field]) {
+      errs[field] = issue.message;
     }
   }
-
-  const precioPorKm = parseFloat(form.precioPorKmExcedente);
-  if (isNaN(precioPorKm) || precioPorKm < 0) {
-    errs.precioPorKmExcedente = t('alquileres.flota.form.precioPorKmRequerido');
-  }
-
-  const edad = parseInt(form.edadMinimaConductor, 10);
-  if (isNaN(edad) || edad < 18 || edad > 99) {
-    errs.edadMinimaConductor = t('alquileres.flota.form.edadMinimaInvalida');
-  }
-
-  if (!form.licenciaRequerida.trim() || form.licenciaRequerida.trim().length > 100) {
-    errs.licenciaRequerida = t('alquileres.flota.form.licenciaRequeridaError');
-  }
-
-  if (!form.sucursalPorDefectoId) {
-    errs.sucursalPorDefectoId = t('alquileres.flota.form.sucursalDefectoRequerida');
-  }
-
-  if (form.sucursalIds.length === 0) {
-    errs.sucursalIds = t('alquileres.flota.form.sucursalesRequeridas');
-  } else if (form.sucursalPorDefectoId && !form.sucursalIds.includes(form.sucursalPorDefectoId)) {
-    errs.sucursalIds = t('alquileres.flota.form.sucursalesDebeIncluirDefecto');
-  }
-
   return errs;
 }
 

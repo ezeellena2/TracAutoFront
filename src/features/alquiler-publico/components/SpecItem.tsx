@@ -1,10 +1,12 @@
+import { memo } from 'react';
+
 interface SpecItemProps {
   icon: React.ElementType;
   label: string;
   value: string;
 }
 
-export function SpecItem({ icon: IconComp, label, value }: SpecItemProps) {
+export const SpecItem = memo(function SpecItem({ icon: IconComp, label, value }: SpecItemProps) {
   return (
     <div className="flex items-start gap-2">
       <IconComp className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -14,4 +16,4 @@ export function SpecItem({ icon: IconComp, label, value }: SpecItemProps) {
       </div>
     </div>
   );
-}
+});

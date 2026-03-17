@@ -68,7 +68,7 @@ export function MapToolbar({ onCenterFleet, onCenterSelected }: MapToolbarProps)
         });
         setOrganizacionesRelacionadas(result.items);
       } catch (err) {
-        console.error('Error loading organizaciones relacionadas:', err);
+        if (import.meta.env.DEV) console.error('Error loading organizaciones relacionadas:', err);
       }
     };
     loadOrganizaciones();

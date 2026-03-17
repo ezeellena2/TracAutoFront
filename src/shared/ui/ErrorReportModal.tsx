@@ -34,7 +34,7 @@ export function ErrorReportModal() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      console.log('Reference ID:', referenceId);
+      console.info('Reference ID:', referenceId);
     }
   };
 

@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Marker, Popup, Tooltip } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -58,12 +59,17 @@ function createCustomIcon(estado: VehiclePosition['estado'], isSelected: boolean
   });
 }
 
-export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
+export const VehicleMarker = memo(function VehicleMarker({ vehicle }: VehicleMarkerProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
   const navigate = useNavigate();
   const { selectedVehicleId, setSelectedVehicle, labelConfig } = useTraccarMapStore();
   const isSelected = selectedVehicleId === vehicle.id;
+
+  const icon = useMemo(
+    () => createCustomIcon(vehicle.estado, isSelected),
+    [vehicle.estado, isSelected],
+  );
 
   const handleReplayClick = () => {
     // Navigate to replay page with device pre-selected
@@ -115,7 +121,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
   return (
     <Marker
       position={[vehicle.latitud, vehicle.longitud]}
-      icon={createCustomIcon(vehicle.estado, isSelected)}
+      icon={icon}
       eventHandlers={{
         click: () => setSelectedVehicle(vehicle.id),
       }}
@@ -229,5 +235,5 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
       </Popup>
     </Marker>
   );
-}
+});
 

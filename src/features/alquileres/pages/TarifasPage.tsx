@@ -9,11 +9,11 @@ import {
   KPICard,
   PaginationControls,
   AdvancedFilterBar,
-  ConfirmationModal,
   EstadoVacio,
   EstadoError,
   ActionMenu,
 } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import type { FilterConfig } from '@/shared/ui/AdvancedFilter/types';
 import { usePermissions, useLocalization } from '@/hooks';
 import { formatDate } from '@/shared/utils/dateFormatter';

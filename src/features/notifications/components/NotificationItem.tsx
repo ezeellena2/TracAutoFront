@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { AlertCircle, Archive, Bell, CheckCircle2, ShieldAlert, TriangleAlert, CarFront } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { CategoriaNotificacion, NotificacionDto, TipoNotificacion } from '@/shared/types/notifications';
@@ -40,7 +41,7 @@ function getIcon(tipo: TipoNotificacion, categoria: CategoriaNotificacion) {
   }
 }
 
-export function NotificationItem({
+export const NotificationItem = memo(function NotificationItem({
   item,
   onMarkAsRead,
   onArchivar,
@@ -105,4 +106,4 @@ export function NotificationItem({
       </div>
     </div>
   );
-}
+});

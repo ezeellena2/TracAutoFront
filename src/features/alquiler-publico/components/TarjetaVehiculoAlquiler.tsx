@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ interface TarjetaVehiculoAlquilerProps {
   vehiculo: VehiculoDisponibleDto;
 }
 
-export function TarjetaVehiculoAlquiler({ vehiculo }: TarjetaVehiculoAlquilerProps) {
+export const TarjetaVehiculoAlquiler = memo(function TarjetaVehiculoAlquiler({ vehiculo }: TarjetaVehiculoAlquilerProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -116,4 +116,4 @@ export function TarjetaVehiculoAlquiler({ vehiculo }: TarjetaVehiculoAlquilerPro
       </CardContent>
     </Card>
   );
-}
+});

@@ -1,9 +1,11 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useErrorHandler } from '@/hooks';
 import { notificacionesApi } from '@/services/endpoints';
 import { toast, useNotificationsStore } from '@/store';
 
 export function useNotifications() {
+  const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
   const {
     recent,
@@ -34,7 +36,7 @@ export function useNotifications() {
       } catch (error) {
         await syncFromServer();
         const parsed = handleApiError(error, { showToast: false });
-        toast.error(parsed.message || 'No se pudo marcar como leída');
+        toast.error(parsed.message || t('common.notifications.errorMarcarLeida'));
       }
     },
     [markAsReadOptimistic, syncFromServer, handleApiError]
@@ -47,7 +49,7 @@ export function useNotifications() {
     } catch (error) {
       await syncFromServer();
       const parsed = handleApiError(error, { showToast: false });
-        toast.error(parsed.message || 'No se pudieron marcar como leídas');
+        toast.error(parsed.message || t('common.notifications.errorMarcarTodas'));
     }
   }, [markAllAsReadOptimistic, syncFromServer, handleApiError]);
 
@@ -59,7 +61,7 @@ export function useNotifications() {
       } catch (error) {
         await syncFromServer();
         const parsed = handleApiError(error, { showToast: false });
-        toast.error(parsed.message || 'No se pudo archivar');
+        toast.error(parsed.message || t('common.notifications.errorArchivar'));
       }
     },
     [archivarOptimistic, syncFromServer, handleApiError]

@@ -17,6 +17,7 @@ import type {
 } from '@/shared/types/api';
 import { EstadoPublicacion } from '@/shared/types/api';
 import { formatDate } from '@/shared/utils';
+import { createVehiculoMarketplaceSchema } from '@/shared/validation/schemas';
 
 export function MarketplacePage() {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ export function MarketplacePage() {
     estado: EstadoPublicacion.Pausado,
     vehiculoId: null, // Opcional: vincular a vehículo existente
   });
-  const [createErrors, setCreateErrors] = useState<{ patente?: string }>({});
+  const [createErrors, setCreateErrors] = useState<Record<string, string>>({});
   const [createApiError, setCreateApiError] = useState<import('@/hooks').ParsedError | null>(null);
   const [editApiError, setEditApiError] = useState<import('@/hooks').ParsedError | null>(null);
 
@@ -137,12 +138,17 @@ export function MarketplacePage() {
 
   // Create handlers
   const handleCreate = async () => {
-    const errors: { patente?: string } = {};
-    if (!createForm.patente.trim()) {
-      errors.patente = t('marketplace.form.required');
-    }
-    if (Object.keys(errors).length > 0) {
-      setCreateErrors(errors);
+    const schema = createVehiculoMarketplaceSchema(t);
+    const result = schema.safeParse(createForm);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const field = String(issue.path[0]);
+        if (field && !fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      setCreateErrors(fieldErrors);
       return;
     }
 
@@ -609,6 +615,7 @@ export function MarketplacePage() {
               value={createForm.anio?.toString() || ''}
               onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
               placeholder={t('marketplace.form.yearPlaceholder')}
+              error={createErrors.anio}
               disabled={!!createForm.vehiculoId}
             />
             <Input
@@ -617,6 +624,7 @@ export function MarketplacePage() {
               value={createForm.precio?.toString() || ''}
               onChange={(e) => setCreateForm({ ...createForm, precio: e.target.value ? Number(e.target.value) : undefined })}
               placeholder={t('marketplace.form.pricePlaceholder')}
+              error={createErrors.precio}
             />
             <Input
               label={t('marketplace.form.mileage')}
@@ -624,6 +632,7 @@ export function MarketplacePage() {
               value={(createForm.kilometraje ?? 0).toString()}
               onChange={(e) => setCreateForm({ ...createForm, kilometraje: Number(e.target.value) || 0 })}
               placeholder={t('marketplace.form.mileagePlaceholder')}
+              error={createErrors.kilometraje}
             />
             <div>
               <label className="block text-sm font-medium text-text mb-2">
@@ -636,6 +645,9 @@ export function MarketplacePage() {
                 className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
                 rows={4}
               />
+              {createErrors.descripcion && (
+                <p className="text-sm text-error mt-1">{createErrors.descripcion}</p>
+              )}
             </div>
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating}>
@@ -782,6 +794,7 @@ export function MarketplacePage() {
             value={createForm.anio?.toString() || ''}
             onChange={(e) => setCreateForm({ ...createForm, anio: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('marketplace.form.yearPlaceholder')}
+            error={createErrors.anio}
           />
           <Input
             label={t('marketplace.form.price')}
@@ -789,6 +802,7 @@ export function MarketplacePage() {
             value={createForm.precio?.toString() || ''}
             onChange={(e) => setCreateForm({ ...createForm, precio: e.target.value ? Number(e.target.value) : undefined })}
             placeholder={t('marketplace.form.pricePlaceholder')}
+            error={createErrors.precio}
           />
           <Input
             label={t('marketplace.form.mileage')}
@@ -796,6 +810,7 @@ export function MarketplacePage() {
             value={(createForm.kilometraje ?? 0).toString()}
             onChange={(e) => setCreateForm({ ...createForm, kilometraje: Number(e.target.value) || 0 })}
             placeholder={t('marketplace.form.mileagePlaceholder')}
+            error={createErrors.kilometraje}
           />
           <div>
             <label className="block text-sm font-medium text-text mb-2">
@@ -808,6 +823,9 @@ export function MarketplacePage() {
               className="w-full px-3 py-2 rounded-lg bg-background border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]"
               rows={4}
             />
+            {createErrors.descripcion && (
+              <p className="text-sm text-error mt-1">{createErrors.descripcion}</p>
+            )}
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating}>

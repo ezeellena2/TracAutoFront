@@ -61,7 +61,7 @@ export function ReplayPage() {
           setDeviceCenter([device.latitud, device.longitud]);
         }
       } catch (err) {
-        console.error('Error fetching device position:', err);
+        if (import.meta.env.DEV) console.error('Error fetching device position:', err);
       }
     };
 

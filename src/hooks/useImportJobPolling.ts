@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { reportesApi } from '@/services/endpoints';
 import { EstadoImportacionJob, type ImportacionJobDto } from '@/services/endpoints/reportes.api';
 
@@ -9,6 +10,7 @@ const POLL_INTERVAL_MS = 2000;
  * Returns the final job data when complete.
  */
 export function useImportJobPolling(jobId: string | undefined) {
+  const { t } = useTranslation();
   const [job, setJob] = useState<ImportacionJobDto | null>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function useImportJobPolling(jobId: string | undefined) {
           stopPolling();
         }
       } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : 'Error al consultar estado de importación';
+        const message = e instanceof Error ? e.message : t('common.imports.errorEstado');
         setError(message);
         stopPolling();
       }

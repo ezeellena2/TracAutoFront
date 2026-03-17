@@ -90,8 +90,8 @@ export function ImportExcelModal({
     try {
       await onImport(selectedFile);
       handleClose();
-    } catch (err: any) {
-      setError(err?.message || t('imports.uploadError', { defaultValue: 'Error al subir el archivo' }));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t('imports.uploadError', { defaultValue: 'Error al subir el archivo' }));
     } finally {
       setIsUploading(false);
     }

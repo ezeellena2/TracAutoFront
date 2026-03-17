@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Calendar, Tag } from 'lucide-react';
 import { Card, CardHeader, Badge } from '@/shared/ui';
@@ -9,7 +10,7 @@ interface ResumenReservaCardProps {
   reserva: ReservaAlquilerDetalleDto;
 }
 
-export function ResumenReservaCard({ reserva }: ResumenReservaCardProps) {
+export const ResumenReservaCard = memo(function ResumenReservaCard({ reserva }: ResumenReservaCardProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
 
@@ -62,4 +63,4 @@ export function ResumenReservaCard({ reserva }: ResumenReservaCardProps) {
       </div>
     </Card>
   );
-}
+});

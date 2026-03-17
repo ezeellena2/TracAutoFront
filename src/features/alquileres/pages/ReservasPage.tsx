@@ -13,12 +13,12 @@ import {
   KPICard,
   PaginationControls,
   AdvancedFilterBar,
-  ConfirmationModal,
   EstadoVacio,
   EstadoError,
   ActionMenu,
   Button,
 } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import type { FilterConfig } from '@/shared/ui/AdvancedFilter/types';
 import { usePermissions } from '@/hooks';
 import { useReservasPage } from '../hooks/useReservasPage';

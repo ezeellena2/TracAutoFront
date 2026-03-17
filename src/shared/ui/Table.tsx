@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 export interface ColumnFilterConfig {
   type: 'text' | 'select' | 'boolean' | 'date-range';
   field?: string;
-  options?: { label: string; value: any }[];
+  options?: { label: string; value: string }[];
   placeholder?: string;
 }
 
@@ -46,7 +46,7 @@ export function Table<T>({
   keyExtractor,
   onRowClick,
   isLoading = false,
-  emptyMessage = 'No hay datos para mostrar',
+  emptyMessage,
   containerClassName = '',
   mobileCardView = false,
   enableFilters = false,
@@ -88,7 +88,7 @@ export function Table<T>({
     // For now, stick to standard return.
     return (
       <div className="flex flex-col items-center justify-center py-12 text-text-muted gap-2">
-        <span>{emptyMessage}</span>
+        <span>{emptyMessage ?? t('common.noData')}</span>
         {enableFilters && Object.keys(filters).length > 0 && onClearFilters && (
           <button onClick={onClearFilters} className="text-primary hover:underline text-sm flex items-center gap-1">
             <X size={14} /> {t('filters.clear')}

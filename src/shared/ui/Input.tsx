@@ -77,16 +77,21 @@ function PhoneInput({
   const inputId = getInputId(label, id);
   const [phoneUI, setPhoneUI] = useState<string>(typeof props.value === "string" ? props.value : "");
   const countries = defaultCountries as Array<[string, string, string, ...unknown[]]>;
-  const prevValueRef = useRef(props.value);
   const [isEditing, setIsEditing] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
+  // Sync from parent ONLY when not editing (e.g. form reset, external programmatic change)
+  const prevValueRef = useRef(props.value);
   useEffect(() => {
-    if (typeof props.value === "string" && props.value !== prevValueRef.current) {
+    if (
+      !isEditing &&
+      typeof props.value === "string" &&
+      props.value !== prevValueRef.current
+    ) {
       setPhoneUI(props.value);
     }
     prevValueRef.current = props.value;
-  }, [props.value]);
+  }, [props.value, isEditing]);
 
 
   const countriesPermissive = useMemo(
@@ -105,12 +110,10 @@ function PhoneInput({
       countries: countriesPermissive,
       disableFormatting: true,
       onChange: (data: { phone: string }) => {
-        // Solo actualizamos si el valor realmente cambió para evitar bucles o prefijos automáticos
+        // Only update internal state — do NOT call parent onChange here.
+        // Parent gets notified exclusively via commitE164 on blur.
         if (data.phone !== phoneUI) {
           setPhoneUI(data.phone);
-          if (onChange) {
-            onChange({ target: { name: name || "", value: data.phone } });
-          }
         }
       },
       forceDialCode: true,
@@ -133,6 +136,8 @@ function PhoneInput({
 
     if (!ok) {
       setLocalError(msg || t("auth.invalidPhone"));
+      // Still notify parent with raw value so form isn't stale
+      onChange({ target: { name: name || "", value: inputValue } });
       return;
     }
 
@@ -215,6 +220,7 @@ function PhoneInput({
             ref={inputRef}
             id={inputId}
             name={name}
+            autoComplete="off"
             value={displayValue}
             onChange={(e) => {
               handlePhoneValueChange(e);

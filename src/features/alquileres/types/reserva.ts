@@ -53,7 +53,7 @@ export interface NoShowReservaRequest {
 }
 
 // =====================================================
-// Enums adicionales (D6 — Detalle)
+// Enums adicionales (D6 â€” Detalle)
 // =====================================================
 
 export enum TipoPago {
@@ -89,7 +89,7 @@ export enum TipoInspeccion {
 
 // Opciones de estado para inspecciones (check-out / check-in).
 // Las claves se usan en i18n y como value de los selects.
-// Los labels son strings fijos en español para persistir consistentemente en la DB.
+// Los labels son strings fijos en espaÃ±ol para persistir consistentemente en la DB.
 export const ESTADO_INSPECCION_KEYS = ['excelente', 'bueno', 'regular', 'malo', 'muyMalo'] as const;
 export type EstadoInspeccionKey = typeof ESTADO_INSPECCION_KEYS[number];
 
@@ -203,8 +203,30 @@ export interface FotoInspeccionDto {
   tipoInspeccion: number;
 }
 
+export interface HistorialAuditoriaCambioDto {
+  clave: string;
+  valorAnterior: string | null;
+  valorNuevo: string | null;
+}
+
+export interface HistorialAuditoriaDto {
+  id: string;
+  tipoEntidad: string;
+  entidadId: string;
+  fuente: string;
+  accion: string;
+  fechaEvento: string;
+  actor: string | null;
+  cambios: HistorialAuditoriaCambioDto[];
+  fechaCreacion: string;
+  creadoPor: string | null;
+  fechaActualizacion: string;
+  modificadoPor: string | null;
+  estado: string | null;
+}
+
 // =====================================================
-// Request types (D6 — mutations)
+// Request types (D6 â€” mutations)
 // =====================================================
 
 export interface CreateCheckOutRequest {
@@ -291,6 +313,24 @@ export interface CreateReservaAlquilerRequest {
   claveIdempotencia?: string;
 }
 
+/**
+ * Request para modificar una reserva de alquiler existente.
+ * Espeja UpdateReservaAlquilerCommand del backend.
+ * Solo permitido en estados Tentativa y Confirmada.
+ */
+export interface ModificarReservaAlquilerRequest {
+  vehiculoAlquilerId?: string;
+  categoriaAlquiler?: number;
+  sucursalRecogidaId: string;
+  sucursalDevolucionId: string;
+  fechaHoraRecogida: string;
+  fechaHoraDevolucion: string;
+  recargosSeleccionadosIds: string[];
+  coberturasSeleccionadasIds: string[];
+  codigoPromocion?: string;
+  notas?: string;
+}
+
 // =====================================================
 // Frontend-only (timeline computado)
 // =====================================================
@@ -301,3 +341,4 @@ export interface TimelineEntry {
   esActual: boolean;
   descripcion?: string;
 }
+

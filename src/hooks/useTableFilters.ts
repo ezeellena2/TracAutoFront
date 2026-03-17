@@ -18,7 +18,7 @@ export interface UseTableFiltersResult {
     toggleFilters: () => void;
     setFilter: (field: string, value: string, op?: FilterOperator) => void;
     clearFilters: () => void;
-    queryParams: Record<string, any>;
+    queryParams: Record<string, string>;
     activeFiltersCount: number;
 }
 
@@ -124,7 +124,7 @@ export function useTableFilters(initialFilters: FilterState = {}): UseTableFilte
 
     // Construct query params object for API
     const queryParams = useMemo(() => {
-        const params: any = {};
+        const params: Record<string, string> = {};
         Object.entries(filters).forEach(([k, v]) => {
             params[`filters[${k}]`] = v;
         });

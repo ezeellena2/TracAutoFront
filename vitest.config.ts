@@ -13,7 +13,7 @@ export default mergeConfig(
       coverage: {
         provider: 'v8',
         reporter: ['text', 'lcov'],
-        include: ['src/features/alquiler-publico/**', 'src/config/**'],
+        include: ['src/**'],
       },
     },
   })

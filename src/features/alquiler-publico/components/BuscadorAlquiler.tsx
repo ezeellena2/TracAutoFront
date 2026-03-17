@@ -35,7 +35,6 @@ export function BuscadorAlquiler({ sucursales, initialParams }: BuscadorAlquiler
   const [mismaSucursal, setMismaSucursal] = useState(true);
   const [fechaRecogida, setFechaRecogida] = useState('');
   const [fechaDevolucion, setFechaDevolucion] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const serializedInit = JSON.stringify(initialParams ?? null);
 
@@ -68,8 +67,8 @@ export function BuscadorAlquiler({ sucursales, initialParams }: BuscadorAlquiler
     if (mismaSucursal) setSucursalDevolucion(null);
   }, [mismaSucursal]);
 
-  // Validación reactiva de horarios
-  useEffect(() => {
+  // Validación reactiva de horarios — derivada con useMemo en vez de useEffect+setState
+  const errors = useMemo(() => {
     const newErrors: Record<string, string> = {};
 
     // Validar fecha recogida contra horario de sucursal recogida
@@ -92,7 +91,7 @@ export function BuscadorAlquiler({ sucursales, initialParams }: BuscadorAlquiler
       }
     }
 
-    setErrors(newErrors);
+    return newErrors;
   }, [fechaRecogida, fechaDevolucion, sucursalRecogida, sucursalDevolucion, mismaSucursal, t]);
 
   const horarioHelper = useMemo(

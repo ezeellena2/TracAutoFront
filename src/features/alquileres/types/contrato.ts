@@ -3,6 +3,14 @@
  * Alineados con los DTOs del backend (PlantillaContratoDto, ContratoAlquilerDto)
  */
 
+export enum EstadoFirmaDigital {
+  Enviado = 1,
+  Firmado = 2,
+  Rechazado = 3,
+  Expirado = 4,
+  Error = 5,
+}
+
 // DTO lista de plantillas (sin contenido HTML)
 export interface PlantillaContratoDto {
   id: string;
@@ -32,7 +40,19 @@ export interface ContratoAlquilerDto {
   metodoFirma: number | null;
   firmadoPorNombre: string | null;
   documentoPdfUrl: string | null;
+  estadoFirmaDigital: EstadoFirmaDigital | null;
+  fechaEnvioFirmaDigital: string | null;
   fechaCreacion: string;
+}
+
+export interface FirmaDigitalResult {
+  exitoso: boolean;
+  envelopeId: string | null;
+  mensajeError: string | null;
+  fechaEnvio: string | null;
+  estadoActual: EstadoFirmaDigital | null;
+  urlAccion: string | null;
+  idempotente: boolean;
 }
 
 // Requests

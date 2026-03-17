@@ -1,0 +1,1 @@
+export { PreferenciasNotificacionPanel } from './PreferenciasNotificacionPanel';
