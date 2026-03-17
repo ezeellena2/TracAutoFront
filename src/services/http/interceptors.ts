@@ -1,4 +1,4 @@
-﻿import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { buildApiUrl, env } from '@/config/env';
 import { ProblemDetails, RefreshTokenResponse } from '@/shared/types/api';
@@ -90,13 +90,13 @@ function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean 
 
   // Fallback: detectar por title (acotado, sin depender de texto largo)
   const title = data.title?.toLowerCase() || '';
-  if (title.includes('tenant') || title.includes('organizaciÃ³n')) {
+  if (title.includes('tenant') || title.includes('organización')) {
     return true;
   }
 
   // Fallback adicional: detectar por detail (solo si contiene palabras clave especÃ­ficas)
   const detail = data.detail?.toLowerCase() || '';
-  if (detail.includes('otra organizaciÃ³n') || detail.includes('cross-tenant')) {
+  if (detail.includes('otra organización') || detail.includes('cross-tenant')) {
     return true;
   }
 

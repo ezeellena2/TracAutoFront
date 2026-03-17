@@ -46,24 +46,24 @@ export const RegistrarEmpresaRequestSchema = z.object({
   razonSocial: z.string().optional(),
   cuit: z
     .string()
-    .min(11, "El CUIT debe tener 11 dÃƒÂ­gitos.")
-    .max(11, "El CUIT debe tener 11 dÃƒÂ­gitos."),
-  email: z.string().email("Email invÃƒÂ¡lido"),
+    .min(11, "El CUIT debe tener 11 dígitos.")
+    .max(11, "El CUIT debe tener 11 dígitos."),
+  email: z.string().email("Email inválido"),
   password: z
     .string()
-    .min(8, "La contraseÃƒÂ±a debe tener al menos 8 caracteres")
-    .regex(/[A-Z]/, "La contraseÃƒÂ±a debe contener al menos una mayÃƒÂºscula")
-    .regex(/[a-z]/, "La contraseÃƒÂ±a debe contener al menos una minÃƒÂºscula")
-    .regex(/[0-9]/, "La contraseÃƒÂ±a debe contener al menos un nÃƒÂºmero")
-    .regex(/[^a-zA-Z0-9]/, "La contraseÃƒÂ±a debe contener al menos un carÃƒÂ¡cter especial"),
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .regex(/[A-Z]/, "La contraseña debe contener al menos una mayúscula")
+    .regex(/[a-z]/, "La contraseña debe contener al menos una minúscula")
+    .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+    .regex(/[^a-zA-Z0-9]/, "La contraseña debe contener al menos un carácter especial"),
   nombreCompleto: z.string().min(2, "Nombre completo requerido"),
   telefono: z
     .string()
-    .regex(/^[\d\+\-\s\(\)]+$/, "Formato de telÃƒÂ©fono invÃƒÂ¡lido")
-    .max(20, "TelÃƒÂ©fono no puede exceder 20 caracteres."),
+    .regex(/^[\d\+\-\s\(\)]+$/, "Formato de teléfono inválido")
+    .max(20, "Teléfono no puede exceder 20 caracteres."),
   googleToken: z.string().optional(),
   aceptaTerminosYCondiciones: z.literal(true, {
-    errorMap: () => ({ message: "Debes aceptar los tÃƒÂ©rminos y condiciones." }),
+    errorMap: () => ({ message: "Debes aceptar los términos y condiciones." }),
   }),
 });
 export const RegistrarEmpresaFormSchema = RegistrarEmpresaRequestSchema;
@@ -76,11 +76,11 @@ export const VerificarCuentaRequestSchema = z.object({
   usuarioId: z.string().uuid(),
   codigoEmail: z
     .string()
-    .regex(/^\d{6}$/, "CÃƒÂ³digo de email debe tener 6 dÃƒÂ­gitos")
+    .regex(/^\d{6}$/, "Código de email debe tener 6 dígitos")
     .optional(),
   codigoTelefono: z
     .string()
-    .length(6, "CÃƒÂ³digo de telÃƒÂ©fono debe tener 6 dÃƒÂ­gitos")
+    .length(6, "Código de teléfono debe tener 6 dígitos")
     .optional(),
 });
 export type VerificarCuentaRequest = z.infer<
@@ -88,13 +88,13 @@ export type VerificarCuentaRequest = z.infer<
 >;
 
 export const ReenviarCodigoRequestSchema = z.object({
-  email: z.string().email("Email invÃƒÂ¡lido"),
+  email: z.string().email("Email inválido"),
   canal: z.nativeEnum(CanalEnvio),
 });
 export type ReenviarCodigoRequest = z.infer<typeof ReenviarCodigoRequestSchema>;
 
 export const LoginConGoogleRequestSchema = z.object({
-  idToken: z.string().min(100, "Token de Google invÃƒÂ¡lido"),
+  idToken: z.string().min(100, "Token de Google inválido"),
 });
 export type LoginConGoogleRequest = z.infer<typeof LoginConGoogleRequestSchema>;
 
