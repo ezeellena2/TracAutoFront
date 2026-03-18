@@ -15,20 +15,28 @@ export interface CurrencyInfo {
 
 // ==================== Auth DTOs ====================
 
-/** Canal de envío para códigos de verificación */
+/** Canal de envÃƒÂ­o para cÃƒÂ³digos de verificaciÃƒÂ³n */
 export enum CanalEnvio {
   Email = 1,
   SMS = 2,
   Ambos = 3,
 }
 
-/** Tipo de organización */
-export enum TipoOrganizacion {
-  FlotaPrivada = 1,
-  Aseguradora = 2,
-  TallerMecanico = 3,
-  ConcesionarioAutos = 4,
-  EmpresaRenting = 5,
+/** MÃƒÂ³dulos del sistema Ã¢â‚¬â€ valores alineados con backend ModuloSistema enum */
+export enum ModuloSistema {
+  Flota = 1,
+  Telematica = 2,
+  Marketplace = 3,
+  Alquiler = 4,
+  AlquilerPublico = 5,
+  Taller = 6,
+  Seguros = 7,
+  RideHailing = 8,
+  Delivery = 9,
+  FlotaLogistica = 10,
+  Reportes = 11,
+  Integraciones = 12,
+  Scoring = 13,
 }
 
 // --- Requests ---
@@ -50,6 +58,15 @@ export const PasswordSchema = z.string()
     }
   });
 
+/** Tipo de cuenta/organización — alineado con backend TipoCuenta enum */
+export enum TipoOrganizacion {
+  FlotaPrivada = 1,
+  Aseguradora = 2,
+  TallerMecanico = 3,
+  ConcesionarioAutos = 4,
+  EmpresaRenting = 5,
+}
+
 export const RegistrarEmpresaRequestSchema = z.object({
   nombreEmpresa: z.string().min(2, "auth.errors.companyNameRequired"),
   razonSocial: z.string().optional(),
@@ -57,7 +74,7 @@ export const RegistrarEmpresaRequestSchema = z.object({
     .string()
     .min(11, "auth.errors.cuitLength")
     .max(11, "auth.errors.cuitLength"),
-  tipoOrganizacion: z.nativeEnum(TipoOrganizacion),
+  tipoOrganizacion: z.nativeEnum(TipoOrganizacion).optional(),
   email: z.string().email("auth.errors.invalidEmail"),
   password: PasswordSchema,
   nombreCompleto: z.string().min(2, "auth.errors.fullNameRequired"),
@@ -126,16 +143,29 @@ export interface RegistroEmpresaResponse {
   emailVerificado: boolean;
 }
 
-export interface VerificacionCuentaResponse {
-  token: string;
+export interface AuthSessionSnapshotDto {
   usuarioId: string;
   organizacionId: string;
   nombreUsuario: string;
   email: string;
   nombreOrganizacion: string;
   rol: string;
-  tipoOrganizacion: number;
+  tipoOrganizacion?: number;
   theme?: OrganizacionThemeDto | null;
+  modulosActivos?: number[];
+}
+
+export interface LoginResponse extends AuthSessionSnapshotDto {
+  token: string;
+}
+
+export interface RefreshTokenResponse extends AuthSessionSnapshotDto {
+  accessToken: string;
+  expiresAt: string;
+}
+
+export interface VerificacionCuentaResponse extends AuthSessionSnapshotDto {
+  token: string;
   mensaje: string;
   emailVerificado?: boolean;
   telefonoVerificado?: boolean;
@@ -152,20 +182,22 @@ export interface ReenviarCodigoResponse {
 
 export interface GoogleAuthResponse {
   token: string | null;
+  usuarioId: string | null;
   organizacionId: string | null;
   email: string;
   nombre: string;
+  nombreUsuario?: string | null;
+  rol?: string | null;
   requiereRegistro: boolean;
   fotoUrl: string | null;
   nombreOrganizacion: string | null;
   theme: OrganizacionThemeDto | null;
-  tipoOrganizacion: number | null;
+  modulosActivos?: number[];
 }
-
 // ==================== Organizaciones DTOs ====================
 
 /**
- * DTO de theme/branding de organización.
+ * DTO de theme/branding de organizaciÃƒÂ³n.
  * Alineado con el backend: todos los campos son opcionales para overrides parciales.
  */
 export interface OrganizacionThemeDto {
@@ -287,15 +319,16 @@ export interface OrganizacionDto {
   nombre: string;
   razonSocial: string | null;
   cuit: string | null;
-  tipoOrganizacion: TipoOrganizacion;
   activa: boolean;
   fechaCreacion: string;
   /**
    * Override parcial del tema base (opcional)
-   * Solo se especifican los valores que la organización quiere personalizar
-   * Si no está presente, se usa el tema base según dark/light mode
+   * Solo se especifican los valores que la organizaciÃƒÂ³n quiere personalizar
+   * Si no estÃƒÂ¡ presente, se usa el tema base segÃƒÂºn dark/light mode
    */
   theme?: OrganizacionThemeDto | null;
+  /** MÃƒÂ³dulos activos de la organizaciÃƒÂ³n (valores de ModuloSistema) */
+  modulosActivos?: number[];
 }
 
 export interface ListaPaginada<T> {
@@ -304,7 +337,7 @@ export interface ListaPaginada<T> {
   tamanoPagina: number;
   totalPaginas: number;
   totalRegistros: number;
-  /** P1.1 FIX: Estadísticas opcionales calculadas en backend */
+  /** P1.1 FIX: EstadÃƒÂ­sticas opcionales calculadas en backend */
   estadisticas?: Record<string, number>;
 }
 
@@ -343,7 +376,7 @@ export interface SolicitudCambioDto {
   jiraIssueKey?: string | null;
   jiraIssueUrl?: string | null;
   readyForJira: boolean;
-  /** JSON de la especificación (vista previa del ticket) */
+  /** JSON de la especificaciÃƒÂ³n (vista previa del ticket) */
   specJson?: string | null;
   mensajes: MensajeChatDto[];
   fechaCreacion: string;
@@ -388,7 +421,7 @@ export interface ProblemDetails {
   [key: string]: unknown;
 }
 
-// ==================== Usuarios de Organización DTOs ====================
+// ==================== Usuarios de OrganizaciÃƒÂ³n DTOs ====================
 
 export interface UsuarioOrganizacionDto {
   usuarioId: string;
@@ -497,6 +530,16 @@ export interface VehiculoDto {
 // ==================== Dispositivos DTOs ====================
 
 /**
+ * Estados de stock de un dispositivo GPS
+ */
+export enum EstadoStockDispositivo {
+  EnStock = 0,
+  Instalado = 1,
+  EnReparacion = 2,
+  DadoDeBaja = 3,
+}
+
+/**
  * DTO de dispositivo para listado (GET /api/v1/dispositivos)
  * El backend ya aplica:
  * - Autenticación
@@ -516,6 +559,17 @@ export interface DispositivoDto {
   ultimaActualizacionUtc: string | null; // ISO 8601 UTC
   /** Número de teléfono en formato E.164 (ej. +5491112345678). */
   numeroTelefono?: string | null;
+
+  // Stock / QR fields
+  estadoStock: EstadoStockDispositivo;
+  codigoQr: string;
+  ubicacionFisica?: string | null;
+  notasInternas?: string | null;
+  modeloDispositivo?: string | null;
+  proveedor?: string | null;
+  fechaCompra?: string | null;
+  garantiaHasta?: string | null;
+
   esRecursoAsociado: boolean;
   /**
    * Informacion de comparticion del recurso.
@@ -526,10 +580,49 @@ export interface DispositivoDto {
   permisoAcceso?: NivelPermisoCompartido;
 }
 
+/**
+ * DTO público de un dispositivo (accesible sin autenticación a través de QR)
+ */
+export interface DispositivoQrPublicoDto {
+  codigoQr: string;
+  imei: string;
+  alias?: string | null;
+  numeroTelefono?: string | null;
+  modeloDispositivo?: string | null;
+  proveedor?: string | null;
+  estadoStock: EstadoStockDispositivo;
+  vehiculoAsignado?: string | null;
+  vehiculoPatente?: string | null;
+  organizacionNombre?: string | null;
+  urlMapa?: string | null;
+  urlHistorial?: string | null;
+}
+
+/**
+ * DTO de un registro del historial de stock
+ */
+export interface HistorialStockDispositivoDto {
+  id: string;
+  estadoAnterior: EstadoStockDispositivo;
+  estadoNuevo: EstadoStockDispositivo;
+  nota?: string | null;
+  fechaMovimiento: string;
+  usuarioId: string;
+  usuarioNombre?: string | null;
+}
+
+/**
+ * Request body para cambiar el estado de stock
+ */
+export interface CambiarEstadoStockRequest {
+  nuevoEstado: EstadoStockDispositivo;
+  nota?: string | null;
+}
+
 // ==================== Marketplace DTOs ====================
 
 /**
- * Estados posibles de una publicación en el marketplace
+ * Estados posibles de una publicaciÃƒÂ³n en el marketplace
  */
 export enum EstadoPublicacion {
   Borrador = 1,
@@ -539,10 +632,10 @@ export enum EstadoPublicacion {
 }
 
 /**
- * DTO de vehículo con información de marketplace
+ * DTO de vehÃƒÂ­culo con informaciÃƒÂ³n de marketplace
  */
 export interface VehiculoMarketplaceDto {
-  // Datos del vehículo
+  // Datos del vehÃƒÂ­culo
   vehiculoId: string;
   patente: string;
   marca: string | null;
@@ -550,7 +643,7 @@ export interface VehiculoMarketplaceDto {
   anio: number | null;
   activo: boolean;
 
-  // Datos de la publicación (null si no publicado)
+  // Datos de la publicaciÃƒÂ³n (null si no publicado)
   publicacionId: string | null;
   estadoPublicacion: EstadoPublicacion | null;
   precio: number | null;
@@ -561,14 +654,14 @@ export interface VehiculoMarketplaceDto {
   fechaPublicacion: string | null; // ISO 8601
 
   /**
-   * Indica si la publicación tiene un vehículo operativo asociado.
-   * Si es false, es una publicación independiente (solo para venta).
+   * Indica si la publicaciÃƒÂ³n tiene un vehÃƒÂ­culo operativo asociado.
+   * Si es false, es una publicaciÃƒÂ³n independiente (solo para venta).
    */
   tieneVehiculoAsociado: boolean;
 }
 
 /**
- * Request para publicar un vehículo en el marketplace
+ * Request para publicar un vehÃƒÂ­culo en el marketplace
  */
 export interface PublicarVehiculoRequest {
   precio: number | null;
@@ -578,7 +671,7 @@ export interface PublicarVehiculoRequest {
 }
 
 /**
- * Request para editar una publicación existente
+ * Request para editar una publicaciÃƒÂ³n existente
  */
 export interface EditarPublicacionRequest {
   precio: number | null;
@@ -589,7 +682,7 @@ export interface EditarPublicacionRequest {
 }
 
 /**
- * Request para crear un vehículo directamente en el marketplace
+ * Request para crear un vehÃƒÂ­culo directamente en el marketplace
  */
 export interface CreateVehiculoMarketplaceRequest {
   patente: string;
@@ -605,7 +698,7 @@ export interface CreateVehiculoMarketplaceRequest {
 }
 
 /**
- * Request para vincular un vehículo del marketplace a un vehículo/dispositivo/conductor
+ * Request para vincular un vehÃƒÂ­culo del marketplace a un vehÃƒÂ­culo/dispositivo/conductor
  */
 export interface VincularVehiculoMarketplaceRequest {
   vehiculoId?: string | null;
@@ -683,8 +776,8 @@ export interface GetRecursosCompartiblesParams {
 // ==================== Sharing Status DTOs (Individual Resource) ====================
 
 /**
- * Estado de compartición de un recurso con todas las relaciones disponibles.
- * Muestra qué relaciones tienen este recurso compartido, excluido o disponible.
+ * Estado de comparticiÃƒÂ³n de un recurso con todas las relaciones disponibles.
+ * Muestra quÃƒÂ© relaciones tienen este recurso compartido, excluido o disponible.
  */
 export interface RecursoSharingStatusDto {
   /** ID del recurso consultado */
@@ -693,47 +786,47 @@ export interface RecursoSharingStatusDto {
   resourceType: TipoRecurso;
   /** Nombre del recurso para mostrar en UI */
   resourceName: string;
-  /** Lista de relaciones con su estado de compartición para este recurso */
+  /** Lista de relaciones con su estado de comparticiÃƒÂ³n para este recurso */
   relaciones: RelacionSharingItemDto[];
 }
 
 /**
- * Estado de compartición de un recurso para una relación específica.
+ * Estado de comparticiÃƒÂ³n de un recurso para una relaciÃƒÂ³n especÃƒÂ­fica.
  */
 export interface RelacionSharingItemDto {
-  /** ID de la relación entre organizaciones */
+  /** ID de la relaciÃƒÂ³n entre organizaciones */
   relacionId: string;
-  /** ID de la organización destino (con la que se comparte) */
+  /** ID de la organizaciÃƒÂ³n destino (con la que se comparte) */
   organizacionDestinoId: string;
-  /** Nombre de la organización destino */
+  /** Nombre de la organizaciÃƒÂ³n destino */
   organizacionDestinoNombre: string;
-  /** Indica si el recurso está compartido con esta relación */
+  /** Indica si el recurso estÃƒÂ¡ compartido con esta relaciÃƒÂ³n */
   estaCompartido: boolean;
-  /** Indica si el recurso está excluido en esta relación */
+  /** Indica si el recurso estÃƒÂ¡ excluido en esta relaciÃƒÂ³n */
   estaExcluido: boolean;
-  /** Fecha en que se compartió el recurso (si está compartido) */
+  /** Fecha en que se compartiÃƒÂ³ el recurso (si estÃƒÂ¡ compartido) */
   fechaCompartido?: string | null;
-  /** Fecha en que se excluyó el recurso (si está excluido) */
+  /** Fecha en que se excluyÃƒÂ³ el recurso (si estÃƒÂ¡ excluido) */
   fechaExcluido?: string | null;
-  /** Motivo de la exclusión (si está excluido) */
+  /** Motivo de la exclusiÃƒÂ³n (si estÃƒÂ¡ excluido) */
   motivoExclusion?: string | null;
-  /** ID de la asignación activa (si está compartido) */
+  /** ID de la asignaciÃƒÂ³n activa (si estÃƒÂ¡ compartido) */
   asignacionId?: string | null;
-  /** ID de la exclusión activa (si está excluido) */
+  /** ID de la exclusiÃƒÂ³n activa (si estÃƒÂ¡ excluido) */
   exclusionId?: string | null;
-  /** Nivel de permiso de la asignación (si está compartido) */
+  /** Nivel de permiso de la asignaciÃƒÂ³n (si estÃƒÂ¡ compartido) */
   permiso?: NivelPermisoCompartido | null;
 }
 
 /**
- * Estado deseado para un recurso en una relación.
+ * Estado deseado para un recurso en una relaciÃƒÂ³n.
  */
 export enum EstadoComparticionDeseado {
-  /** El recurso no está ni compartido ni excluido (disponible) */
+  /** El recurso no estÃƒÂ¡ ni compartido ni excluido (disponible) */
   Disponible = 0,
-  /** El recurso está compartido (visible para la otra organización) */
+  /** El recurso estÃƒÂ¡ compartido (visible para la otra organizaciÃƒÂ³n) */
   Compartido = 1,
-  /** El recurso está excluido (no visible, deny) */
+  /** El recurso estÃƒÂ¡ excluido (no visible, deny) */
   Excluido = 2,
 }
 
@@ -748,22 +841,25 @@ export enum NivelPermisoCompartido {
 }
 
 /**
- * Cambio de estado de compartición para una relación específica.
+ * Cambio de estado de comparticiÃƒÂ³n para una relaciÃƒÂ³n especÃƒÂ­fica.
  */
 export interface CambioComparticionRelacion {
-  /** ID de la relación */
+  /** ID de la relaciÃƒÂ³n */
   relacionId: string;
-  /** Nuevo estado deseado para el recurso en esta relación */
+  /** Nuevo estado deseado para el recurso en esta relaciÃƒÂ³n */
   nuevoEstado: EstadoComparticionDeseado;
-  /** Motivo de la exclusión (solo aplica si nuevoEstado == Excluido) */
+  /** Motivo de la exclusiÃƒÂ³n (solo aplica si nuevoEstado == Excluido) */
   motivoExclusion?: string | null;
   /** Nivel de permiso (solo aplica si nuevoEstado == Compartido) */
   permiso?: NivelPermisoCompartido | null;
 }
 
 /**
- * Request para actualizar el estado de compartición de un recurso.
+ * Request para actualizar el estado de comparticiÃƒÂ³n de un recurso.
  */
 export interface ActualizarComparticionRequest {
   cambios: CambioComparticionRelacion[];
 }
+
+
+

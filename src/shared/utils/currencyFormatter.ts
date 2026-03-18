@@ -18,7 +18,7 @@ export const formatCurrency = (
             maximumFractionDigits: 0, // Generalmente para autos no usamos centavos
         }).format(value);
     } catch (error) {
-        console.error('Error formatting currency:', error);
+        if (import.meta.env.DEV) console.error('Error formatting currency:', error);
         return `${currency} ${value}`;
     }
 };

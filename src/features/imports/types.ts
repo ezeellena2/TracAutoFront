@@ -15,5 +15,5 @@ export interface ImportHistoryItem {
   totalFilas: number;
   filasExitosas: number;
   filasConErrores: number;
-  resultados?: any; // Full import results if stored
+  resultados?: Record<string, unknown>; // Full import results if stored
 }

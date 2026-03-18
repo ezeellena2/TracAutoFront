@@ -1,94 +1,125 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalization } from '@/hooks/useLocalization';
-import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { Card, Badge, Button } from '@/shared/ui';
+import { AlertTriangle, CheckCircle, Clock, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, Badge, Button, EstadoError, EstadoVacio } from '@/shared/ui';
 import { useAuthStore } from '@/store';
 import { formatDateTime } from '@/shared/utils';
+import { useEvents } from '../hooks/useEvents';
+import {
+  TipoReglaAlerta,
+  TipoNotificacion,
+  EstadoAlertaCerebro,
+} from '@/features/dashboard/types';
+import type { AlertaCerebroDto } from '@/features/dashboard/types';
 
-// TODO: Replace with real events API when available
-interface EventItem {
-  id: string;
-  tipo: string;
-  severidad: string;
-  estado: 'open' | 'in_progress' | 'resolved';
-  descripcion: string;
-  patente: string;
-  ubicacion: string;
-  fecha: string;
-}
-
-const initialEvents: EventItem[] = [
-  { id: '1', tipo: 'exceso_velocidad', severidad: 'warning', estado: 'open', descripcion: 'Velocidad máxima superada: 120 km/h', patente: 'ABC-123', ubicacion: 'Av. Corrientes 1234', fecha: new Date().toISOString() },
-  { id: '2', tipo: 'dtc_critico', severidad: 'error', estado: 'in_progress', descripcion: 'Código DTC P0300 detectado', patente: 'XYZ-789', ubicacion: 'Ruta 9 Km 45', fecha: new Date().toISOString() },
-  { id: '3', tipo: 'geofence', severidad: 'info', estado: 'open', descripcion: 'Vehículo salió de zona autorizada', patente: 'DEF-456', ubicacion: 'Zona Norte', fecha: new Date().toISOString() },
-  { id: '4', tipo: 'choque', severidad: 'error', estado: 'resolved', descripcion: 'Impacto moderado detectado', patente: 'GHI-321', ubicacion: 'Av. Santa Fe 2500', fecha: new Date().toISOString() },
-];
+type FilterState = 'all' | EstadoAlertaCerebro;
 
 export function EventsPage() {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
-  const [events, setEvents] = useState<EventItem[]>(initialEvents);
-  const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'resolved'>('all');
+  const [filter, setFilter] = useState<FilterState>('all');
   const { user } = useAuthStore();
 
   const canResolve = user?.rol === 'Admin' || user?.rol === 'Operador';
 
-  const filteredEvents = events.filter(e => 
-    filter === 'all' || e.estado === filter
-  );
+  const estadoParam = filter === 'all' ? undefined : filter;
+  const {
+    alertas,
+    totalRegistros,
+    totalPaginas,
+    paginaActual,
+    isLoading,
+    error,
+    refetch,
+    resolveAlerta,
+    isResolving,
+    setPage,
+  } = useEvents({ estado: estadoParam });
 
-  const handleResolve = (eventId: string) => {
-    if (!canResolve) return;
-    setEvents(prev => 
-      prev.map(e => e.id === eventId ? { ...e, estado: 'resolved' } : e)
-    );
-  };
+  if (error && alertas.length === 0) {
+    return <EstadoError mensaje={t('events.errorLoading')} onReintentar={refetch} />;
+  }
 
-  const getSeverityBadge = (severidad: string) => {
+  const getSeverityBadge = (severidad: TipoNotificacion) => {
     switch (severidad) {
-      case 'error': return <Badge variant="error">{t('events.severity.critical')}</Badge>;
-      case 'warning': return <Badge variant="warning">{t('events.severity.warning')}</Badge>;
-      case 'info': return <Badge variant="info">{t('events.severity.info')}</Badge>;
-      default: return <Badge>{severidad}</Badge>;
+      case TipoNotificacion.Error:
+      case TipoNotificacion.SystemAlert:
+        return <Badge variant="error">{t('events.severity.critical')}</Badge>;
+      case TipoNotificacion.Warning:
+        return <Badge variant="warning">{t('events.severity.warning')}</Badge>;
+      default:
+        return <Badge variant="info">{t('events.severity.info')}</Badge>;
     }
   };
 
-  const getStatusBadge = (estado: string) => {
+  const getStatusBadge = (estado: EstadoAlertaCerebro) => {
     switch (estado) {
-      case 'open': return <Badge variant="error">{t('events.status.open')}</Badge>;
-      case 'in_progress': return <Badge variant="warning">{t('events.status.inProgress')}</Badge>;
-      case 'resolved': return <Badge variant="success">{t('events.status.resolved')}</Badge>;
-      default: return <Badge>{estado}</Badge>;
+      case EstadoAlertaCerebro.Activa:
+        return <Badge variant="error">{t('events.status.open')}</Badge>;
+      case EstadoAlertaCerebro.Reconocida:
+        return <Badge variant="warning">{t('events.status.inProgress')}</Badge>;
+      case EstadoAlertaCerebro.Resuelta:
+        return <Badge variant="success">{t('events.status.resolved')}</Badge>;
+      case EstadoAlertaCerebro.Descartada:
+        return <Badge variant="info">{t('events.status.dismissed')}</Badge>;
+      default:
+        return null;
     }
   };
 
-  const getTipoIcon = (tipo: string) => {
-    const iconClass = "w-10 h-10 rounded-xl flex items-center justify-center";
+  const getTipoIcon = (tipo: TipoReglaAlerta) => {
+    const iconClass = 'w-10 h-10 rounded-xl flex items-center justify-center';
     switch (tipo) {
-      case 'exceso_velocidad':
+      case TipoReglaAlerta.VelocidadMaxima:
         return <div className={`${iconClass} bg-warning/10`}><AlertTriangle className="text-warning" size={20} /></div>;
-      case 'choque':
-      case 'robo':
-      case 'dtc_critico':
+      case TipoReglaAlerta.BateriaBaja:
+      case TipoReglaAlerta.RpmFueraDeRango:
+      case TipoReglaAlerta.TemperaturaMotorAlta:
         return <div className={`${iconClass} bg-error/10`}><AlertTriangle className="text-error" size={20} /></div>;
-      case 'geofence':
+      case TipoReglaAlerta.EntradaGeocerca:
+      case TipoReglaAlerta.SalidaGeocerca:
         return <div className={`${iconClass} bg-primary/10`}><AlertTriangle className="text-primary" size={20} /></div>;
+      case TipoReglaAlerta.Desconexion:
+        return <div className={`${iconClass} bg-text-muted/10`}><AlertTriangle className="text-text-muted" size={20} /></div>;
       default:
         return <div className={`${iconClass} bg-surface`}><AlertTriangle className="text-text-muted" size={20} /></div>;
     }
   };
 
-  const formatTipo = (tipo: string) => {
-    const tipos: Record<string, string> = {
-      'exceso_velocidad': t('events.types.speedExceeded'),
-      'geofence': t('events.types.geofence'),
-      'dtc_critico': t('events.types.dtcCritical'),
-      'choque': t('events.types.crash'),
-      'robo': t('events.types.theft'),
+  const formatTipo = (tipo: TipoReglaAlerta): string => {
+    const tipos: Record<number, string> = {
+      [TipoReglaAlerta.VelocidadMaxima]: t('events.types.speedExceeded'),
+      [TipoReglaAlerta.DetencionExcesiva]: t('events.types.excessiveStop'),
+      [TipoReglaAlerta.EntradaGeocerca]: t('events.types.geofenceEntry'),
+      [TipoReglaAlerta.SalidaGeocerca]: t('events.types.geofenceExit'),
+      [TipoReglaAlerta.Desconexion]: t('events.types.disconnection'),
+      [TipoReglaAlerta.RpmFueraDeRango]: t('events.types.rpmOutOfRange'),
+      [TipoReglaAlerta.TemperaturaMotorAlta]: t('events.types.highEngineTemp'),
+      [TipoReglaAlerta.BateriaBaja]: t('events.types.lowBattery'),
     };
-    return tipos[tipo] || tipo;
+    return tipos[tipo] || String(tipo);
   };
+
+  const renderSkeleton = () => (
+    <div className="space-y-4">
+      {[1, 2, 3, 4].map((i) => (
+        <Card key={i} className="animate-pulse">
+          <div className="flex gap-4">
+            <div className="w-10 h-10 bg-border rounded-xl" />
+            <div className="flex-1">
+              <div className="h-5 bg-border rounded w-48 mb-2" />
+              <div className="h-4 bg-border rounded w-64 mb-3" />
+              <div className="flex gap-2">
+                <div className="h-5 bg-border rounded w-16" />
+                <div className="h-5 bg-border rounded w-24" />
+              </div>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -98,102 +129,142 @@ export function EventsPage() {
           <h1 className="text-2xl font-bold text-text">{t('events.title')}</h1>
           <p className="text-text-muted mt-1">{t('events.subtitle')}</p>
         </div>
+        <button
+          onClick={refetch}
+          className="p-2 rounded-lg hover:bg-surface transition-colors text-text-muted hover:text-text"
+          title={t('common.refresh')}
+        >
+          <RefreshCw size={18} />
+        </button>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <Button 
+      <div className="flex items-center gap-4 flex-wrap">
+        <Button
           variant={filter === 'all' ? 'primary' : 'ghost'}
           size="sm"
-          onClick={() => setFilter('all')}
+          onClick={() => { setFilter('all'); setPage(1); }}
         >
-          {t('events.filters.all')} ({events.length})
+          {t('events.filters.all')} ({totalRegistros})
         </Button>
-        <Button 
-          variant={filter === 'open' ? 'primary' : 'ghost'}
+        <Button
+          variant={filter === EstadoAlertaCerebro.Activa ? 'primary' : 'ghost'}
           size="sm"
-          onClick={() => setFilter('open')}
+          onClick={() => { setFilter(EstadoAlertaCerebro.Activa); setPage(1); }}
         >
-          {t('events.filters.open')} ({events.filter(e => e.estado === 'open').length})
+          {t('events.filters.open')}
         </Button>
-        <Button 
-          variant={filter === 'in_progress' ? 'primary' : 'ghost'}
+        <Button
+          variant={filter === EstadoAlertaCerebro.Reconocida ? 'primary' : 'ghost'}
           size="sm"
-          onClick={() => setFilter('in_progress')}
+          onClick={() => { setFilter(EstadoAlertaCerebro.Reconocida); setPage(1); }}
         >
-          {t('events.filters.inProgress')} ({events.filter(e => e.estado === 'in_progress').length})
+          {t('events.filters.inProgress')}
         </Button>
-        <Button 
-          variant={filter === 'resolved' ? 'primary' : 'ghost'}
+        <Button
+          variant={filter === EstadoAlertaCerebro.Resuelta ? 'primary' : 'ghost'}
           size="sm"
-          onClick={() => setFilter('resolved')}
+          onClick={() => { setFilter(EstadoAlertaCerebro.Resuelta); setPage(1); }}
         >
-          {t('events.filters.resolved')} ({events.filter(e => e.estado === 'resolved').length})
+          {t('events.filters.resolved')}
         </Button>
       </div>
 
       {/* Timeline */}
-      <div className="space-y-4">
-        {filteredEvents.map((event, index) => (
-          <Card key={event.id} className="relative">
-            {/* Timeline line */}
-            {index < filteredEvents.length - 1 && (
-              <div className="absolute left-[29px] top-[72px] w-0.5 h-[calc(100%+16px)] bg-border" />
-            )}
-            
-            <div className="flex gap-4">
-              {/* Icon */}
-              {getTipoIcon(event.tipo)}
-              
-              {/* Content */}
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-text">{formatTipo(event.tipo)}</h3>
-                      {getSeverityBadge(event.severidad)}
-                      {getStatusBadge(event.estado)}
-                    </div>
-                    <p className="text-sm text-text-muted">{event.descripcion}</p>
-                  </div>
-                  
-                  {/* Actions */}
-                  {event.estado !== 'resolved' && (
+      {isLoading ? (
+        renderSkeleton()
+      ) : alertas.length === 0 ? (
+        <EstadoVacio
+          titulo={t('events.noEvents')}
+          descripcion={t('events.noEventsDesc')}
+        />
+      ) : (
+        <div className="space-y-4">
+          {alertas.map((alerta: AlertaCerebroDto, index: number) => (
+            <Card key={alerta.id} className="relative">
+              {index < alertas.length - 1 && (
+                <div className="absolute left-[29px] top-[72px] w-0.5 h-[calc(100%+16px)] bg-border" />
+              )}
+
+              <div className="flex gap-4">
+                {getTipoIcon(alerta.tipo)}
+
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
                     <div>
-                      {canResolve ? (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleResolve(event.id)}
-                        >
-                          <CheckCircle size={16} className="mr-1" />
-                          {t('events.actions.resolve')}
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-text-muted italic">
-                          {t('events.actions.onlyAdminCanResolve')}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-text">{formatTipo(alerta.tipo)}</h3>
+                        {getSeverityBadge(alerta.severidad)}
+                        {getStatusBadge(alerta.estado)}
+                      </div>
+                      <p className="text-sm font-medium text-text">{alerta.titulo}</p>
+                      <p className="text-sm text-text-muted">{alerta.mensaje}</p>
                     </div>
-                  )}
-                </div>
-                
-                {/* Meta */}
-                <div className="flex items-center gap-4 mt-3 text-xs text-text-muted">
-                  <span className="flex items-center gap-1">
-                    <Badge variant="info" size="sm">{event.patente}</Badge>
-                  </span>
-                  <span>{event.ubicacion}</span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} />
-                    {formatDateTime(new Date(event.fecha), culture, timeZoneId)}
-                  </span>
+
+                    {alerta.estado === EstadoAlertaCerebro.Activa && (
+                      <div>
+                        {canResolve ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => resolveAlerta(alerta.id)}
+                            disabled={isResolving}
+                          >
+                            <CheckCircle size={16} className="mr-1" />
+                            {t('events.actions.resolve')}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-text-muted italic">
+                            {t('events.actions.onlyAdminCanResolve')}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-3 text-xs text-text-muted">
+                    {alerta.patente && (
+                      <Badge variant="info" size="sm">{alerta.patente}</Badge>
+                    )}
+                    {alerta.nombreGeofence && (
+                      <span>{alerta.nombreGeofence}</span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Clock size={12} />
+                      {formatDateTime(alerta.timestampEvento, culture, timeZoneId)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPaginas > 1 && (
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPage(paginaActual - 1)}
+            disabled={paginaActual <= 1}
+          >
+            <ChevronLeft size={16} />
+          </Button>
+          <span className="text-sm text-text-muted">
+            {t('common.pageOf', { current: paginaActual, total: totalPaginas })}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPage(paginaActual + 1)}
+            disabled={paginaActual >= totalPaginas}
+          >
+            <ChevronRight size={16} />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

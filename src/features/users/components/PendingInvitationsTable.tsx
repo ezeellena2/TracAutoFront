@@ -35,7 +35,7 @@ export function PendingInvitationsTable() {
       const result = await invitacionesApi.getInvitacionesPendientes(paginationParams);
       setInvitacionesData(result);
     } catch (err) {
-      console.error('Error loading invitations:', err);
+      if (import.meta.env.DEV) console.error('Error loading invitations:', err);
       const parsed = handleApiError(err, { showToast: false });
       setLoadError(parsed.message);
     } finally {

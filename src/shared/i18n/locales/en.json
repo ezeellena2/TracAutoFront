@@ -1,4 +1,4 @@
-{
+﻿{
   "routes": {
     "accessDenied": "Access Denied",
     "accessDeniedDescription": "You do not have permission to access this section.",
@@ -41,6 +41,8 @@
     "apply": "Apply",
     "and": "and",
     "actions": "Actions",
+    "pageOf": "Page {{current}} of {{total}}",
+    "refresh": "Refresh",
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
@@ -61,6 +63,8 @@
     "total": "Total",
     "creating": "Creating...",
     "saving": "Saving...",
+    "goBack": "Go Back",
+    "goHome": "Go Home",
     "assign": "Assign",
     "vehicle": "Vehicle",
     "driver": "Driver",
@@ -88,12 +92,33 @@
     "seleccionarTodos": "Select all",
     "limpiar": "Clear",
     "close": "Close",
+    "openMenu": "Open menu",
     "zonesSelected": "zones selected",
     "zonesAvailable": "zones available",
     "ofZonesSelected": "of {{total}} zones selected",
     "zonesSelectedCount": "{{count}} of {{total}} zones selected",
+    "noPermission": "You do not have permission for this action",
     "error": {
       "noOrganization": "Could not determine current organization"
+    },
+    "estadoError": {
+      "titulo": "Error",
+      "mensajeDefault": "An error occurred while loading data",
+      "reintentar": "Retry"
+    },
+    "notifications": {
+      "errorMarcarLeida": "Could not mark as read",
+      "errorMarcarTodas": "Could not mark all as read",
+      "errorArchivar": "Could not archive"
+    },
+    "currencies": {
+      "errorCarga": "Error loading currency configuration"
+    },
+    "imports": {
+      "errorEstado": "Error checking import status"
+    },
+    "replay": {
+      "seleccioneDispositivo": "Please select a device"
     }
   },
   "permissions": {
@@ -119,7 +144,13 @@
     "logout": "Logout",
     "language": "Language",
     "modoSolicitud": "Request mode",
-    "modoSolicitudPlaceholder": "Request chat (coming soon)"
+    "modoSolicitudPlaceholder": "Request chat (coming soon)",
+    "dolarBlue": "Dollar Blue",
+    "riesgoPais": "Country risk",
+    "actualizado": "Updated",
+    "indicesNoDisponibles": "â€”",
+    "hoyFeriado": "ðŸŽ‰ Today: {{nombre}}",
+    "proximoFeriado": "ðŸ“… Next: {{fecha}} â€” {{nombre}}"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -149,7 +180,226 @@
     "alquileresClientes": "Clients",
     "alquileresContratos": "Contracts",
     "alquileresReportes": "Reports",
-    "alquileresConfiguracion": "Settings"
+    "alquileresConfiguracion": "Settings",
+    "trackingLinks": "Tracking Links",
+    "scoring": "Scoring",
+    "preferenciasNotificacion": "Notifications",
+    "resumenIA": "AI Digest",
+    "billing": "Subscription",
+    "alertRules": "Alert Rules",
+    "obdDiagnostics": "OBD Diagnostics",
+    "admin": "Admin Panel"
+  },
+  "admin": {
+    "title": "Administration Panel",
+    "subtitle": "Global system management - SuperAdmin only",
+    "totalOrganizations": "Total organizations",
+    "activeOrganizations": "Active organizations",
+    "currentPage": "Current page",
+    "organizationsTitle": "Organizations",
+    "organizationsSubtitle": "List of all organizations in the system",
+    "searchPlaceholder": "Search by name...",
+    "emptyTitle": "No organizations",
+    "emptyDescription": "No organizations found with the applied filters.",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "columns": {
+      "name": "Name",
+      "cuit": "Tax ID",
+      "status": "Status",
+      "modules": "Modules",
+      "created": "Created"
+    },
+    "showing": "Showing {{from}}-{{to}} of {{total}}",
+    "tabs": {
+      "overview": "Overview",
+      "organizations": "Organizations",
+      "transfers": "Transfers",
+      "subscriptions": "Subscriptions",
+      "modules": "Modules",
+      "troubleshooting": "Troubleshooting",
+      "analytics": "Analytics"
+    },
+    "modules": {
+      "total": "modules",
+      "free": "free",
+      "visibleCount": "visible",
+      "setAllFree": "Set all free",
+      "setAllPaid": "Set all paid",
+      "empty": "No modules defined",
+      "base": "Base",
+      "updateSuccess": "Module updated",
+      "updateError": "Error updating module",
+      "column": {
+        "module": "Module",
+        "free": "Free",
+        "visible": "Visible",
+        "active": "Active",
+        "requires": "Requires"
+      }
+    },
+    "sections": {
+      "organizations": "Organizations",
+      "subscriptions": "Subscriptions",
+      "revenue": "Revenue",
+      "gateways": "Payment Gateways",
+      "byType": "Subscriptions by Type"
+    },
+    "stats": {
+      "newThisMonth": "New this month",
+      "users": "Users"
+    },
+    "alerts": {
+      "pendingTransfers": "pending transfer verifications",
+      "trialsExpiring": "trials expiring in the next 7 days"
+    },
+    "transfers": {
+      "subtitle": "{{count}} pending transfer verifications",
+      "emptyTitle": "No pending transfers",
+      "emptyDescription": "There are no bank transfers pending verification.",
+      "amount": "Monthly amount",
+      "modules": "Modules",
+      "requestDate": "Request date",
+      "receipt": "Receipt",
+      "viewReceipt": "View receipt",
+      "approve": "Approve",
+      "reject": "Reject",
+      "confirmReject": "Confirm rejection",
+      "rejectReason": "Rejection reason",
+      "rejectReasonPlaceholder": "E.g.: Invalid receipt, incorrect amount...",
+      "approveSuccess": "Transfer approved. Subscription activated.",
+      "rejectSuccess": "Transfer rejected."
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "subtitle": "Manage subscriptions for all organizations",
+      "createDemo": "Create Demo/Courtesy",
+      "extendTrial": "Extend Trial",
+      "forceStatus": "Force Status",
+      "demoForm": {
+        "title": "Create Demo/Courtesy Subscription",
+        "orgId": "Organization ID",
+        "type": "Subscription Type",
+        "typeDemo": "Demo (time-limited)",
+        "typeCortesia": "Courtesy (indefinite)",
+        "typeInternal": "Internal",
+        "reason": "Exemption reason",
+        "reasonPlaceholder": "E.g.: Strategic partner, proof of concept...",
+        "duration": "Duration (days)",
+        "durationPlaceholder": "E.g.: 30",
+        "modules": "Modules to activate",
+        "allModules": "All modules",
+        "currency": "Reference currency",
+        "submit": "Create Subscription",
+        "success": "Demo subscription created successfully"
+      },
+      "extendForm": {
+        "title": "Extend Trial Period",
+        "days": "Days to add",
+        "reason": "Extension reason",
+        "reasonPlaceholder": "E.g.: Client needs more evaluation time...",
+        "submit": "Extend Trial",
+        "success": "Trial extended successfully"
+      },
+      "forceForm": {
+        "title": "Force Subscription Status",
+        "newStatus": "New status",
+        "reason": "Change reason",
+        "reasonPlaceholder": "E.g.: Unblock due to gateway technical issue...",
+        "submit": "Force Status",
+        "success": "Status forced successfully",
+        "warning": "This action is irreversible and will be recorded in the audit log"
+      },
+      "columns": {
+        "organization": "Organization",
+        "status": "Status",
+        "type": "Type",
+        "gateway": "Gateway",
+        "amount": "Monthly Amount",
+        "trialEnd": "Trial End",
+        "created": "Created"
+      },
+      "status": {
+        "Trial": "Trial",
+        "Activa": "Active",
+        "PausadaPorFaltaDePago": "Paused",
+        "Cancelada": "Canceled",
+        "Expirada": "Expired",
+        "PendienteVerificacionPago": "Pending Verification"
+      },
+      "type": {
+        "Normal": "Normal",
+        "Demo": "Demo",
+        "Cortesia": "Courtesy",
+        "Internal": "Internal"
+      },
+      "gateway": {
+        "Ninguno": "No Gateway",
+        "Stripe": "Stripe",
+        "MercadoPago": "MercadoPago",
+        "Transferencia": "Bank Transfer"
+      }
+    },
+    "troubleshooting": {
+      "failedPayments": {
+        "title": "Failed Payments",
+        "subtitle": "Payments that failed in the last 30 days",
+        "empty": "No recent failed payments"
+      },
+      "expiringTrials": {
+        "title": "Expiring Trials",
+        "subtitle": "Trials expiring in the next 7 days",
+        "empty": "No trials expiring soon"
+      },
+      "history": {
+        "title": "Subscription History",
+        "subtitle": "Search event history for an organization",
+        "placeholder": "Organization ID (UUID)",
+        "search": "Search",
+        "empty": "No history",
+        "emptyDescription": "No subscription history found for this organization."
+      },
+      "columns": {
+        "organization": "Organization",
+        "gateway": "Gateway",
+        "amount": "Amount",
+        "description": "Description",
+        "date": "Date",
+        "modules": "Modules",
+        "users": "Users",
+        "expiresOn": "Expires",
+        "daysLeft": "Days left"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Time series from the last 12 months",
+      "export": "Export CSV",
+      "exportSuccess": "Report exported successfully",
+      "mrr": {
+        "title": "MRR (Monthly Recurring Revenue)",
+        "subtitle": "MRR evolution over the last 12 months"
+      },
+      "newOrgs": {
+        "title": "New Organizations",
+        "subtitle": "Organizations created per month",
+        "label": "New orgs"
+      },
+      "byStatus": {
+        "title": "Subscriptions by Status",
+        "subtitle": "Current subscription distribution"
+      },
+      "byGateway": {
+        "title": "Revenue by Gateway",
+        "subtitle": "Revenue distribution by payment method",
+        "label": "Revenue"
+      },
+      "churn": {
+        "title": "Monthly Churn Rate",
+        "subtitle": "Cancellation percentage over active subscriptions at month start",
+        "label": "Churn"
+      }
+    }
   },
   "solicitudesCambio": {
     "title": "Change Requests",
@@ -217,7 +467,7 @@
       "processing": "Processing...",
       "limitReached": "Message limit reached. Review the assistant's response.",
       "limitReachedShort": "Message limit reached",
-      "readyToSend": "Ticket ready — you can review and edit it before sending",
+      "readyToSend": "Ticket ready â€” you can review and edit it before sending",
       "viewAndConfirm": "View ticket and confirm",
       "inputPlaceholder": "Describe the change you need...",
       "readyForJira": "Ready for Jira",
@@ -260,7 +510,22 @@
     "impact": "Impact",
     "connectionRate": "Connection Rate",
     "devicesOnlineSubtitle": "Online devices",
-    "openAssistances": "Open Assistances"
+    "openAssistances": "Open Assistances",
+    "errorLoading": "Failed to load dashboard data",
+    "noActivityDesc": "No events recorded in the selected period",
+    "vehiclesWithTelemetry": "With active telemetry",
+    "totalDistance": "Total distance",
+    "avgSpeed": "Average speed",
+    "obd2Readings": "OBD2 readings",
+    "totalAlerts": "Alerts generated",
+    "validPositions": "Valid positions",
+    "invalidPositions": "Discarded positions",
+    "severityHigh": "High",
+    "severityMedium": "Medium",
+    "welcome": "Welcome, {{name}}",
+    "welcomeSubtitle": "Quickly access the main sections of your organization.",
+    "moduleTelematicaTitle": "Telematics Module",
+    "moduleTelematicaDesc": "Enable the Telematics module to view fleet KPIs, real-time alerts, and driving analytics."
   },
   "vehicles": {
     "title": "Vehicles",
@@ -466,7 +731,52 @@
     "devicesOnline": "Online Devices",
     "devicesOffline": "Offline Devices",
     "associatedOrganization": "ASSOCIATED ORGANIZATION",
-    "sharedResource": "Shared resource"
+    "sharedResource": "Shared resource",
+    "stock": {
+      "statusLabel": "Stock Status",
+      "status": {
+        "enStock": "In Stock",
+        "instalado": "Installed",
+        "enReparacion": "Under Repair",
+        "dadoDeBaja": "Decommissioned"
+      },
+      "changeTitle": "Change Stock Status",
+      "currentStatus": "Current status",
+      "newStatus": "New status",
+      "noteLabel": "Note (optional)",
+      "notePlaceholder": "Reason for the status change...",
+      "confirmChange": "Confirm Change",
+      "changeSuccess": "Stock status updated successfully",
+      "sameStatusError": "You must select a different status",
+      "historyTitle": "Stock History",
+      "historyEmpty": "No stock movements recorded",
+      "changeStock": "Change stock",
+      "viewHistory": "View history"
+    },
+    "qr": {
+      "title": "Device QR Code",
+      "deviceName": "Device",
+      "code": "QR Code",
+      "previewHint": "Download the QR as PNG or PDF to print it",
+      "downloadPng": "Download PNG",
+      "downloadPdf": "Label PDF",
+      "downloadSuccess": "QR image downloaded",
+      "downloadPdfSuccess": "QR label PDF downloaded",
+      "copySuccess": "URL copied to clipboard",
+      "copyError": "Could not copy URL",
+      "viewQr": "View QR"
+    },
+    "public": {
+      "notFoundTitle": "Device not found",
+      "notFound": "The QR code does not match any registered device.",
+      "phone": "Phone",
+      "model": "Model",
+      "provider": "Provider",
+      "vehicle": "Assigned vehicle",
+      "viewMap": "View on Map",
+      "viewHistory": "History",
+      "poweredBy": "Powered by TracAuto GPS"
+    }
   },
   "events": {
     "title": "Events",
@@ -485,10 +795,21 @@
     "status": {
       "open": "Open",
       "inProgress": "In Progress",
-      "resolved": "Resolved"
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
     },
+    "errorLoading": "Failed to load events",
+    "noEvents": "No events",
+    "noEventsDesc": "No alerts found for the selected filters",
     "types": {
       "speedExceeded": "Speed Exceeded",
+      "excessiveStop": "Excessive Stop",
+      "geofenceEntry": "Geofence Entry",
+      "geofenceExit": "Geofence Exit",
+      "disconnection": "Disconnection",
+      "rpmOutOfRange": "RPM Out of Range",
+      "highEngineTemp": "High Engine Temperature",
+      "lowBattery": "Low Battery",
       "geofence": "Geofence Violation",
       "dtcCritical": "Critical DTC",
       "crash": "Collision/Impact",
@@ -512,6 +833,10 @@
     "created": "CREATED",
     "actions": "ACTIONS",
     "inviteUser": "Invite User",
+    "importInvitations": "Import invitations",
+    "exportInvitations": "Export invitations",
+    "importInvitationsTitle": "Import invitations from Excel",
+    "downloadInvitationsTemplate": "Invitation template",
     "changeRole": "Change Role",
     "resendInvitation": "Resend Invitation",
     "cancelInvitation": "Cancel Invitation",
@@ -565,7 +890,8 @@
     "success": {
       "invitationSent": "Invitation sent to {{email}}",
       "resendInvitation": "Invitation resent successfully",
-      "cancelInvitation": "Invitation cancelled"
+      "cancelInvitation": "Invitation cancelled",
+      "exportInvitations": "Invitations exported successfully"
     },
     "errors": {
       "sendInvitation": "Failed to send invitation",
@@ -586,6 +912,12 @@
     "totalSold": "Sold",
     "licensePlate": "LICENSE PLATE",
     "vehicle": "VEHICLE",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "paused": "Paused",
+      "sold": "Sold"
+    },
     "statusHeader": "STATUS",
     "price": "PRICE",
     "mileage": "MILEAGE",
@@ -604,12 +936,6 @@
       "consultPrice": "Consult",
       "notPublished": "Not published",
       "km": "km"
-    },
-    "status": {
-      "draft": "Draft",
-      "published": "Published",
-      "paused": "Paused",
-      "sold": "Sold"
     },
     "stats": {
       "published": "Published",
@@ -649,7 +975,13 @@
       "reasonPlaceholder": "Reason for linking (optional)",
       "linkExistingVehicle": "Link existing vehicle",
       "createNewVehicle": "Create new vehicle (unlinked)",
-      "linkExistingVehicleHelp": "Optional: Select an existing operational vehicle to link to this publication. If you don't select any, an independent publication will be created."
+      "linkExistingVehicleHelp": "Optional: Select an existing operational vehicle to link to this publication. If you don't select any, an independent publication will be created.",
+      "patenteRequerida": "License plate is required",
+      "anioInvalido": "Invalid year",
+      "precioInvalido": "Price must be greater than or equal to 0",
+      "kilometrajeInvalido": "Mileage must be greater than or equal to 0",
+      "descripcionMuyLarga": "Description cannot exceed 4000 characters",
+      "selectVehicleOrDevice": "You must select a vehicle or device"
     },
     "actions": {
       "publish": "Publish",
@@ -825,7 +1157,13 @@
     "fileSizeError": "File cannot exceed {{max}}",
     "uploading": "Uploading...",
     "uploadError": "Error uploading file",
-    "processing": "Processing import...",
+    "processing": {
+      "title": "Processing import",
+      "message": "The file is being processed in the background.",
+      "subtitle": "This may take a few seconds. Do not close this window.",
+      "subtitleWithType": "Processing {{tipo}}... This may take a few seconds.",
+      "failed": "Import failed"
+    },
     "import": "Import",
     "results": {
       "title": "Import Results",
@@ -905,6 +1243,27 @@
       "sincronizadas": "Synced",
       "conError": "With Errors",
       "pendientes": "Pending"
+    },
+    "editor": {
+      "instructions": {
+        "polygonClick": "Click on the map to add points to the polygon",
+        "closeShape": "Click on the first point to close the shape",
+        "editVertices": "Use Edit to adjust individual vertices",
+        "moveShape": "Use Move to drag the entire shape",
+        "circleClickDrag": "Click and drag to define center and radius",
+        "editRadius": "Use Edit to adjust the radius",
+        "moveCircle": "Use Move to drag the circle",
+        "polylineClick": "Click to add points. Double-click to finish.",
+        "editPoints": "Use Edit to adjust points",
+        "moveLine": "Use Move to drag the line"
+      },
+      "legend": {
+        "title": "Toolbar",
+        "draw": "Polygon / Circle / Line â†’ Draw",
+        "edit": "Edit â†’ Move vertices / change radius",
+        "move": "Move â†’ Drag the entire shape",
+        "delete": "Delete â†’ Click on the shape to remove it"
+      }
     }
   },
   "replay": {
@@ -1146,7 +1505,7 @@
     }
   },
   "organization": {
-    "title": "Company · Appearance / Branding",
+    "title": "Company Â· Appearance / Branding",
     "subtitle": "Configure company brand colors. Immediate preview (not saved).",
     "branding": "Branding",
     "logo": "Logo (URL)",
@@ -1157,10 +1516,10 @@
     "primaryDark": "Primary Dark",
     "secondary": "Secondary",
     "save": "Save",
-    "saving": "Saving…",
+    "saving": "Savingâ€¦",
     "discard": "Discard",
     "refresh": "Refresh",
-    "refreshing": "Refreshing…",
+    "refreshing": "Refreshingâ€¦",
     "refreshFromServer": "Refresh branding from server",
     "presets": "Presets (branding)",
     "presetsDescription": "They are immediate preview. They don't save automatically: you can adjust manually and then save.",
@@ -1185,15 +1544,15 @@
     "note1": "Light/dark mode is a user preference (not saved per company).",
     "note2": "Company branding defines brand colors (primary/roles). The rest depends on the base light/dark theme.",
     "note3": "Presets only fill inputs; they don't save automatically.",
-    "loading": "Loading organization…",
+    "loading": "Loading organizationâ€¦",
     "loadError": "Failed to load organization",
     "retry": "Retry",
-    "retrying": "Retrying…",
+    "retrying": "Retryingâ€¦",
     "back": "Back",
     "unsavedChangesWarning": "You have unsaved changes. Updating from the server will lose them.\n\nDo you want to continue?",
     "invalidColorFormat": "Invalid format. Use hex: #RRGGBB",
     "success": {
-      "updated": "✓ Branding updated and applied successfully.",
+      "updated": "âœ“ Branding updated and applied successfully.",
       "refreshed": "Branding updated from server.",
       "discarded": "Changes discarded (preview reverted).",
       "presetApplied": "Preset applied (preview): {{name}}. Not saved."
@@ -1351,7 +1710,9 @@
       "excludedOn": "Excluded on",
       "resourceWithoutName": "Resource without name",
       "unknown": "Unknown",
-      "withoutName": "Without name"
+      "withoutName": "Without name",
+      "selectedCount": "{{count}} resources selected",
+      "motivoPlaceholder": "Reason for exclusion (optional)..."
     }
   },
   "notifications": {
@@ -1575,7 +1936,27 @@
       "SinPermisoGestion": "You do not have management permission for this shared vehicle",
       "ErrorEliminacion": "Error deleting vehicle. {{param0}}",
       "ErrorActualizacion": "Error updating vehicle. {{param0}}",
-      "ErrorCreacion": "Error creating vehicle. {{param0}}"
+      "ErrorCreacion": "Error creating vehicle. {{param0}}",
+      "ExtensionTaxiSinDatos": "Taxi extension data is required.",
+      "ExtensionAseguradoraSinDatos": "Insurance extension data is required.",
+      "ExtensionOtrosSinDatos": "Other extension data is required.",
+      "ExtensionAlquilerSinDatos": "Rental extension data is required.",
+      "TipoContextoRequerido": "Vehicle context type is required.",
+      "ExtensionMarketplaceNoPermitida": "Marketplace extension is not allowed for this context.",
+      "ExtensionAlquilerNoPermitida": "Rental extension is not allowed for this context.",
+      "ExtensionTaxiNoPermitida": "Taxi extension is not allowed for this context.",
+      "ExtensionAseguradoraNoPermitida": "Insurance extension is not allowed for this context.",
+      "ExtensionMarketplaceNoEncontrada": "Vehicle marketplace extension was not found.",
+      "ExtensionTaxiNoEncontrada": "Vehicle taxi extension was not found.",
+      "ExtensionAseguradoraNoEncontrada": "Vehicle insurance extension was not found.",
+      "ExtensionOtrosNoEncontrada": "Vehicle other extension was not found.",
+      "ExtensionMarketplaceYaExiste": "Vehicle already has an active marketplace extension.",
+      "ExtensionTaxiYaExiste": "Vehicle already has an active taxi extension.",
+      "ExtensionAseguradoraYaExiste": "Vehicle already has an active insurance extension.",
+      "ExtensionOtrosYaExiste": "Vehicle already has an active other extension.",
+      "ExtensionTaxiDuplicada": "Vehicle taxi extension cannot be duplicated.",
+      "ExtensionAseguradoraDuplicada": "Vehicle insurance extension cannot be duplicated.",
+      "ExtensionOtrosDuplicada": "Vehicle other extension cannot be duplicated."
     },
     "Conductor": {
       "NoEncontrado": "Driver not found",
@@ -1594,7 +1975,8 @@
       "NoSePuedeEditarInactivo": "Cannot edit an inactive driver. Reactivate first.",
       "ConductorYaActivo": "Driver is already active",
       "SinPermisoGestion": "You do not have management permission for this shared driver",
-      "BatchLimiteExcedido": "The number of requested vehicles ({{param0}}) exceeds the maximum limit ({{param1}}) per batch request"
+      "BatchLimiteExcedido": "The number of requested vehicles ({{param0}}) exceeds the maximum limit ({{param1}}) per batch request",
+      "ErrorEliminacion": "Error deleting driver. {{param0}}"
     },
     "Seguridad": {
       "IntentoAccesoTenantCruzado": "Unauthorized access: you cannot access data from another organization.",
@@ -1647,7 +2029,10 @@
       "PublicacionYaVinculada": "The publication is already linked to an operational vehicle",
       "VehiculoYaTienePublicacion": "The vehicle already has an active publication",
       "PublicacionSinPatente": "The publication must have a license plate to create a vehicle",
-      "VinculacionIncompleta": "You must provide VehiculoId or DispositivoId to link the publication"
+      "VinculacionIncompleta": "You must provide VehiculoId or DispositivoId to link the publication",
+      "ErrorCreacion": "Error creating marketplace vehicle. {{param0}}",
+      "ErrorPublicacion": "Error publishing marketplace vehicle. {{param0}}",
+      "ErrorVinculacion": "Error linking marketplace publication. {{param0}}"
     },
     "MarketplacePublico": {
       "PublicacionNoEncontrada": "The publication was not found or is not available",
@@ -1659,7 +2044,9 @@
       "UsuarioRequerido": "Recipient user is required for UserDirect audience",
       "RolRequerido": "Recipient role is required for RoleScoped audience",
       "SinDestinatarios": "No recipients found for the notification",
-      "SegmentoNoSoportado": "SegmentScoped audience is not yet implemented."
+      "SegmentoNoSoportado": "SegmentScoped audience is not yet implemented.",
+      "NoEncontrada": "Notification not found.",
+      "AccesoDenegado": "You do not have access to this notification."
     },
     "Geofence": {
       "NoEncontrada": "Geofence not found.",
@@ -1671,12 +2058,28 @@
       "AsignacionNoEncontrada": "The geofence-vehicle assignment was not found.",
       "VehiculoSinDispositivo": "The vehicle does not have an active device assigned."
     },
+    "Scoring": {
+      "ConfiguracionNoEncontrada": "Scoring configuration not found for this organization",
+      "PesosInvalidos": "Weights must sum 100 (current: {{param0}})",
+      "ConductorNoEncontrado": "Driver not found",
+      "SinDatosSuficientes": "Not enough GPS data to calculate the score for this period",
+      "FechaFutura": "Cannot calculate scoring for a future date"
+    },
+    "LinkTracking": {
+      "NoEncontrado": "Tracking link not found.",
+      "Expirado": "The tracking link has expired.",
+      "Revocado": "The tracking link was revoked.",
+      "MaxAccesosSuperado": "Maximum access limit reached for this link.",
+      "VehiculoSinDispositivo": "The vehicle does not have an active device assigned.",
+      "DuracionInvalida": "Duration must be between {{param0}} and {{param1}} minutes.",
+      "LimiteLinksAlcanzado": "Maximum active links limit reached for this organization."
+    },
     "Alquiler": {
       "VehiculoNoEncontrado": "Rental vehicle not found",
       "VehiculoNoDisponible": "The vehicle is not available for rental on the requested dates",
       "ReservaNoEncontrada": "Rental reservation not found",
       "FechasInvalidas": "The start date must be before the end date of the rental",
-      "TransicionEstadoReservaInvalida": "Invalid reservation state transition: {{param0}} → {{param1}}",
+      "TransicionEstadoReservaInvalida": "Invalid reservation state transition: {{param0}} â†’ {{param1}}",
       "ReservaExpirada": "The reservation has expired and can no longer be confirmed",
       "ConflictoConcurrenciaReserva": "The reservation was modified by another user. Please reload and try again",
       "ContratoNoEncontrado": "Rental contract not found",
@@ -1753,7 +2156,7 @@
     },
     "ReservaAlquiler": {
       "NoEncontrada": "Rental reservation not found",
-      "TransicionInvalida": "Invalid state transition: {{param0}} → {{param1}}",
+      "TransicionInvalida": "Invalid state transition: {{param0}} â†’ {{param1}}",
       "VehiculoNoDisponible": "The vehicle is not available for the requested dates",
       "FechaRecogidaPasada": "The pickup date cannot be earlier than the current date",
       "DuracionMinima": "The reservation duration does not meet the required minimum",
@@ -1766,7 +2169,9 @@
       "PromocionNoAplicable": "The promotion is not applicable to this reservation",
       "SinDisponibilidadCategoria": "No vehicles available in the selected category for the requested dates",
       "NoEsDelCliente": "You do not have permission to access this reservation",
-      "NoShowAntesDeRecogida": "Cannot mark as no-show before the pick-up date"
+      "NoShowAntesDeRecogida": "Cannot mark as no-show before the pick-up date",
+      "ExcesoRecargos": "The reservation cannot include more than {{param0}} surcharges.",
+      "ExcesoCoberturas": "The reservation cannot include more than {{param0}} coverages."
     },
     "CheckOut": {
       "ReservaNoConfirmada": "The reservation must be in Confirmed state to perform the check-out",
@@ -1775,7 +2180,8 @@
       "VehiculoNoEncontrado": "The vehicle assigned to the reservation was not found",
       "SucursalNoEncontrada": "The branch indicated for the check-out was not found",
       "TipoInspeccionInvalido": "The specified inspection type is not valid",
-      "FormatoArchivoNoPermitido": "Only image files are allowed (JPEG, PNG, WebP)"
+      "FormatoArchivoNoPermitido": "Only image files are allowed (JPEG, PNG, WebP)",
+      "NoRealizado": "No completed check-out was found for this reservation."
     },
     "CheckIn": {
       "SinCheckOut": "Cannot perform check-in without a prior check-out",
@@ -1783,7 +2189,8 @@
       "KilometrajeMenorAlInicial": "Final mileage cannot be less than the initial mileage from the check-out",
       "ReservaNoEnCurso": "The reservation must be in InProgress status to perform check-in",
       "ConfiguracionRequerida": "Rental configuration not found. Configure surcharge prices before performing check-in",
-      "ConfiguracionPreciosInvalida": "Surcharge prices in the configuration must be greater than zero"
+      "ConfiguracionPreciosInvalida": "Surcharge prices in the configuration must be greater than zero",
+      "NoRealizado": "No completed check-in was found for this reservation."
     },
     "PlantillaContrato": {
       "NoEncontrada": "Contract template not found",
@@ -1796,7 +2203,10 @@
       "YaFirmado": "The contract has already been signed and cannot be modified",
       "YaExiste": "A contract already exists for this reservation",
       "ConflictoConcurrencia": "The contract was modified by another user. Reload the data and try again",
-      "ReservaNoConfirmada": "The reservation must be confirmed or in progress to generate a contract"
+      "ReservaNoConfirmada": "The reservation must be confirmed or in progress to generate a contract",
+      "FirmaDigitalNoConfigurada": "Digital signature is not configured for this environment",
+      "FirmaDigitalProveedorNoDisponible": "The digital signature provider could not complete the operation",
+      "FirmaDigitalWebhookInvalido": "The digital signature webhook signature is invalid"
     },
     "PagoAlquiler": {
       "NoEncontrado": "Rental payment not found",
@@ -1829,6 +2239,111 @@
     },
     "Reporte": {
       "TipoNoSoportado": "Report type not supported for export"
+    },
+    "Modulo": {
+      "DefinicionNoEncontrada": "Module definition not found",
+      "OrganizacionModuloNoEncontrado": "The module is not activated for this organization",
+      "YaActivo": "The module is already active for this organization",
+      "NoActivo": "The module is not active for this organization",
+      "EsBase": "Cannot deactivate a base system module",
+      "NoDisponible": "The module is not available for activation",
+      "NoVisible": "The module is not visible in the catalog",
+      "RequierePrerequisitos": "The module requires the following modules to be active: {{param0}}",
+      "LimiteModulosAlcanzado": "Active modules limit reached ({{param0}}/{{param1}})",
+      "ModuloDependienteActivo": "Cannot deactivate. Dependent active modules: {{param0}}",
+      "AccesoDenegado": "The organization does not have any of the required modules active: {{param0}}",
+      "LimiteDePlanExcedido": "Plan limit reached for \"{{param0}}\" ({{param2}}/{{param1}})",
+      "NoSePuedeDesactivarConDatosActivos": "Cannot deactivate the module while active data exists: {{param0}}"
+    },
+    "Suscripcion": {
+      "NoEncontrada": "Subscription not found",
+      "YaExiste": "The organization already has an active subscription",
+      "PlanNoEncontrado": "Module plan not found",
+      "PlanInactivo": "The selected plan is not available for subscription",
+      "ModuloYaSuscrito": "The module is already included in the current subscription",
+      "ModuloNoSuscrito": "The module is not included in the current subscription",
+      "EstadoNoPermiteModificacion": "The subscription cannot be modified in its current state",
+      "TrialExpirado": "The trial period has expired. You must activate a paid plan to continue",
+      "ConflictoConcurrencia": "The subscription was modified by another user. Reload the data and try again",
+      "LimiteRecursoAlcanzado": "{{param0}} limit reached ({{param1}}/{{param2}}) for the current plan",
+      "DowngradeNoPermitido": "Cannot downgrade: current usage of \"{{param0}}\" ({{param2}}) exceeds the new plan limit ({{param1}})",
+      "NoSePuedeCancelar": "The subscription cannot be canceled in its current state",
+      "NoSePuedeReactivar": "Only a canceled subscription that has not yet expired can be reactivated"
+    },
+    "Copiloto": {
+      "ConversacionNotFound": "Conversation not found",
+      "MensajeVacio": "Message cannot be empty",
+      "LimiteTokensDiarios": "Daily AI query limit reached ({{param0}}/{{param1}})",
+      "ErrorServicioIA": "Error processing query. Please try again",
+      "LimiteMensajesPorConversacion": "Conversation has reached the message limit"
+    },
+    "WhatsApp": {
+      "TelefonoRequerido": "A phone number is required to enable WhatsApp",
+      "TelefonoInvalido": "The phone number is not valid. Must be in E.164 format",
+      "TelefonoNoVerificado": "The phone must be verified before enabling WhatsApp",
+      "CodigoInvalido": "The verification code is invalid or has expired",
+      "ErrorEnvioMensaje": "Could not send the WhatsApp message. Please try again later",
+      "LimiteEnviosDiarios": "Daily WhatsApp sending limit reached ({{param0}} maximum)",
+      "PreferenciasNoEncontradas": "Notification preferences not found",
+      "ServicioNoDisponible": "The WhatsApp service is not available"
+    },
+    "ResumenIA": {
+      "ErrorGeneracion": "Could not generate AI summary. Please try again later",
+      "DatosInsuficientes": "Not enough data to generate a summary for the requested period",
+      "RateLimitExceeded": "AI summary generation limit reached ({{param0}} per hour). Please try again later"
+    },
+    "Taller": {
+      "TallerNoEncontrado": "Workshop not found",
+      "TurnoNoEncontrado": "Appointment not found",
+      "PresupuestoNoEncontrado": "Budget not found",
+      "TurnoNoPuedeCancelar": "The appointment cannot be canceled in its current state",
+      "PresupuestoNoPendiente": "The budget is not pending a response",
+      "YaCalificado": "This workshop has already been rated for this appointment",
+      "TurnoNoCompletado": "Only completed appointments can be rated",
+      "HorarioNoDisponible": "The selected time slot is not available"
+    },
+    "Cerebro": {
+      "ReglaNoEncontrada": "Alert rule not found",
+      "AlertaNoEncontrada": "Alert not found",
+      "ReglaConfiguracionInvalida": "The rule JSON configuration is invalid for the selected type",
+      "TipoReglaNoSoportado": "The alert rule type is not supported",
+      "AlertaYaResuelta": "The alert has already been resolved",
+      "AlertaYaLeida": "The alert has already been marked as read",
+      "AccesoDenegado": "You do not have permission to access this resource",
+      "IdNoCoincide": "The URL ID does not match the request body ID",
+      "MaxAlertasExcedido": "Cannot mark more than 100 alerts at once"
+    },
+    "ReglasAlerta": {
+      "NombreRequerido": "The rule name is required",
+      "ConfiguracionRequerida": "The rule JSON configuration is required",
+      "CooldownMinimo": "The cooldown must be at least 60 seconds",
+      "NombreDuplicado": "An alert rule with that name already exists"
+    },
+    "Delivery": {
+      "EntregaNoEncontrada": "Delivery not found",
+      "TransicionInvalida": "Cannot transition from current state to requested state",
+      "EntregaEnCurso": "You already have an active delivery in progress",
+      "NoPuedeCancelar": "The delivery cannot be canceled in its current state",
+      "NoPuedeCalificar": "Only completed deliveries can be rated",
+      "YaCalificado": "This delivery has already been rated",
+      "RepartidorNoDisponible": "The delivery driver is not available to accept deliveries",
+      "NoRepartidoresDisponibles": "No delivery drivers available in the area",
+      "EntregaExpirada": "The delivery has expired due to no driver",
+      "NoEsRepartidorAsignado": "Not the assigned delivery driver for this delivery",
+      "ConfiguracionNoEncontrada": "Delivery configuration not found for this organization",
+      "CodigoConfirmacionInvalido": "The confirmation code does not match"
+    },
+    "Admin": {
+      "OrganizacionNoEncontrada": "Organization not found",
+      "SuscripcionNoEncontrada": "Subscription not found for the specified organization",
+      "OrganizacionYaTieneSuscripcionActiva": "The organization already has an active or trial subscription",
+      "EstadoNoPermitido": "The specified status is not valid for this operation",
+      "TrialNoExtensible": "Only subscriptions in Trial status can have their trial extended",
+      "DiasExtensionInvalidos": "Extension days must be between {{param0}} and {{param1}}",
+      "GatewayNoSoportado": "The specified payment gateway is not available",
+      "TransicionEstadoInvalida": "The requested status transition is not valid",
+      "ModuloYaAsignado": "The module is already assigned in the subscription",
+      "SuscripcionRequierePago": "Cannot assign demo module to a subscription that requires payment"
     }
   },
   "catalogoMarketplace": {
@@ -1857,7 +2372,18 @@
     "mensajeWhatsApp": "Hi, I'm interested in the vehicle {{title}}. {{url}}",
     "contactoNoDisponible": "Contact information not available",
     "consultarPrecio": "Contact for price",
-    "derechosReservados": "All rights reserved."
+    "derechosReservados": "All rights reserved.",
+    "favoritos": {
+      "titulo": "My Favorites",
+      "subtitulo": "Vehicles you saved as favorites",
+      "vacio": "No favorites",
+      "vacioDesc": "You haven't saved any vehicles as favorites yet",
+      "errorCarga": "Error loading your favorites",
+      "agregar": "Add to favorites",
+      "quitar": "Remove from favorites",
+      "agregado": "Added to favorites",
+      "quitado": "Removed from favorites"
+    }
   },
   "alquileres": {
     "proximamente": "Coming soon",
@@ -1989,7 +2515,7 @@
         "exito": "Status updated successfully"
       },
       "disponibilidad": {
-        "titulo": "Availability — {{patente}}",
+        "titulo": "Availability â€” {{patente}}",
         "libre": "Available",
         "ocupado": "Occupied",
         "hoy": "Today"
@@ -2575,6 +3101,104 @@
         "cancelada": "Cancelled",
         "noShow": "No Show"
       },
+      "auditoria": {
+        "titulo": "Operational audit",
+        "subtitulo": "Real traceability for reservation, contract, payments and checklists",
+        "sinEventos": "No audit events yet",
+        "sinEventosDescripcion": "There are no auditable movements recorded for this reservation yet.",
+        "estado": "Status",
+        "creado": "Created",
+        "creadoPor": "Created by {{usuario}}",
+        "evento": "Event",
+        "fuente": "Source",
+        "ultimaActualizacion": "Last update",
+        "actualizadoPor": "Updated by {{usuario}}",
+        "sinCambiosPosteriores": "No later changes",
+        "sinCambiosSemanticos": "There are no additional semantic changes for this milestone.",
+        "usuarioSistema": "System",
+        "sinDato": "No data",
+        "cambiosTitulo": "Recorded changes",
+        "tipoEntidad": {
+          "reservaAlquiler": "Reservation",
+          "contratoAlquiler": "Contract",
+          "checkOutAlquiler": "Check-out",
+          "checkInAlquiler": "Check-in",
+          "pagoAlquiler": "Payment"
+        },
+        "acciones": {
+          "reservaCreada": "Reservation created",
+          "reservaConfirmada": "Reservation confirmed",
+          "reservaCancelada": "Reservation cancelled",
+          "reservaNoShow": "Reservation marked as No Show",
+          "pagoCompletado": "Payment credited",
+          "contratoGenerado": "Contract generated",
+          "contratoEnviadoFirmaDigital": "Contract sent for digital signature",
+          "contratoFirmado": "Contract signed",
+          "checkOutRealizado": "Check-out completed",
+          "checkInRealizado": "Check-in completed"
+        },
+        "fuentes": {
+          "eventoDominio": "Domain event",
+          "auditoriaEntidad": "Entity audit"
+        },
+        "cambios": {
+          "estado": "Status",
+          "numeroReserva": "Reservation number",
+          "fechaHoraRecogida": "Scheduled pickup",
+          "fechaHoraDevolucion": "Scheduled return",
+          "fechaHoraReal": "Actual date",
+          "sucursalRecogida": "Pickup branch",
+          "sucursalDevolucion": "Return branch",
+          "montoTotal": "Total amount",
+          "montoPago": "Payment amount",
+          "vehiculo": "Vehicle",
+          "motivoCancelacion": "Cancellation reason",
+          "infoReembolso": "Refund details",
+          "metodoPago": "Payment method",
+          "referenciaExterna": "External reference",
+          "kilometrajeInicial": "Initial mileage",
+          "kilometrajeFinal": "Final mileage",
+          "nivelCombustible": "Fuel level",
+          "deltaKilometros": "Distance travelled",
+          "deltaCombustible": "Fuel difference",
+          "danosDetectados": "Damage detected",
+          "descripcionDanos": "Damage description",
+          "recargoCombustible": "Fuel surcharge",
+          "recargoKmExcedente": "Mileage surcharge",
+          "recargoTardanza": "Late return surcharge",
+          "recargoDanos": "Damage surcharge",
+          "totalRecargosCheckIn": "Total return surcharges",
+          "numeroContrato": "Contract number",
+          "plantillaVersion": "Template version",
+          "estadoFirmaDigital": "Digital signature status",
+          "firmaCliente": "Customer signature",
+          "metodoFirma": "Signature method",
+          "firmadoPorNombre": "Signed by"
+        },
+        "valores": {
+          "tentativa": "Tentative",
+          "confirmada": "Confirmed",
+          "enCurso": "In progress",
+          "completada": "Completed",
+          "cancelada": "Cancelled",
+          "noShow": "No Show",
+          "realizado": "Completed",
+          "conDanos": "With damage",
+          "sinDanos": "Without damage",
+          "firmado": "Signed",
+          "pendienteFirma": "Pending signature",
+          "enviado": "Sent",
+          "rechazado": "Rejected",
+          "expirado": "Expired",
+          "error": "Error",
+          "tarjeta": "Card",
+          "efectivo": "Cash",
+          "transferencia": "Bank transfer",
+          "mercadoPago": "MercadoPago",
+          "digital": "Digital",
+          "enPersona": "In person"
+        }
+      },
       "cliente": {
         "titulo": "Client",
         "verFicha": "View client profile"
@@ -2640,7 +3264,17 @@
         "generando": "Generating...",
         "firmado": "Signed",
         "sinFirma": "Not signed",
-        "fechaFirma": "Signature date"
+        "fechaFirma": "Signature date",
+        "firmaDigitalEnProceso": "Digital signature in progress",
+        "firmaDigitalRechazada": "Digital signature rejected",
+        "firmaDigitalExpirada": "Digital signature expired",
+        "firmaDigitalConError": "Digital signature error",
+        "fechaEnvioFirmaDigital": "Sent for signature on",
+        "enviarFirmaDigital": "Send for digital signature",
+        "enviandoFirmaDigital": "Sending for signature...",
+        "reenviarFirmaDigital": "Resend for digital signature",
+        "firmaDigitalEnviada": "Contract successfully sent for digital signature",
+        "firmaDigitalYaEnviada": "The contract has already been sent and is still in progress"
       },
       "checkOut": {
         "titulo": "Check-Out (Delivery)",
@@ -2686,7 +3320,7 @@
         "cerrar": "Close",
         "arrastrar": "Drag and drop photos here",
         "oSeleccionar": "or click to select",
-        "formatos": "JPG, PNG or WebP — max {{max}} photos",
+        "formatos": "JPG, PNG or WebP â€” max {{max}} photos",
         "comprimiendo": "Compressing images...",
         "contador": "{{actual}}/{{max}} photos",
         "errorTipo": "Format not allowed. Use JPG, PNG or WebP",
@@ -2839,7 +3473,7 @@
         "sinReservas": "This client has no reservations",
         "mostrando": "Showing the latest {{mostradas}} of {{total}} reservations",
         "verReserva": "View reservation",
-        "sinDato": "—"
+        "sinDato": "â€”"
       }
     },
     "contratos": {
@@ -3012,7 +3646,11 @@
         "general": "General",
         "generalDesc": "General module parameters",
         "precios": "Additional Pricing",
-        "preciosDesc": "Fuel and extra hours pricing"
+        "preciosDesc": "Fuel and extra hours pricing",
+        "recordatorios": "Reminders",
+        "recordatoriosDesc": "Operational settings for automated pickup, return, and document reminders",
+        "stockOcioso": "Idle Stock Alert",
+        "stockOciosoDesc": "Notifications when vehicles have no reservations in the configured period"
       },
       "campos": {
         "requiereSenal": "Require deposit on booking",
@@ -3025,7 +3663,20 @@
         "horasExpiracion": "Tentative expiration hours",
         "emailNotificacion": "Notification email",
         "precioCombustible": "Price per liter of fuel",
-        "precioHoraExtra": "Price per extra hour"
+        "precioHoraExtra": "Price per extra hour",
+        "recordatorioRecogida": "Pickup reminder",
+        "recordatorioDevolucion": "Return reminder",
+        "recordatorioDocumentos": "Document reminders",
+        "recordatorioLicenciasClientes": "Client licenses",
+        "recordatorioVtvVehiculos": "Vehicle technical inspections",
+        "recordatorioSeguroVehiculos": "Vehicle insurance",
+        "recordatorioPolizaVehiculos": "Vehicle policies",
+        "horasRecogida": "Pickup lead time (hours)",
+        "horasDevolucion": "Return lead time (hours)",
+        "diasDocumentos": "Document reminder days",
+        "alertarStockOcioso": "Enable idle stock alert",
+        "diasAnticipacionStockOcioso": "Look-ahead days",
+        "umbralMinimoVehiculosOciosos": "Minimum vehicle threshold"
       },
       "helpers": {
         "porcentajeSenal": "Percentage of total charged as deposit (0-100)",
@@ -3036,7 +3687,19 @@
         "horasExpiracion": "Hours before a tentative reservation expires",
         "emailNotificacion": "Email where reservation notifications are sent",
         "precioCombustible": "Price per liter to calculate missing fuel charge",
-        "precioHoraExtra": "Price per extra hour for late return"
+        "precioHoraExtra": "Price per extra hour for late return",
+        "recordatorioRecogida": "Send an email before the scheduled pickup time of a reservation.",
+        "recordatorioDevolucion": "Send an email before the scheduled return time of an active rental.",
+        "recordatorioDocumentos": "Send license-expiration reminders with multiple configurable lead times.",
+        "horasRecogida": "Integer value between 1 and 720 hours. The processing window runs hourly.",
+        "horasDevolucion": "Integer value between 1 and 720 hours. The processing window runs hourly.",
+        "diasDocumentos": "Separate days with commas. Example: 30, 15, 7",
+        "recordatorioLicenciasClientes": "Send reminders to clients when their driving license is close to expiring.",
+        "recordatorioVtvVehiculos": "Send internal reminders for vehicle inspection expirations linked to the organization.",
+        "recordatorioSeguroVehiculos": "Send internal reminders for vehicle insurance expirations linked to the organization.",
+        "recordatorioPolizaVehiculos": "Send internal reminders for vehicle policy expirations linked to the organization.",
+        "diasAnticipacionStockOcioso": "Number of days ahead to check for vehicles without reservations (1-90)",
+        "umbralMinimoVehiculosOciosos": "Minimum number of idle vehicles to trigger the alert (1-100)"
       },
       "politicas": {
         "flexible": "Flexible",
@@ -3053,7 +3716,9 @@
         "emailInvalido": "Invalid email format",
         "emailMax320": "Email cannot exceed 320 characters",
         "stripeMax255": "Stripe Account ID cannot exceed 255 characters",
-        "precioMinimo0": "Must be 0 or greater"
+        "precioMinimo0": "Must be 0 or greater",
+        "horasRecordatorioRango": "Must be an integer between 1 and 720",
+        "diasDocumentosInvalidos": "Enter between 1 and 10 unique integer days, each between 1 and 365"
       }
     }
   },
@@ -3367,6 +4032,572 @@
       "misReservas": {
         "titulo": "My Reservations",
         "detalleTitulo": "Reservation Details"
+      }
+    }
+  },
+  "trackingLinks": {
+    "titulo": "Tracking Links",
+    "subtitulo": "Securely share your vehicles location with third parties",
+    "lista": "Active Links",
+    "crear": "Create Link",
+    "crearTitulo": "New Tracking Link",
+    "vehiculo": "Vehicle",
+    "vehiculoPlaceholder": "Select a vehicle",
+    "nombre": "Name (optional)",
+    "nombrePlaceholder": "E.g.: Client John, Delivery #123",
+    "duracion": "Duration (minutes)",
+    "duracionPlaceholder": "E.g.: 60",
+    "duracionDefault": "Default: 480 minutes (8 hours)",
+    "tipoAcceso": "Access Type",
+    "tipoAccesoSoloUbicacion": "Location Only",
+    "tipoAccesoUbicacionConRuta": "Location + Route",
+    "tipoAccesoCompleto": "Full Access",
+    "maxAccesos": "Max. Accesses (optional)",
+    "maxAccesosPlaceholder": "Unlimited",
+    "copiarUrl": "Copy URL",
+    "abrirPagina": "Open tracking page",
+    "urlCopiada": "URL copied to clipboard",
+    "revocar": "Revoke",
+    "revocarConfirmar": "Are you sure you want to revoke this link? This action cannot be undone.",
+    "extender": "Extend",
+    "extenderTitulo": "Extend Link",
+    "minutosAdicionales": "Additional minutes",
+    "minutosAdicionalesPlaceholder": "E.g.: 60",
+    "creadoExito": "Tracking link created successfully",
+    "revocadoExito": "Tracking link revoked successfully",
+    "extendidoExito": "Tracking link extended successfully",
+    "errorCargar": "Error loading tracking links",
+    "token": "Token",
+    "expira": "Expires",
+    "accesos": "Accesses",
+    "estado": "Status",
+    "estadoActivo": "Active",
+    "estadoExpirado": "Expired",
+    "estadoRevocado": "Revoked",
+    "sinLinks": "No tracking links",
+    "sinLinksDescripcion": "Create a link to share a vehicle location in real time.",
+    "sinLinksActivos": "No active links",
+    "sinLinksActivosDescripcion": "Expired or revoked links remain available in history for a limited time.",
+    "sinLinksHistorico": "No history yet",
+    "sinLinksHistoricoDescripcion": "Expired or revoked links will appear here while they remain available in the system.",
+    "vehiculoPatente": "License Plate",
+    "vehiculoNombre": "Vehicle",
+    "fechaCreacion": "Created",
+    "fechaExpiracion": "Expires",
+    "listaHistorico": "Tracking Link History",
+    "tabs": {
+      "activos": "Active",
+      "historico": "History"
+    },
+    "qr": {
+      "titulo": "Link QR Code",
+      "verQr": "View QR code",
+      "descargarPng": "Download PNG"
+    }
+  },
+  "trackingPublico": {
+    "titulo": "Live Tracking",
+    "cargando": "Loading location...",
+    "error": "Could not get location",
+    "linkInvalido": "The tracking link is invalid or has expired",
+    "ultimaActualizacion": "Last update",
+    "velocidad": "Speed",
+    "kmh": "km/h",
+    "vehiculo": "Vehicle",
+    "organizacion": "Organization",
+    "ruta": "Recent route",
+    "sinMovimiento": "No movement",
+    "poweredBy": "Tracking by TracAuto",
+    "reconectando": "Reconnecting..."
+  },
+  "copiloto": {
+    "titulo": "TracAuto AI",
+    "nuevaConversacion": "New conversation",
+    "enviar": "Send",
+    "pensando": "Thinking...",
+    "errorServicio": "Error processing query. Please try again.",
+    "limiteAlcanzado": "Daily query limit reached",
+    "eliminarConversacion": "Delete conversation",
+    "confirmarEliminar": "Are you sure you want to delete this conversation?",
+    "usoDiario": "Daily usage",
+    "tokensConsumidos": "{{consumidos}} / {{limite}} tokens",
+    "sinConversaciones": "No conversations",
+    "placeholder": "Ask something about your fleet...",
+    "conversaciones": "Conversations",
+    "verTodas": "View all",
+    "cerrar": "Close",
+    "copiarRespuesta": "Copy response",
+    "respuestaCopiada": "Response copied",
+    "sugerencia1": "How is my fleet today?",
+    "sugerencia2": "What are my most active vehicles?",
+    "sugerencia3": "Are there open alerts?",
+    "sugerencia4": "Give me an executive summary",
+    "sugerencia5": "Which vehicles are idle?",
+    "errorRespuesta": "Could not process the response"
+  },
+  "scoring": {
+    "titulo": "Driving Score",
+    "scorePromedio": "Fleet Average Score",
+    "conductoresTotal": "Drivers with Score",
+    "conductoresRiesgo": "At-Risk Drivers",
+    "conductoresExcelentes": "Excellent Drivers",
+    "distribucion": "Category Distribution",
+    "tendenciaSemanal": "Weekly Trend",
+    "topMejores": "Top 3 Best",
+    "necesitanAtencion": "Need Attention",
+    "rankingCompleto": "Full Ranking",
+    "conductor": "Driver",
+    "score": "Score",
+    "categoriaLabel": "Category",
+    "tendencia": "Trend",
+    "sinDatos": "No scoring data",
+    "sinDatosDescripcion": "Scores are calculated daily from GPS data. Make sure you have drivers with assigned devices.",
+    "sinTendencia": "No trend data yet",
+    "errorCargar": "Error loading scoring data",
+    "detalleSubtitulo": "Driving score details",
+    "desglose": "Score Breakdown",
+    "historico": "History",
+    "sinHistorico": "No historical data for this period",
+    "sinDatosDetalle": "No scoring data for this driver",
+    "metricasDia": "Last Day Metrics",
+    "kmRecorridos": "Km Traveled",
+    "tiempoConduccion": "Driving Time",
+    "velocidadMaxima": "Max Speed",
+    "velocidadPromedio": "Average Speed",
+    "velocidad": "Speed",
+    "frenado": "Braking",
+    "aceleracion": "Acceleration",
+    "geocercas": "Geofences",
+    "horasConduccion": "Driving Hours",
+    "scoreGeneral": "General Score",
+    "configuracion": "Scoring Configuration",
+    "habilitado": "Scoring Enabled",
+    "habilitadoDesc": "Enable or disable automatic driving score calculation",
+    "pesos": "Evaluation Weights",
+    "sumaPesos": "Weight sum",
+    "pesosDebenSumar100": "Weights must add up to 100",
+    "umbrales": "Detection Thresholds",
+    "umbralFrenado": "Harsh Braking Threshold",
+    "umbralAceleracion": "Harsh Acceleration Threshold",
+    "maxHorasContinuas": "Max Continuous Hours",
+    "scoreMinimoAlerta": "Minimum Score for Alert",
+    "categoria": {
+      "Excelente": "Excellent",
+      "Bueno": "Good",
+      "Regular": "Average",
+      "Riesgoso": "Risky",
+      "Critico": "Critical"
+    },
+    "widget": {
+      "titulo": "Driving Score",
+      "verDetalle": "View details",
+      "scoreFlota": "Fleet average score"
+    }
+  },
+  "preferenciasNotificacion": {
+    "titulo": "Notification Preferences",
+    "subtitulo": "Configure how and where you want to receive notifications",
+    "errorCargar": "Error loading notification preferences",
+    "guardadoExitoso": "Preferences updated successfully",
+    "codigoEnviado": "Verification code sent via WhatsApp",
+    "telefonoVerificado": "Phone verified! WhatsApp enabled",
+    "email": {
+      "titulo": "Email",
+      "descripcion": "Receive notifications via email"
+    },
+    "whatsapp": {
+      "titulo": "WhatsApp",
+      "descripcion": "Receive important alerts via WhatsApp",
+      "verificarTelefono": "Enter your WhatsApp number to verify it",
+      "enviarCodigo": "Send code",
+      "ingresarCodigo": "Enter the code you received via WhatsApp",
+      "verificar": "Verify",
+      "verificadoComo": "Verified as {{telefono}}",
+      "categoriasTitle": "Categories enabled for WhatsApp",
+      "telefonoPlaceholder": "+5493416020069",
+      "codigoPlaceholder": "123456"
+    },
+    "categorias": {
+      "geofence": "Geofences",
+      "vehiculo": "Vehicles",
+      "conductor": "Drivers",
+      "sistema": "System",
+      "seguridad": "Security",
+      "solicitud": "Requests",
+      "mantenimiento": "Maintenance",
+      "alquiler": "Rentals"
+    }
+  },
+  "resumenIA": {
+    "titulo": "AI Fleet Digest",
+    "subtitulo": "AI-powered periodic summaries of your fleet activity",
+    "errorCargar": "Error loading AI digest configuration",
+    "configuracionGuardada": "AI digest configuration saved",
+    "resumenGenerado": "AI digest generated successfully",
+    "generarManual": "Generate now",
+    "generando": "Generating...",
+    "guardar": "Save configuration",
+    "guardando": "Saving...",
+    "sinResumenes": "No digests generated yet. Generate the first one manually or enable periodic generation.",
+    "cadencia": {
+      "diario": "Daily",
+      "semanal": "Weekly",
+      "mensual": "Monthly"
+    },
+    "dias": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "configuracion": {
+      "titulo": "Configuration",
+      "habilitado": "Enable automatic digest generation",
+      "cadencia": "Frequency",
+      "horaEnvio": "Generation time (UTC)",
+      "diaSemana": "Day of the week",
+      "diaMes": "Day of the month",
+      "seccionesIncluidas": "Sections to include",
+      "emailsAdicionales": "Additional emails",
+      "emailsPlaceholder": "email1@example.com, email2@example.com",
+      "emailsAyuda": "Comma-separated. Sent in addition to organization admins."
+    },
+    "secciones": {
+      "metricas": "Fleet metrics",
+      "alertas": "Period alerts",
+      "ociosos": "Idle vehicles",
+      "combustible": "Fuel consumption",
+      "alquileres": "Rentals module"
+    },
+    "historial": {
+      "titulo": "Digest history",
+      "anterior": "Previous",
+      "siguiente": "Next",
+      "pagina": "Page {{actual}} of {{total}}"
+    },
+    "viewer": {
+      "titulo": "Digest detail"
+    }
+  },
+  "widget": {
+    "titulo": "Embeddable Widgets",
+    "subtitulo": "Configure widgets to display fleet data on external websites",
+    "crear": "Create Widget",
+    "editar": "Edit Widget",
+    "desactivar": "Deactivate Widget",
+    "desactivarConfirmar": "Are you sure you want to deactivate this widget? Sites using it will stop displaying data.",
+    "sinWidgets": "No widgets configured",
+    "sinWidgetsDescripcion": "Create your first embeddable widget to share fleet data on external websites.",
+    "activo": "Active",
+    "inactivo": "Inactive",
+    "totalAccesos": "Total accesses",
+    "dominios": "Domains",
+    "ultimoAcceso": "Last access",
+    "verCodigo": "View integration code",
+    "regenerarApiKey": "Regenerate API Key",
+    "regenerarApiKeyConfirmar": "Are you sure? Sites using the previous API key will stop working until they update the code.",
+    "tipos": {
+      "mapaFlota": "Fleet Map",
+      "trackingVehiculo": "Vehicle Tracking",
+      "estadoReserva": "Reservation Status",
+      "flotaResumen": "Fleet Summary"
+    },
+    "form": {
+      "nombre": "Widget name",
+      "nombrePlaceholder": "E.g.: Fleet map for partners",
+      "tipo": "Widget type",
+      "dominios": "Allowed domains",
+      "dominiosPlaceholder": "mycompany.com\napp.mycompany.com\nlocalhost:3000",
+      "dominiosHelp": "One domain per line. Only these domains will be able to load the widget.",
+      "maxRequests": "Max requests per minute"
+    },
+    "obdDiagnostics": {
+      "title": "OBD2 Diagnostics",
+      "subtitle": "Monitor your fleet health in real-time with OBD2 data",
+      "errorLoading": "Error loading diagnostic data",
+      "kpi": {
+        "vehiclesWithTelemetry": "Vehicles with telemetry",
+        "obd2Readings": "OBD2 readings",
+        "totalDistanceKm": "Total distance",
+        "alertsGenerated": "Alerts generated"
+      },
+      "vehicleDetail": "Diagnostics â€” {{patente}}",
+      "liveReadings": "Real-time readings from the latest OBD2 snapshot",
+      "gauges": {
+        "rpm": "RPM",
+        "engineTemp": "Engine temp",
+        "battery": "Battery",
+        "fuel": "Fuel",
+        "engineHours": "Engine hours",
+        "ignition": "Ignition"
+      },
+      "ignitionOn": "On",
+      "ignitionOff": "Off",
+      "noData": "No OBD2 data available for this vehicle",
+      "vehicleList": "Vehicles with telemetry",
+      "vehicleListSubtitle": "Select a vehicle to view its detailed diagnostics",
+      "noVehicles": "No vehicles with telemetry",
+      "noVehiclesDesc": "No vehicles with telemetry data found in the selected period",
+      "viewDetail": "View detail",
+      "table": {
+        "patente": "License plate",
+        "distance": "Distance",
+        "avgSpeed": "Avg. speed",
+        "maxSpeed": "Max speed",
+        "obd2Readings": "OBD2 readings",
+        "alerts": "Alerts"
+      }
+    },
+    "alertRules": {
+      "title": "Alert Rules",
+      "subtitle": "Configure automatic rules to generate alerts about your fleet",
+      "create": "New rule",
+      "createTitle": "Create alert rule",
+      "editTitle": "Edit alert rule",
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "errorLoading": "Error loading alert rules",
+      "empty": "No alert rules",
+      "emptyDesc": "Create your first rule to receive automatic alerts about your fleet",
+      "confirmDelete": "Delete rule",
+      "confirmDeleteDesc": "Rule \"{{name}}\" will be deleted. This action cannot be undone.",
+      "types": {
+        "speedMax": "Max speed",
+        "excessiveStop": "Excessive stop",
+        "geofenceEntry": "Geofence entry",
+        "geofenceExit": "Geofence exit",
+        "disconnection": "Disconnection",
+        "rpmOutOfRange": "RPM out of range",
+        "highEngineTemp": "High engine temperature",
+        "lowBattery": "Low battery"
+      },
+      "severity": {
+        "info": "Info",
+        "warning": "Warning",
+        "critical": "Critical"
+      },
+      "channels": {
+        "inApp": "In-app",
+        "email": "Email",
+        "push": "Push"
+      },
+      "filters": {
+        "all": "All",
+        "activeOnly": "Active only"
+      },
+      "form": {
+        "name": "Name",
+        "namePlaceholder": "E.g.: Max speed on highway",
+        "type": "Rule type",
+        "severity": "Severity",
+        "condition": "Condition",
+        "cooldown": "Cooldown (seconds)",
+        "cooldownHint": "Minimum time between repeated alerts (min. 60 sec)",
+        "channels": "Notification channels",
+        "maxSpeedKmh": "Max speed (km/h)",
+        "toleratedMinutes": "Tolerated minutes",
+        "toleratedSeconds": "Tolerated seconds",
+        "rpmMin": "Min RPM",
+        "rpmMax": "Max RPM",
+        "tempCelsius": "Max temperature (Â°C)",
+        "batteryMinPercent": "Min battery percentage (%)",
+        "geofenceNote": "Geofence will be automatically assigned based on vehicle or device configuration."
+      }
+    },
+    "billing": {
+      "title": "Subscription & Billing",
+      "subtitle": "Manage your plan, modules and billing",
+      "status": "Status",
+      "estado": {
+        "trial": "Trial period",
+        "activa": "Active",
+        "pausada": "Paused due to payment failure",
+        "cancelada": "Cancelled",
+        "expirada": "Expired"
+      },
+      "billingCycle": "Billing cycle",
+      "billingCycleType": {
+        "mensual": "Monthly",
+        "anual": "Annual"
+      },
+      "totalMonthly": "Monthly total",
+      "modulesActive": "Active modules",
+      "modules": "Available modules",
+      "modulesSubtitle": "Activate or deactivate modules based on your organization's needs",
+      "moduleAdd": "Activate",
+      "moduleRemove": "Deactivate",
+      "actions": "Actions",
+      "actionsSubtitle": "Manage your subscription and payment methods",
+      "manageBilling": "Manage billing",
+      "subscribe": "Subscribe",
+      "cancelSubscription": "Cancel subscription",
+      "reactivateSubscription": "Reactivate subscription",
+      "confirmCancel": "Cancel subscription?",
+      "cancelInfo": "Your subscription will be cancelled at the end of the current period. You will lose access to active modules.",
+      "confirmActivateModule": "Activate module {{name}}?",
+      "confirmDeactivateModule": "Deactivate module {{name}}?",
+      "activateModuleInfo": "The module will be activated immediately for your organization.",
+      "deactivateModuleInfo": "The module will be deactivated. Make sure you don't have active dependent data.",
+      "activeModulesDetail": "Active modules detail",
+      "activeModulesDetailSubtitle": "Modules currently active in your organization",
+      "activatedOn": "Activated on {{date}}",
+      "active": "Active",
+      "included": "Included",
+      "free": "Free",
+      "trialEndsOn": "Your trial period ends on {{date}}. Subscribe to a plan to keep access.",
+      "pausedWarning": "Your subscription is paused due to payment failure. Update your payment method to continue.",
+      "prerequisitesMissing": "Requires: {{modules}}",
+      "usage": {
+        "title": "Usage vs Limits",
+        "subtitle": "Current resource consumption per module",
+        "unlimited": "Unlimited",
+        "of": "of",
+        "exceeded": "Limit exceeded",
+        "upgradeHint": "You're close to the limit. Consider upgrading your plan.",
+        "resources": {
+          "vehiculos": "Vehicles",
+          "usuarios": "Users",
+          "conductores": "Drivers",
+          "publicaciones": "Listings",
+          "reservas_mes": "Reservations per month",
+          "api_requests_min": "API requests per minute"
+        }
+      }
+    },
+    "embed": {
+      "titulo": "Integration Code",
+      "widgetNombre": "Widget",
+      "apiKey": "API Key",
+      "apiKeyWarning": "Do not share this key publicly. Only include it in your website code.",
+      "codigoEmbed": "Code to paste on your website",
+      "codigoEmbedHelp": "Paste this code where you want to display the widget on your website.",
+      "apiEndpoint": "Data endpoint (REST API)",
+      "codigo": "Code"
+    }
+  },
+  "billing": {
+    "title": "Subscription",
+    "subtitle": "Manage your plan and contracted modules",
+    "status": "Status",
+    "billingCycle": "Billing Cycle",
+    "billingCycleType": {
+      "mensual": "Monthly",
+      "anual": "Annual"
+    },
+    "totalMonthly": "Monthly Total",
+    "modulesActive": "Active Modules",
+    "actions": "Actions",
+    "actionsSubtitle": "Manage your subscription and billing",
+    "manageBilling": "Manage Billing",
+    "subscribe": "Subscribe",
+    "modules": "Available Modules",
+    "modulesSubtitle": "Activate or deactivate modules based on your organization's needs",
+    "active": "Active",
+    "included": "Included",
+    "free": "Free",
+    "moduleAdd": "Add module",
+    "moduleRemove": "Remove module",
+    "prerequisitesMissing": "Requires: {{modules}}",
+    "estado": {
+      "trial": "Trial",
+      "activa": "Active",
+      "pausada": "Paused due to payment failure",
+      "cancelada": "Cancelled",
+      "expirada": "Expired",
+      "pendienteVerificacion": "Pending verification"
+    },
+    "trialEndsOn": "Your trial ends on {{date}}",
+    "pausedWarning": "Your subscription is paused due to payment failure. Update your payment method to continue.",
+    "pendienteVerificacionWarning": "Your bank transfer is being verified. You will be notified once approved.",
+    "noPaymentRequired": "No charge",
+    "completePayment": "Complete payment",
+    "awaitingVerification": "Awaiting verification",
+    "gateway": {
+      "stripe": {
+        "name": "Credit/Debit card",
+        "description": "Pay with international card via Stripe",
+        "detail": "Visa, Mastercard, American Express — USD or ARS"
+      },
+      "mercadopago": {
+        "name": "MercadoPago",
+        "description": "Argentine cards, debit, QR, and cash",
+        "detail": "All Argentine cards, bank transfer, Rapipago, Pago Fácil"
+      },
+      "transferencia": {
+        "name": "Bank transfer",
+        "description": "Transfer to our account and send the receipt",
+        "detail": "Subscription activates after payment verification (max. 24 business hours)"
+      },
+      "ninguno": {
+        "name": "No payment",
+        "description": "Courtesy or demo subscription",
+        "detail": ""
+      }
+    },
+    "checkout": {
+      "title": "New subscription",
+      "step": {
+        "modules": "Modules",
+        "config": "Configuration",
+        "confirm": "Confirm"
+      },
+      "selectModules": "Select the modules your organization needs",
+      "selectPeriod": "Billing period",
+      "selectCurrency": "Currency",
+      "selectGateway": "Payment method",
+      "annualDiscount": "Save up to 20% with annual billing",
+      "currency": {
+        "ars": "Argentine peso",
+        "usd": "US dollar"
+      },
+      "reviewSummary": "Review your subscription details before confirming",
+      "selectedModules": "Selected modules",
+      "total": {
+        "mensual": "Monthly total",
+        "anual": "Annual total"
+      },
+      "equivalentMonthly": "Monthly equivalent",
+      "period": "Period",
+      "currencyLabel": "Currency",
+      "paymentMethod": "Payment method",
+      "trialNote": "You will start with a 14-day free trial. Billing begins after the trial period ends.",
+      "transferenciaNote": "Upon confirming, your subscription will be pending verification. You will receive bank details via email to complete the transfer.",
+      "confirm": "Confirm subscription",
+      "created": "Subscription created successfully",
+      "createdNoRedirect": "Subscription created. You can complete payment from the billing page.",
+      "transferenciaPendiente": "Subscription created. You will receive bank details via email to complete the transfer."
+    },
+    "confirmCancel": "Cancel subscription?",
+    "cancelInfo": "If you cancel, you will lose access to active modules at the end of the current billing period.",
+    "cancelSubscription": "Cancel Subscription",
+    "reactivateSubscription": "Reactivate Subscription",
+    "activeModulesDetail": "Active Modules",
+    "activeModulesDetailSubtitle": "Details of currently active modules in your organization",
+    "activatedOn": "Activated on {{date}}",
+    "confirmActivateModule": "Activate module \"{{name}}\"?",
+    "confirmDeactivateModule": "Deactivate module \"{{name}}\"?",
+    "activateModuleInfo": "The module will be activated immediately and your billing will be adjusted.",
+    "deactivateModuleInfo": "The module will be deactivated at the end of the current billing period.",
+    "usage": {
+      "title": "Usage vs Limits",
+      "subtitle": "Current resource consumption by module",
+      "unlimited": "Unlimited",
+      "of": "of",
+      "exceeded": "Limit exceeded",
+      "upgradeHint": "You're approaching the limit. Consider upgrading your plan.",
+      "resources": {
+        "vehiculos": "Vehicles",
+        "dispositivos": "Devices",
+        "usuarios": "Users",
+        "conductores": "Drivers",
+        "publicaciones": "Listings",
+        "reservas_mes": "Reservations per month",
+        "api_requests_min": "API requests per minute"
       }
     }
   }

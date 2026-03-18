@@ -98,7 +98,7 @@ function wktToLayer(wkt: string): L.Layer | null {
 
     return null;
   } catch {
-    console.error('Error parsing WKT:', wkt);
+    if (import.meta.env.DEV) console.error('Error parsing WKT:', wkt);
     return null;
   }
 }

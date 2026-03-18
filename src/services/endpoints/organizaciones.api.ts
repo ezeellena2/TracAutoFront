@@ -4,7 +4,7 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { useAuthStore } from '@/store';
+import { useAuthStore } from '@/store/auth.store';
 import {
   OrganizacionDto,
   ListaPaginada,

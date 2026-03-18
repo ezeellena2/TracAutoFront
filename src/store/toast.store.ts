@@ -5,6 +5,9 @@
 
 import { create } from 'zustand';
 
+/** Límite máximo de toasts visibles simultáneamente para evitar acumulación */
+const MAX_TOASTS = 10;
+
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface Toast {
@@ -32,7 +35,11 @@ export const useToastStore = create<ToastState>((set) => ({
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const toast: Toast = { id, type, message, duration };
     
-    set((state) => ({ toasts: [...state.toasts, toast] }));
+    set((state) => {
+      const updated = [...state.toasts, toast];
+      // Descartar los más antiguos si se excede el límite
+      return { toasts: updated.length > MAX_TOASTS ? updated.slice(-MAX_TOASTS) : updated };
+    });
 
     // Auto-remove después de la duración
     if (duration > 0) {

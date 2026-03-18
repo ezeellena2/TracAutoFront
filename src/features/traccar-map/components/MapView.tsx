@@ -48,9 +48,11 @@ function MapResizeHandler() {
   const { isCollapsed } = useMapShellContext();
   const prevCollapsed = useRef<boolean>(isCollapsed);
   const containerRef = useRef<HTMLElement | null>(null);
+  const resizeRafRef = useRef<number | null>(null);
+  const observerDebounceRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Get the map container element
+    // Obtener referencia al contenedor del mapa
     const container = map.getContainer();
     if (container) {
       containerRef.current = container;
@@ -58,38 +60,56 @@ function MapResizeHandler() {
   }, [map]);
 
   useEffect(() => {
-    // Only invalidate size when collapse state actually changes
+    // Solo invalidar tamaño cuando el estado de colapso cambia realmente
     if (prevCollapsed.current !== isCollapsed) {
-      // Multiple attempts to ensure resize happens after DOM updates
-      const timers = [
-        setTimeout(() => map.invalidateSize(), 50),
-        setTimeout(() => map.invalidateSize(), 150),
-        setTimeout(() => map.invalidateSize(), 300),
-      ];
       prevCollapsed.current = isCollapsed;
-      return () => timers.forEach(timer => clearTimeout(timer));
+
+      // Un solo requestAnimationFrame post-transición en vez de 3 setTimeout
+      if (resizeRafRef.current != null) {
+        cancelAnimationFrame(resizeRafRef.current);
+      }
+
+      // Esperar a que termine la transición CSS (~300ms) con un solo setTimeout + rAF
+      const timer = window.setTimeout(() => {
+        resizeRafRef.current = requestAnimationFrame(() => {
+          map.invalidateSize();
+        });
+      }, 300);
+
+      return () => {
+        clearTimeout(timer);
+        if (resizeRafRef.current != null) {
+          cancelAnimationFrame(resizeRafRef.current);
+        }
+      };
     }
   }, [isCollapsed, map]);
 
-  // Use ResizeObserver to detect container size changes
+  // ResizeObserver con debounce via requestAnimationFrame
   useEffect(() => {
     if (!containerRef.current) return;
 
     const resizeObserver = new ResizeObserver(() => {
-      // Debounce resize calls
-      setTimeout(() => {
+      // Cancelar el frame anterior si llega otro resize antes de pintarse
+      if (observerDebounceRef.current != null) {
+        cancelAnimationFrame(observerDebounceRef.current);
+      }
+      observerDebounceRef.current = requestAnimationFrame(() => {
         map.invalidateSize();
-      }, 100);
+      });
     });
 
     resizeObserver.observe(containerRef.current);
 
     return () => {
       resizeObserver.disconnect();
+      if (observerDebounceRef.current != null) {
+        cancelAnimationFrame(observerDebounceRef.current);
+      }
     };
   }, [map]);
 
-  // Also handle window resize
+  // Manejar resize de ventana
   useEffect(() => {
     const handleResize = () => {
       map.invalidateSize();
@@ -137,7 +157,7 @@ export function MapView() {
         onCenterFleet={handleCenterFleet}
         onCenterSelected={handleCenterSelected}
       />
-      
+
       <MapContainer
         center={[-34.6037, -58.3816]}
         zoom={11}
@@ -150,18 +170,18 @@ export function MapView() {
           attribution={tileConfig.attribution}
           url={tileConfig.url}
         />
-        
+
         {/* Custom zoom control positioned to avoid conflicts */}
         <ZoomControl position="bottomright" />
-        
+
         <MapController />
         <MapResizeHandler />
-        
+
         {/* Geofences */}
-        <GeofenceLayer 
-          visible={showGeofences} 
+        <GeofenceLayer
+          visible={showGeofences}
         />
-        
+
         {vehicles.map((vehicle) => (
           <VehicleMarker key={vehicle.id} vehicle={vehicle} />
         ))}
@@ -169,4 +189,3 @@ export function MapView() {
     </div>
   );
 }
-

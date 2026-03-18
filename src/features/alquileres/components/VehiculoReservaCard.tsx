@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car } from 'lucide-react';
 import { Card, CardHeader, Badge } from '@/shared/ui';
@@ -7,7 +8,7 @@ interface VehiculoReservaCardProps {
   categoriaAlquiler: number;
 }
 
-export function VehiculoReservaCard({ vehiculoDescripcion, categoriaAlquiler }: VehiculoReservaCardProps) {
+export const VehiculoReservaCard = memo(function VehiculoReservaCard({ vehiculoDescripcion, categoriaAlquiler }: VehiculoReservaCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -28,4 +29,4 @@ export function VehiculoReservaCard({ vehiculoDescripcion, categoriaAlquiler }: 
       </div>
     </Card>
   );
-}
+});

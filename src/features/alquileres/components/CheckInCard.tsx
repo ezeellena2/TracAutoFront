@@ -1,4 +1,6 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Download } from 'lucide-react';
 import { Card, CardHeader, Badge, Button } from '@/shared/ui';
 import { formatPrecio } from '../utils/formatters';
 import { formatDateTime } from '@/shared/utils/dateFormatter';
@@ -9,11 +11,12 @@ interface CheckInCardProps {
   checkIn: CheckInAlquilerDto | null;
   moneda: string;
   onRealizar: () => void;
+  onDescargarPdf: () => void;
   puedeEditar: boolean;
   mostrarBoton: boolean;
 }
 
-export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarBoton }: CheckInCardProps) {
+export const CheckInCard = memo(function CheckInCard({ checkIn, moneda, onRealizar, onDescargarPdf, puedeEditar, mostrarBoton }: CheckInCardProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
 
@@ -23,11 +26,18 @@ export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarB
     <Card>
       <CardHeader
         title={t('alquileres.reservaDetalle.checkIn.titulo')}
-        action={mostrarBoton && puedeEditar && !checkIn ? (
-          <Button variant="primary" onClick={onRealizar} className="text-xs">
-            {t('alquileres.reservaDetalle.checkIn.realizar')}
-          </Button>
-        ) : undefined}
+        action={
+          checkIn ? (
+            <Button variant="ghost" onClick={onDescargarPdf} className="text-xs">
+              <Download size={14} className="mr-1" />
+              {t('alquileres.reservaDetalle.contrato.descargarPdf')}
+            </Button>
+          ) : mostrarBoton && puedeEditar ? (
+            <Button variant="primary" onClick={onRealizar} className="text-xs">
+              {t('alquileres.reservaDetalle.checkIn.realizar')}
+            </Button>
+          ) : undefined
+        }
       />
 
       {!checkIn ? (
@@ -46,8 +56,7 @@ export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarB
               <Badge variant={checkIn.danosDetectados ? 'error' : 'success'}>
                 {checkIn.danosDetectados
                   ? t('alquileres.reservaDetalle.checkIn.si')
-                  : t('alquileres.reservaDetalle.checkIn.no')
-                }
+                  : t('alquileres.reservaDetalle.checkIn.no')}
               </Badge>
             </div>
             {checkIn.descripcionDanos && (
@@ -58,7 +67,6 @@ export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarB
             )}
           </div>
 
-          {/* Recargos check-in */}
           {checkIn.totalRecargosCheckIn > 0 && (
             <div className="border-t border-border pt-3 space-y-1 text-sm">
               {checkIn.recargoCombustible > 0 && (
@@ -95,7 +103,7 @@ export function CheckInCard({ checkIn, moneda, onRealizar, puedeEditar, mostrarB
       )}
     </Card>
   );
-}
+});
 
 function Field({ label, value, fullWidth }: { label: string; value: string; fullWidth?: boolean }) {
   return (

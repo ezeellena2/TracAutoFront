@@ -461,7 +461,7 @@ export function GeofenceMapViewPage() {
     geofencesApi
       .listar({ soloActivas: true, tamanoPagina: GEOFENCES_PAGE_SIZE })
       .then((result) => setGeofences(result.items))
-      .catch((err) => console.error('Error loading geofences:', err))
+      .catch((err) => { if (import.meta.env.DEV) console.error('Error loading geofences:', err); })
       .finally(() => setIsLoading(false));
   }, []);
 

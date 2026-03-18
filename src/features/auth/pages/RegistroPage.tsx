@@ -4,28 +4,19 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Car, Eye, EyeOff, Loader2, ArrowLeft, Building2, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button, Input, Select, Alert } from '@/shared/ui';
 import { authApi } from '@/services/endpoints';
-import { RegistrarEmpresaRequestSchema, TipoOrganizacion } from '@/shared/types/api';
-import { useAuthStore, useTenantStore } from '@/store';
-
-/** Mapea el rol del backend al tipo del frontend */
-const rolMap: Record<string, 'Admin' | 'Operador' | 'Analista'> = {
-  Admin: 'Admin',
-  Administrador: 'Admin',
-  Operador: 'Operador',
-  Analista: 'Analista',
-};
+import { RegistrarEmpresaRequestSchema } from '@/shared/types/api';
+import { hydrateAuthenticatedSession } from '@/services/auth/sessionHydration';
 
 /**
- * Página de Registro de Empresa B2B
- * Flujo: Datos → Registro → Verificación → Auto-login → Dashboard
+ * Pagina de Registro de Empresa B2B
+ * Flujo: Datos -> Registro -> Verificacion -> Auto-login -> Dashboard
  */
 export function RegistroPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  // const { login } = useAuthStore(); // Removed: accessed directly via getState() to ensure latest state and consistency
 
-  // Verificar si viene en modo verificación o con datos de Google desde LoginPage
+  // Verificar si viene en modo verificacion o con datos de Google desde LoginPage
   const state = location.state as {
     modoVerificacion?: boolean;
     email?: string;
@@ -65,7 +56,7 @@ export function RegistroPage() {
   const [formData, setFormData] = useState({
     nombreEmpresa: '',
     cuit: '',
-    tipoOrganizacion: 0, // 0 = no seleccionado
+    tipoOrganizacion: 0,
     nombreCompleto: '',
     email: '',
     telefono: '',
@@ -87,7 +78,7 @@ export function RegistroPage() {
   const [emailSuccess, setEmailSuccess] = useState('');
   const [telefonoSuccess, setTelefonoSuccess] = useState('');
 
-  // Inicializar datos si viene en modo verificación o con datos de Google
+  // Inicializar datos si viene en modo verificacion o con datos de Google
   useEffect(() => {
     if (state?.modoVerificacion && state.email && state.usuarioId) {
       setFormData(prev => ({
@@ -121,7 +112,7 @@ export function RegistroPage() {
     }
   }, [state]);
 
-  // Ref para que handleBlur siempre lea el valor más reciente
+  // Ref para que handleBlur siempre lea el valor mas reciente
   // (necesario porque commitE164 del PhoneInput llama updateField y luego onBlur en el mismo tick)
   const formDataRef = useRef(formData);
   formDataRef.current = formData;
@@ -169,7 +160,7 @@ export function RegistroPage() {
 
   // Formatear CUIT: XX-XXXXXXXX-X
   const formatCuit = (value: string) => {
-    // Solo números, máx 11 dígitos
+    // Solo numeros, max 11 digitos
     const digits = value.replace(/\D/g, '').slice(0, 11);
     let res = digits;
 
@@ -182,19 +173,19 @@ export function RegistroPage() {
     return res;
   };
 
-  // Validación de CUIT argentino (algoritmo módulo 11)
+  // Validacion de CUIT argentino (algoritmo modulo 11)
   const validarCuit = (cuit: string): boolean => {
     // Normalizar: remover guiones y espacios
     const cuitNormalizado = cuit.replace(/[^\d]/g, '');
 
     if (cuitNormalizado.length !== 11) return false;
 
-    // Validar tipos válidos (primeros 2 dígitos)
+    // Validar tipos validos (primeros 2 digitos)
     const tipo = parseInt(cuitNormalizado.substring(0, 2), 10);
     const tiposValidos = [20, 23, 24, 27, 30, 33, 34];
     if (!tiposValidos.includes(tipo)) return false;
 
-    // Calcular dígito verificador (módulo 11)
+    // Calcular digito verificador (modulo 11)
     const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
     let suma = 0;
     for (let i = 0; i < 10; i++) {
@@ -280,7 +271,6 @@ export function RegistroPage() {
       const response = await authApi.registrarEmpresa({
         nombreEmpresa: formData.nombreEmpresa,
         cuit: formData.cuit.replace(/[^\d]/g, ''), // Enviar normalizado
-        tipoOrganizacion: formData.tipoOrganizacion,
         email: formData.email,
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
@@ -310,7 +300,7 @@ export function RegistroPage() {
 
     if (!successData) return;
 
-    // Validación por campo
+    // Validacion por campo
     let hasFieldError = false;
     setCodigoEmailError('');
     setCodigoTelefonoError('');
@@ -339,7 +329,7 @@ export function RegistroPage() {
     setError('');
 
     try {
-      const payload: any = { usuarioId: successData.usuarioId };
+      const payload: { usuarioId: string; codigoEmail?: string; codigoTelefono?: string } = { usuarioId: successData.usuarioId };
 
       if (!emailVerificado) {
         payload.codigoEmail = codigoEmail;
@@ -363,28 +353,9 @@ export function RegistroPage() {
         setTelefonoSuccess(t('auth.success.phoneVerified'));
       }
 
-      // Si ambos están verificados, proceder al login usando datos del response
+      // Si ambos están verificados, proceder al login usando hydration centralizada
       if (isEmailOk && isTelefonoOk) {
-        useAuthStore.getState().login(
-          {
-            id: response.usuarioId,
-            nombre: response.nombreUsuario,
-            email: response.email,
-            rol: rolMap[response.rol] || 'Operador',
-            organizationId: response.organizacionId,
-            organizationName: response.nombreOrganizacion,
-          },
-          response.token
-        );
-
-        // Usar datos de sesión del response directamente (sin request extra)
-        useTenantStore.getState().setOrganizationFromLogin({
-          id: response.organizacionId,
-          nombre: response.nombreOrganizacion,
-          tipoOrganizacion: response.tipoOrganizacion as TipoOrganizacion,
-          theme: response.theme,
-        });
-
+        hydrateAuthenticatedSession(response, response.token);
         navigate('/', { replace: true });
       } else {
         // Limpiar códigos ya usados
@@ -445,7 +416,7 @@ export function RegistroPage() {
           ? t('auth.success.codeResentEmail')
           : t('auth.success.codeResentSms')
       );
-      // Limpiar mensaje de éxito después de 5 segundos
+      // Limpiar mensaje de exito despues de 5 segundos
       setTimeout(() => setResendSuccess(''), 5000);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('auth.errors.resendError');
@@ -548,6 +519,7 @@ export function RegistroPage() {
                     error={(touched.tipoOrganizacion || showAllErrors) ? errors.tipoOrganizacion : ''}
                   />
                 </div>
+
 
                 {/* Usuario */}
                 <Input
@@ -761,7 +733,7 @@ export function RegistroPage() {
                   )}
                 </Button>
 
-                {/* Botones de reenvío */}
+                {/* Botones de reenvio */}
                 <div className="flex flex-wrap gap-3 justify-center pt-2 items-center">
                   {!emailVerificado && (
                     <button
@@ -815,3 +787,5 @@ export function RegistroPage() {
     </div>
   );
 }
+
+

@@ -77,7 +77,7 @@ export function useGeofencesPage({ filters = {} }: UseGeofencesPageProps = {}) {
     setIsLoading(true);
     setError(null);
     try {
-      const backendParams: any = {
+      const backendParams: Record<string, string | number | boolean> = {
         ...paginationParams,
       };
 

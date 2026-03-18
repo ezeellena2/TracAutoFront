@@ -4,6 +4,7 @@
  */
 
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Permission } from '@/config/permissions';
 
@@ -45,12 +46,14 @@ interface DisabledGateProps {
   disabledMessage?: string;
 }
 
-export function DisabledGate({ 
-  permission, 
+export function DisabledGate({
+  permission,
   children,
-  disabledMessage = 'No tienes permisos para esta acción'
+  disabledMessage
 }: DisabledGateProps) {
+  const { t } = useTranslation();
   const { can } = usePermissions();
+  const message = disabledMessage ?? t('common.noPermission');
   const hasPermission = can(permission);
 
   if (hasPermission) {
@@ -61,7 +64,7 @@ export function DisabledGate({
   return (
     <span 
       className="inline-block cursor-not-allowed opacity-50" 
-      title={disabledMessage}
+      title={message}
     >
       <span className="pointer-events-none">
         {children}

@@ -179,19 +179,19 @@ export function GeofenceEditorSidebar({
             <div className="space-y-2 text-xs text-text-muted">
               <div className="flex items-start gap-2">
                 <MousePointer size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Clic en el mapa para agregar puntos al polígono</span>
+                <span>{t('geofences.editor.instructions.polygonClick')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Clic en el primer punto para cerrar la figura</span>
+                <span>{t('geofences.editor.instructions.closeShape')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <GripVertical size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Editar</strong> para ajustar vértices individuales</span>
+                <span>{t('geofences.editor.instructions.editVertices')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <Move size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Mover</strong> para arrastrar toda la figura</span>
+                <span>{t('geofences.editor.instructions.moveShape')}</span>
               </div>
             </div>
           )}
@@ -200,15 +200,15 @@ export function GeofenceEditorSidebar({
             <div className="space-y-2 text-xs text-text-muted">
               <div className="flex items-start gap-2">
                 <MousePointer size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Clic y arrastre para definir centro y radio</span>
+                <span>{t('geofences.editor.instructions.circleClickDrag')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <GripVertical size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Editar</strong> para ajustar el radio</span>
+                <span>{t('geofences.editor.instructions.editRadius')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <Move size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Mover</strong> para arrastrar el círculo</span>
+                <span>{t('geofences.editor.instructions.moveCircle')}</span>
               </div>
             </div>
           )}
@@ -217,37 +217,37 @@ export function GeofenceEditorSidebar({
             <div className="space-y-2 text-xs text-text-muted">
               <div className="flex items-start gap-2">
                 <MousePointer size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Clic para agregar puntos. Doble clic para terminar.</span>
+                <span>{t('geofences.editor.instructions.polylineClick')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <GripVertical size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Editar</strong> para ajustar puntos</span>
+                <span>{t('geofences.editor.instructions.editPoints')}</span>
               </div>
               <div className="flex items-start gap-2">
                 <Move size={12} className="mt-0.5 flex-shrink-0 text-primary" />
-                <span>Use <strong>Mover</strong> para arrastrar la línea</span>
+                <span>{t('geofences.editor.instructions.moveLine')}</span>
               </div>
             </div>
           )}
 
           {/* Leyenda de colores de herramientas */}
           <div className="bg-background rounded-lg p-2.5 space-y-1.5 text-xs text-text-muted">
-            <div className="font-medium text-text text-[11px] uppercase tracking-wider mb-1">Barra de herramientas</div>
+            <div className="font-medium text-text text-[11px] uppercase tracking-wider mb-1">{t('geofences.editor.legend.title')}</div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <span>Polígono / Círculo / Línea → Dibujar</span>
+              <span>{t('geofences.editor.legend.draw')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span>Editar → Mover vértices / cambiar radio</span>
+              <span>{t('geofences.editor.legend.edit')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-500" />
-              <span>Mover → Arrastrar la figura completa</span>
+              <span>{t('geofences.editor.legend.move')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span>Eliminar → Clic en la figura para borrarla</span>
+              <span>{t('geofences.editor.legend.delete')}</span>
             </div>
           </div>
         </div>

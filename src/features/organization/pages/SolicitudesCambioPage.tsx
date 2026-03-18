@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
-import { Card, PaginationControls, Button, ConfirmationModal, Modal } from '@/shared/ui';
+import { Button, Card, Modal, PaginationControls } from '@/shared/ui';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { solicitudesCambioApi } from '@/services/endpoints';
 import { usePaginationParams, useErrorHandler } from '@/hooks';
 import { useAuthStore } from '@/store';

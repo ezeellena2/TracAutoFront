@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { reservasApi, contratosApi, sucursalesApi } from '@/services/endpoints';
 import { EstadoReserva } from '../types/reserva';
-import type { TimelineEntry } from '../types/reserva';
+import type { HistorialAuditoriaDto, TimelineEntry } from '../types/reserva';
 
 export const RESERVA_QUERY_KEY = 'reserva-detalle';
 
@@ -44,6 +44,13 @@ export function useReservaData(id: string) {
     retry: false,
   });
 
+  const { data: historialAuditoria, isLoading: isHistorialAuditoriaLoading } = useQuery({
+    queryKey: [RESERVA_QUERY_KEY, id, 'historial-auditoria'],
+    queryFn: () => reservasApi.getHistorialAuditoria(id),
+    enabled: !!id,
+    retry: false,
+  });
+
   const { data: contrato, isLoading: isContratoLoading } = useQuery({
     queryKey: [RESERVA_QUERY_KEY, id, 'contrato'],
     queryFn: () => contratosApi.getByReserva(id),
@@ -61,7 +68,6 @@ export function useReservaData(id: string) {
     [sucursalesData],
   );
 
-  // Timeline computado
   const timeline = useMemo((): TimelineEntry[] => {
     if (!reserva) return [];
 
@@ -117,6 +123,16 @@ export function useReservaData(id: string) {
     return entries;
   }, [reserva, checkOut, checkIn]);
 
+  const historialAuditoriaOrdenado = useMemo((): HistorialAuditoriaDto[] => {
+    if (!historialAuditoria) {
+      return [];
+    }
+
+    return [...historialAuditoria].sort(
+      (a, b) => new Date(b.fechaEvento ?? b.fechaCreacion).getTime() - new Date(a.fechaEvento ?? a.fechaCreacion).getTime(),
+    );
+  }, [historialAuditoria]);
+
   const error = reservaError ? (reservaError as Error).message ?? t('common.error') : null;
 
   return {
@@ -126,11 +142,13 @@ export function useReservaData(id: string) {
     fotos: fotos ?? [],
     contrato: contrato ?? null,
     timeline,
+    historialAuditoria: historialAuditoriaOrdenado,
     sucursalOptions,
     isLoading: isReservaLoading,
     isCheckOutLoading,
     isCheckInLoading,
     isFotosLoading,
+    isHistorialAuditoriaLoading,
     isContratoLoading,
     error,
     refetch: refetchReserva,

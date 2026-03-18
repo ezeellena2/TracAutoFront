@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { OrganizationTheme } from '@/shared/types';
-import { OrganizacionDto, OrganizacionThemeDto, TipoOrganizacion } from '@/shared/types/api';
+import { OrganizacionDto, OrganizacionThemeDto, ModuloSistema } from '@/shared/types/api';
 import { buildThemeOverride } from '@/shared/utils/buildThemeOverride';
 
 interface TenantState {
@@ -18,15 +18,18 @@ interface TenantState {
   setOrganizationFromLogin: (info: {
     id: string;
     nombre: string;
-    tipoOrganizacion: TipoOrganizacion;
     theme?: OrganizacionThemeDto | null;
+    modulosActivos?: number[];
   }) => void;
   clearOrganization: () => void;
+
+  // Helpers
+  tieneModulo: (modulo: ModuloSistema) => boolean;
 }
 
 export const useTenantStore = create<TenantState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       currentOrganization: null,
 
       setOrganization: (org) => {
@@ -42,7 +45,7 @@ export const useTenantStore = create<TenantState>()(
           id: dto.id,
           name: dto.nombre,
           logo: dto.theme?.logoUrl || '',
-          tipoOrganizacion: dto.tipoOrganizacion,
+          modulosActivos: dto.modulosActivos ?? [],
           theme: buildThemeOverride(dto.theme),
         };
 
@@ -57,13 +60,21 @@ export const useTenantStore = create<TenantState>()(
           id: info.id,
           name: info.nombre,
           logo: info.theme?.logoUrl || '',
-          tipoOrganizacion: info.tipoOrganizacion,
+          modulosActivos: info.modulosActivos ?? [],
           theme: buildThemeOverride(info.theme),
         };
         set({ currentOrganization: orgTheme });
       },
 
       clearOrganization: () => set({ currentOrganization: null }),
+
+      /**
+       * Verifica si la organización actual tiene un módulo activo
+       */
+      tieneModulo: (modulo: ModuloSistema) => {
+        const org = get().currentOrganization;
+        return org?.modulosActivos?.includes(modulo) ?? false;
+      },
     }),
     {
       name: 'tracauto-tenant',

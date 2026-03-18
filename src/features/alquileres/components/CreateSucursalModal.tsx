@@ -32,7 +32,8 @@ const INITIAL_FORM: SucursalFormState = {
 export function CreateSucursalModal({ isOpen, onClose, onSuccess }: CreateSucursalModalProps) {
   const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
-  const [form, setForm] = useState<SucursalFormState>({ ...INITIAL_FORM, horarios: getDefaultHorarios() });
+  // Inicialización lazy para evitar llamar getDefaultHorarios() en cada render
+  const [form, setForm] = useState<SucursalFormState>(() => ({ ...INITIAL_FORM, horarios: getDefaultHorarios() }));
   const [errors, setErrors] = useState<SucursalFormErrors>({});
   const [apiError, setApiError] = useState<ParsedError | null>(null);
   const [isLoading, setIsLoading] = useState(false);

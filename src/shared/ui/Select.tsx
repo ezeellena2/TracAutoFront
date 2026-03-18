@@ -40,9 +40,12 @@ export function Select({
     onFocus,
 }: SelectProps & { dropdownClassName?: string; buttonClassName?: string }) {
     const [isOpen, setIsOpen] = useState(false);
+    // FIX H-F6: Indice resaltado para navegacion por teclado (ArrowUp/Down, Enter, Escape)
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
     const [portalStyle, setPortalStyle] = useState<React.CSSProperties>({});
 
     const selectedOption = options.find((opt) => opt.value === value);
@@ -94,7 +97,73 @@ export function Select({
         if (disabled) return;
         onChange?.(optionValue);
         setIsOpen(false);
+        setHighlightedIndex(-1);
     };
+
+    // FIX H-F6: Navegacion por teclado para accesibilidad (WCAG 2.1)
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (disabled) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (!isOpen) {
+                    setIsOpen(true);
+                    setHighlightedIndex(0);
+                } else {
+                    setHighlightedIndex(prev => {
+                        const next = prev < options.length - 1 ? prev + 1 : 0;
+                        optionRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+                        return next;
+                    });
+                }
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                if (!isOpen) {
+                    setIsOpen(true);
+                    setHighlightedIndex(options.length - 1);
+                } else {
+                    setHighlightedIndex(prev => {
+                        const next = prev > 0 ? prev - 1 : options.length - 1;
+                        optionRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+                        return next;
+                    });
+                }
+                break;
+            case 'Enter':
+            case ' ':
+                e.preventDefault();
+                if (isOpen && highlightedIndex >= 0 && highlightedIndex < options.length) {
+                    handleSelect(options[highlightedIndex].value);
+                } else if (!isOpen) {
+                    setIsOpen(true);
+                    setHighlightedIndex(0);
+                }
+                break;
+            case 'Escape':
+                e.preventDefault();
+                setIsOpen(false);
+                setHighlightedIndex(-1);
+                buttonRef.current?.focus();
+                break;
+            case 'Home':
+                if (isOpen) {
+                    e.preventDefault();
+                    setHighlightedIndex(0);
+                    optionRefs.current[0]?.scrollIntoView({ block: 'nearest' });
+                }
+                break;
+            case 'End':
+                if (isOpen) {
+                    e.preventDefault();
+                    const last = options.length - 1;
+                    setHighlightedIndex(last);
+                    optionRefs.current[last]?.scrollIntoView({ block: 'nearest' });
+                }
+                break;
+        }
+    }, [disabled, isOpen, highlightedIndex, options, handleSelect]);
 
     const inputId = typeof label === 'string' ? label.toLowerCase().replace(/\s/g, '-') : undefined;
 
@@ -115,6 +184,7 @@ export function Select({
                     ref={buttonRef}
                     id={inputId}
                     onClick={() => !disabled && setIsOpen(!isOpen)}
+                    onKeyDown={handleKeyDown}
                     onBlur={onBlur}
                     onFocus={onFocus}
                     disabled={disabled}
@@ -149,17 +219,19 @@ export function Select({
                             style={usePortal ? portalStyle : undefined}
                         >
                             <ul role="listbox" className="py-1">
-                                {options.map((option) => {
+                                {options.map((option, index) => {
                                     const isSelected = option.value === value;
+                                    const isHighlighted = index === highlightedIndex;
                                     return (
                                         <li
                                             key={option.value}
+                                            ref={el => { optionRefs.current[index] = el; }}
                                             role="option"
                                             aria-selected={isSelected}
                                             onClick={() => handleSelect(option.value)}
                                             className={`
-                          cursor-pointer select-none relative py-2 pl-4 pr-5 
-                          ${isSelected ? 'bg-primary text-white' : 'text-text hover:bg-border'}
+                          cursor-pointer select-none relative py-2 pl-4 pr-5
+                          ${isSelected ? 'bg-primary text-white' : isHighlighted ? 'bg-border/70 text-text' : 'text-text hover:bg-border'}
                           transition-colors duration-150
                         `}
                                         >

@@ -3,6 +3,8 @@ import type { ComponentType, LazyExoticComponent } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainLayout } from '@/apps/b2b/layouts';
 import { ProtectedRoute } from '@/app/routes/ProtectedRoute';
+import { ModuleGuard } from '@/shared/components/ModuleGuard';
+import { ModuloSistema } from '@/shared/types/api';
 import { PageLoader } from '@/shared/ui';
 
 // Lazy-loaded features para mejor code-splitting
@@ -27,6 +29,37 @@ const GeofenceEditorPage = lazy(() => import('@/features/geofences/pages/Geofenc
 const GeofenceMapViewPage = lazy(() => import('@/features/geofences/pages/GeofenceMapViewPage').then(m => ({ default: m.GeofenceMapViewPage })));
 const ImportsPage = lazy(() => import('@/features/imports/pages/ImportsPage').then(m => ({ default: m.ImportsPage })));
 const NotificationsPage = lazy(() => import('@/features/notifications/pages/NotificationsPage').then(m => ({ default: m.NotificationsPage })));
+const DevicePublicPage = lazy(() => import('@/features/devices/pages/DevicePublicPage').then(m => ({ default: m.DevicePublicPage })));
+
+// Tracking Links
+const TrackingLinksPage = lazy(() => import('@/features/tracking-links/pages/TrackingLinksPage').then(m => ({ default: m.TrackingLinksPage })));
+const TrackingPublicoPage = lazy(() => import('@/features/tracking-publico/pages/TrackingPublicoPage').then(m => ({ default: m.TrackingPublicoPage })));
+
+// Preferencias Notificacion (WhatsApp)
+const PreferenciasNotificacionPage = lazy(() => import('@/features/preferencias-notificacion/pages/PreferenciasNotificacionPage').then(m => ({ default: m.PreferenciasNotificacionPage })));
+
+// Resumen IA
+const ResumenIAPage = lazy(() => import('@/features/resumen-ia/pages/ResumenIAPage').then(m => ({ default: m.ResumenIAPage })));
+
+// Scoring
+const ScoringDashboardPage = lazy(() => import('@/features/scoring/pages/ScoringDashboardPage').then(m => ({ default: m.ScoringDashboardPage })));
+const ScoringConductorDetallePage = lazy(() => import('@/features/scoring/pages/ScoringConductorDetallePage').then(m => ({ default: m.ScoringConductorDetallePage })));
+const ScoringConfigPage = lazy(() => import('@/features/scoring/pages/ScoringConfigPage').then(m => ({ default: m.ScoringConfigPage })));
+
+// Billing / Suscripción
+const BillingPage = lazy(() => import('@/features/billing/pages/BillingPage').then(m => ({ default: m.BillingPage })));
+
+// Reglas de Alerta
+const AlertRulesPage = lazy(() => import('@/features/alert-rules/pages/AlertRulesPage').then(m => ({ default: m.AlertRulesPage })));
+
+// OBD2 Diagnostics
+const OBDDashboardPage = lazy(() => import('@/features/obd-diagnostics/pages/OBDDashboardPage').then(m => ({ default: m.OBDDashboardPage })));
+
+// Admin (SuperAdmin)
+const AdminDashboardPage = lazy(() => import('@/features/admin/pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+
+// Widgets Embebibles
+const WidgetsPage = lazy(() => import('@/features/widget/pages/WidgetsPage').then(m => ({ default: m.WidgetsPage })));
 
 // Alquileres
 const DashboardAlquileresPage = lazy(() => import('@/features/alquileres/pages/DashboardAlquileresPage').then(m => ({ default: m.DashboardAlquileresPage })));
@@ -55,7 +88,26 @@ function SuspensePage({ Component }: { Component: LazyExoticComponent<ComponentT
   );
 }
 
+// Wrapper con ModuleGuard + Suspense para rutas que requieren módulo
+function GuardedPage({ Component, modules }: { Component: LazyExoticComponent<ComponentType>; modules: ModuloSistema[] }) {
+  return (
+    <ModuleGuard allowedModules={modules} showAccessDenied>
+      <SuspensePage Component={Component} />
+    </ModuleGuard>
+  );
+}
+
 const router = createBrowserRouter([
+  // Public route for QR code device page (no auth required)
+  {
+    path: '/d/:codigoQr',
+    element: <SuspensePage Component={DevicePublicPage} />,
+  },
+  // Public route for tracking links (no auth required)
+  {
+    path: '/t/:token',
+    element: <SuspensePage Component={TrackingPublicoPage} />,
+  },
   {
     path: '/login',
     element: <SuspensePage Component={LoginPage} />,
@@ -81,6 +133,17 @@ const router = createBrowserRouter([
         element: <SuspensePage Component={DashboardPage} />,
       },
       {
+        // FIX H-F7: Guardia de rol explicita para ruta admin (solo SuperAdmin).
+        // ROUTE_ACCESS ya lo filtra, pero un guard explicito en la ruta
+        // garantiza proteccion incluso si la logica de ROUTE_ACCESS cambia.
+        path: 'admin',
+        element: (
+          <ProtectedRoute requiredRoles={['SuperAdmin']}>
+            <SuspensePage Component={AdminDashboardPage} />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'vehiculos',
         element: <SuspensePage Component={VehiclesPage} />,
       },
@@ -90,7 +153,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'eventos',
-        element: <SuspensePage Component={EventsPage} />,
+        element: <GuardedPage Component={EventsPage} modules={[ModuloSistema.Telematica]} />,
       },
       {
         path: 'usuarios',
@@ -102,7 +165,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'marketplace',
-        element: <SuspensePage Component={MarketplacePage} />,
+        element: <GuardedPage Component={MarketplacePage} modules={[ModuloSistema.Marketplace]} />,
       },
       {
         path: 'mapa',
@@ -148,58 +211,99 @@ const router = createBrowserRouter([
         path: 'importaciones',
         element: <SuspensePage Component={ImportsPage} />,
       },
-      // Alquileres
+      {
+        path: 'tracking-links',
+        element: <SuspensePage Component={TrackingLinksPage} />,
+      },
+      {
+        path: 'widgets',
+        element: <SuspensePage Component={WidgetsPage} />,
+      },
+      {
+        path: 'preferencias-notificacion',
+        element: <SuspensePage Component={PreferenciasNotificacionPage} />,
+      },
+      {
+        path: 'resumen-ia',
+        element: <SuspensePage Component={ResumenIAPage} />,
+      },
+      // Scoring de conduccion — requiere módulo Scoring
+      {
+        path: 'scoring',
+        element: <GuardedPage Component={ScoringDashboardPage} modules={[ModuloSistema.Scoring]} />,
+      },
+      {
+        path: 'scoring/conductores/:id',
+        element: <GuardedPage Component={ScoringConductorDetallePage} modules={[ModuloSistema.Scoring]} />,
+      },
+      {
+        path: 'scoring/configuracion',
+        element: <GuardedPage Component={ScoringConfigPage} modules={[ModuloSistema.Scoring]} />,
+      },
+      // Alquileres — requiere módulo Alquiler
       {
         path: 'alquileres',
-        element: <SuspensePage Component={DashboardAlquileresPage} />,
+        element: <GuardedPage Component={DashboardAlquileresPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/flota',
-        element: <SuspensePage Component={FlotaAlquilerPage} />,
+        element: <GuardedPage Component={FlotaAlquilerPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/sucursales',
-        element: <SuspensePage Component={SucursalesPage} />,
+        element: <GuardedPage Component={SucursalesPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/tarifas',
-        element: <SuspensePage Component={TarifasPage} />,
+        element: <GuardedPage Component={TarifasPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/recargos',
-        element: <SuspensePage Component={RecargosPage} />,
+        element: <GuardedPage Component={RecargosPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/coberturas',
-        element: <SuspensePage Component={CoberturasPage} />,
+        element: <GuardedPage Component={CoberturasPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/promociones',
-        element: <SuspensePage Component={PromocionesPage} />,
+        element: <GuardedPage Component={PromocionesPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/reservas',
-        element: <SuspensePage Component={ReservasPage} />,
+        element: <GuardedPage Component={ReservasPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/reservas/:id',
-        element: <SuspensePage Component={ReservaDetallePage} />,
+        element: <GuardedPage Component={ReservaDetallePage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/clientes',
-        element: <SuspensePage Component={ClientesAlquilerPage} />,
+        element: <GuardedPage Component={ClientesAlquilerPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/contratos',
-        element: <SuspensePage Component={ContratosPage} />,
+        element: <GuardedPage Component={ContratosPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/reportes',
-        element: <SuspensePage Component={ReportesAlquilerPage} />,
+        element: <GuardedPage Component={ReportesAlquilerPage} modules={[ModuloSistema.Alquiler]} />,
       },
       {
         path: 'alquileres/configuracion',
-        element: <SuspensePage Component={ConfiguracionAlquilerPage} />,
+        element: <GuardedPage Component={ConfiguracionAlquilerPage} modules={[ModuloSistema.Alquiler]} />,
+      },
+      {
+        path: 'suscripcion',
+        element: <SuspensePage Component={BillingPage} />,
+      },
+      {
+        path: 'alertas/reglas',
+        element: <GuardedPage Component={AlertRulesPage} modules={[ModuloSistema.Telematica]} />,
+      },
+      {
+        path: 'diagnosticos-obd',
+        element: <GuardedPage Component={OBDDashboardPage} modules={[ModuloSistema.Telematica]} />,
       },
       {
         path: 'notificaciones',

@@ -210,11 +210,11 @@ export function GestionarExclusionesModal({
         setSelectedResources(newSet);
     };
 
-    const getResourceName = (res: any, type: TipoRecurso) => {
+    const getResourceName = (res: VehiculoDto | DispositivoDto | ConductorDto, type: TipoRecurso) => {
         switch (type) {
-            case TipoRecurso.Vehiculo: return `${res.patente} ${res.marca || ''} ${res.modelo || ''}`.trim();
-            case TipoRecurso.Conductor: return res.nombreCompleto || t('organization.exclusions.withoutName');
-            case TipoRecurso.DispositivoTraccar: return res.nombre || res.uniqueId || t('organization.exclusions.withoutName');
+            case TipoRecurso.Vehiculo: { const v = res as VehiculoDto; return `${v.patente} ${v.marca || ''} ${v.modelo || ''}`.trim(); }
+            case TipoRecurso.Conductor: { const c = res as ConductorDto; return c.nombreCompleto || t('organization.exclusions.withoutName'); }
+            case TipoRecurso.DispositivoTraccar: { const d = res as DispositivoDto; return d.nombre || d.uniqueId || t('organization.exclusions.withoutName'); }
             default: return t('organization.exclusions.unknown');
         }
     };
@@ -371,7 +371,7 @@ export function GestionarExclusionesModal({
                                     <div className="animate-in fade-in slide-in-from-top-2 space-y-3 bg-ground p-3 rounded-md border border-border">
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm font-medium">
-                                                {selectedResources.size} recursos seleccionados
+                                                {t('organization.exclusions.selectedCount', { count: selectedResources.size })}
                                             </span>
                                             <Button variant="ghost" size="sm" onClick={() => setSelectedResources(new Set())}>
                                                 {t('common.clear', 'Limpiar')}
@@ -379,7 +379,7 @@ export function GestionarExclusionesModal({
                                         </div>
 
                                         <textarea
-                                            placeholder="Motivo de la exclusión (opcional)..."
+                                            placeholder={t('organization.exclusions.motivoPlaceholder')}
                                             value={motivoExclusion}
                                             onChange={(e) => setMotivoExclusion(e.target.value)}
                                             rows={2}

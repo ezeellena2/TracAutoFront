@@ -75,7 +75,7 @@ export function useGeofences(options: UseGeofencesOptions = {}) {
       });
       setVehiculos(result.items.map((v) => ({ id: v.id, patente: v.patente })));
     } catch (err) {
-      console.error('Error al cargar vehículos:', err);
+      if (import.meta.env.DEV) console.error('Error al cargar vehículos:', err);
     } finally {
       setIsLoadingVehiculos(false);
     }

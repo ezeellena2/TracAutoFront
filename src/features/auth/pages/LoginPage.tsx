@@ -359,7 +359,7 @@ export function LoginPage() {
           nombreOrganizacion: '',
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : t('auth.errors.resendCodeError');
       setError(message);
     }

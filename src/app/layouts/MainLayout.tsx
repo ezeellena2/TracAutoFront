@@ -1,16 +1,22 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Menu } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ToastContainer, ErrorBoundary, ErrorReportModal } from '@/shared/ui';
-import { useSidebarStore, useAuthStore, useLocalizationStore, useModoSolicitudStore } from '@/store';
+import { useAuthStore } from '@/store/auth.store';
+import { useLocalizationStore } from '@/store/localization.store';
+import { useModoSolicitudStore } from '@/store/modoSolicitud.store';
+import { useSidebarStore } from '@/store/sidebar.store';
 import { useModoSolicitudDetection } from '@/hooks';
 import { SolicitudCambioModal } from '@/features/solicitudes-cambio';
 import { NotificationProvider } from '@/features/notifications';
+import { CopilotoWidget } from '@/features/copiloto';
 
 export function MainLayout() {
   const location = useLocation();
+  const { t } = useTranslation();
   const { isCollapsed, openMobile } = useSidebarStore();
   const { isAuthenticated } = useAuthStore();
   const { preferences, loadPreferences, isLoading } = useLocalizationStore();
@@ -18,7 +24,7 @@ export function MainLayout() {
 
   useModoSolicitudDetection();
 
-  // Cargar preferencias de localización una vez post-auth
+  // Cargar preferencias de localizacion una vez post-auth
   useEffect(() => {
     if (isAuthenticated && !preferences && !isLoading) {
       loadPreferences();
@@ -36,11 +42,11 @@ export function MainLayout() {
             <button
               onClick={openMobile}
               className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors"
-              aria-label="Abrir menú"
+              aria-label={t('common.openMenu')}
             >
               <Menu size={24} />
             </button>
-            <span className="font-bold text-lg text-text">TracAuto</span>
+            <span className="font-bold text-lg text-text">{t('auth.title')}</span>
           </div>
           {/* Desktop header */}
           <div className="hidden md:block">
@@ -64,6 +70,9 @@ export function MainLayout() {
           onEnviadoAJira={clearSelection}
           contexto={selectedContext}
         />
+
+        {/* Copiloto IA flotante */}
+        <CopilotoWidget />
       </div>
     </NotificationProvider>
   );

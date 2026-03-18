@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Servicio de endpoints de invitaciones
  * Conecta con InvitacionesController del backend
  */
 
 import { apiClient, publicApiClient } from '../http/apiClient';
 import { useAuthStore } from '@/store';
-import { 
+import {
   InvitacionDto,
   CreateInvitacionRequest,
   AceptarInvitacionRequest,
@@ -13,6 +13,7 @@ import {
   ListaPaginada,
   PaginacionParams
 } from '@/shared/types/api';
+import type { ImportarExcelResponse } from './reportes.api';
 
 const ORGANIZACIONES_BASE = 'organizaciones';
 const INVITACIONES_BASE = 'invitaciones';
@@ -39,7 +40,7 @@ export async function createInvitacion(
   rolAsignado: 'Admin' | 'Operador' | 'Analista' = 'Analista'
 ): Promise<InvitacionDto> {
   const orgId = getOrganizationId();
-  
+
   const response = await apiClient.post<InvitacionDto>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`,
     { email, rolAsignado } as CreateInvitacionRequest
@@ -55,7 +56,7 @@ export async function getInvitacionesPendientes(
 ): Promise<ListaPaginada<InvitacionDto>> {
   const orgId = getOrganizationId();
   const { numeroPagina = 1, tamanoPagina = 10 } = params;
-  
+
   const response = await apiClient.get<ListaPaginada<InvitacionDto>>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones`,
     { params: { numeroPagina, tamanoPagina } }
@@ -68,7 +69,7 @@ export async function getInvitacionesPendientes(
  */
 export async function reenviarInvitacion(invitacionId: string): Promise<boolean> {
   const orgId = getOrganizationId();
-  
+
   const response = await apiClient.post<boolean>(
     `${ORGANIZACIONES_BASE}/${orgId}/invitaciones/${invitacionId}/reenviar`
   );
@@ -80,8 +81,59 @@ export async function reenviarInvitacion(invitacionId: string): Promise<boolean>
  */
 export async function cancelInvitacion(invitacionId: string): Promise<void> {
   const orgId = getOrganizationId();
-  
+
   await apiClient.delete(`${INVITACIONES_BASE}/${invitacionId}?orgId=${orgId}`);
+}
+
+/**
+ * Exporta las invitaciones pendientes de la organización actual.
+ */
+export async function exportInvitacionesExcel(): Promise<Blob> {
+  const orgId = getOrganizationId();
+
+  const response = await apiClient.get(
+    `${ORGANIZACIONES_BASE}/${orgId}/invitaciones/excel`,
+    {
+      responseType: 'blob',
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Descarga el template de Excel para importar invitaciones.
+ */
+export async function downloadTemplateInvitacionesExcel(): Promise<Blob> {
+  const orgId = getOrganizationId();
+
+  const response = await apiClient.get(
+    `${ORGANIZACIONES_BASE}/${orgId}/invitaciones/excel/template`,
+    {
+      responseType: 'blob',
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Importa invitaciones desde un archivo Excel.
+ */
+export async function importInvitacionesExcel(file: File): Promise<ImportarExcelResponse> {
+  const orgId = getOrganizationId();
+  const formData = new FormData();
+  formData.append('archivo', file);
+
+  const response = await apiClient.post<ImportarExcelResponse>(
+    `${ORGANIZACIONES_BASE}/${orgId}/invitaciones/excel/importar`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 120000,
+    }
+  );
+  return response.data;
 }
 
 // ==================== Invitaciones Públicas (sin auth) ====================
@@ -117,6 +169,9 @@ export const invitacionesApi = {
   createInvitacion,
   cancelInvitacion,
   getInvitacionesPendientes,
+  exportInvitacionesExcel,
+  downloadTemplateInvitacionesExcel,
+  importInvitacionesExcel,
   reenviarInvitacion,
   // Públicos
   validarInvitacion,

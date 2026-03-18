@@ -25,7 +25,8 @@ export function ServerErrorPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      console.log('Error ID:', traceId);
+      // Fallback: clipboard copy failed, print to console
+      console.info('Error ID:', traceId);
     }
   };
 

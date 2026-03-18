@@ -50,6 +50,21 @@ export interface PublicacionPublicaDetalleDto {
   contacto: ContactoPublicoDto;
 }
 
+/** Favorito del marketplace */
+export interface FavoritoMarketplaceDto {
+  id: string;
+  vehiculoPublicacionId: string;
+  marca: string;
+  modelo: string;
+  anio: number | null;
+  precio: number | null;
+  moneda: string;
+  kilometraje: number;
+  descripcion: string | null;
+  concesionariaNombre: string;
+  fechaAgregado: string;
+}
+
 /** Parametros de filtro para busqueda publica de vehiculos */
 export interface FiltrosVehiculoPublico {
   numeroPagina?: number;

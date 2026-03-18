@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, Badge, Button } from '@/shared/ui';
 import { formatPrecio } from '../utils/formatters';
@@ -23,7 +24,7 @@ const ESTADO_PAGO_BADGE: Record<number, 'default' | 'success' | 'warning' | 'err
   [EstadoPago.ReembolsoParcial]: 'default',
 };
 
-export function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, puedeEditar }: PagosReservaCardProps) {
+export const PagosReservaCard = memo(function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, puedeEditar }: PagosReservaCardProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
 
@@ -85,4 +86,4 @@ export function PagosReservaCard({ pagos, moneda, precioTotal, onRegistrarPago, 
       )}
     </Card>
   );
-}
+});

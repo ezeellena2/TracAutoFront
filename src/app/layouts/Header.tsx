@@ -6,6 +6,8 @@ import { authService } from '@/services/auth.service';
 import { LanguageSwitcher } from '@/shared/ui/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { NotificationBell, NotificationDrawer, useNotifications } from '@/features/notifications';
+import { IndicadoresHeader } from '@/shared/ui/IndicadoresHeader';
+import { FeriadosHeader } from '@/shared/ui/FeriadosHeader';
 
 export function Header() {
   const navigate = useNavigate();
@@ -29,7 +31,6 @@ export function Header() {
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Calculate dropdown position when opening
   const handleToggleDropdown = () => {
     if (!isDropdownOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
@@ -41,7 +42,6 @@ export function Header() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     if (!isDropdownOpen) return;
 
@@ -56,7 +56,6 @@ export function Header() {
       setIsDropdownOpen(false);
     }
 
-    // Use a small delay to avoid immediate closure
     const timer = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
     }, 0);
@@ -73,23 +72,22 @@ export function Header() {
   };
 
   const handleToggleDarkMode = () => {
-    // Cambia el modo UI (baseTheme) y re-aplica el mismo override de organización (sin modificarlo).
     setDarkMode(!isDarkMode, currentOrganization?.theme);
   };
 
-  // Mapeo de roles a clases basadas en tokens del sistema
   const roleColors: Record<string, string> = {
+    SuperAdmin: 'bg-error/10 text-error',
     Admin: 'bg-role-admin-bg text-role-admin-text',
     Operador: 'bg-role-operador-bg text-role-operador-text',
     Analista: 'bg-role-analista-bg text-role-analista-text',
   };
 
   return (
-    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6 relative z-[9999]">
-      {/* Organization info */}
-      <div className="flex items-center gap-4">
+    <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-4 lg:px-6 relative z-[9999]">
+      {/* ─── Left: Organization ─── */}
+      <div className="flex items-center gap-2.5 flex-shrink-0 min-w-0">
         {currentOrganization && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 cursor-default">
             {currentOrganization.logo ? (
               <div className="w-8 h-8 rounded-lg bg-surface border border-border overflow-hidden flex items-center justify-center">
                 <img
@@ -102,125 +100,157 @@ export function Header() {
                 />
               </div>
             ) : (
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-primary"
-              >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br from-primary to-primary/80 shadow-sm">
                 {currentOrganization.name.charAt(0)}
               </div>
             )}
-            <div>
-              <span className="font-semibold text-text">{currentOrganization.name}</span>
-            </div>
+            <span className="font-semibold text-sm text-text truncate max-w-[140px]">
+              {currentOrganization.name}
+            </span>
           </div>
         )}
       </div>
 
-      {/* Modo Solicitud toggle + User menu */}
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={toggle}
-          data-tracauto-modo-solicitud-toggle
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${activo ? 'bg-primary text-white' : 'text-text-muted hover:text-text hover:bg-background'}`}
-          title={t('header.modoSolicitud')}
-          aria-pressed={activo}
-        >
-          <FileEdit size={18} />
-          <span className="hidden sm:inline">{t('header.modoSolicitud')}</span>
-        </button>
+      {/* ─── Right: Notifications + User ─── */}
+      <div className="flex items-center gap-2 flex-shrink-0">
         <NotificationBell
           unreadCount={unreadCount}
           connectionState={connectionState}
           onClick={() => setIsNotificationsOpen(true)}
         />
+
+        <span className="w-px h-6 bg-border/50 mx-0.5" aria-hidden="true" />
+
+        {/* User menu trigger */}
         <div className="relative" ref={dropdownRef}>
-        <button
-          ref={buttonRef}
-          onClick={handleToggleDropdown}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-background transition-colors"
-        >
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-text">{user?.nombre || t('users.roles.usuario')}</p>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[user?.rol || ''] || 'bg-role-default-bg text-role-default-text'}`}>
-              {user?.rol || t('users.roles.usuario')}
-            </span>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-            <User size={18} className="text-white" />
-          </div>
-          <ChevronDown size={16} className={`text-text-muted transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-        </button>
-
-        {/* Dropdown */}
-        {isDropdownOpen && (
-          <div 
-            ref={dropdownMenuRef}
-            className="fixed w-64 max-w-[calc(100vw-2rem)] bg-surface rounded-xl border border-border shadow-xl py-2 z-[10000]"
-            style={{ top: `${dropdownPosition.top}px`, right: `${dropdownPosition.right}px` }}
+          <button
+            ref={buttonRef}
+            onClick={handleToggleDropdown}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-background transition-colors duration-200 cursor-pointer"
           >
-            {/* User info */}
-            <div className="px-4 py-3 border-b border-border">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                  <User size={20} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-text">{user?.nombre}</p>
-                  <p className="text-xs text-text-muted">{user?.email}</p>
-                </div>
-              </div>
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-medium text-text leading-tight">{user?.nombre || t('users.roles.usuario')}</p>
+              <span className={`text-[10px] leading-tight px-1.5 py-0.5 rounded-full font-medium ${roleColors[user?.rol || ''] || 'bg-role-default-bg text-role-default-text'}`}>
+                {user?.rol || t('users.roles.usuario')}
+              </span>
             </div>
-
-            {/* Organization info */}
-            <div className="px-4 py-3 border-b border-border">
-              <div className="flex items-center gap-2 text-text-muted">
-                <Building2 size={14} />
-                <span className="text-xs">{currentOrganization?.name}</span>
-              </div>
-              <div className="flex items-center gap-2 text-text-muted mt-1">
-                <Shield size={14} />
-                <span className="text-xs">{user?.rol}</span>
-              </div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
+              <User size={15} className="text-white" />
             </div>
+            <ChevronDown size={14} className={`text-text-muted transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
 
-            {/* Language switcher */}
-            <div className="px-4 py-2 border-b border-border">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-text-muted">{t('header.language')}</span>
-                <LanguageSwitcher />
-              </div>
-            </div>
-
-            {/* Dark mode toggle */}
-            <button
-              onClick={handleToggleDarkMode}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-background transition-colors"
+          {/* ─── Dropdown ─── */}
+          {isDropdownOpen && (
+            <div
+              ref={dropdownMenuRef}
+              className="fixed w-72 max-w-[calc(100vw-2rem)] bg-surface rounded-xl border border-border shadow-2xl shadow-black/8 dark:shadow-black/30 py-1.5 z-[10000]"
+              style={{ top: `${dropdownPosition.top}px`, right: `${dropdownPosition.right}px` }}
             >
-              {isDarkMode ? (
-                <>
-                  <Sun size={16} />
-                  {t('header.lightMode')}
-                </>
-              ) : (
-                <>
-                  <Moon size={16} />
-                  {t('header.darkMode')}
-                </>
-              )}
-            </button>
+              {/* User info */}
+              <div className="px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm flex-shrink-0">
+                    <User size={18} className="text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-text truncate">{user?.nombre}</p>
+                    <p className="text-xs text-text-muted truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-2.5 text-xs text-text-muted">
+                  <span className="inline-flex items-center gap-1">
+                    <Building2 size={12} className="flex-shrink-0" />
+                    <span className="truncate">{currentOrganization?.name}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Shield size={12} className="flex-shrink-0" />
+                    <span>{user?.rol}</span>
+                  </span>
+                </div>
+              </div>
 
-            {/* Logout button */}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-error/10 transition-colors"
-            >
-              <LogOut size={16} />
-              {t('header.logout')}
-            </button>
-          </div>
-        )}
+              {/* ─── Indicators section ─── */}
+              <div className="px-4 py-3 border-b border-border space-y-2">
+                <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">{t('header.indicadores', 'Indicadores')}</p>
+                <div className="flex flex-col gap-1.5">
+                  <FeriadosHeader />
+                  <IndicadoresHeader />
+                </div>
+              </div>
+
+              {/* ─── Modo Solicitud toggle ─── */}
+              <button
+                type="button"
+                onClick={toggle}
+                data-tracauto-modo-solicitud-toggle
+                className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm transition-colors duration-150 cursor-pointer ${
+                  activo ? 'text-primary' : 'text-text hover:bg-background'
+                }`}
+                aria-pressed={activo}
+              >
+                <span className="flex items-center gap-2.5">
+                  <FileEdit size={15} />
+                  <span>{t('header.modoSolicitud')}</span>
+                </span>
+                {/* Toggle switch */}
+                <span
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+                    activo ? 'bg-primary' : 'bg-border'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                      activo ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
+                  />
+                </span>
+              </button>
+
+              <div className="border-t border-border" />
+
+              {/* Language switcher */}
+              <div className="px-4 py-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-text-muted">{t('header.language')}</span>
+                  <LanguageSwitcher />
+                </div>
+              </div>
+
+              {/* Dark mode toggle */}
+              <button
+                onClick={handleToggleDarkMode}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-background transition-colors duration-150 cursor-pointer"
+              >
+                {isDarkMode ? (
+                  <>
+                    <Sun size={15} className="text-amber-500" />
+                    <span>{t('header.lightMode')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon size={15} className="text-indigo-400" />
+                    <span>{t('header.darkMode')}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Logout */}
+              <div className="border-t border-border mt-1 pt-1">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-error hover:bg-error/10 transition-colors duration-150 cursor-pointer"
+                >
+                  <LogOut size={15} />
+                  <span>{t('header.logout')}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ─── Notification Drawer ─── */}
       <NotificationDrawer
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}

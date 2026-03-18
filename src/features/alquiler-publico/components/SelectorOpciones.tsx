@@ -26,20 +26,6 @@ export function SelectorOpciones({
 }: SelectorOpcionesProps) {
   const { t } = useTranslation();
 
-  if (isLoading) {
-    return (
-      <Card padding="none">
-        <CardContent>
-          <div className="flex justify-center py-6">
-            <Spinner />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (coberturas.length === 0 && recargos.length === 0) return null;
-
   const toggleCobertura = useCallback((id: string, obligatoria: boolean) => {
     if (obligatoria) return;
     const next = coberturasSeleccionadasIds.includes(id)
@@ -55,6 +41,20 @@ export function SelectorOpciones({
       : [...recargosSeleccionadosIds, id];
     onRecargosChange(next);
   }, [recargosSeleccionadosIds, onRecargosChange]);
+
+  if (isLoading) {
+    return (
+      <Card padding="none">
+        <CardContent>
+          <div className="flex justify-center py-6">
+            <Spinner />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (coberturas.length === 0 && recargos.length === 0) return null;
 
   return (
     <Card padding="none">

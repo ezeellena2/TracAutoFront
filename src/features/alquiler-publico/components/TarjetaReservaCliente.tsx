@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Car, Calendar, MapPin } from 'lucide-react';
 import { Card, Badge } from '@/shared/ui';
@@ -12,7 +13,7 @@ interface TarjetaReservaClienteProps {
   onClick: () => void;
 }
 
-export function TarjetaReservaCliente({ reserva, onClick }: TarjetaReservaClienteProps) {
+export const TarjetaReservaCliente = memo(function TarjetaReservaCliente({ reserva, onClick }: TarjetaReservaClienteProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
 
@@ -68,4 +69,4 @@ export function TarjetaReservaCliente({ reserva, onClick }: TarjetaReservaClient
       </div>
     </Card>
   );
-}
+});

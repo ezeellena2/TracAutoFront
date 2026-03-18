@@ -63,7 +63,7 @@ export function GeofenceEditorPage() {
     geofencesApi
       .listar({ soloActivas: true, tamanoPagina: GEOFENCES_PAGE_SIZE })
       .then((result) => setExistingGeofences(result.items))
-      .catch((err) => console.error('Error loading existing geofences:', err));
+      .catch((err) => { if (import.meta.env.DEV) console.error('Error loading existing geofences:', err); });
   }, []);
 
   /* ---- Cargar geozona para edición ---- */
@@ -149,7 +149,7 @@ export function GeofenceEditorPage() {
 
       navigate('/geozonas');
     } catch (error) {
-      console.error('Error al guardar geozona:', error);
+      handleApiError(error);
     } finally {
       setIsSubmitting(false);
     }

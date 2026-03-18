@@ -1,4 +1,4 @@
-import { apiClient } from '../http/apiClient';
+﻿import { apiClient } from '../http/apiClient';
 import type { ListaPaginada } from '@/shared/types/api';
 import type { SucursalDto, SucursalDetalleDto, CreateSucursalRequest } from '@/features/alquileres/types/sucursal';
 import type {
@@ -19,6 +19,7 @@ import type {
   CheckOutAlquilerDto,
   CheckInAlquilerDto,
   FotoInspeccionDto,
+  HistorialAuditoriaDto,
   CancelarReservaRequest,
   NoShowReservaRequest,
   CreateCheckOutRequest,
@@ -30,6 +31,7 @@ import type {
   CreatePaymentIntentResult,
   LiberarDepositoRequest,
   DeducirDepositoRequest,
+  ModificarReservaAlquilerRequest,
 } from '@/features/alquileres/types/reserva';
 import type { ClienteAlquilerDto, ClienteAlquilerDetalleDto, CreateClienteAlquilerRequest } from '@/features/alquileres/types/cliente';
 import type { ResultadoCotizacionDto } from '@/features/alquileres/types/cotizacion';
@@ -41,6 +43,7 @@ import type {
   UpdatePlantillaContratoRequest,
   GenerarContratoRequest,
   FirmarContratoRequest,
+  FirmaDigitalResult,
 } from '@/features/alquileres/types/contrato';
 import type { ConfiguracionAlquilerDto, UpdateConfiguracionAlquilerRequest } from '@/features/alquileres/types/configuracion';
 import type {
@@ -49,6 +52,7 @@ import type {
   EstadisticasReservasDto,
   TopVehiculosDto,
   ExportarReporteParams,
+  AlquilerDashboardKpiDto,
 } from '@/features/alquileres/types/reportes';
 
 // =====================================================
@@ -78,7 +82,7 @@ function urlWithQuery(base: string, params: Record<string, unknown>): string {
 }
 
 // =====================================================
-// SUCURSALES — api/v1/sucursales
+// SUCURSALES ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/sucursales
 // =====================================================
 
 export const sucursalesApi = {
@@ -117,7 +121,7 @@ export const sucursalesApi = {
 };
 
 // =====================================================
-// VEHICULOS ALQUILER — api/v1/alquiler/vehiculos
+// VEHICULOS ALQUILER ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/vehiculos
 // =====================================================
 
 const VEHICULOS_BASE = 'alquiler/vehiculos';
@@ -172,7 +176,7 @@ export const vehiculosAlquilerApi = {
 };
 
 // =====================================================
-// TARIFAS — api/v1/alquiler/tarifas
+// TARIFAS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/tarifas
 // =====================================================
 
 const TARIFAS_BASE = 'alquiler/tarifas';
@@ -215,7 +219,7 @@ export const tarifasApi = {
 };
 
 // =====================================================
-// RECARGOS — api/v1/alquiler/recargos
+// RECARGOS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/recargos
 // =====================================================
 
 const RECARGOS_BASE = 'alquiler/recargos';
@@ -253,7 +257,7 @@ export const recargosApi = {
 };
 
 // =====================================================
-// COBERTURAS — api/v1/alquiler/coberturas
+// COBERTURAS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/coberturas
 // =====================================================
 
 const COBERTURAS_BASE = 'alquiler/coberturas';
@@ -289,7 +293,7 @@ export const coberturasApi = {
 };
 
 // =====================================================
-// PROMOCIONES — api/v1/alquiler/promociones
+// PROMOCIONES ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/promociones
 // =====================================================
 
 const PROMOCIONES_BASE = 'alquiler/promociones';
@@ -331,7 +335,7 @@ export const promocionesApi = {
 };
 
 // =====================================================
-// CLIENTES — api/v1/alquiler/clientes
+// CLIENTES ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/clientes
 // =====================================================
 
 const CLIENTES_BASE = 'alquiler/clientes';
@@ -365,7 +369,7 @@ export const clientesAlquilerApi = {
 };
 
 // =====================================================
-// RESERVAS — api/v1/alquiler/reservas
+// RESERVAS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/reservas
 // =====================================================
 
 const RESERVAS_BASE = 'alquiler/reservas';
@@ -410,6 +414,11 @@ export const reservasApi = {
     return r.data;
   },
 
+  getHistorialAuditoria: async (reservaId: string) => {
+    const r = await apiClient.get<HistorialAuditoriaDto[]>(`${RESERVAS_BASE}/${reservaId}/historial-auditoria`);
+    return r.data;
+  },
+
   getCalendario: async (params: { fechaDesde: string; fechaHasta: string; sucursalId?: string }) => {
     const url = urlWithQuery(`${RESERVAS_BASE}/calendario`, params);
     const r = await apiClient.get<ReservaCalendarioDto[]>(url);
@@ -426,7 +435,8 @@ export const reservasApi = {
     return r.data;
   },
 
-  modificar: async (id: string, data: unknown) => {
+  // FIX H-F3: Tipado correcto para modificar reserva (antes era `unknown`)
+  modificar: async (id: string, data: ModificarReservaAlquilerRequest) => {
     const r = await apiClient.put<ReservaAlquilerDetalleDto>(`${RESERVAS_BASE}/${id}`, data);
     return r.data;
   },
@@ -460,7 +470,7 @@ export const reservasApi = {
 };
 
 // =====================================================
-// CONTRATOS — api/v1/alquiler/contratos
+// CONTRATOS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/contratos
 // =====================================================
 
 const CONTRATOS_BASE = 'alquiler/contratos';
@@ -509,14 +519,19 @@ export const contratosApi = {
     return r.data;
   },
 
-  getPdf: async (id: string) => {
-    const r = await apiClient.get<{ url: string }>(`${CONTRATOS_BASE}/${id}/pdf`);
+  getPdf: async (id: string): Promise<string> => {
+    const r = await apiClient.get<string | { url: string }>(`${CONTRATOS_BASE}/${id}/pdf`);
+    return typeof r.data === 'string' ? r.data : r.data.url;
+  },
+
+  enviarFirmaDigital: async (id: string) => {
+    const r = await apiClient.post<FirmaDigitalResult>(`${CONTRATOS_BASE}/${id}/firma-digital`);
     return r.data;
   },
 };
 
 // =====================================================
-// PAGOS — api/v1/alquiler/pagos
+// PAGOS ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/pagos
 // =====================================================
 
 const PAGOS_BASE = 'alquiler/pagos';
@@ -549,7 +564,7 @@ export const pagosAlquilerApi = {
 };
 
 // =====================================================
-// COTIZACION — api/v1/alquiler/cotizacion
+// COTIZACION ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/cotizacion
 // =====================================================
 
 export const cotizacionApi = {
@@ -571,7 +586,7 @@ export const cotizacionApi = {
 };
 
 // =====================================================
-// CONFIGURACION — api/v1/alquiler/configuracion
+// CONFIGURACION ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/configuracion
 // =====================================================
 
 export const configuracionAlquilerApi = {
@@ -587,12 +602,17 @@ export const configuracionAlquilerApi = {
 };
 
 // =====================================================
-// REPORTES — api/v1/alquiler/reportes
+// REPORTES ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â api/v1/alquiler/reportes
 // =====================================================
 
 const REPORTES_BASE = 'alquiler/reportes';
 
 export const reportesAlquilerApi = {
+  getDashboardKpis: async (): Promise<AlquilerDashboardKpiDto> => {
+    const r = await apiClient.get<AlquilerDashboardKpiDto>(`${REPORTES_BASE}/dashboard-kpis`);
+    return r.data;
+  },
+
   getUtilizacionFlota: async (params: {
     fechaInicio: string;
     fechaFin: string;
@@ -642,3 +662,13 @@ export const reportesAlquilerApi = {
     return r.data;
   },
 };
+
+
+
+export async function getChecklistInspeccionPdf(reservaId: string, tipo: 'checkout' | 'checkin'): Promise<Blob> {
+  const r = await apiClient.get(`${CONTRATOS_BASE}/reserva/${reservaId}/checklist-pdf?tipo=${tipo}`, {
+    responseType: 'blob',
+  });
+  return r.data;
+}
+

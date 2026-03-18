@@ -2,7 +2,7 @@
  * Tipos base para autenticación
  */
 
-export type UserRole = 'Admin' | 'Operador' | 'Analista';
+export type UserRole = 'SuperAdmin' | 'Admin' | 'Operador' | 'Analista';
 
 export interface AuthUser {
   id: string;

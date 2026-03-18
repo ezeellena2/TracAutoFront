@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, ExternalLink } from 'lucide-react';
 import { Card, CardHeader } from '@/shared/ui';
@@ -9,7 +9,7 @@ interface ClienteReservaCardProps {
   clienteId: string;
 }
 
-export function ClienteReservaCard({ nombreCompleto, clienteId }: ClienteReservaCardProps) {
+export const ClienteReservaCard = memo(function ClienteReservaCard({ nombreCompleto, clienteId }: ClienteReservaCardProps) {
   const { t } = useTranslation();
   const [isDetalleOpen, setIsDetalleOpen] = useState(false);
 
@@ -41,4 +41,4 @@ export function ClienteReservaCard({ nombreCompleto, clienteId }: ClienteReserva
       />
     </>
   );
-}
+});

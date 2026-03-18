@@ -1,9 +1,10 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore, useTenantStore, useThemeStore } from '@/store';
 import { buildApiUrl, env } from '@/config/env';
-import { ProblemDetails } from '@/shared/types/api';
+import { ProblemDetails, RefreshTokenResponse } from '@/shared/types/api';
 import { toast } from '@/store/toast.store';
 import { sanitizePayload } from './payloadSanitizer';
+import { hydrateAuthenticatedSession } from '@/services/auth/sessionHydration';
 
 /**
  * Formato de error del backend (ProblemDetails RFC 7807)
@@ -11,7 +12,7 @@ import { sanitizePayload } from './payloadSanitizer';
  */
 
 /**
- * Formato de error de validación del backend
+ * Formato de error de validaciÃ³n del backend
  */
 interface ValidationError {
   errors?: Record<string, string[]>;
@@ -22,7 +23,7 @@ type ApiErrorResponse = ProblemDetails | ValidationError;
 
 /**
  * Extrae mensaje de error legible del response del backend
- * Prioriza: detail (mensaje descriptivo) > code (código de error) > mensaje por defecto
+ * Prioriza: detail (mensaje descriptivo) > code (cÃ³digo de error) > mensaje por defecto
  */
 function extractErrorMessage(data: ApiErrorResponse | undefined, status: number): string {
   if (!data) {
@@ -31,23 +32,26 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
 
   // ProblemDetails: priorizar 'detail' si tiene mensaje descriptivo
   if ('detail' in data && data.detail && typeof data.detail === 'string' && data.detail.trim()) {
-    // Si el detail contiene información útil (no solo el código), usarlo
-    // Esto es especialmente útil para errores como "General.ErrorInesperado" que incluyen el mensaje
+    // Si el detail contiene informaciÃ³n Ãºtil (no solo el cÃ³digo), usarlo
+    // Esto es especialmente Ãºtil para errores como "General.ErrorInesperado" que incluyen el mensaje
     return data.detail;
   }
 
-  // Si tiene código explícito (backend standard), retornarlo.
-  // El hook useErrorHandler lo traducirá como errors.Codigo
+  // Si tiene cÃ³digo explÃ­cito (backend standard), retornarlo.
+  // El hook useErrorHandler lo traducirÃ¡ como errors.Codigo
   if ('code' in data && data.code) {
     return data.code;
   }
 
   // Backwards compatibility: si tiene extension 'code' (ProblemDetails older style)
-  if ('extensions' in data && (data as any).extensions?.code) {
-    return (data as any).extensions.code;
+  if ('extensions' in data) {
+    const ext = (data as Record<string, unknown>).extensions as Record<string, unknown> | undefined;
+    if (ext?.code) {
+      return ext.code as string;
+    }
   }
 
-  // ProblemDetails standard errors (sin código específico)
+  // ProblemDetails standard errors (sin cÃ³digo especÃ­fico)
   if (status >= 400 && status < 600) {
     return getDefaultMessage(status);
   }
@@ -56,8 +60,8 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
   if ('errors' in data && data.errors) {
     const firstError = Object.values(data.errors)[0];
     if (firstError && firstError.length > 0) {
-      // Si el error de validación es un código, devolverlo tal cual.
-      // Si es texto libre, retornarlo (aunque no se traducirá).
+      // Si el error de validaciÃ³n es un cÃ³digo, devolverlo tal cual.
+      // Si es texto libre, retornarlo (aunque no se traducirÃ¡).
       return firstError[0];
     }
   }
@@ -66,7 +70,7 @@ function extractErrorMessage(data: ApiErrorResponse | undefined, status: number)
 }
 
 /**
- * Detecta si un error 403 es por violación de tenancy
+ * Detecta si un error 403 es por violaciÃ³n de tenancy
  * Preferido: detectar por campo code (cuando backend lo agregue)
  * Fallback: detectar por title o detail (acotado, sin depender de texto largo)
  */
@@ -90,7 +94,7 @@ function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean 
     return true;
   }
 
-  // Fallback adicional: detectar por detail (solo si contiene palabras clave específicas)
+  // Fallback adicional: detectar por detail (solo si contiene palabras clave especÃ­ficas)
   const detail = data.detail?.toLowerCase() || '';
   if (detail.includes('otra organización') || detail.includes('cross-tenant')) {
     return true;
@@ -100,8 +104,8 @@ function isTenancyViolation(data: Partial<ProblemDetails> | undefined): boolean 
 }
 
 /**
- * Mensajes por defecto según código HTTP
- * Retorna KEYS de traducción, no texto hardcodeado.
+ * Mensajes por defecto segÃºn cÃ³digo HTTP
+ * Retorna KEYS de traducciÃ³n, no texto hardcodeado.
  */
 function getDefaultMessage(status: number): string {
   switch (status) {
@@ -118,8 +122,8 @@ function getDefaultMessage(status: number): string {
 }
 
 /**
- * Extrae el código de error del backend para que useErrorHandler pueda traducirlo.
- * Prioriza code en raíz, luego extensions.code, luego fallback por status.
+ * Extrae el cÃ³digo de error del backend para que useErrorHandler pueda traducirlo.
+ * Prioriza code en raÃ­z, luego extensions.code, luego fallback por status.
  */
 function extractErrorCode(data: ApiErrorResponse | undefined, status: number): string {
   if (!data) return getDefaultMessage(status);
@@ -160,7 +164,7 @@ export function setupInterceptors(client: AxiosInstance): void {
    *
    * Evita loops:
    * - Marcamos la request original con `_retry = true` para no reintentar infinitamente.
-   * - Excluimos explícitamente /auth/refresh y /auth/logout del refresh.
+   * - Excluimos explÃ­citamente /auth/refresh y /auth/logout del refresh.
    */
   let isRefreshing = false;
   let refreshPromise: Promise<string> | null = null;
@@ -177,14 +181,6 @@ export function setupInterceptors(client: AxiosInstance): void {
     if (!url) return false;
     return url.includes('/auth/refresh') || url.includes('auth/refresh') || url.includes('/auth/logout') || url.includes('auth/logout');
   }
-
-  function extractAccessToken(data: unknown): string | null {
-    if (!data || typeof data !== 'object') return null;
-    const anyData = data as Record<string, unknown>;
-    const token = anyData.accessToken ?? anyData.token;
-    return typeof token === 'string' && token.trim() ? token : null;
-  }
-
   async function safeLogoutBestEffort(): Promise<void> {
     // Best-effort: intentar invalidar cookie refresh en backend; si falla, igual limpiamos local.
     try {
@@ -206,13 +202,13 @@ export function setupInterceptors(client: AxiosInstance): void {
 
     isRefreshing = true;
     refreshPromise = (async () => {
-      const resp = await axios.post(buildApiUrl('auth/refresh'), null, { withCredentials: env.apiWithCredentials });
-      const newToken = extractAccessToken(resp.data);
-      if (!newToken) {
+      const resp = await axios.post<RefreshTokenResponse>(buildApiUrl('auth/refresh'), null, { withCredentials: env.apiWithCredentials });
+      const data = resp.data;
+      if (!data?.accessToken) {
         throw new Error('Respuesta inválida de refresh');
       }
-      useAuthStore.getState().setToken(newToken);
-      return newToken;
+      hydrateAuthenticatedSession(data, data.accessToken);
+      return data.accessToken;
     })().finally(() => {
       isRefreshing = false;
       refreshPromise = null;
@@ -266,12 +262,12 @@ export function setupInterceptors(client: AxiosInstance): void {
       const status = error.response?.status || 0;
       const originalConfig = error.config as RetryableConfig | undefined;
 
-      // Log mínimo solo en desarrollo y para respuestas HTTP reales (evita ruido por desconexión de backend).
+      // Log mÃ­nimo solo en desarrollo y para respuestas HTTP reales (evita ruido por desconexiÃ³n de backend).
       if (import.meta.env.DEV && status > 0) {
         console.warn('[API Error]', { status, url: error.config?.url });
       }
 
-      // 401: intentar refresh automático SOLO si el usuario estaba autenticado y no es endpoint excluido.
+      // 401: intentar refresh automÃ¡tico SOLO si el usuario estaba autenticado y no es endpoint excluido.
       if (
         status === 401 &&
         originalConfig &&
@@ -288,7 +284,7 @@ export function setupInterceptors(client: AxiosInstance): void {
 
           // Reintentar request original con el nuevo token.
           originalConfig.headers = originalConfig.headers ?? {};
-          (originalConfig.headers as any).Authorization = `Bearer ${token}`;
+          (originalConfig.headers as Record<string, string>).Authorization = `Bearer ${token}`;
           return client(originalConfig);
         } catch (refreshErr) {
           rejectPending(refreshErr);
@@ -300,7 +296,7 @@ export function setupInterceptors(client: AxiosInstance): void {
         }
       }
 
-      // Si el 401 ocurrió en refresh/logout (o ya reintentamos), o no está autenticado -> logout solo si estaba autenticado.
+      // Si el 401 ocurriÃ³ en refresh/logout (o ya reintentamos), o no estÃ¡ autenticado -> logout solo si estaba autenticado.
       if (status === 401 && useAuthStore.getState().isAuthenticated) {
         if (isExcludedFromRefresh(originalConfig?.url) || originalConfig?._retry) {
           await safeLogoutBestEffort();
@@ -331,3 +327,5 @@ export function setupInterceptors(client: AxiosInstance): void {
     }
   );
 }
+
+

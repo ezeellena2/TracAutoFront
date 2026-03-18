@@ -90,7 +90,7 @@ export function parseTraccarGeometry(area: string): ParsedGeometry | null {
 
     return null;
   } catch (e) {
-    console.error('Error parsing geofence geometry:', e);
+    if (import.meta.env.DEV) console.error('Error parsing geofence geometry:', e);
     return null;
   }
 }

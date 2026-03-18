@@ -9,6 +9,7 @@ export const demoOrganizations: OrganizationTheme[] = [
     id: 'org-segurostech',
     name: 'SegurosTech',
     logo: '/logos/segurostech.svg',
+    modulosActivos: [],
     theme: {
       primary: '#2563eb',
       primaryDark: '#1d4ed8',
@@ -40,6 +41,7 @@ export const demoOrganizations: OrganizationTheme[] = [
     id: 'org-autoprotect',
     name: 'AutoProtect',
     logo: '/logos/autoprotect.svg',
+    modulosActivos: [],
     theme: {
       primary: '#059669',
       primaryDark: '#047857',
@@ -71,6 +73,7 @@ export const demoOrganizations: OrganizationTheme[] = [
     id: 'org-driveshield',
     name: 'DriveShield',
     logo: '/logos/driveshield.svg',
+    modulosActivos: [],
     theme: {
       primary: '#7c3aed',
       primaryDark: '#6d28d9',

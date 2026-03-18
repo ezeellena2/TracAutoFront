@@ -11,6 +11,10 @@ export { notificacionesApi } from './notificaciones.api';
 export { reportarError } from './support.api';
 export type { ReportarErrorRequest, ReportarErrorResponse } from './support.api';
 export * from './system.api';
+export { indicesApi } from './indices.api';
+export type { DolarIndiceDto, RiesgoPaisIndiceDto, IndicesAgregadoDto } from './indices.api';
+export { feriadosApi } from './feriados.api';
+export type { FeriadoDto, FeriadosResumenDto } from './feriados.api';
 export { marketplacePublicoApi } from './marketplace-publico.api';
 export { alquilerPublicoApi, authClienteApi } from './alquiler-publico.api';
 // Alquileres
@@ -28,4 +32,6 @@ export {
   cotizacionApi,
   configuracionAlquilerApi,
   reportesAlquilerApi,
+  getChecklistInspeccionPdf,
 } from './alquiler.api';
+

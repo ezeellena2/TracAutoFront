@@ -40,7 +40,7 @@ export function GeofenceLayer({ visible, onGeofenceClick }: GeofenceLayerProps) 
       const result = await geofencesApi.listar({ soloActivas: true, tamanoPagina: GEOFENCES_PAGE_SIZE });
       setGeofences(result.items);
     } catch (err) {
-      console.error('Error fetching geofences:', err);
+      if (import.meta.env.DEV) console.error('Error fetching geofences:', err);
     }
   }, [visible]);
 

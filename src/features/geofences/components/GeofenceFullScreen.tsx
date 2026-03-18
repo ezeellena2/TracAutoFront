@@ -143,7 +143,7 @@ export function GeofenceFullScreen({
       }
       onClose();
     } catch (error) {
-      console.error('Error al guardar geofence:', error);
+      if (import.meta.env.DEV) console.error('Error al guardar geofence:', error);
     } finally {
       setIsSubmitting(false);
     }

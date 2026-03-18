@@ -46,7 +46,7 @@ export function ReplayFilters({
         const response = await getDispositivos({ soloActivos: true, tamanoPagina: 100 });
         setDispositivos(response.items);
       } catch (err) {
-        console.error('Error loading dispositivos:', err);
+        if (import.meta.env.DEV) console.error('Error loading dispositivos:', err);
       } finally {
         setLoadingDevices(false);
       }

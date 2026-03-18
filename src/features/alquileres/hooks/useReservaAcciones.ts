@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { reservasApi, contratosApi, pagosAlquilerApi } from '@/services/endpoints';
+import { reservasApi, contratosApi, pagosAlquilerApi, getChecklistInspeccionPdf } from '@/services/endpoints';
 import { useErrorHandler } from '@/hooks';
 import { toast } from '@/store/toast.store';
 import type { RegistrarPagoManualRequest } from '../types/reserva';
@@ -12,8 +12,6 @@ export function useReservaAcciones(id: string) {
   const { handleApiError } = useErrorHandler();
   const queryClient = useQueryClient();
 
-  // ───── Modal state ─────
-
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isNoShowOpen, setIsNoShowOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
@@ -21,14 +19,11 @@ export function useReservaAcciones(id: string) {
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isPagoOpen, setIsPagoOpen] = useState(false);
 
-  // ───── Invalidation helper ─────
-
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: [RESERVA_QUERY_KEY, id] });
+    queryClient.invalidateQueries({ queryKey: [RESERVA_QUERY_KEY, id, 'contrato'] });
     queryClient.invalidateQueries({ queryKey: ['reservas'] });
   }, [queryClient, id]);
-
-  // ───── Mutations ─────
 
   const confirmarMutation = useMutation({
     mutationFn: () => reservasApi.confirmar(id),
@@ -41,8 +36,7 @@ export function useReservaAcciones(id: string) {
   });
 
   const cancelarMutation = useMutation({
-    mutationFn: (motivoCancelacion: string) =>
-      reservasApi.cancelar(id, { reservaId: id, motivoCancelacion }),
+    mutationFn: (motivoCancelacion: string) => reservasApi.cancelar(id, { reservaId: id, motivoCancelacion }),
     onSuccess: () => {
       toast.success(t('alquileres.reservaDetalle.toast.cancelada'));
       setIsCancelOpen(false);
@@ -80,19 +74,50 @@ export function useReservaAcciones(id: string) {
     onError: (error: unknown) => handleApiError(error),
   });
 
-  // ───── Descargar PDF ─────
+  const enviarFirmaDigitalMutation = useMutation({
+    mutationFn: (contratoId: string) => contratosApi.enviarFirmaDigital(contratoId),
+    onSuccess: (result) => {
+      toast.success(
+        result.idempotente
+          ? t('alquileres.reservaDetalle.contrato.firmaDigitalYaEnviada')
+          : t('alquileres.reservaDetalle.contrato.firmaDigitalEnviada')
+      );
+
+      if (!result.idempotente && result.urlAccion) {
+        window.open(result.urlAccion, '_blank', 'noopener,noreferrer');
+      }
+
+      invalidate();
+    },
+    onError: (error: unknown) => handleApiError(error),
+  });
 
   const handleDescargarPdf = useCallback(async (contratoId: string) => {
     try {
-      const { url } = await contratosApi.getPdf(contratoId);
-      window.open(url, '_blank');
+      const url = await contratosApi.getPdf(contratoId);
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (err: unknown) {
       handleApiError(err);
     }
   }, [handleApiError]);
 
+  const descargarChecklist = useCallback(async (tipo: 'checkout' | 'checkin') => {
+    try {
+      const blob = await getChecklistInspeccionPdf(id, tipo);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `checklist-${tipo}-${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      handleApiError(err);
+    }
+  }, [handleApiError, id]);
+
   return {
-    // Modales
     isConfirmOpen,
     setIsConfirmOpen,
     isNoShowOpen,
@@ -106,18 +131,20 @@ export function useReservaAcciones(id: string) {
     isPagoOpen,
     setIsPagoOpen,
 
-    // Acciones
     confirmar: () => confirmarMutation.mutate(),
     cancelar: (motivo: string) => cancelarMutation.mutate(motivo),
     marcarNoShow: () => noShowMutation.mutate(),
     registrarPago: async (data: RegistrarPagoManualRequest) => { await registrarPagoMutation.mutateAsync(data); },
     generarContrato: () => generarContratoMutation.mutate(),
+    enviarFirmaDigital: async (contratoId: string) => { await enviarFirmaDigitalMutation.mutateAsync(contratoId); },
     descargarPdf: handleDescargarPdf,
+    descargarChecklistCheckOut: () => descargarChecklist('checkout'),
+    descargarChecklistCheckIn: () => descargarChecklist('checkin'),
 
-    // Mutation states
     isConfirming: confirmarMutation.isPending,
     isCancelling: cancelarMutation.isPending,
     isMarkingNoShow: noShowMutation.isPending,
     isGenerandoContrato: generarContratoMutation.isPending,
+    isEnviandoFirmaDigital: enviarFirmaDigitalMutation.isPending,
   };
 }

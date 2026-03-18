@@ -107,7 +107,7 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
     setError(null);
     try {
       // Map Unified Filters to Backend Params
-      const backendParams: any = {
+      const backendParams: Record<string, string | number | boolean> = {
         ...paginationParams,
       };
 

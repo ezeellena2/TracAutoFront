@@ -11,7 +11,7 @@ import { Badge } from './Badge';
 import { reportesApi } from '@/services/endpoints';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { toast } from '@/store/toast.store';
-import type { ImportarExcelResponse, ResultadoFilaImportacion } from '@/services/endpoints/reportes.api';
+import type { ImportarExcelResponse, ResultadoFilaImportacion, ErrorFilaImportacion } from '@/services/endpoints/reportes.api';
 
 /** Column names that contain phone numbers and should be formatted internationally */
 const PHONE_COLUMNS = new Set(['Teléfono', 'Número Teléfono']);
@@ -101,7 +101,7 @@ export function ImportResultsModal({
     {
       key: 'mensaje',
       header: t('imports.results.message', { defaultValue: 'Mensaje' }),
-      render: (error: any) => (
+      render: (error: ErrorFilaImportacion) => (
         <div className="max-w-md">
           <p className="text-sm text-text">{error.mensaje}</p>
           {error.campo && (

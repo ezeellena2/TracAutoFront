@@ -49,7 +49,9 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
 
   // 3. Verificar acceso a ruta según matriz ROUTE_ACCESS
   if (!canAccessRoute(location.pathname)) {
-    return <Navigate to="/" replace state={{ from: location, unauthorized: true }} />;
+    // Evitar bucle infinito: no redirigir a la misma ruta (ej. "/" -> "/")
+    const target = location.pathname === '/' ? '/login' : '/';
+    return <Navigate to={target} replace state={{ from: location, unauthorized: true }} />;
   }
 
   return <>{children}</>;

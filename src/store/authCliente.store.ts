@@ -48,7 +48,9 @@ export const useAuthClienteStore = create<AuthClienteState>()(
     {
       name: 'tracauto-auth-cliente',
       partialize: (state) => ({
-        token: state.token,
+        // SEGURIDAD: token excluido de localStorage para prevenir robo via XSS.
+        // El token solo se mantiene en memoria (Zustand state).
+        // Alineado con el patron del store B2B (auth.store.ts).
         clienteId: state.clienteId,
         email: state.email,
         nombreCompleto: state.nombreCompleto,

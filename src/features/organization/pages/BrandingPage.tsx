@@ -156,6 +156,7 @@ export function BrandingPage() {
         id: orgDto.id,
         name: orgDto.nombre,
         logo: logoUrl,
+        modulosActivos: currentOrganization?.modulosActivos ?? [],
         theme: override,
       });
 
@@ -427,7 +428,7 @@ export function BrandingPage() {
     // Validación mínima de colores (solo si se cargaron)
     const invalid = Object.entries(form).find(([k, v]) => k !== 'logoUrl' && v !== '' && !isHexColor(v));
     if (invalid) {
-      toast.error(t('organization.invalidColorFormat') || 'Hay colores con formato inválido. Use hex (#RRGGBB).');
+      toast.error(t('organization.invalidColorFormat'));
       return;
     }
 
@@ -461,7 +462,7 @@ export function BrandingPage() {
       baselineRef.current = { logoUrl: nextLogo, theme: nextColors };
       toast.success(t('organization.success.updated') || 'Branding actualizado y aplicado correctamente.');
     } catch (e) {
-      console.error('[BrandingPage] Error al guardar branding:', e);
+      if (import.meta.env.DEV) console.error('[BrandingPage] Error al guardar branding:', e);
 
       const parsed = handleApiError(e, { showToast: false });
       let msg = t('organization.errors.saveFailed');

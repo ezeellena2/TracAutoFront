@@ -1,20 +1,14 @@
-/**
- * Servicio de endpoints de dispositivos
- * Conecta con DispositivosController del backend
- *
- * IMPORTANTE:
- * - El backend ya filtra por organizationId (desde el JWT)
- * - El frontend NO envía organizationId
- * - Solo renderiza lo que el backend devuelve
- */
-
 import { apiClient } from '../http/apiClient';
+import { publicApiClient } from '../http/publicApiClient';
 import {
   DispositivoDto,
   ListaPaginada,
   PaginacionParams,
   RecursoSharingStatusDto,
   ActualizarComparticionRequest,
+  CambiarEstadoStockRequest,
+  HistorialStockDispositivoDto,
+  DispositivoQrPublicoDto,
 } from '@/shared/types/api';
 
 const DISPOSITIVOS_BASE = 'dispositivos';
@@ -140,6 +134,71 @@ export async function updateSharingStatus(
   await apiClient.put(`${DISPOSITIVOS_BASE}/${dispositivoId}/sharing`, request);
 }
 
+// ========================================
+// STOCK & QR CODE FUNCTIONS
+// ========================================
+
+/**
+ * Cambia el estado de stock de un dispositivo y registra el movimiento en el historial.
+ */
+export async function cambiarEstadoStock(
+  dispositivoId: string,
+  request: CambiarEstadoStockRequest
+): Promise<void> {
+  await apiClient.post(`${DISPOSITIVOS_BASE}/${dispositivoId}/stock`, request);
+}
+
+/**
+ * Obtiene el historial de cambios de estado de stock de un dispositivo.
+ */
+export async function getHistorialStock(
+  dispositivoId: string
+): Promise<HistorialStockDispositivoDto[]> {
+  const response = await apiClient.get<HistorialStockDispositivoDto[]>(
+    `${DISPOSITIVOS_BASE}/${dispositivoId}/stock/historial`
+  );
+  return response.data;
+}
+
+/**
+ * Genera la URL para descargar la imagen QR de un dispositivo.
+ */
+export function getQrImageUrl(dispositivoId: string): string {
+  return `${DISPOSITIVOS_BASE}/${dispositivoId}/qr`;
+}
+
+/**
+ * Descarga la imagen QR de un dispositivo como blob.
+ */
+export async function downloadQrImage(dispositivoId: string): Promise<Blob> {
+  const response = await apiClient.get(`${DISPOSITIVOS_BASE}/${dispositivoId}/qr`, {
+    responseType: 'blob',
+  });
+  return response.data;
+}
+
+/**
+ * Descarga el PDF de etiqueta QR de un dispositivo.
+ */
+export async function downloadEtiquetaQrPdf(dispositivoId: string): Promise<Blob> {
+  const response = await apiClient.get(`${DISPOSITIVOS_BASE}/${dispositivoId}/qr/etiqueta`, {
+    responseType: 'blob',
+  });
+  return response.data;
+}
+
+/**
+ * Obtiene información pública de un dispositivo por su código QR (sin autenticación).
+ */
+export async function getDispositivoPublico(
+  codigoQr: string
+): Promise<DispositivoQrPublicoDto> {
+  const response = await publicApiClient.get<DispositivoQrPublicoDto>(
+    `dispositivopublico/${codigoQr}`
+  );
+  return response.data;
+}
+
 /**
  * Objeto API exportado (patrón consistente con otros endpoints)
  */
@@ -150,4 +209,10 @@ export const dispositivosApi = {
   deleteDispositivo,
   getSharingStatus,
   updateSharingStatus,
+  cambiarEstadoStock,
+  getHistorialStock,
+  getQrImageUrl,
+  downloadQrImage,
+  downloadEtiquetaQrPdf,
+  getDispositivoPublico,
 };
