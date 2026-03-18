@@ -1027,12 +1027,6 @@ function AnalyticsTab() {
 
 // ─── Modules Tab ───
 
-const MODULE_ICONS: Record<number, string> = {
-  1: 'Car', 2: 'MapPin', 3: 'Store', 4: 'Key', 5: 'Globe',
-  6: 'Wrench', 7: 'Shield', 8: 'Navigation', 9: 'Package',
-  10: 'Truck', 11: 'BarChart', 12: 'Plug', 13: 'Activity',
-};
-
 function ModulesTab() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
