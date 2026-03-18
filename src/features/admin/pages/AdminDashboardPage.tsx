@@ -18,6 +18,7 @@ import {
   History,
   TrendingUp,
   Download,
+  Boxes,
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -41,11 +42,12 @@ import type {
   PagoFallidoAdminDto,
   TrialPorVencerAdminDto,
   HistorialSuscripcionAdminDto,
+  ModuloDefinicionAdminDto,
 } from '@/services/endpoints/admin.api';
 import { toast } from '@/store/toast.store';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 
-type Tab = 'overview' | 'organizations' | 'transfers' | 'subscriptions' | 'troubleshooting' | 'analytics';
+type Tab = 'overview' | 'organizations' | 'transfers' | 'subscriptions' | 'modules' | 'troubleshooting' | 'analytics';
 
 export function AdminDashboardPage() {
   const { t } = useTranslation();
@@ -56,6 +58,7 @@ export function AdminDashboardPage() {
     { key: 'organizations', label: t('admin.tabs.organizations'), icon: Building2 },
     { key: 'transfers', label: t('admin.tabs.transfers'), icon: ArrowRightLeft },
     { key: 'subscriptions', label: t('admin.tabs.subscriptions'), icon: Settings2 },
+    { key: 'modules', label: t('admin.tabs.modules'), icon: Boxes },
     { key: 'troubleshooting', label: t('admin.tabs.troubleshooting'), icon: Wrench },
     { key: 'analytics', label: t('admin.tabs.analytics'), icon: TrendingUp },
   ];
@@ -90,6 +93,7 @@ export function AdminDashboardPage() {
       {activeTab === 'organizations' && <OrganizationsTab />}
       {activeTab === 'transfers' && <TransfersTab />}
       {activeTab === 'subscriptions' && <SubscriptionsTab />}
+      {activeTab === 'modules' && <ModulesTab />}
       {activeTab === 'troubleshooting' && <TroubleshootingTab />}
       {activeTab === 'analytics' && <AnalyticsTab />}
     </div>
@@ -1018,5 +1022,182 @@ function AnalyticsTab() {
         </Card>
       </div>
     </div>
+  );
+}
+
+// ─── Modules Tab ───
+
+const MODULE_ICONS: Record<number, string> = {
+  1: 'Car', 2: 'MapPin', 3: 'Store', 4: 'Key', 5: 'Globe',
+  6: 'Wrench', 7: 'Shield', 8: 'Navigation', 9: 'Package',
+  10: 'Truck', 11: 'BarChart', 12: 'Plug', 13: 'Activity',
+};
+
+function ModulesTab() {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { data: modulos, isLoading, error, refetch } = useQuery({
+    queryKey: ['admin', 'modulos-definicion'],
+    queryFn: adminApi.getModulosDefinicion,
+    staleTime: 60 * 1000,
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({ codigo, data }: { codigo: number; data: { esGratis?: boolean; visible?: boolean; activo?: boolean } }) =>
+      adminApi.actualizarModuloDefinicion(codigo, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'modulos-definicion'] });
+      toast.success(t('admin.modules.updateSuccess'));
+    },
+    onError: () => {
+      toast.error(t('admin.modules.updateError'));
+    },
+  });
+
+  function handleToggle(modulo: ModuloDefinicionAdminDto, field: 'esGratis' | 'visible' | 'activo') {
+    if (modulo.esBase && field === 'activo') return;
+    mutation.mutate({ codigo: modulo.codigo, data: { [field]: !modulo[field] } });
+  }
+
+  function handleSetAllFree(free: boolean) {
+    if (!modulos) return;
+    const targets = modulos.filter(m => !m.esBase && m.esGratis !== free);
+    targets.forEach(m => {
+      mutation.mutate({ codigo: m.codigo, data: { esGratis: free } });
+    });
+  }
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>;
+  if (error) return <EstadoError mensaje={(error as Error).message} onReintentar={refetch} />;
+  if (!modulos?.length) return <EstadoVacio titulo={t('admin.modules.empty')} />;
+
+  const freeCount = modulos.filter(m => m.esGratis).length;
+  const visibleCount = modulos.filter(m => m.visible).length;
+
+  return (
+    <div className="space-y-6">
+      {/* Summary + bulk actions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex gap-4">
+          <Badge variant="info">{modulos.length} {t('admin.modules.total')}</Badge>
+          <Badge variant="success">{freeCount} {t('admin.modules.free')}</Badge>
+          <Badge variant="default">{visibleCount} {t('admin.modules.visibleCount')}</Badge>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleSetAllFree(true)}
+            disabled={mutation.isPending}
+          >
+            {t('admin.modules.setAllFree')}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleSetAllFree(false)}
+            disabled={mutation.isPending}
+          >
+            {t('admin.modules.setAllPaid')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Modules table */}
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="px-4 py-3 font-medium text-text-muted">{t('admin.modules.column.module')}</th>
+                <th className="px-4 py-3 font-medium text-text-muted text-center">{t('admin.modules.column.free')}</th>
+                <th className="px-4 py-3 font-medium text-text-muted text-center">{t('admin.modules.column.visible')}</th>
+                <th className="px-4 py-3 font-medium text-text-muted text-center">{t('admin.modules.column.active')}</th>
+                <th className="px-4 py-3 font-medium text-text-muted">{t('admin.modules.column.requires')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modulos.map(modulo => (
+                <tr key={modulo.id} className="border-b border-border/50 hover:bg-background/50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                        {modulo.codigo}
+                      </div>
+                      <div>
+                        <p className="font-medium text-text">{modulo.nombre}</p>
+                        <p className="text-xs text-text-muted">{modulo.descripcion}</p>
+                      </div>
+                      {modulo.esBase && (
+                        <Badge variant="info" className="ml-1">{t('admin.modules.base')}</Badge>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <ToggleSwitch
+                      checked={modulo.esGratis}
+                      onChange={() => handleToggle(modulo, 'esGratis')}
+                      disabled={modulo.esBase || mutation.isPending}
+                      colorOn="bg-success"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <ToggleSwitch
+                      checked={modulo.visible}
+                      onChange={() => handleToggle(modulo, 'visible')}
+                      disabled={modulo.esBase || mutation.isPending}
+                      colorOn="bg-primary"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <ToggleSwitch
+                      checked={modulo.activo}
+                      onChange={() => handleToggle(modulo, 'activo')}
+                      disabled={modulo.esBase || mutation.isPending}
+                      colorOn="bg-primary"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-text-muted text-xs">
+                    {modulo.requiereModulos
+                      ? modulo.requiereModulos.split(',').map(c => {
+                          const dep = modulos.find(m => m.codigo === Number(c.trim()));
+                          return dep?.nombre ?? c;
+                        }).join(', ')
+                      : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ToggleSwitch({ checked, onChange, disabled, colorOn = 'bg-primary' }: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+  colorOn?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={onChange}
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+        checked ? colorOn : 'bg-border'
+      }`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </button>
   );
 }

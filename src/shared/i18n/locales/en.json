@@ -216,8 +216,27 @@
       "organizations": "Organizations",
       "transfers": "Transfers",
       "subscriptions": "Subscriptions",
+      "modules": "Modules",
       "troubleshooting": "Troubleshooting",
       "analytics": "Analytics"
+    },
+    "modules": {
+      "total": "modules",
+      "free": "free",
+      "visibleCount": "visible",
+      "setAllFree": "Set all free",
+      "setAllPaid": "Set all paid",
+      "empty": "No modules defined",
+      "base": "Base",
+      "updateSuccess": "Module updated",
+      "updateError": "Error updating module",
+      "column": {
+        "module": "Module",
+        "free": "Free",
+        "visible": "Visible",
+        "active": "Active",
+        "requires": "Requires"
+      }
     },
     "sections": {
       "organizations": "Organizations",
@@ -1138,7 +1157,13 @@
     "fileSizeError": "File cannot exceed {{max}}",
     "uploading": "Uploading...",
     "uploadError": "Error uploading file",
-    "processing": "Processing import...",
+    "processing": {
+      "title": "Processing import",
+      "message": "The file is being processed in the background.",
+      "subtitle": "This may take a few seconds. Do not close this window.",
+      "subtitleWithType": "Processing {{tipo}}... This may take a few seconds.",
+      "failed": "Import failed"
+    },
     "import": "Import",
     "results": {
       "title": "Import Results",

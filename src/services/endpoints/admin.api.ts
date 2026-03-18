@@ -122,10 +122,31 @@ export interface ChurnMensualDto {
   tasa: number;
 }
 
+export interface ModuloDefinicionAdminDto {
+  id: string;
+  codigo: number;
+  nombre: string;
+  descripcion: string | null;
+  icono: string | null;
+  orden: number;
+  requiereModulos: string | null;
+  esBase: boolean;
+  esGratis: boolean;
+  visible: boolean;
+  activo: boolean;
+}
+
+export interface ActualizarModuloDefinicionRequest {
+  esGratis?: boolean;
+  visible?: boolean;
+  activo?: boolean;
+}
+
 // ─── API Calls ───
 
 const ADMIN_DASHBOARD = 'admin/dashboard';
 const ADMIN_SUSCRIPCIONES = 'admin/suscripciones';
+const ADMIN_MODULOS = 'admin/modulos';
 
 export async function getAdminStats(): Promise<AdminDashboardStatsDto> {
   const response = await apiClient.get<AdminDashboardStatsDto>(
@@ -228,6 +249,22 @@ export async function getAnalytics(): Promise<AdminAnalyticsDto> {
   return response.data;
 }
 
+export async function getModulosDefinicion(): Promise<ModuloDefinicionAdminDto[]> {
+  const response = await apiClient.get<ModuloDefinicionAdminDto[]>(ADMIN_MODULOS);
+  return response.data;
+}
+
+export async function actualizarModuloDefinicion(
+  codigo: number,
+  data: ActualizarModuloDefinicionRequest
+): Promise<ModuloDefinicionAdminDto> {
+  const response = await apiClient.patch<ModuloDefinicionAdminDto>(
+    `${ADMIN_MODULOS}/${codigo}`,
+    data
+  );
+  return response.data;
+}
+
 export const adminApi = {
   getAdminStats,
   getAdminOrganizaciones,
@@ -241,4 +278,6 @@ export const adminApi = {
   getTrialsPorVencer,
   getHistorialSuscripcion,
   getAnalytics,
+  getModulosDefinicion,
+  actualizarModuloDefinicion,
 };
