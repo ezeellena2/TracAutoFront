@@ -15,6 +15,9 @@ export interface LoginResult {
   success: boolean;
   user?: AuthUser;
   error?: string;
+  /** Email del usuario (si está disponible en el error) */
+  email?: string;
+  /** Código de error estructurado del backend (ej: 'Auth.EmailNoVerificado'). Usar en lugar de string matching. */
   errorCode?: string;
   status?: number;
   extensions?: Record<string, unknown>;
@@ -85,6 +88,9 @@ export interface GoogleLoginResult {
   };
   error?: string;
   errorCode?: string;
+  email?: string;
+  extensions?: any;
+  status?: number;
 }
 
 function toAuthSessionSnapshot(response: GoogleAuthResponse): AuthSessionSnapshotDto | null {
@@ -148,9 +154,38 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
       err?.code ??
       (err?.response?.data?.code as string | undefined);
     const errorCode: string | undefined = typeof rawCode === 'string' ? rawCode : undefined;
-    return { success: false, error: message, errorCode };
+    const status = (error as any)?.status as number | undefined;
+
+    // ASP.NET Core serializa ProblemDetails.Extensions como propiedades de primer nivel
+    // en el JSON (no anidadas bajo "extensions"). Soportamos ambos formatos.
+    const pd = (error as any)?.problemDetails as Record<string, unknown> | undefined;
+    const extensions = (pd?.extensions as Record<string, unknown>) ?? pd;
+    const email = (extensions?.email as string) || (error as any)?.email;
+
+    return {
+      success: false,
+      error: message,
+      errorCode,
+      extensions,
+      email,
+      status
+    };
   }
 }
+
+/**
+ * Solicita un link de reseteo de password
+ */
+export async function solicitarResetPassword(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await authApi.solicitarResetPassword({ email });
+    return { success: true };
+  } catch (error: any) {
+    const message = error instanceof Error ? error.message : 'Error al solicitar el restablecimiento de contraseña';
+    return { success: false, error: message };
+  }
+}
+
 
 export const authService = {
   login,
@@ -160,6 +195,7 @@ export const authService = {
   getCurrentUser,
   getCurrentOrganization,
   loginWithGoogle,
+  solicitarResetPassword,
 };
 
 export default authService;

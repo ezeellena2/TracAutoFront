@@ -1,4 +1,4 @@
-﻿{
+{
   "routes": {
     "accessDenied": "Acceso Denegado",
     "accessDeniedDescription": "No tiene permisos para acceder a esta sección.",
@@ -41,8 +41,6 @@
     "apply": "Aplicar",
     "and": "y",
     "actions": "Acciones",
-    "pageOf": "Pagina {{current}} de {{total}}",
-    "refresh": "Actualizar",
     "status": "Estado",
     "active": "Activo",
     "inactive": "Inactivo",
@@ -89,7 +87,7 @@
     "accept": "Aceptar",
     "reject": "Rechazar",
     "sending": "Enviando...",
-    "required": "Este campo es requerido",
+    "required": "Este campo es requerido.",
     "verDetalles": "Ver detalles",
     "editar": "Editar",
     "cargando": "Cargando...",
@@ -98,33 +96,12 @@
     "seleccionarTodos": "Seleccionar todos",
     "limpiar": "Limpiar",
     "close": "Cerrar",
-    "openMenu": "Abrir menú",
     "zonesSelected": "zonas seleccionadas",
     "zonesAvailable": "zonas disponibles",
     "ofZonesSelected": "de {{total}} zonas seleccionadas",
     "zonesSelectedCount": "{{count}} de {{total}} zonas seleccionadas",
-    "noPermission": "No tienes permisos para esta acción",
     "error": {
       "noOrganization": "No se pudo determinar la organización actual"
-    },
-    "estadoError": {
-      "titulo": "Error",
-      "mensajeDefault": "Ha ocurrido un error al cargar los datos",
-      "reintentar": "Reintentar"
-    },
-    "notifications": {
-      "errorMarcarLeida": "No se pudo marcar como leída",
-      "errorMarcarTodas": "No se pudieron marcar como leídas",
-      "errorArchivar": "No se pudo archivar"
-    },
-    "currencies": {
-      "errorCarga": "Error al cargar configuración de monedas"
-    },
-    "imports": {
-      "errorEstado": "Error al consultar estado de importación"
-    },
-    "replay": {
-      "seleccioneDispositivo": "Seleccione un dispositivo"
     }
   },
   "permissions": {
@@ -174,13 +151,7 @@
     "logout": "Cerrar sesión",
     "language": "Idioma",
     "modoSolicitud": "Modo Solicitud",
-    "modoSolicitudPlaceholder": "Chat de solicitud (próximamente)",
-    "dolarBlue": "Dólar Blue",
-    "riesgoPais": "Riesgo país",
-    "actualizado": "Actualizado",
-    "indicesNoDisponibles": "—",
-    "hoyFeriado": "ðŸŽ‰ Hoy: {{nombre}}",
-    "proximoFeriado": "ðŸ“… Próximo: {{fecha}} — {{nombre}}"
+    "modoSolicitudPlaceholder": "Chat de solicitud (próximamente)"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -212,207 +183,7 @@
     "alquileresClientes": "Clientes",
     "alquileresContratos": "Contratos",
     "alquileresReportes": "Reportes",
-    "alquileresConfiguracion": "Configuración",
-    "trackingLinks": "Links de Tracking",
-    "scoring": "Scoring",
-    "preferenciasNotificacion": "Notificaciones",
-    "resumenIA": "Resumen IA",
-    "billing": "Suscripcion",
-    "alertRules": "Reglas de Alerta",
-    "obdDiagnostics": "Diagnosticos OBD",
-    "admin": "Admin Panel"
-  },
-  "admin": {
-    "title": "Panel de Administración",
-    "subtitle": "Gestión global del sistema - solo SuperAdmin",
-    "totalOrganizations": "Total organizaciones",
-    "activeOrganizations": "Organizaciones activas",
-    "currentPage": "Página actual",
-    "organizationsTitle": "Organizaciones",
-    "organizationsSubtitle": "Lista de todas las organizaciones del sistema",
-    "searchPlaceholder": "Buscar por nombre...",
-    "emptyTitle": "Sin organizaciones",
-    "emptyDescription": "No se encontraron organizaciones con los filtros aplicados.",
-    "statusActive": "Activa",
-    "statusInactive": "Inactiva",
-    "columns": {
-      "name": "Nombre",
-      "cuit": "CUIT",
-      "status": "Estado",
-      "modules": "Módulos",
-      "created": "Creación"
-    },
-    "showing": "Mostrando {{from}}-{{to}} de {{total}}",
-    "tabs": {
-      "overview": "Resumen",
-      "organizations": "Organizaciones",
-      "transfers": "Transferencias",
-      "subscriptions": "Suscripciones",
-      "troubleshooting": "Troubleshooting",
-      "analytics": "Analytics"
-    },
-    "sections": {
-      "organizations": "Organizaciones",
-      "subscriptions": "Suscripciones",
-      "revenue": "Ingresos",
-      "gateways": "Gateways de Pago",
-      "byType": "Suscripciones por Tipo"
-    },
-    "stats": {
-      "newThisMonth": "Nuevas este mes",
-      "users": "Usuarios"
-    },
-    "alerts": {
-      "pendingTransfers": "transferencias pendientes de verificación",
-      "trialsExpiring": "trials por vencer en los próximos 7 días"
-    },
-    "transfers": {
-      "subtitle": "{{count}} transferencias pendientes de verificación",
-      "emptyTitle": "Sin transferencias pendientes",
-      "emptyDescription": "No hay transferencias bancarias pendientes de verificación.",
-      "amount": "Monto mensual",
-      "modules": "Módulos",
-      "requestDate": "Fecha solicitud",
-      "receipt": "Comprobante",
-      "viewReceipt": "Ver comprobante",
-      "approve": "Aprobar",
-      "reject": "Rechazar",
-      "confirmReject": "Confirmar rechazo",
-      "rejectReason": "Motivo del rechazo",
-      "rejectReasonPlaceholder": "Ej: Comprobante inválido, monto incorrecto...",
-      "approveSuccess": "Transferencia aprobada. Suscripción activada.",
-      "rejectSuccess": "Transferencia rechazada."
-    },
-    "subscriptions": {
-      "title": "Suscripciones",
-      "subtitle": "Gestión de suscripciones de todas las organizaciones",
-      "createDemo": "Crear Demo/Cortesía",
-      "extendTrial": "Extender Trial",
-      "forceStatus": "Forzar Estado",
-      "demoForm": {
-        "title": "Crear Suscripción Demo/Cortesía",
-        "orgId": "ID de Organización",
-        "type": "Tipo de Suscripción",
-        "typeDemo": "Demo (tiempo limitado)",
-        "typeCortesia": "Cortesía (indefinida)",
-        "typeInternal": "Interna",
-        "reason": "Motivo de la exención",
-        "reasonPlaceholder": "Ej: Partner estratégico, prueba de concepto...",
-        "duration": "Duración (días)",
-        "durationPlaceholder": "Ej: 30",
-        "modules": "Módulos a activar",
-        "allModules": "Todos los módulos",
-        "currency": "Moneda de referencia",
-        "submit": "Crear Suscripción",
-        "success": "Suscripción demo creada exitosamente"
-      },
-      "extendForm": {
-        "title": "Extender Período de Trial",
-        "days": "Días a agregar",
-        "reason": "Motivo de la extensión",
-        "reasonPlaceholder": "Ej: Cliente necesita más tiempo de evaluación...",
-        "submit": "Extender Trial",
-        "success": "Trial extendido exitosamente"
-      },
-      "forceForm": {
-        "title": "Forzar Estado de Suscripción",
-        "newStatus": "Nuevo estado",
-        "reason": "Motivo del cambio",
-        "reasonPlaceholder": "Ej: Desbloqueo por problema técnico en gateway...",
-        "submit": "Forzar Estado",
-        "success": "Estado forzado exitosamente",
-        "warning": "Esta acción es irreversible y queda registrada en el historial de auditoría"
-      },
-      "columns": {
-        "organization": "Organización",
-        "status": "Estado Suscripción",
-        "type": "Tipo",
-        "gateway": "Gateway",
-        "amount": "Monto Mensual",
-        "trialEnd": "Fin Trial",
-        "created": "Creación"
-      },
-      "status": {
-        "Trial": "Trial",
-        "Activa": "Activa",
-        "PausadaPorFaltaDePago": "Pausada",
-        "Cancelada": "Cancelada",
-        "Expirada": "Expirada",
-        "PendienteVerificacionPago": "Pendiente Verificación"
-      },
-      "type": {
-        "Normal": "Normal",
-        "Demo": "Demo",
-        "Cortesia": "Cortesía",
-        "Internal": "Interna"
-      },
-      "gateway": {
-        "Ninguno": "Sin Gateway",
-        "Stripe": "Stripe",
-        "MercadoPago": "MercadoPago",
-        "Transferencia": "Transferencia"
-      }
-    },
-    "troubleshooting": {
-      "failedPayments": {
-        "title": "Pagos Fallidos",
-        "subtitle": "Pagos que fallaron en los últimos 30 días",
-        "empty": "No hay pagos fallidos recientes"
-      },
-      "expiringTrials": {
-        "title": "Trials por Vencer",
-        "subtitle": "Trials que vencen en los próximos 7 días",
-        "empty": "No hay trials por vencer próximamente"
-      },
-      "history": {
-        "title": "Historial de Suscripción",
-        "subtitle": "Buscar el historial de eventos de una organización",
-        "placeholder": "ID de organización (UUID)",
-        "search": "Buscar",
-        "empty": "Sin historial",
-        "emptyDescription": "No se encontró historial de suscripción para esta organización."
-      },
-      "columns": {
-        "organization": "Organización",
-        "gateway": "Gateway",
-        "amount": "Monto",
-        "description": "Descripción",
-        "date": "Fecha",
-        "modules": "Módulos",
-        "users": "Usuarios",
-        "expiresOn": "Vence",
-        "daysLeft": "Días restantes"
-      }
-    },
-    "analytics": {
-      "title": "Analytics",
-      "subtitle": "Series temporales de los últimos 12 meses",
-      "export": "Exportar CSV",
-      "exportSuccess": "Reporte exportado exitosamente",
-      "mrr": {
-        "title": "MRR (Ingreso Mensual Recurrente)",
-        "subtitle": "Evolución del MRR en los últimos 12 meses"
-      },
-      "newOrgs": {
-        "title": "Nuevas Organizaciones",
-        "subtitle": "Organizaciones creadas por mes",
-        "label": "Nuevas orgs"
-      },
-      "byStatus": {
-        "title": "Suscripciones por Estado",
-        "subtitle": "Distribución actual de suscripciones"
-      },
-      "byGateway": {
-        "title": "Ingreso por Gateway",
-        "subtitle": "Distribución de ingresos por medio de pago",
-        "label": "Ingreso"
-      },
-      "churn": {
-        "title": "Tasa de Churn Mensual",
-        "subtitle": "Porcentaje de cancelaciones sobre activas al inicio del mes",
-        "label": "Churn"
-      }
-    }
+    "alquileresConfiguracion": "Configuración"
   },
   "solicitudesCambio": {
     "title": "Solicitudes de Cambio",
@@ -523,22 +294,7 @@
     "impact": "Impacto",
     "connectionRate": "Tasa de Conexión",
     "devicesOnlineSubtitle": "Dispositivos online",
-    "openAssistances": "Asistencias Abiertas",
-    "errorLoading": "Error al cargar los datos del dashboard",
-    "noActivityDesc": "No se registraron eventos en el periodo seleccionado",
-    "vehiclesWithTelemetry": "Con telemetria activa",
-    "totalDistance": "Distancia total",
-    "avgSpeed": "Velocidad promedio",
-    "obd2Readings": "Lecturas OBD2",
-    "totalAlerts": "Alertas generadas",
-    "validPositions": "Posiciones validas",
-    "invalidPositions": "Posiciones descartadas",
-    "severityHigh": "Alta",
-    "severityMedium": "Media",
-    "welcome": "Bienvenido, {{name}}",
-    "welcomeSubtitle": "Accedé rápidamente a las secciones principales de tu organización.",
-    "moduleTelematicaTitle": "Módulo Telemática",
-    "moduleTelematicaDesc": "Activá el módulo de Telemática para ver KPIs de flota, alertas en tiempo real y analíticas de conducción."
+    "openAssistances": "Asistencias Abiertas"
   },
   "vehicles": {
     "title": "Vehículos",
@@ -721,7 +477,7 @@
       "imeiLabel": "IMEI / ID Traccar",
       "phoneNumber": "Número de teléfono (opcional)",
       "phoneNumberPlaceholder": "+5491112345678",
-      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina). Se guarda y normaliza en el servidor."
+      "phoneNumberHelper": "Formato E.164 (ej. +54 para Argentina)."
     },
     "table": {
       "associated": "Asociado",
@@ -744,52 +500,7 @@
     "devicesOnline": "Dispositivos Online",
     "devicesOffline": "Dispositivos Offline",
     "associatedOrganization": "ORGANIZACIÓN ASOCIADA",
-    "sharedResource": "Recurso compartido",
-    "stock": {
-      "statusLabel": "Estado de Stock",
-      "status": {
-        "enStock": "En Stock",
-        "instalado": "Instalado",
-        "enReparacion": "En Reparación",
-        "dadoDeBaja": "Dado de Baja"
-      },
-      "changeTitle": "Cambiar Estado de Stock",
-      "currentStatus": "Estado actual",
-      "newStatus": "Nuevo estado",
-      "noteLabel": "Nota (opcional)",
-      "notePlaceholder": "Motivo del cambio de estado...",
-      "confirmChange": "Confirmar Cambio",
-      "changeSuccess": "Estado de stock actualizado correctamente",
-      "sameStatusError": "Debe seleccionar un estado diferente al actual",
-      "historyTitle": "Historial de Stock",
-      "historyEmpty": "No hay movimientos de stock registrados",
-      "changeStock": "Cambiar stock",
-      "viewHistory": "Ver historial"
-    },
-    "qr": {
-      "title": "Código QR del Dispositivo",
-      "deviceName": "Dispositivo",
-      "code": "Código QR",
-      "previewHint": "Descargue el QR en PNG o PDF para imprimirlo",
-      "downloadPng": "Descargar PNG",
-      "downloadPdf": "Etiqueta PDF",
-      "downloadSuccess": "Imagen QR descargada",
-      "downloadPdfSuccess": "Etiqueta PDF descargada",
-      "copySuccess": "URL copiada al portapapeles",
-      "copyError": "No se pudo copiar la URL",
-      "viewQr": "Ver QR"
-    },
-    "public": {
-      "notFoundTitle": "Dispositivo no encontrado",
-      "notFound": "El código QR no corresponde a ningún dispositivo registrado.",
-      "phone": "Teléfono",
-      "model": "Modelo",
-      "provider": "Proveedor",
-      "vehicle": "Vehículo asignado",
-      "viewMap": "Ver en Mapa",
-      "viewHistory": "Historial",
-      "poweredBy": "Powered by TracAuto GPS"
-    }
+    "sharedResource": "Recurso compartido"
   },
   "events": {
     "title": "Eventos",
@@ -808,21 +519,10 @@
     "status": {
       "open": "Abierto",
       "inProgress": "En Progreso",
-      "resolved": "Resuelto",
-      "dismissed": "Descartado"
+      "resolved": "Resuelto"
     },
-    "errorLoading": "Error al cargar los eventos",
-    "noEvents": "Sin eventos",
-    "noEventsDesc": "No se encontraron alertas para los filtros seleccionados",
     "types": {
       "speedExceeded": "Exceso de Velocidad",
-      "excessiveStop": "Detencion Excesiva",
-      "geofenceEntry": "Entrada a Geocerca",
-      "geofenceExit": "Salida de Geocerca",
-      "disconnection": "Desconexion",
-      "rpmOutOfRange": "RPM Fuera de Rango",
-      "highEngineTemp": "Temperatura Motor Alta",
-      "lowBattery": "Bateria Baja",
       "geofence": "Violación de Geofence",
       "dtcCritical": "DTC Crítico",
       "crash": "Colisión/Impacto",
@@ -835,7 +535,7 @@
   },
   "users": {
     "title": "Usuarios",
-    "subtitle": "Gestión de usuarios de la organización",
+    "subtitle": "Gestión de usuarios de la organización.",
     "totalUsers": "Total Usuarios",
     "active": "Activos",
     "pending": "Pendientes",
@@ -846,10 +546,6 @@
     "created": "CREADO",
     "actions": "ACCIONES",
     "inviteUser": "Invitar Usuario",
-    "importInvitations": "Importar invitaciones",
-    "exportInvitations": "Exportar invitaciones",
-    "importInvitationsTitle": "Importar invitaciones desde Excel",
-    "downloadInvitationsTemplate": "Plantilla de invitaciones",
     "changeRole": "Cambiar Rol",
     "resendInvitation": "Reenviar Invitación",
     "cancelInvitation": "Cancelar Invitación",
@@ -882,13 +578,13 @@
       "active": "Activo",
       "pending": "Pendiente"
     },
-    "pendingInvitations": "Invitaciones Pendientes",
-    "noPendingInvitations": "No hay invitaciones pendientes",
-    "confirmDelete": "¿Estás seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
+    "pendingInvitations": "Invitaciones pendientes",
+    "noPendingInvitations": "No hay invitaciones pendientes.",
+    "confirmDelete": "¿Está seguro de eliminar este usuario de la organización? Esta acción no se puede deshacer.",
     "deleteUser": "Eliminar Usuario",
     "loadingInvitations": "Cargando invitaciones...",
     "sent": "Enviada",
-    "confirmCancelInvitation": "¿Estás seguro de que deseas cancelar esta invitación? El enlace enviado dejará de ser válido.",
+    "confirmCancelInvitation": "¿Está seguro de que desea cancelar esta invitación? El enlace enviado dejará de ser válido.",
     "yesCancel": "Sí, cancelar",
     "sending": "Enviando...",
     "sendInvitation": "Enviar Invitación",
@@ -909,6 +605,49 @@
       "sendInvitation": "Error al enviar invitación",
       "resendInvitation": "Error al reenviar invitación",
       "cancelInvitation": "Error al cancelar invitación"
+    }
+  },
+  "invitations": {
+    "validating": "Validando invitación...",
+    "joinOrg": "Ha sido invitado a {{org}}",
+    "subtitle": "Complete sus datos para crear su cuenta.",
+    "alreadyHaveAccount": "¿Ya es usuario?",
+    "login": "Iniciar sesión",
+    "goToLogin": "Ir al Login",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "expired": {
+      "title": "Invitación Expirada",
+      "text": "Esta invitación ha expirado. Por favor, solicita una nueva invitación al administrador."
+    },
+    "invalid": {
+      "title": "Invitación Inválida",
+      "text": "El enlace de invitación no es válido o ya no existe."
+    },
+    "cancelled": {
+      "title": "Invitación Cancelada",
+      "text": "Esta invitación fue cancelada por el administrador. Solicite una nueva invitación."
+    },
+    "alreadyAccepted": {
+      "title": "Invitación ya utilizada",
+      "text": "Esta invitación ya fue aceptada anteriormente."
+    },
+    "success": {
+      "title": "¡Bienvenido!",
+      "text": "Su cuenta ha sido creada exitosamente. Ya puede iniciar sesión."
+    },
+    "form": {
+      "email": "Email",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "role": "Rol",
+      "password": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "••••••••",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+54 11 1234-5678",
+      "creating": "Creando usuario...",
+      "submit": "Crear usuario"
     }
   },
   "drivers": {
@@ -1121,13 +860,7 @@
       "reasonPlaceholder": "Motivo de la vinculación (opcional)",
       "linkExistingVehicle": "Vincular vehículo existente",
       "createNewVehicle": "Crear nuevo vehículo (sin vincular)",
-      "linkExistingVehicleHelp": "Opcional: Selecciona un vehículo operativo existente para vincularlo a esta publicación. Si no seleccionas ninguno, se creará una publicación independiente.",
-      "patenteRequerida": "La patente es requerida",
-      "anioInvalido": "El año es inválido",
-      "precioInvalido": "El precio debe ser mayor o igual a 0",
-      "kilometrajeInvalido": "El kilometraje debe ser mayor o igual a 0",
-      "descripcionMuyLarga": "La descripción no puede exceder 4000 caracteres",
-      "selectVehicleOrDevice": "Debe seleccionar un vehículo o un dispositivo"
+      "linkExistingVehicleHelp": "Opcional: Selecciona un vehículo operativo existente para vincularlo a esta publicación. Si no seleccionas ninguno, se creará una publicación independiente."
     },
     "preview": {
       "title": "Preview de publicacion",
@@ -1220,27 +953,6 @@
       "sincronizadas": "Sincronizadas",
       "conError": "Con Error",
       "pendientes": "Pendientes"
-    },
-    "editor": {
-      "instructions": {
-        "polygonClick": "Clic en el mapa para agregar puntos al polígono",
-        "closeShape": "Clic en el primer punto para cerrar la figura",
-        "editVertices": "Use Editar para ajustar vértices individuales",
-        "moveShape": "Use Mover para arrastrar toda la figura",
-        "circleClickDrag": "Clic y arrastre para definir centro y radio",
-        "editRadius": "Use Editar para ajustar el radio",
-        "moveCircle": "Use Mover para arrastrar el círculo",
-        "polylineClick": "Clic para agregar puntos. Doble clic para terminar.",
-        "editPoints": "Use Editar para ajustar puntos",
-        "moveLine": "Use Mover para arrastrar la línea"
-      },
-      "legend": {
-        "title": "Barra de herramientas",
-        "draw": "Polígono / Círculo / Línea → Dibujar",
-        "edit": "Editar → Mover vértices / cambiar radio",
-        "move": "Mover → Arrastrar la figura completa",
-        "delete": "Eliminar → Clic en la figura para borrarla"
-      }
     }
   },
   "replay": {
@@ -1321,34 +1033,27 @@
     "hideGeofences": "Ocultar geozonas"
   },
   "auth": {
-    "login": "Iniciar Sesión",
-    "register": "Registrarse",
-    "email": "Email",
-    "password": "Contraseña",
-    "forgotPassword": "¿Olvidó su contraseña?",
-    "rememberMe": "Recordarme",
-    "noAccount": "¿No tiene cuenta?",
-    "hasAccount": "¿Ya tiene cuenta?",
-    "companyName": "Nombre de la Empresa",
-    "yourName": "Su Nombre",
-    "confirmPassword": "Confirmar Contraseña",
     "title": "TracAuto",
     "subtitle": "Plataforma de Gestión Telemática",
     "signIn": "Iniciar Sesión",
-    "signInSubtitle": "Ingrese sus credenciales para acceder",
+    "signInSubtitle": "Ingrese sus credenciales para acceder.",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "usuario@empresa.com",
     "passwordLabel": "Contraseña",
-    "passwordPlaceholder": "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
+    "passwordPlaceholder": "••••••••",
+    "rememberMe": "Recordarme",
     "signingIn": "Ingresando...",
     "signInButton": "Ingresar",
-    "continueWith": "o continuar con",
     "continueGoogle": "Continuar con Google",
-    "registerCompany": "Registrar mi Empresa",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "registerCompany": "Registrar Empresa",
     "contactSupport": "Contactar Soporte",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "legalMessage": "Al ingresar, acepta nuestros términos de uso y políticas de privacidad.",
+    "noAccount": "¿No tiene cuenta?",
     "registerTitle": "Registrar Empresa",
-    "registerSubtitle": "Complete los datos para crear su cuenta",
+    "registerSubtitle": "Complete los datos para crear su cuenta.",
     "backToLogin": "Volver al inicio",
     "companyNameLabel": "Nombre de la Empresa",
     "companyNamePlaceholder": "Mi Aseguradora S.A.",
@@ -1383,12 +1088,31 @@
     "smsCodeLabel": "Código de SMS",
     "smsCodePlaceholder": "123456",
     "verifying": "Verificando...",
-    "verifyButton": "Verificar Cuenta",
+    "verifyButton": "Verificar cuenta",
+    "resendingCode": "Reenviando código...",
+    "requestResetTitle": "Restablecer contraseña",
+    "requestResetSubtitle": "Ingrese su correo para recibir un enlace de recuperación.",
+    "requestResetButton": "Aceptar",
+    "resetPasswordTitle": "Restablecer contraseña",
+    "resetPasswordSubtitle": "Ingrese y confirme su nueva contraseña.",
+    "newPasswordLabel": "Nueva Contraseña",
+    "resetPasswordButton": "Guardar contraseña",
+    "resettingPasswordButton": "Restableciendo contraseña...",
     "resendEmail": "Reenviar por email",
     "resendSms": "Reenviar por SMS",
     "legalRegister": "Al registrarse, acepta nuestros términos de servicio y políticas de privacidad.",
+    "success": {
+      "emailVerified": "Email verificado correctamente.",
+      "emailVerifiedGoogle": "Email verificado a través de Google.",
+      "phoneVerified": "Teléfono verificado correctamente.",
+      "codeResentEmail": "Código reenviado exitosamente.",
+      "codeResentSms": "Código reenviado por SMS exitosamente.",
+      "resetPasswordEmailSent": "Si el correo está registrado, recibirá un enlace para restablecer su contraseña.",
+      "resendCodeSuccess": "Código de verificación reenviado exitosamente.",
+      "passwordResetOk": "Contraseña restablecida correctamente."
+    },
     "errors": {
-      "invalidEmail": "Por favor, introduce un correo electrónico válido.",
+      "invalidEmail": "Email inválido.",
       "completeFields": "Complete todos los campos.",
       "passwordMismatch": "Las contraseñas no coinciden.",
       "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
@@ -1397,33 +1121,32 @@
       "passwordNumber": "La contraseña debe contener al menos un número.",
       "passwordSpecial": "La contraseña debe contener al menos un carácter especial.",
       "accountNotVerified": "Su cuenta aún no fue verificada.",
+      "emailPending": "La verificación del correo electrónico está pendiente.",
+      "phonePending": "La verificación del teléfono está pendiente.",
       "accountBlocked": "Cuenta bloqueada. Si tiene una cuenta registrada, recibirá un email con instrucciones para recuperarla.",
       "invalidCuit": "El CUIT ingresado no es válido.",
       "authError": "Error de autenticación.",
       "registerError": "Error al registrar empresa.",
       "verifyError": "Error al verificar cuenta.",
       "resendError": "Error al reenviar código.",
-      "resendCodeError": "Error al reenviar código de verificación.",
-      "googleNotAvailable": "Login con Google estará disponible próximamente.",
+      "resendCodeError": "Error al reenviar el código de verificación.",
       "termsRequired": "Debés aceptar los términos y condiciones para continuar.",
       "phoneMinLength": "El número de teléfono debe tener al menos 10 dígitos.",
       "fieldRequired": "Este campo es requerido.",
       "emailCodeRequired": "El código de email es requerido.",
       "smsCodeRequired": "El código de SMS es requerido.",
-      "codeFormat": "El código debe tener 6 dígitos numéricos."
-    },
-    "success": {
-      "codeResentEmail": "Código reenviado a su correo electrónico",
-      "codeResentSms": "Código reenviado a su teléfono",
-      "resendCodeSuccess": "Código de verificación reenviado exitosamente"
+      "codeFormat": "El código debe tener 6 dígitos numéricos.",
+      "cuitLength": "El CUIT debe tener 11 dígitos.",
+      "phoneMaxLength": "El teléfono no puede exceder los 20 caracteres.",
+      "googleTokenInvalid": "Token de Google inválido.",
+      "resetPasswordError": "No se pudo reestablecer la contraseña. Intente más tarde."
     },
     "resendVerificationCode": "Reenviar códigos de verificación",
-    "resendingCode": "Reenviando código...",
-    "invalidPhone": "Número de teléfono inválido",
+    "invalidPhone": "Número de teléfono inválido.",
     "whatsappRequired": "Debe ser un número con WhatsApp (celular)"
   },
   "organization": {
-    "title": "Empresa Â· Apariencia / Branding",
+    "title": "Empresa · Apariencia / Branding",
     "subtitle": "Configura colores de marca de la empresa. Preview inmediato (sin guardar).",
     "branding": "Branding",
     "logo": "Logo (URL)",
@@ -1434,10 +1157,10 @@
     "primaryDark": "Primary Dark",
     "secondary": "Secondary",
     "save": "Guardar",
-    "saving": "Guardandoâ€¦",
+    "saving": "Guardando…",
     "discard": "Descartar",
     "refresh": "Actualizar",
-    "refreshing": "Actualizandoâ€¦",
+    "refreshing": "Actualizando…",
     "refreshFromServer": "Actualizar branding desde el servidor",
     "presets": "Presets (branding)",
     "presetsDescription": "Son preview inmediato. No guardan automáticamente: puedes ajustar manualmente y luego guardar.",
@@ -1462,15 +1185,15 @@
     "note1": "El modo claro/oscuro es preferencia del usuario (no se guarda por empresa).",
     "note2": "El branding de empresa define colores de marca (primary/roles). El resto depende del tema base light/dark.",
     "note3": "Presets solo completan inputs; no guardan automáticamente.",
-    "loading": "Cargando organizaciónâ€¦",
+    "loading": "Cargando organización…",
     "loadError": "Error al cargar organización",
     "retry": "Reintentar",
-    "retrying": "Reintentandoâ€¦",
+    "retrying": "Reintentando…",
     "back": "Volver",
     "unsavedChangesWarning": "Tienes cambios sin guardar. Al actualizar desde el servidor se perderán.\n\n¿Deseas continuar?",
     "invalidColorFormat": "Formato inválido. Use hex: #RRGGBB",
     "success": {
-      "updated": "âœ“ Branding actualizado y aplicado correctamente.",
+      "updated": "✓ Branding actualizado y aplicado correctamente.",
       "refreshed": "Branding actualizado desde el servidor.",
       "discarded": "Cambios descartados (preview revertido).",
       "presetApplied": "Preset aplicado (preview): {{name}}. No se guardó."
@@ -1494,9 +1217,7 @@
       "excludedOn": "Excluido el",
       "resourceWithoutName": "Recurso sin nombre",
       "unknown": "Desconocido",
-      "withoutName": "Sin nombre",
-      "selectedCount": "{{count}} recursos seleccionados",
-      "motivoPlaceholder": "Motivo de la exclusion (opcional)..."
+      "withoutName": "Sin nombre"
     },
     "sharing": {
       "title": "Gestionar Compartición",
@@ -1849,25 +1570,26 @@
       "CooldownSms": "Por favor espere {{retryAfter}} segundos antes de solicitar un nuevo código por SMS",
       "EmailNoCoincide": "El email del token de Google no coincide con el email proporcionado",
       "CodigoEmailRequerido": "El código de verificación de email es requerido",
-      "SesionExpirada": "La sesión ha expirado"
+      "SesionExpirada": "La sesión ha expirado",
+      "PasswordReuseNotAllowed": "La contraseña ingresada es inválida. Intente con otra."
     },
     "Usuario": {
-      "NoEncontrado": "Usuario no encontrado",
-      "EmailDuplicado": "Ya existe un usuario con este email",
-      "Inactivo": "El usuario está deshabilitado",
-      "SinOrganizacion": "El usuario no tiene organización asignada",
-      "SinPermisos": "No tiene permisos para realizar esta acción",
-      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas",
-      "EsDuenio": "No se puede cambiar el rol del dueño de la organización",
-      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización",
-      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización",
-      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación",
-      "CuentaYaVerificada": "La cuenta ya está verificada",
-      "CuentaInactiva": "La cuenta de usuario está inactiva",
-      "SinTelefono": "El usuario no tiene número de teléfono registrado",
-      "CreacionFallida": "Error al crear el usuario: {{param0}}",
-      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}",
-      "NoAutenticado": "El usuario no está autenticado"
+      "NoEncontrado": "Usuario no encontrado.",
+      "EmailDuplicado": "Ya existe un usuario con este email.",
+      "Inactivo": "El usuario está deshabilitado.",
+      "SinOrganizacion": "El usuario no tiene organización asignada.",
+      "SinPermisos": "No tiene permisos para realizar esta acción.",
+      "MultiOrganizacionNoPermitida": "No se permite pertenecer a múltiples organizaciones activas.",
+      "EsDuenio": "No se puede cambiar el rol del dueño de la organización.",
+      "NoSePuedeDeshabilitarDuenio": "No se puede deshabilitar al dueño de la organización.",
+      "NoSePuedeRemoverDuenio": "No se puede remover al dueño de la organización.",
+      "ErrorSincronizacionRol": "Error al sincronizar el rol con el sistema de autenticación.",
+      "CuentaYaVerificada": "La cuenta ya está verificada.",
+      "CuentaInactiva": "La cuenta de usuario está inactiva.",
+      "SinTelefono": "El usuario no tiene número de teléfono registrado.",
+      "CreacionFallida": "Error al crear el usuario: {{param0}}.",
+      "ActualizacionFallida": "Error al actualizar el usuario: {{param0}}.",
+      "NoAutenticado": "El usuario no está autenticado."
     },
     "Organizacion": {
       "NoEncontrada": "Organización no encontrada",
@@ -1895,7 +1617,7 @@
       "YaAceptada": "Esta invitación ya fue aceptada",
       "Cancelada": "Esta invitación fue cancelada",
       "EmailDuplicado": "Ya existe una invitación pendiente para este email en esta organización",
-      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización",
+      "UsuarioYaPertenece": "El usuario ya pertenece a esta organización.",
       "RolInvalido": "El rol asignado no es válido",
       "NoReenviable": "No se puede reenviar una invitación con estado {{param0}}",
       "UsuarioVinculado": "El usuario existente fue vinculado a la organización exitosamente",
@@ -1921,27 +1643,7 @@
       "SinPermisoGestion": "No tiene permiso de gestión sobre este vehículo compartido",
       "ErrorEliminacion": "Error al eliminar el vehículo. {{param0}}",
       "ErrorActualizacion": "Error al actualizar el vehículo. {{param0}}",
-      "ErrorCreacion": "Error al crear el vehículo. {{param0}}",
-      "ExtensionTaxiSinDatos": "Debe proporcionar los datos de la extensi?n taxi.",
-      "ExtensionAseguradoraSinDatos": "Debe proporcionar los datos de la extensi?n aseguradora.",
-      "ExtensionOtrosSinDatos": "Debe proporcionar los datos de la extensi?n otros.",
-      "ExtensionAlquilerSinDatos": "Debe proporcionar los datos de la extensi?n alquiler.",
-      "TipoContextoRequerido": "Debe indicar el tipo de contexto del veh?culo.",
-      "ExtensionMarketplaceNoPermitida": "La extensi?n marketplace no est? permitida para este contexto.",
-      "ExtensionAlquilerNoPermitida": "La extensi?n alquiler no est? permitida para este contexto.",
-      "ExtensionTaxiNoPermitida": "La extensi?n taxi no est? permitida para este contexto.",
-      "ExtensionAseguradoraNoPermitida": "La extensi?n aseguradora no est? permitida para este contexto.",
-      "ExtensionMarketplaceNoEncontrada": "No se encontr? la extensi?n marketplace del veh?culo.",
-      "ExtensionTaxiNoEncontrada": "No se encontr? la extensi?n taxi del veh?culo.",
-      "ExtensionAseguradoraNoEncontrada": "No se encontr? la extensi?n aseguradora del veh?culo.",
-      "ExtensionOtrosNoEncontrada": "No se encontr? la extensi?n otros del veh?culo.",
-      "ExtensionMarketplaceYaExiste": "El veh?culo ya tiene una extensi?n marketplace activa.",
-      "ExtensionTaxiYaExiste": "El veh?culo ya tiene una extensi?n taxi activa.",
-      "ExtensionAseguradoraYaExiste": "El veh?culo ya tiene una extensi?n aseguradora activa.",
-      "ExtensionOtrosYaExiste": "El veh?culo ya tiene una extensi?n otros activa.",
-      "ExtensionTaxiDuplicada": "No se puede duplicar la extensi?n taxi del veh?culo.",
-      "ExtensionAseguradoraDuplicada": "No se puede duplicar la extensi?n aseguradora del veh?culo.",
-      "ExtensionOtrosDuplicada": "No se puede duplicar la extensi?n otros del veh?culo."
+      "ErrorCreacion": "Error al crear el vehículo. {{param0}}"
     },
     "Conductor": {
       "NoEncontrado": "Conductor no encontrado",
@@ -1960,8 +1662,7 @@
       "NoSePuedeEditarInactivo": "No se puede editar un conductor inactivo. Primero debe reactivarlo.",
       "ConductorYaActivo": "El conductor ya se encuentra activo",
       "SinPermisoGestion": "No tiene permiso de gestión sobre este conductor compartido",
-      "BatchLimiteExcedido": "La cantidad de vehículos solicitados ({{param0}}) excede el límite máximo ({{param1}}) por petición batch",
-      "ErrorEliminacion": "Error al eliminar el conductor. {{param0}}"
+      "BatchLimiteExcedido": "La cantidad de vehículos solicitados ({{param0}}) excede el límite máximo ({{param1}}) por petición batch"
     },
     "Seguridad": {
       "IntentoAccesoTenantCruzado": "Acceso no autorizado: no puede acceder a datos de otra organización.",
@@ -2014,10 +1715,7 @@
       "PublicacionYaVinculada": "La publicación ya está vinculada a un vehículo operativo",
       "VehiculoYaTienePublicacion": "El vehículo ya tiene una publicación activa",
       "PublicacionSinPatente": "La publicación debe tener patente para crear vehículo",
-      "VinculacionIncompleta": "Debe proporcionar VehiculoId o DispositivoId para vincular la publicación",
-      "ErrorCreacion": "Error al crear el veh?culo en marketplace. {{param0}}",
-      "ErrorPublicacion": "Error al publicar el veh?culo en marketplace. {{param0}}",
-      "ErrorVinculacion": "Error al vincular la publicaci?n del marketplace. {{param0}}"
+      "VinculacionIncompleta": "Debe proporcionar VehiculoId o DispositivoId para vincular la publicación"
     },
     "MarketplacePublico": {
       "PublicacionNoEncontrada": "La publicación no fue encontrada o no está disponible",
@@ -2029,9 +1727,7 @@
       "UsuarioRequerido": "El usuario destinatario es requerido para audiencia UserDirect",
       "RolRequerido": "El rol destinatario es requerido para audiencia RoleScoped",
       "SinDestinatarios": "No se encontraron destinatarios para la notificación",
-      "SegmentoNoSoportado": "La audiencia SegmentScoped aún no está implementada.",
-      "NoEncontrada": "Notificaci?n no encontrada.",
-      "AccesoDenegado": "No tiene acceso a esta notificaci?n."
+      "SegmentoNoSoportado": "La audiencia SegmentScoped aún no está implementada."
     },
     "Geofence": {
       "NoEncontrada": "Geofence no encontrada.",
@@ -2042,13 +1738,6 @@
       "YaAsignadaAVehiculo": "La geofence ya está asignada a este vehículo.",
       "AsignacionNoEncontrada": "La asignación geofence-vehículo no fue encontrada.",
       "VehiculoSinDispositivo": "El vehículo no tiene un dispositivo activo asignado."
-    },
-    "Scoring": {
-      "ConfiguracionNoEncontrada": "Configuración de scoring no encontrada para esta organización",
-      "PesosInvalidos": "Los pesos deben sumar 100 (actual: {{param0}})",
-      "ConductorNoEncontrado": "Conductor no encontrado",
-      "SinDatosSuficientes": "No hay datos GPS suficientes para calcular el score de este periodo",
-      "FechaFutura": "No se puede calcular scoring para una fecha futura"
     },
     "Alquiler": {
       "VehiculoNoEncontrado": "Vehículo de alquiler no encontrado",
@@ -2145,9 +1834,7 @@
       "PromocionNoAplicable": "La promoción no es aplicable a esta reserva",
       "SinDisponibilidadCategoria": "No hay vehículos disponibles en la categoría seleccionada para las fechas solicitadas",
       "NoEsDelCliente": "No tiene permiso para acceder a esta reserva",
-      "NoShowAntesDeRecogida": "No se puede marcar como no-show antes de la fecha de recogida",
-      "ExcesoRecargos": "La reserva no puede incluir m?s de {{param0}} recargos.",
-      "ExcesoCoberturas": "La reserva no puede incluir m?s de {{param0}} coberturas."
+      "NoShowAntesDeRecogida": "No se puede marcar como no-show antes de la fecha de recogida"
     },
     "CheckOut": {
       "ReservaNoConfirmada": "La reserva debe estar en estado Confirmada para realizar el check-out",
@@ -2156,8 +1843,7 @@
       "VehiculoNoEncontrado": "El vehículo asignado a la reserva no fue encontrado",
       "SucursalNoEncontrada": "La sucursal indicada para el check-out no fue encontrada",
       "TipoInspeccionInvalido": "El tipo de inspección especificado no es válido",
-      "FormatoArchivoNoPermitido": "Solo se permiten archivos de imagen (JPEG, PNG, WebP)",
-      "NoRealizado": "No se encontr? un check-out realizado para esta reserva."
+      "FormatoArchivoNoPermitido": "Solo se permiten archivos de imagen (JPEG, PNG, WebP)"
     },
     "CheckIn": {
       "SinCheckOut": "No se puede realizar el check-in sin un check-out previo",
@@ -2165,8 +1851,7 @@
       "KilometrajeMenorAlInicial": "El kilometraje final no puede ser menor al kilometraje inicial del check-out",
       "ReservaNoEnCurso": "La reserva debe estar en estado EnCurso para realizar el check-in",
       "ConfiguracionRequerida": "No se encontró la configuración de alquiler. Configure precios de recargos antes de realizar check-in",
-      "ConfiguracionPreciosInvalida": "Los precios de recargos en la configuración deben ser mayores a cero",
-      "NoRealizado": "No se encontr? un check-in realizado para esta reserva."
+      "ConfiguracionPreciosInvalida": "Los precios de recargos en la configuración deben ser mayores a cero"
     },
     "PlantillaContrato": {
       "NoEncontrada": "Plantilla de contrato no encontrada",
@@ -2179,10 +1864,7 @@
       "YaFirmado": "El contrato ya fue firmado y no puede modificarse",
       "YaExiste": "Ya existe un contrato para esta reserva",
       "ConflictoConcurrencia": "El contrato fue modificado por otro usuario. Recargue los datos y vuelva a intentar",
-      "ReservaNoConfirmada": "La reserva debe estar confirmada o en curso para generar un contrato",
-      "FirmaDigitalNoConfigurada": "La firma digital no esta configurada para esta instancia",
-      "FirmaDigitalProveedorNoDisponible": "No se pudo completar la operacion con el proveedor de firma digital",
-      "FirmaDigitalWebhookInvalido": "La firma del webhook de firma digital no es valida"
+      "ReservaNoConfirmada": "La reserva debe estar confirmada o en curso para generar un contrato"
     },
     "PagoAlquiler": {
       "NoEncontrado": "Pago de alquiler no encontrado",
@@ -2215,120 +1897,6 @@
     },
     "Reporte": {
       "TipoNoSoportado": "Tipo de reporte no soportado para exportación"
-    },
-    "Modulo": {
-      "DefinicionNoEncontrada": "Definición de módulo no encontrada",
-      "OrganizacionModuloNoEncontrado": "El módulo no está activado para esta organización",
-      "YaActivo": "El módulo ya está activo para esta organización",
-      "NoActivo": "El módulo no está activo para esta organización",
-      "EsBase": "No se puede desactivar un módulo base del sistema",
-      "NoDisponible": "El módulo no está disponible para activación",
-      "NoVisible": "El módulo no está visible en el catálogo",
-      "RequierePrerequisitos": "El módulo requiere que estén activos los siguientes módulos: {{param0}}",
-      "LimiteModulosAlcanzado": "Se alcanzó el límite de módulos activos ({{param0}}/{{param1}})",
-      "ModuloDependienteActivo": "No se puede desactivar. Módulos dependientes activos: {{param0}}",
-      "AccesoDenegado": "La organización no tiene activo ninguno de los módulos requeridos: {{param0}}",
-      "LimiteDePlanExcedido": "Se alcanzó el límite del plan para \"{{param0}}\" ({{param2}}/{{param1}})",
-      "NoSePuedeDesactivarConDatosActivos": "No se puede desactivar el módulo mientras existan datos activos: {{param0}}"
-    },
-    "Suscripcion": {
-      "NoEncontrada": "Suscripción no encontrada",
-      "YaExiste": "La organización ya tiene una suscripción activa",
-      "PlanNoEncontrado": "Plan de módulo no encontrado",
-      "PlanInactivo": "El plan seleccionado no está disponible para contratación",
-      "ModuloYaSuscrito": "El módulo ya está incluido en la suscripción actual",
-      "ModuloNoSuscrito": "El módulo no está incluido en la suscripción actual",
-      "EstadoNoPermiteModificacion": "La suscripción no puede modificarse en su estado actual",
-      "TrialExpirado": "El período de prueba ha expirado. Debe activar un plan de pago para continuar",
-      "ConflictoConcurrencia": "La suscripción fue modificada por otro usuario. Recargue los datos y vuelva a intentar",
-      "LimiteRecursoAlcanzado": "Se alcanzó el límite de {{param0}} ({{param1}}/{{param2}}) para el plan actual",
-      "DowngradeNoPermitido": "No se puede hacer downgrade: el uso actual de \"{{param0}}\" ({{param2}}) excede el límite del nuevo plan ({{param1}})",
-      "NoSePuedeCancelar": "La suscripción no puede cancelarse en su estado actual",
-      "NoSePuedeReactivar": "Solo se puede reactivar una suscripción que fue cancelada y aún no expiró"
-    },
-    "LinkTracking": {
-      "NoEncontrado": "Link de tracking no encontrado.",
-      "Expirado": "El link de tracking ha expirado.",
-      "Revocado": "El link de tracking fue revocado.",
-      "MaxAccesosSuperado": "Se alcanzó el límite máximo de accesos para este link.",
-      "VehiculoSinDispositivo": "El vehículo no tiene un dispositivo activo asignado.",
-      "DuracionInvalida": "La duración debe estar entre {{param0}} y {{param1}} minutos.",
-      "LimiteLinksAlcanzado": "Se alcanzó el límite máximo de links activos para esta organización."
-    },
-    "Copiloto": {
-      "ConversacionNotFound": "Conversación no encontrada",
-      "MensajeVacio": "El mensaje no puede estar vacío",
-      "LimiteTokensDiarios": "Límite diario de consultas IA alcanzado ({{param0}}/{{param1}})",
-      "ErrorServicioIA": "Error al procesar consulta. Intente nuevamente",
-      "LimiteMensajesPorConversacion": "La conversación alcanzó el límite de mensajes"
-    },
-    "WhatsApp": {
-      "TelefonoRequerido": "Se requiere un número de teléfono para habilitar WhatsApp",
-      "TelefonoInvalido": "El número de teléfono no es válido. Debe estar en formato E.164",
-      "TelefonoNoVerificado": "El teléfono debe ser verificado antes de habilitar WhatsApp",
-      "CodigoInvalido": "El código de verificación es inválido o ha expirado",
-      "ErrorEnvioMensaje": "No se pudo enviar el mensaje de WhatsApp. Intente más tarde",
-      "LimiteEnviosDiarios": "Se alcanzó el límite diario de envíos de WhatsApp ({{param0}} máximo)",
-      "PreferenciasNoEncontradas": "No se encontraron preferencias de notificación",
-      "ServicioNoDisponible": "El servicio de WhatsApp no está disponible"
-    },
-    "ResumenIA": {
-      "ErrorGeneracion": "No se pudo generar el resumen con IA. Intente más tarde",
-      "DatosInsuficientes": "No hay datos suficientes para generar un resumen del periodo solicitado",
-      "RateLimitExceeded": "Límite de generación de resúmenes alcanzado ({{param0}} por hora). Intente nuevamente más tarde"
-    },
-    "Taller": {
-      "TallerNoEncontrado": "Taller no encontrado",
-      "TurnoNoEncontrado": "Turno no encontrado",
-      "PresupuestoNoEncontrado": "Presupuesto no encontrado",
-      "TurnoNoPuedeCancelar": "El turno no puede ser cancelado en su estado actual",
-      "PresupuestoNoPendiente": "El presupuesto no está pendiente de respuesta",
-      "YaCalificado": "Este taller ya fue calificado para este turno",
-      "TurnoNoCompletado": "Solo se pueden calificar turnos completados",
-      "HorarioNoDisponible": "El horario seleccionado no está disponible"
-    },
-    "Cerebro": {
-      "ReglaNoEncontrada": "Regla de alerta no encontrada",
-      "AlertaNoEncontrada": "Alerta no encontrada",
-      "ReglaConfiguracionInvalida": "La configuración JSON de la regla es inválida para el tipo seleccionado",
-      "TipoReglaNoSoportado": "El tipo de regla de alerta no está soportado",
-      "AlertaYaResuelta": "La alerta ya fue resuelta",
-      "AlertaYaLeida": "La alerta ya fue marcada como leída",
-      "AccesoDenegado": "No tiene permisos para acceder a este recurso",
-      "IdNoCoincide": "El ID de la URL no coincide con el ID del cuerpo de la solicitud",
-      "MaxAlertasExcedido": "No se pueden marcar más de 100 alertas a la vez"
-    },
-    "ReglasAlerta": {
-      "NombreRequerido": "El nombre de la regla es requerido",
-      "ConfiguracionRequerida": "La configuración JSON de la regla es requerida",
-      "CooldownMinimo": "El cooldown debe ser de al menos 60 segundos",
-      "NombreDuplicado": "Ya existe una regla de alerta con ese nombre"
-    },
-    "Delivery": {
-      "EntregaNoEncontrada": "Entrega no encontrada",
-      "TransicionInvalida": "No se puede transicionar del estado actual al estado solicitado",
-      "EntregaEnCurso": "Ya tiene una entrega activa en curso",
-      "NoPuedeCancelar": "La entrega no puede ser cancelada en su estado actual",
-      "NoPuedeCalificar": "Solo se pueden calificar entregas completadas",
-      "YaCalificado": "Esta entrega ya fue calificada",
-      "RepartidorNoDisponible": "El repartidor no está disponible para aceptar entregas",
-      "NoRepartidoresDisponibles": "No hay repartidores disponibles en la zona",
-      "EntregaExpirada": "La entrega ha expirado por falta de repartidor",
-      "NoEsRepartidorAsignado": "No es el repartidor asignado a esta entrega",
-      "ConfiguracionNoEncontrada": "Configuración de delivery no encontrada para esta organización",
-      "CodigoConfirmacionInvalido": "El código de confirmación no coincide"
-    },
-    "Admin": {
-      "OrganizacionNoEncontrada": "Organización no encontrada",
-      "SuscripcionNoEncontrada": "Suscripción no encontrada para la organización indicada",
-      "OrganizacionYaTieneSuscripcionActiva": "La organización ya tiene una suscripción activa o en trial",
-      "EstadoNoPermitido": "El estado indicado no es válido para esta operación",
-      "TrialNoExtensible": "Solo se puede extender el trial de suscripciones en estado Trial",
-      "DiasExtensionInvalidos": "Los días de extensión deben estar entre {{param0}} y {{param1}}",
-      "GatewayNoSoportado": "El gateway de pago indicado no está disponible",
-      "TransicionEstadoInvalida": "La transición de estado solicitada no es válida",
-      "ModuloYaAsignado": "El módulo ya está asignado en la suscripción",
-      "SuscripcionRequierePago": "No se puede asignar módulo demo a una suscripción que requiere pago"
     }
   },
   "catalogoMarketplace": {
@@ -2357,18 +1925,7 @@
     "mensajeWhatsApp": "Hola, me interesa el vehículo {{title}}. {{url}}",
     "contactoNoDisponible": "Información de contacto no disponible",
     "consultarPrecio": "Consultar",
-    "derechosReservados": "Todos los derechos reservados.",
-    "favoritos": {
-      "titulo": "Mis Favoritos",
-      "subtitulo": "Vehiculos que guardaste como favoritos",
-      "vacio": "Sin favoritos",
-      "vacioDesc": "Aun no guardaste ningun vehiculo como favorito",
-      "errorCarga": "Error al cargar tus favoritos",
-      "agregar": "Agregar a favoritos",
-      "quitar": "Quitar de favoritos",
-      "agregado": "Agregado a favoritos",
-      "quitado": "Eliminado de favoritos"
-    }
+    "derechosReservados": "Todos los derechos reservados."
   },
   "alquileres": {
     "proximamente": "Próximamente",
@@ -2874,7 +2431,7 @@
         "4": "App"
       },
       "tabla": {
-        "numero": "NÂ° Reserva",
+        "numero": "N° Reserva",
         "cliente": "Cliente",
         "vehiculo": "Vehículo",
         "fechas": "Fechas",
@@ -2962,7 +2519,7 @@
         "numeroDocumento": "Número de documento",
         "numeroDocumentoPlaceholder": "Ej: 12345678",
         "fechaNacimiento": "Fecha de nacimiento",
-        "licenciaConducir": "NÂ° licencia de conducir",
+        "licenciaConducir": "N° licencia de conducir",
         "licenciaPlaceholder": "Número de licencia",
         "vencimientoLicencia": "Vencimiento de licencia",
         "errores": {
@@ -3090,104 +2647,6 @@
         "cancelada": "Cancelada",
         "noShow": "No Show"
       },
-      "auditoria": {
-        "titulo": "Auditoria operativa",
-        "subtitulo": "Trazabilidad real de reserva, contrato, pagos y checklists",
-        "sinEventos": "Sin eventos de auditoria",
-        "sinEventosDescripcion": "Todavia no se registraron movimientos auditables para esta reserva.",
-        "estado": "Estado",
-        "creado": "Creacion",
-        "creadoPor": "Creado por {{usuario}}",
-        "evento": "Evento",
-        "fuente": "Fuente",
-        "ultimaActualizacion": "Ultima actualizacion",
-        "actualizadoPor": "Actualizado por {{usuario}}",
-        "sinCambiosPosteriores": "Sin cambios posteriores",
-        "sinCambiosSemanticos": "No hay cambios semanticos adicionales para este hito.",
-        "usuarioSistema": "Sistema",
-        "sinDato": "Sin dato",
-        "cambiosTitulo": "Cambios registrados",
-        "tipoEntidad": {
-          "reservaAlquiler": "Reserva",
-          "contratoAlquiler": "Contrato",
-          "checkOutAlquiler": "Check-out",
-          "checkInAlquiler": "Check-in",
-          "pagoAlquiler": "Pago"
-        },
-        "acciones": {
-          "reservaCreada": "Reserva creada",
-          "reservaConfirmada": "Reserva confirmada",
-          "reservaCancelada": "Reserva cancelada",
-          "reservaNoShow": "Reserva marcada como No Show",
-          "pagoCompletado": "Pago acreditado",
-          "contratoGenerado": "Contrato generado",
-          "contratoEnviadoFirmaDigital": "Contrato enviado a firma digital",
-          "contratoFirmado": "Contrato firmado",
-          "checkOutRealizado": "Check-out realizado",
-          "checkInRealizado": "Check-in realizado"
-        },
-        "fuentes": {
-          "eventoDominio": "Evento de dominio",
-          "auditoriaEntidad": "Auditoria de entidad"
-        },
-        "cambios": {
-          "estado": "Estado",
-          "numeroReserva": "Numero de reserva",
-          "fechaHoraRecogida": "Retiro programado",
-          "fechaHoraDevolucion": "Devolucion programada",
-          "fechaHoraReal": "Fecha real",
-          "sucursalRecogida": "Sucursal de retiro",
-          "sucursalDevolucion": "Sucursal de devolucion",
-          "montoTotal": "Monto total",
-          "montoPago": "Monto del pago",
-          "vehiculo": "Vehiculo",
-          "motivoCancelacion": "Motivo de cancelacion",
-          "infoReembolso": "Detalle de reembolso",
-          "metodoPago": "Metodo de pago",
-          "referenciaExterna": "Referencia externa",
-          "kilometrajeInicial": "Kilometraje inicial",
-          "kilometrajeFinal": "Kilometraje final",
-          "nivelCombustible": "Nivel de combustible",
-          "deltaKilometros": "Kilometros recorridos",
-          "deltaCombustible": "Diferencia de combustible",
-          "danosDetectados": "Danos detectados",
-          "descripcionDanos": "Descripcion de danos",
-          "recargoCombustible": "Recargo por combustible",
-          "recargoKmExcedente": "Recargo por kilometraje",
-          "recargoTardanza": "Recargo por tardanza",
-          "recargoDanos": "Recargo por danos",
-          "totalRecargosCheckIn": "Total recargos de devolucion",
-          "numeroContrato": "Numero de contrato",
-          "plantillaVersion": "Version de plantilla",
-          "estadoFirmaDigital": "Estado de firma digital",
-          "firmaCliente": "Firma del cliente",
-          "metodoFirma": "Metodo de firma",
-          "firmadoPorNombre": "Firmado por"
-        },
-        "valores": {
-          "tentativa": "Tentativa",
-          "confirmada": "Confirmada",
-          "enCurso": "En curso",
-          "completada": "Completada",
-          "cancelada": "Cancelada",
-          "noShow": "No Show",
-          "realizado": "Realizado",
-          "conDanos": "Con danos",
-          "sinDanos": "Sin danos",
-          "firmado": "Firmado",
-          "pendienteFirma": "Pendiente de firma",
-          "enviado": "Enviado",
-          "rechazado": "Rechazado",
-          "expirado": "Expirado",
-          "error": "Error",
-          "tarjeta": "Tarjeta",
-          "efectivo": "Efectivo",
-          "transferencia": "Transferencia",
-          "mercadoPago": "MercadoPago",
-          "digital": "Digital",
-          "enPersona": "En persona"
-        }
-      },
       "cliente": {
         "titulo": "Cliente",
         "verFicha": "Ver ficha del cliente"
@@ -3253,17 +2712,7 @@
         "generando": "Generando...",
         "firmado": "Firmado",
         "sinFirma": "Sin firma",
-        "fechaFirma": "Firmado el",
-        "firmaDigitalEnProceso": "Firma digital en proceso",
-        "firmaDigitalRechazada": "Firma digital rechazada",
-        "firmaDigitalExpirada": "Firma digital expirada",
-        "firmaDigitalConError": "Error en firma digital",
-        "fechaEnvioFirmaDigital": "Enviado a firma el",
-        "enviarFirmaDigital": "Enviar a firma digital",
-        "enviandoFirmaDigital": "Enviando a firma...",
-        "reenviarFirmaDigital": "Reenviar a firma digital",
-        "firmaDigitalEnviada": "Contrato enviado correctamente a firma digital",
-        "firmaDigitalYaEnviada": "El contrato ya fue enviado a firma digital y sigue en proceso"
+        "fechaFirma": "Firmado el"
       },
       "checkOut": {
         "titulo": "Check-Out (Entrega)",
@@ -3352,7 +2801,7 @@
         "metodoPago": "Método de pago",
         "metodoPagoPlaceholder": "Seleccionar método...",
         "referenciaExterna": "Referencia externa",
-        "referenciaPlaceholder": "NÂ° de transacción, cheque, etc.",
+        "referenciaPlaceholder": "N° de transacción, cheque, etc.",
         "confirmar": "Confirmar",
         "tipoInspeccion": "Tipo de inspección",
         "seleccionarArchivos": "Seleccionar archivos",
@@ -3436,7 +2885,7 @@
         "provinciaPlaceholder": "Provincia o estado",
         "codigoPostal": "Código postal",
         "codigoPostalPlaceholder": "Ej: C1425",
-        "licenciaConducir": "NÂ° licencia de conducir",
+        "licenciaConducir": "N° licencia de conducir",
         "licenciaPlaceholder": "Número de licencia",
         "vencimientoLicencia": "Vencimiento de licencia",
         "notas": "Notas",
@@ -3635,11 +3084,7 @@
         "general": "General",
         "generalDesc": "Parámetros generales del módulo",
         "precios": "Precios Adicionales",
-        "preciosDesc": "Precios por combustible y horas extra",
-        "recordatorios": "Recordatorios",
-        "recordatoriosDesc": "Configuración operativa de avisos automáticos para recogida, devolución y documentos",
-        "stockOcioso": "Alerta de Stock Ocioso",
-        "stockOciosoDesc": "Notificaciones cuando hay vehículos sin reservas en el período configurado"
+        "preciosDesc": "Precios por combustible y horas extra"
       },
       "campos": {
         "requiereSenal": "Requiere señal al reservar",
@@ -3652,20 +3097,7 @@
         "horasExpiracion": "Horas de expiración tentativa",
         "emailNotificacion": "Email de notificaciones",
         "precioCombustible": "Precio por litro de combustible",
-        "precioHoraExtra": "Precio por hora extra",
-        "recordatorioRecogida": "Recordatorio de recogida",
-        "recordatorioDevolucion": "Recordatorio de devolución",
-        "recordatorioDocumentos": "Recordatorios de documentos",
-        "recordatorioLicenciasClientes": "Licencias de clientes",
-        "recordatorioVtvVehiculos": "VTV de vehiculos",
-        "recordatorioSeguroVehiculos": "Seguro de vehiculos",
-        "recordatorioPolizaVehiculos": "Polizas de vehiculos",
-        "horasRecogida": "Horas de anticipación para recogida",
-        "horasDevolucion": "Horas de anticipación para devolución",
-        "diasDocumentos": "Días de anticipación para documentos",
-        "alertarStockOcioso": "Habilitar alerta de stock ocioso",
-        "diasAnticipacionStockOcioso": "Días de anticipación",
-        "umbralMinimoVehiculosOciosos": "Umbral mínimo de vehículos"
+        "precioHoraExtra": "Precio por hora extra"
       },
       "helpers": {
         "porcentajeSenal": "Porcentaje del total que se cobra como señal (0-100)",
@@ -3676,13 +3108,7 @@
         "horasExpiracion": "Horas antes de que expire una reserva tentativa",
         "emailNotificacion": "Email donde se envían las notificaciones de reserva",
         "precioCombustible": "Precio por litro para calcular cargo por combustible faltante",
-        "recordatorioLicenciasClientes": "Envia recordatorios al cliente cuando su licencia de conducir esta por vencer.",
-        "recordatorioVtvVehiculos": "Envia recordatorios internos por vencimiento de VTV de vehiculos vinculados a la organizacion.",
-        "recordatorioSeguroVehiculos": "Envia recordatorios internos por vencimiento de seguros de vehiculos vinculados a la organizacion.",
-        "recordatorioPolizaVehiculos": "Envia recordatorios internos por vencimiento de polizas de vehiculos vinculados a la organizacion.",
-        "precioHoraExtra": "Precio por cada hora extra de devolución tardía",
-        "diasAnticipacionStockOcioso": "Días a futuro en los que se verifica si hay vehículos sin reservas (1-90)",
-        "umbralMinimoVehiculosOciosos": "Cantidad mínima de vehículos ociosos para disparar la alerta (1-100)"
+        "precioHoraExtra": "Precio por cada hora extra de devolución tardía"
       },
       "politicas": {
         "flexible": "Flexible",
@@ -3699,9 +3125,7 @@
         "emailInvalido": "El email no tiene un formato válido",
         "emailMax320": "El email no puede exceder 320 caracteres",
         "stripeMax255": "El Stripe Account ID no puede exceder 255 caracteres",
-        "precioMinimo0": "Debe ser 0 o mayor",
-        "horasRecordatorioRango": "Debe ser un número entero entre 1 y 720",
-        "diasDocumentosInvalidos": "Ingresá entre 1 y 10 días únicos, enteros y entre 1 y 365"
+        "precioMinimo0": "Debe ser 0 o mayor"
       }
     }
   },
@@ -4032,573 +3456,6 @@
       "misReservas": {
         "titulo": "Mis Reservas",
         "detalleTitulo": "Detalle de Reserva"
-      }
-    }
-  },
-  "trackingLinks": {
-    "titulo": "Links de Tracking",
-    "subtitulo": "Comparte la ubicación de tus vehículos de forma segura con terceros",
-    "lista": "Links Activos",
-    "crear": "Crear Link",
-    "crearTitulo": "Nuevo Link de Tracking",
-    "vehiculo": "Vehículo",
-    "vehiculoPlaceholder": "Selecciona un vehículo",
-    "nombre": "Nombre (opcional)",
-    "nombrePlaceholder": "Ej: Cliente Juan, Entrega #123",
-    "duracion": "Duración (minutos)",
-    "duracionPlaceholder": "Ej: 60",
-    "duracionDefault": "Por defecto: 480 minutos (8 horas)",
-    "tipoAcceso": "Tipo de Acceso",
-    "tipoAccesoSoloUbicacion": "Solo Ubicación",
-    "tipoAccesoUbicacionConRuta": "Ubicación + Ruta",
-    "tipoAccesoCompleto": "Completo",
-    "maxAccesos": "Máx. Accesos (opcional)",
-    "maxAccesosPlaceholder": "Sin límite",
-    "copiarUrl": "Copiar URL",
-    "abrirPagina": "Abrir página de tracking",
-    "urlCopiada": "URL copiada al portapapeles",
-    "revocar": "Revocar",
-    "revocarConfirmar": "¿Estás seguro de que deseas revocar este link? Esta acción no se puede deshacer.",
-    "extender": "Extender",
-    "extenderTitulo": "Extender Link",
-    "minutosAdicionales": "Minutos adicionales",
-    "minutosAdicionalesPlaceholder": "Ej: 60",
-    "creadoExito": "Link de tracking creado exitosamente",
-    "revocadoExito": "Link de tracking revocado exitosamente",
-    "extendidoExito": "Link de tracking extendido exitosamente",
-    "errorCargar": "Error al cargar links de tracking",
-    "token": "Token",
-    "expira": "Expira",
-    "accesos": "Accesos",
-    "estado": "Estado",
-    "estadoActivo": "Activo",
-    "estadoExpirado": "Expirado",
-    "estadoRevocado": "Revocado",
-    "sinLinks": "No hay links de tracking",
-    "sinLinksDescripcion": "Crea un link para compartir la ubicación de un vehículo en tiempo real.",
-    "sinLinksActivos": "No hay links activos",
-    "sinLinksActivosDescripcion": "Los links expirados o revocados siguen disponibles en el histórico por un tiempo limitado.",
-    "sinLinksHistorico": "No hay links en el histórico",
-    "sinLinksHistoricoDescripcion": "Los links expirados o revocados se mostrarán aquí mientras sigan disponibles en el sistema.",
-    "vehiculoPatente": "Patente",
-    "vehiculoNombre": "Vehículo",
-    "fechaCreacion": "Creado",
-    "fechaExpiracion": "Expira",
-    "listaHistorico": "Histórico de Links",
-    "tabs": {
-      "activos": "Activos",
-      "historico": "Histórico"
-    },
-    "qr": {
-      "titulo": "Código QR del Link",
-      "verQr": "Ver código QR",
-      "descargarPng": "Descargar PNG"
-    }
-  },
-  "trackingPublico": {
-    "titulo": "Tracking en Vivo",
-    "cargando": "Cargando ubicación...",
-    "error": "No se pudo obtener la ubicación",
-    "linkInvalido": "El link de tracking no es válido o ha expirado",
-    "ultimaActualizacion": "Última actualización",
-    "velocidad": "Velocidad",
-    "kmh": "km/h",
-    "vehiculo": "Vehículo",
-    "organizacion": "Organización",
-    "ruta": "Ruta reciente",
-    "sinMovimiento": "Sin movimiento",
-    "poweredBy": "Tracking por TracAuto",
-    "reconectando": "Reconectando..."
-  },
-  "copiloto": {
-    "titulo": "TracAuto AI",
-    "nuevaConversacion": "Nueva conversación",
-    "enviar": "Enviar",
-    "pensando": "Pensando...",
-    "errorServicio": "Error al procesar la consulta. Intentá de nuevo.",
-    "limiteAlcanzado": "Límite diario de consultas alcanzado",
-    "eliminarConversacion": "Eliminar conversación",
-    "confirmarEliminar": "¿Estás seguro de que querés eliminar esta conversación?",
-    "usoDiario": "Uso diario",
-    "tokensConsumidos": "{{consumidos}} / {{limite}} tokens",
-    "sinConversaciones": "Sin conversaciones",
-    "placeholder": "Preguntá algo sobre tu flota...",
-    "conversaciones": "Conversaciones",
-    "verTodas": "Ver todas",
-    "cerrar": "Cerrar",
-    "copiarRespuesta": "Copiar respuesta",
-    "respuestaCopiada": "Respuesta copiada",
-    "sugerencia1": "¿Cómo está mi flota hoy?",
-    "sugerencia2": "¿Cuáles son mis vehículos más activos?",
-    "sugerencia3": "¿Hay alertas abiertas?",
-    "sugerencia4": "Dame un resumen ejecutivo",
-    "sugerencia5": "¿Qué vehículos están sin movimiento?",
-    "errorRespuesta": "No se pudo procesar la respuesta"
-  },
-  "scoring": {
-    "titulo": "Scoring de Conducción",
-    "scorePromedio": "Score Promedio Flota",
-    "conductoresTotal": "Conductores con Score",
-    "conductoresRiesgo": "Conductores en Riesgo",
-    "conductoresExcelentes": "Conductores Excelentes",
-    "distribucion": "Distribución por Categoría",
-    "tendenciaSemanal": "Tendencia Semanal",
-    "topMejores": "Top 3 Mejores",
-    "necesitanAtencion": "Necesitan Atención",
-    "rankingCompleto": "Ranking Completo",
-    "conductor": "Conductor",
-    "score": "Score",
-    "categoriaLabel": "Categoría",
-    "tendencia": "Tendencia",
-    "sinDatos": "Sin datos de scoring",
-    "sinDatosDescripcion": "Los scores se calculan diariamente a partir de datos GPS. Asegurate de tener conductores con dispositivos asignados.",
-    "sinTendencia": "Sin datos de tendencia aún",
-    "errorCargar": "Error al cargar datos de scoring",
-    "detalleSubtitulo": "Detalle de scoring de conducción",
-    "desglose": "Desglose de Scores",
-    "historico": "Historial",
-    "sinHistorico": "Sin datos históricos para este periodo",
-    "sinDatosDetalle": "No hay datos de scoring para este conductor",
-    "metricasDia": "Métricas del Último Día",
-    "kmRecorridos": "Km Recorridos",
-    "tiempoConduccion": "Tiempo de Conducción",
-    "velocidadMaxima": "Velocidad Máxima",
-    "velocidadPromedio": "Velocidad Promedio",
-    "velocidad": "Velocidad",
-    "frenado": "Frenado",
-    "aceleracion": "Aceleración",
-    "geocercas": "Geocercas",
-    "horasConduccion": "Horas de Conducción",
-    "scoreGeneral": "Score General",
-    "configuracion": "Configuración de Scoring",
-    "habilitado": "Scoring Habilitado",
-    "habilitadoDesc": "Activa o desactiva el cálculo automático de scores de conducción",
-    "pesos": "Pesos de Evaluación",
-    "sumaPesos": "Suma de pesos",
-    "pesosDebenSumar100": "Los pesos deben sumar 100",
-    "umbrales": "Umbrales de Detección",
-    "umbralFrenado": "Umbral de Frenada Brusca",
-    "umbralAceleracion": "Umbral de Aceleración Brusca",
-    "maxHorasContinuas": "Máx. Horas Continuas",
-    "scoreMinimoAlerta": "Score Mínimo para Alerta",
-    "categoria": {
-      "Excelente": "Excelente",
-      "Bueno": "Bueno",
-      "Regular": "Regular",
-      "Riesgoso": "Riesgoso",
-      "Critico": "Crítico"
-    },
-    "widget": {
-      "titulo": "Scoring de Conducción",
-      "verDetalle": "Ver detalle",
-      "scoreFlota": "Score promedio de flota"
-    }
-  },
-  "preferenciasNotificacion": {
-    "titulo": "Preferencias de Notificación",
-    "subtitulo": "Configurá cómo y por dónde querés recibir notificaciones",
-    "errorCargar": "Error al cargar las preferencias de notificación",
-    "guardadoExitoso": "Preferencias actualizadas correctamente",
-    "codigoEnviado": "Código de verificación enviado por WhatsApp",
-    "telefonoVerificado": "¡Teléfono verificado! WhatsApp habilitado",
-    "email": {
-      "titulo": "Email",
-      "descripcion": "Recibir notificaciones por correo electrónico"
-    },
-    "whatsapp": {
-      "titulo": "WhatsApp",
-      "descripcion": "Recibir alertas importantes por WhatsApp",
-      "verificarTelefono": "Ingresá tu número de WhatsApp para verificarlo",
-      "enviarCodigo": "Enviar código",
-      "ingresarCodigo": "Ingresá el código que recibiste por WhatsApp",
-      "verificar": "Verificar",
-      "verificadoComo": "Verificado como {{telefono}}",
-      "categoriasTitle": "Categorías habilitadas para WhatsApp",
-      "telefonoPlaceholder": "+5493416020069",
-      "codigoPlaceholder": "123456"
-    },
-    "categorias": {
-      "geofence": "Geocercas",
-      "vehiculo": "Vehículos",
-      "conductor": "Conductores",
-      "sistema": "Sistema",
-      "seguridad": "Seguridad",
-      "solicitud": "Solicitudes",
-      "mantenimiento": "Mantenimiento",
-      "alquiler": "Alquileres"
-    }
-  },
-  "resumenIA": {
-    "titulo": "Resumen IA de Flota",
-    "subtitulo": "Resúmenes periódicos generados por IA sobre la actividad de tu flota",
-    "errorCargar": "Error al cargar la configuración del resumen IA",
-    "configuracionGuardada": "Configuración del resumen IA guardada",
-    "resumenGenerado": "Resumen IA generado exitosamente",
-    "generarManual": "Generar ahora",
-    "generando": "Generando...",
-    "guardar": "Guardar configuración",
-    "guardando": "Guardando...",
-    "sinResumenes": "Aún no se han generado resúmenes. Genera el primero manualmente o habilita la generación periódica.",
-    "cadencia": {
-      "diario": "Diario",
-      "semanal": "Semanal",
-      "mensual": "Mensual"
-    },
-    "dias": {
-      "0": "Domingo",
-      "1": "Lunes",
-      "2": "Martes",
-      "3": "Miércoles",
-      "4": "Jueves",
-      "5": "Viernes",
-      "6": "Sábado"
-    },
-    "configuracion": {
-      "titulo": "Configuración",
-      "habilitado": "Habilitar generación automática de resúmenes",
-      "cadencia": "Frecuencia",
-      "horaEnvio": "Hora de generación (UTC)",
-      "diaSemana": "Día de la semana",
-      "diaMes": "Día del mes",
-      "seccionesIncluidas": "Secciones a incluir",
-      "emailsAdicionales": "Emails adicionales",
-      "emailsPlaceholder": "email1@ejemplo.com, email2@ejemplo.com",
-      "emailsAyuda": "Separados por coma. Se enviarán además de los administradores."
-    },
-    "secciones": {
-      "metricas": "Métricas de flota",
-      "alertas": "Alertas del periodo",
-      "ociosos": "Vehículos ociosos",
-      "combustible": "Consumo de combustible",
-      "alquileres": "Módulo de alquileres"
-    },
-    "historial": {
-      "titulo": "Historial de resúmenes",
-      "anterior": "Anterior",
-      "siguiente": "Siguiente",
-      "pagina": "Página {{actual}} de {{total}}"
-    },
-    "viewer": {
-      "titulo": "Detalle del resumen"
-    }
-  },
-  "widget": {
-    "titulo": "Widgets Embebibles",
-    "subtitulo": "Configura widgets para mostrar datos de tu flota en sitios web externos",
-    "crear": "Crear Widget",
-    "editar": "Editar Widget",
-    "desactivar": "Desactivar Widget",
-    "desactivarConfirmar": "¿Estás seguro de que deseas desactivar este widget? Los sitios que lo usen dejarán de mostrar datos.",
-    "sinWidgets": "Sin widgets configurados",
-    "sinWidgetsDescripcion": "Crea tu primer widget embebible para compartir datos de tu flota en sitios web externos.",
-    "activo": "Activo",
-    "inactivo": "Inactivo",
-    "totalAccesos": "Accesos totales",
-    "dominios": "Dominios",
-    "ultimoAcceso": "Último acceso",
-    "verCodigo": "Ver código de integración",
-    "regenerarApiKey": "Regenerar API Key",
-    "regenerarApiKeyConfirmar": "¿Estás seguro? Los sitios que usen la API key anterior dejarán de funcionar hasta que actualicen el código.",
-    "tipos": {
-      "mapaFlota": "Mapa de Flota",
-      "trackingVehiculo": "Tracking de Vehículo",
-      "estadoReserva": "Estado de Reserva",
-      "flotaResumen": "Resumen de Flota"
-    },
-    "form": {
-      "nombre": "Nombre del widget",
-      "nombrePlaceholder": "Ej: Mapa flota para partners",
-      "tipo": "Tipo de widget",
-      "dominios": "Dominios permitidos",
-      "dominiosPlaceholder": "miempresa.com\napp.miempresa.com\nlocalhost:3000",
-      "dominiosHelp": "Un dominio por línea. Solo estos dominios podrán cargar el widget.",
-      "maxRequests": "Máx. requests por minuto"
-    },
-    "obdDiagnostics": {
-      "title": "Diagnosticos OBD2",
-      "subtitle": "Monitorea la salud de tu flota en tiempo real con datos OBD2",
-      "errorLoading": "Error al cargar datos de diagnostico",
-      "kpi": {
-        "vehiclesWithTelemetry": "Vehiculos con telemetria",
-        "obd2Readings": "Lecturas OBD2",
-        "totalDistanceKm": "Distancia total",
-        "alertsGenerated": "Alertas generadas"
-      },
-      "vehicleDetail": "Diagnostico — {{patente}}",
-      "liveReadings": "Lecturas en tiempo real del ultimo snapshot OBD2",
-      "gauges": {
-        "rpm": "RPM",
-        "engineTemp": "Temp. motor",
-        "battery": "Bateria",
-        "fuel": "Combustible",
-        "engineHours": "Horas motor",
-        "ignition": "Ignicion"
-      },
-      "ignitionOn": "Encendida",
-      "ignitionOff": "Apagada",
-      "noData": "Sin datos OBD2 disponibles para este vehiculo",
-      "vehicleList": "Vehiculos con telemetria",
-      "vehicleListSubtitle": "Selecciona un vehiculo para ver su diagnostico detallado",
-      "noVehicles": "Sin vehiculos con telemetria",
-      "noVehiclesDesc": "No se encontraron vehiculos con datos de telemetria en el periodo seleccionado",
-      "viewDetail": "Ver detalle",
-      "table": {
-        "patente": "Patente",
-        "distance": "Distancia",
-        "avgSpeed": "Vel. prom.",
-        "maxSpeed": "Vel. max.",
-        "obd2Readings": "Lecturas OBD2",
-        "alerts": "Alertas"
-      }
-    },
-    "alertRules": {
-      "title": "Reglas de Alerta",
-      "subtitle": "Configura reglas automaticas para generar alertas sobre tu flota",
-      "create": "Nueva regla",
-      "createTitle": "Crear regla de alerta",
-      "editTitle": "Editar regla de alerta",
-      "active": "Activa",
-      "inactive": "Inactiva",
-      "activate": "Activar",
-      "deactivate": "Desactivar",
-      "errorLoading": "Error al cargar las reglas de alerta",
-      "empty": "Sin reglas de alerta",
-      "emptyDesc": "Crea tu primera regla para recibir alertas automaticas sobre tu flota",
-      "confirmDelete": "Eliminar regla",
-      "confirmDeleteDesc": "Se eliminara la regla \"{{name}}\". Esta accion no se puede deshacer.",
-      "types": {
-        "speedMax": "Velocidad maxima",
-        "excessiveStop": "Detencion excesiva",
-        "geofenceEntry": "Entrada a geocerca",
-        "geofenceExit": "Salida de geocerca",
-        "disconnection": "Desconexion",
-        "rpmOutOfRange": "RPM fuera de rango",
-        "highEngineTemp": "Temperatura de motor alta",
-        "lowBattery": "Bateria baja"
-      },
-      "severity": {
-        "info": "Informativa",
-        "warning": "Advertencia",
-        "critical": "Critica"
-      },
-      "channels": {
-        "inApp": "En la app",
-        "email": "Email",
-        "push": "Push"
-      },
-      "filters": {
-        "all": "Todas",
-        "activeOnly": "Solo activas"
-      },
-      "form": {
-        "name": "Nombre",
-        "namePlaceholder": "Ej: Velocidad maxima en ruta",
-        "type": "Tipo de regla",
-        "severity": "Severidad",
-        "condition": "Condicion",
-        "cooldown": "Cooldown (segundos)",
-        "cooldownHint": "Tiempo minimo entre alertas repetidas (min. 60 seg)",
-        "channels": "Canales de notificacion",
-        "maxSpeedKmh": "Velocidad maxima (km/h)",
-        "toleratedMinutes": "Minutos tolerados",
-        "toleratedSeconds": "Segundos tolerados",
-        "rpmMin": "RPM minimo",
-        "rpmMax": "RPM maximo",
-        "tempCelsius": "Temperatura maxima (Â°C)",
-        "batteryMinPercent": "Porcentaje minimo de bateria (%)",
-        "geofenceNote": "La geocerca se asignara automaticamente segun la configuracion del vehiculo o dispositivo."
-      }
-    },
-    "billing": {
-      "title": "Suscripcion y facturacion",
-      "subtitle": "Gestiona tu plan, modulos y facturacion",
-      "status": "Estado",
-      "estado": {
-        "trial": "Periodo de prueba",
-        "activa": "Activa",
-        "pausada": "Pausada por falta de pago",
-        "cancelada": "Cancelada",
-        "expirada": "Expirada",
-        "pendienteVerificacion": "Pendiente de verificacion"
-      },
-      "billingCycle": "Ciclo de facturacion",
-      "billingCycleType": {
-        "mensual": "Mensual",
-        "anual": "Anual"
-      },
-      "totalMonthly": "Total mensual",
-      "modulesActive": "Modulos activos",
-      "modules": "Modulos disponibles",
-      "modulesSubtitle": "Activa o desactiva modulos segun las necesidades de tu organizacion",
-      "moduleAdd": "Activar",
-      "moduleRemove": "Desactivar",
-      "actions": "Acciones",
-      "actionsSubtitle": "Gestiona tu suscripcion y metodos de pago",
-      "manageBilling": "Administrar facturacion",
-      "subscribe": "Suscribirse",
-      "cancelSubscription": "Cancelar suscripcion",
-      "reactivateSubscription": "Reactivar suscripcion",
-      "confirmCancel": "¿Cancelar suscripcion?",
-      "cancelInfo": "Tu suscripcion se cancelara al final del periodo actual. Perderas acceso a los modulos activos.",
-      "confirmActivateModule": "¿Activar modulo {{name}}?",
-      "confirmDeactivateModule": "¿Desactivar modulo {{name}}?",
-      "activateModuleInfo": "El modulo se activara inmediatamente para tu organizacion.",
-      "deactivateModuleInfo": "Se desactivara el modulo. Verifica que no tengas datos activos dependientes.",
-      "activeModulesDetail": "Detalle de modulos activos",
-      "activeModulesDetailSubtitle": "Modulos actualmente activos en tu organizacion",
-      "activatedOn": "Activado el {{date}}",
-      "active": "Activo",
-      "included": "Incluido",
-      "free": "Gratis",
-      "trialEndsOn": "Tu periodo de prueba finaliza el {{date}}. Suscribite a un plan para no perder acceso.",
-      "pausedWarning": "Tu suscripcion esta pausada por falta de pago. Actualiza tu metodo de pago para continuar.",
-      "prerequisitesMissing": "Requiere: {{modules}}",
-      "usage": {
-        "title": "Uso vs Limites",
-        "subtitle": "Consumo actual de recursos por modulo",
-        "unlimited": "Ilimitado",
-        "of": "de",
-        "exceeded": "Limite excedido",
-        "upgradeHint": "Estas cerca del limite. Considera mejorar tu plan.",
-        "resources": {
-          "vehiculos": "Vehiculos",
-          "usuarios": "Usuarios",
-          "conductores": "Conductores",
-          "publicaciones": "Publicaciones",
-          "reservas_mes": "Reservas por mes",
-          "api_requests_min": "Requests API por minuto"
-        }
-      }
-    },
-    "embed": {
-      "titulo": "Código de Integración",
-      "widgetNombre": "Widget",
-      "apiKey": "API Key",
-      "apiKeyWarning": "No compartas esta clave públicamente. Solo inclúyela en el código de tu sitio web.",
-      "codigoEmbed": "Código para pegar en tu sitio web",
-      "codigoEmbedHelp": "Pega este código donde quieras mostrar el widget en tu sitio web.",
-      "apiEndpoint": "Endpoint de datos (API REST)",
-      "codigo": "Código"
-    }
-  },
-  "billing": {
-    "title": "Suscripción",
-    "subtitle": "Gestión de tu plan y módulos contratados",
-    "status": "Estado",
-    "billingCycle": "Ciclo de Facturación",
-    "billingCycleType": {
-      "mensual": "Mensual",
-      "anual": "Anual"
-    },
-    "totalMonthly": "Total Mensual",
-    "modulesActive": "Módulos Activos",
-    "actions": "Acciones",
-    "actionsSubtitle": "Gestiona tu suscripción y facturación",
-    "manageBilling": "Gestionar Facturación",
-    "subscribe": "Suscribirse",
-    "modules": "Módulos Disponibles",
-    "modulesSubtitle": "Activa o desactiva módulos según las necesidades de tu organización",
-    "active": "Activo",
-    "included": "Incluido",
-    "free": "Gratis",
-    "moduleAdd": "Agregar módulo",
-    "moduleRemove": "Quitar módulo",
-    "prerequisitesMissing": "Requiere: {{modules}}",
-    "estado": {
-      "trial": "Período de Prueba",
-      "activa": "Activa",
-      "pausada": "Pausada por falta de pago",
-      "cancelada": "Cancelada",
-      "expirada": "Expirada",
-      "pendienteVerificacion": "Pendiente de verificación"
-    },
-    "trialEndsOn": "Tu período de prueba finaliza el {{date}}",
-    "pausedWarning": "Tu suscripción está pausada por falta de pago. Actualiza tu método de pago para continuar.",
-    "pendienteVerificacionWarning": "Tu transferencia está siendo verificada. Recibirás una notificación cuando se apruebe.",
-    "noPaymentRequired": "Sin cobro",
-    "completePayment": "Completar pago",
-    "awaitingVerification": "Esperando verificación",
-    "gateway": {
-      "stripe": {
-        "name": "Tarjeta de crédito/débito",
-        "description": "Paga con tarjeta internacional vía Stripe",
-        "detail": "Visa, Mastercard, American Express — USD o ARS"
-      },
-      "mercadopago": {
-        "name": "MercadoPago",
-        "description": "Tarjetas argentinas, débito, QR y efectivo",
-        "detail": "Todas las tarjetas argentinas, transferencia bancaria, Rapipago, Pago Fácil"
-      },
-      "transferencia": {
-        "name": "Transferencia bancaria",
-        "description": "Transferí a nuestra cuenta y enviá el comprobante",
-        "detail": "La suscripción se activa después de verificar el pago (máx. 24 hs hábiles)"
-      },
-      "ninguno": {
-        "name": "Sin pago",
-        "description": "Suscripción de cortesía o demo",
-        "detail": ""
-      }
-    },
-    "checkout": {
-      "title": "Nueva suscripción",
-      "step": {
-        "modules": "Módulos",
-        "config": "Configuración",
-        "confirm": "Confirmar"
-      },
-      "selectModules": "Seleccioná los módulos que necesita tu organización",
-      "selectPeriod": "Período de facturación",
-      "selectCurrency": "Moneda",
-      "selectGateway": "Método de pago",
-      "annualDiscount": "Ahorrá hasta 20% pagando anual",
-      "currency": {
-        "ars": "Peso argentino",
-        "usd": "Dólar estadounidense"
-      },
-      "reviewSummary": "Revisá los detalles de tu suscripción antes de confirmar",
-      "selectedModules": "Módulos seleccionados",
-      "total": {
-        "mensual": "Total mensual",
-        "anual": "Total anual"
-      },
-      "equivalentMonthly": "Equivalente mensual",
-      "period": "Período",
-      "currencyLabel": "Moneda",
-      "paymentMethod": "Método de pago",
-      "trialNote": "Comenzarás con 14 días de prueba gratis. Se cobrará al finalizar el período de prueba.",
-      "transferenciaNote": "Al confirmar, tu suscripción quedará pendiente de verificación. Recibirás los datos bancarios por email para realizar la transferencia.",
-      "confirm": "Confirmar suscripción",
-      "created": "Suscripción creada exitosamente",
-      "createdNoRedirect": "Suscripción creada. Podés completar el pago desde la página de facturación.",
-      "transferenciaPendiente": "Suscripción creada. Recibirás los datos bancarios por email para completar la transferencia."
-    },
-    "confirmCancel": "¿Cancelar suscripción?",
-    "cancelInfo": "Si cancelas, perderás acceso a los módulos activos al final del período de facturación actual.",
-    "cancelSubscription": "Cancelar Suscripción",
-    "reactivateSubscription": "Reactivar Suscripción",
-    "activeModulesDetail": "Módulos Activos",
-    "activeModulesDetailSubtitle": "Detalle de los módulos actualmente activos en tu organización",
-    "activatedOn": "Activado el {{date}}",
-    "confirmActivateModule": "¿Activar módulo \"{{name}}\"?",
-    "confirmDeactivateModule": "¿Desactivar módulo \"{{name}}\"?",
-    "activateModuleInfo": "El módulo se activará inmediatamente y se ajustará tu facturación.",
-    "deactivateModuleInfo": "El módulo se desactivará al final del período de facturación actual.",
-    "usage": {
-      "title": "Uso vs Límites",
-      "subtitle": "Consumo actual de recursos por módulo",
-      "unlimited": "Ilimitado",
-      "of": "de",
-      "exceeded": "Límite excedido",
-      "upgradeHint": "Estás cerca del límite. Considera actualizar tu plan.",
-      "resources": {
-        "vehiculos": "Vehículos",
-        "dispositivos": "Dispositivos",
-        "usuarios": "Usuarios",
-        "conductores": "Conductores",
-        "publicaciones": "Publicaciones",
-        "reservas_mes": "Reservas por mes",
-        "api_requests_min": "Requests API por minuto"
       }
     }
   }

@@ -62,179 +62,293 @@ function getE164IfMobile(
   return { e164: "", ok: false, msg: t("auth.whatsappRequired") };
 }
 
-function PhoneInput({
-  label,
-  error,
-  helperText,
-  className = "",
-  id,
-  name,
-  onChange,
-  rightElement,
-  ...props
-}: InputComponentProps) {
-  const { t } = useTranslation();
-  const inputId = getInputId(label, id);
-  const [phoneUI, setPhoneUI] = useState<string>(typeof props.value === "string" ? props.value : "");
-  const countries = defaultCountries as Array<[string, string, string, ...unknown[]]>;
-  const [isEditing, setIsEditing] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
+const PhoneInput = React.forwardRef<HTMLInputElement, InputComponentProps>(
+  (
+    {
+      label,
+      error,
+      helperText,
+      className = "",
+      id,
+      name,
+      onChange,
+      rightElement,
+      ...props
+    },
+    ref
+  ) => {
+    const { t } = useTranslation();
+    const inputId = getInputId(label, id);
+    const [phoneUI, setPhoneUI] = useState<string>(
+      typeof props.value === "string" ? props.value : ""
+    );
+    const countries = defaultCountries as Array<
+      [string, string, string, ...unknown[]]
+    >;
+    const prevValueRef = useRef(props.value);
+    const [isEditing, setIsEditing] = useState(false);
+    const [localError, setLocalError] = useState<string | null>(null);
 
-  // Sync from parent ONLY when not editing (e.g. form reset, external programmatic change)
-  const prevValueRef = useRef(props.value);
-  useEffect(() => {
-    if (
-      !isEditing &&
-      typeof props.value === "string" &&
-      props.value !== prevValueRef.current
-    ) {
-      setPhoneUI(props.value);
-    }
-    prevValueRef.current = props.value;
-  }, [props.value, isEditing]);
+    useEffect(() => {
+      if (
+        typeof props.value === "string" &&
+        props.value !== prevValueRef.current
+      ) {
+        setPhoneUI(props.value);
+      }
+      prevValueRef.current = props.value;
+    }, [props.value]);
 
+    const countriesPermissive = useMemo(
+      () =>
+        countries.map(
+          (c) =>
+            [c[0], c[1], c[2], "...................."] as [
+              string,
+              string,
+              string,
+              string
+            ]
+        ),
+      [countries]
+    );
 
-  const countriesPermissive = useMemo(
-    () =>
-      countries.map(
-        (c) =>
-          [c[0], c[1], c[2], "...................."] as [string, string, string, string]
-      ),
-    [countries]
-  );
-
-  const { inputValue, handlePhoneValueChange, inputRef, country, setCountry } =
-    usePhoneInput({
+    const {
+      inputValue,
+      handlePhoneValueChange,
+      inputRef,
+      country,
+      setCountry,
+    } = usePhoneInput({
       defaultCountry: "ar",
       value: phoneUI,
       countries: countriesPermissive,
       disableFormatting: true,
       onChange: (data: { phone: string }) => {
-        // Only update internal state — do NOT call parent onChange here.
-        // Parent gets notified exclusively via commitE164 on blur.
         if (data.phone !== phoneUI) {
           setPhoneUI(data.phone);
+          if (onChange) {
+            onChange({ target: { name: name || "", value: data.phone } });
+          }
         }
       },
       forceDialCode: true,
     });
 
-  const commitE164 = () => {
-    if (!onChange) return;
+    // Merge internal inputRef with the forwarded ref
+    useEffect(() => {
+      if (!ref) return;
+      if (typeof ref === "function") {
+        ref(inputRef.current);
+      } else {
+        ref.current = inputRef.current;
+      }
+    }, [ref, inputRef]);
 
-    const digitsOnly = inputValue.replace(/\D/g, "");
-    const dialCode = country?.dialCode || "";
+    const commitE164 = () => {
+      if (!onChange) return;
 
-    // Si el usuario no escribió nada (solo está el dialCode o está vacío), enviamos vacío
-    if (!digitsOnly || digitsOnly === dialCode) {
+      const digitsOnly = inputValue.replace(/\D/g, "");
+      const dialCode = country?.dialCode || "";
+
+      if (!digitsOnly || digitsOnly === dialCode) {
+        setLocalError(null);
+        onChange({ target: { name: name || "", value: "" } });
+        return;
+      }
+
+      const { e164, ok, msg } = getE164IfMobile(
+        inputValue,
+        country?.iso2 || "AR",
+        t
+      );
+
+      if (!ok) {
+        setLocalError(msg || t("auth.invalidPhone"));
+        return;
+      }
+
       setLocalError(null);
-      onChange({ target: { name: name || "", value: "" } });
-      return;
-    }
+      onChange({ target: { name: name || "", value: e164 } });
+    };
 
-    const { e164, ok, msg } = getE164IfMobile(inputValue, country?.iso2 || "AR", t);
+    const displayValue = useMemo(() => {
+      if (isEditing) return inputValue;
 
-    if (!ok) {
-      setLocalError(msg || t("auth.invalidPhone"));
-      // Still notify parent with raw value so form isn't stale
-      onChange({ target: { name: name || "", value: inputValue } });
-      return;
-    }
+      const digitsOnly = inputValue.replace(/\D/g, "");
+      const dialCodeDigits = (country?.dialCode || "").replace(/\D/g, "");
 
-    setLocalError(null);
-    onChange({ target: { name: name || "", value: e164 } });
-  };
+      if (digitsOnly === dialCodeDigits || digitsOnly === "") {
+        return "";
+      }
 
-  const displayValue = useMemo(() => {
-    if (isEditing) return inputValue;
+      const parsed = parsePhoneNumberFromString(inputValue);
+      if (parsed?.isValid()) return parsed.format("INTERNATIONAL");
+      return inputValue;
+    }, [isEditing, inputValue, country]);
 
-    // Si no se está editando y el valor es solo el prefijo o está vacío,
-    // devolvemos cadena vacía para que se vea el placeholder.
-    const digitsOnly = inputValue.replace(/\D/g, "");
-    const dialCodeDigits = (country?.dialCode || "").replace(/\D/g, "");
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-sm font-medium text-text mb-1.5"
+          >
+            {label}
+          </label>
+        )}
 
-    if (digitsOnly === dialCodeDigits || digitsOnly === "") {
-      return "";
-    }
-
-    const parsed = parsePhoneNumberFromString(inputValue);
-    if (parsed?.isValid()) return parsed.format("INTERNATIONAL");
-    return inputValue;
-  }, [isEditing, inputValue, country]);
-
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-text mb-1.5"
+        <div
+          className={`flex gap-2 ${error || localError ? "phone-input-error" : ""
+            }`}
         >
-          {label}
-        </label>
-      )}
+          <div className="w-[80px] shrink-0">
+            <Select
+              options={countries.map((c) => ({
+                value: c[1],
+                label: (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={`https://flagcdn.com/w20/${c[1]}.png`}
+                      srcSet={`https://flagcdn.com/w40/${c[1]}.png 2x`}
+                      width="20"
+                      height="15"
+                      alt={c[0]}
+                      style={{ objectFit: "contain" }}
+                    />
+                    <span className="text-sm truncate">{c[0]}</span>
+                  </div>
+                ),
+                triggerLabel: (
+                  <div className="flex items-center">
+                    <img
+                      src={`https://flagcdn.com/w20/${c[1]}.png`}
+                      srcSet={`https://flagcdn.com/w40/${c[1]}.png 2x`}
+                      width="20"
+                      height="15"
+                      alt={c[0]}
+                      style={{ objectFit: "contain" }}
+                    />
+                  </div>
+                ),
+              }))}
+              value={country.iso2}
+              onChange={(val) => setCountry(val as string)}
+              disabled={props.disabled}
+              buttonClassName="h-10"
+              dropdownClassName="w-[280px]"
+              usePortal
+            />
+          </div>
 
-      <div className={`flex gap-2 ${error || localError ? "phone-input-error" : ""}`}>
-        <div className="w-[80px] shrink-0">
-          <Select
-            options={countries.map((c) => ({
-              value: c[1],
-              label: (
-                <div className="flex items-center gap-2">
-                  <img
-                    src={`https://flagcdn.com/w20/${c[1]}.png`}
-                    srcSet={`https://flagcdn.com/w40/${c[1]}.png 2x`}
-                    width="20"
-                    height="15"
-                    alt={c[0]}
-                    style={{ objectFit: "contain" }}
-                  />
-                  <span className="text-sm truncate">{c[0]}</span>
-                </div>
-              ),
-              triggerLabel: (
-                <div className="flex items-center">
-                  <img
-                    src={`https://flagcdn.com/w20/${c[1]}.png`}
-                    srcSet={`https://flagcdn.com/w40/${c[1]}.png 2x`}
-                    width="20"
-                    height="15"
-                    alt={c[0]}
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-              ),
-            }))}
-            value={country.iso2}
-            onChange={(val) => setCountry(val as string)}
-            disabled={props.disabled}
-            buttonClassName="h-10"
-            dropdownClassName="w-[280px]"
-            usePortal
-          />
+          <div className="relative w-full">
+            <input
+              {...props}
+              ref={inputRef}
+              id={inputId}
+              name={name}
+              value={displayValue}
+              onChange={(e) => {
+                handlePhoneValueChange(e);
+              }}
+              onFocus={(e) => {
+                setIsEditing(true);
+                setLocalError(null);
+                props.onFocus?.(e);
+              }}
+              onBlur={(e) => {
+                setIsEditing(false);
+                commitE164();
+                props.onBlur?.(e);
+              }}
+              type="tel"
+              className={`
+                w-full px-4 py-2 rounded-lg 
+                bg-surface border border-border 
+                text-text placeholder-text-muted
+                focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed
+                ${error || localError ? "border-error focus:ring-error" : ""}
+                ${rightElement ? "pr-10" : ""}
+                h-10
+                ${className}
+              `}
+              disabled={props.disabled}
+              placeholder={props.placeholder}
+            />
+            {rightElement && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                {rightElement}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="relative w-full">
+        {(error || localError) && (
+          <p className="mt-1.5 text-sm text-error">{error || localError}</p>
+        )}
+        {helperText && !error && !localError && (
+          <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+export const Input = React.forwardRef<HTMLInputElement, InputComponentProps>(
+  (
+    {
+      label,
+      error,
+      helperText,
+      className = "",
+      id,
+      type,
+      name,
+      onChange,
+      rightElement,
+      ...props
+    },
+    ref
+  ) => {
+    const inputId = getInputId(label, id);
+
+    if (type === "tel") {
+      return (
+        <PhoneInput
+          ref={ref}
+          label={label}
+          error={error}
+          helperText={helperText}
+          className={className}
+          id={id}
+          type={type}
+          name={name}
+          onChange={onChange}
+          rightElement={rightElement}
+          {...props}
+        />
+      );
+    }
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-sm font-medium text-text mb-1.5"
+          >
+            {label}
+          </label>
+        )}
+        <div className="relative">
           <input
             {...props}
-            ref={inputRef}
+            ref={ref}
             id={inputId}
+            type={type}
             name={name}
-            autoComplete="off"
-            value={displayValue}
-            onChange={(e) => {
-              handlePhoneValueChange(e);
-            }}
-            onFocus={(e) => {
-              setIsEditing(true);
-              props.onFocus?.(e);
-            }}
-            onBlur={(e) => {
-              setIsEditing(false);
-              commitE164();
-              props.onBlur?.(e);
-            }}
-            type="tel"
             className={`
               w-full px-4 py-2 rounded-lg 
               bg-surface border border-border 
@@ -242,13 +356,11 @@ function PhoneInput({
               focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
               transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${error || localError ? "border-error focus:ring-error" : ""}
+              ${error ? "border-error focus:ring-error" : ""}
               ${rightElement ? "pr-10" : ""}
-              h-10
               ${className}
             `}
-            disabled={props.disabled}
-            placeholder={props.placeholder}
+            onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}
           />
           {rightElement && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
@@ -256,88 +368,11 @@ function PhoneInput({
             </div>
           )}
         </div>
-      </div>
-
-      {(error || localError) && <p className="mt-1.5 text-sm text-error">{error || localError}</p>}
-      {helperText && !error && !localError && (
-        <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
-      )}
-    </div>
-  );
-}
-
-export function Input({
-  label,
-  error,
-  helperText,
-  className = "",
-  id,
-  type,
-  name,
-  onChange,
-  rightElement,
-  ...props
-}: InputComponentProps) {
-  const inputId = getInputId(label, id);
-
-  if (type === "tel") {
-    return (
-      <PhoneInput
-        label={label}
-        error={error}
-        helperText={helperText}
-        className={className}
-        id={id}
-        type={type}
-        name={name}
-        onChange={onChange}
-        rightElement={rightElement}
-        {...props}
-      />
-    );
-  }
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-text mb-1.5"
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        <input
-          id={inputId}
-          type={type}
-          name={name}
-          className={`
-            w-full px-4 py-2 rounded-lg 
-            bg-surface border border-border 
-            text-text placeholder-text-muted
-            focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
-            transition-all duration-200
-            disabled:opacity-50 disabled:cursor-not-allowed
-            ${error ? 'border-error focus:ring-error' : ''}
-            ${rightElement ? 'pr-10' : ''}
-            ${className}
-          `}
-          onChange={onChange as React.ChangeEventHandler<HTMLInputElement>}
-          {...props}
-        />
-        {rightElement && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
-            {rightElement}
-          </div>
+        {error && <p className="mt-1.5 text-sm text-error">{error}</p>}
+        {helperText && !error && (
+          <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
         )}
       </div>
-      {error && (
-        <p className="mt-1.5 text-sm text-error">{error}</p>
-      )}
-      {helperText && !error && (
-        <p className="mt-1.5 text-sm text-text-muted">{helperText}</p>
-      )}
-    </div>
-  );
-}
+    );
+  }
+);

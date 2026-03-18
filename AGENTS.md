@@ -4,7 +4,7 @@
 
 ## Project Context
 
-- **Stack**: React + TypeScript + Vite + TailwindCSS + i18next + React Query.
+- **Stack**: React + TypeScript + Vite + TailwindCSS + i18next + React Query + React Hook Form + Zod.
 - **Type**: Main frontend for TracAuto, a multi-tenant SaaS for automotive fleet management.
 - **Includes**: Fleet management, marketplace, B2B/B2C rental modules.
 
@@ -15,9 +15,13 @@ ALWAYS use `apiClient` (authenticated) or `publicApiClient` (public). NEVER `fet
 
 ### Error Handling
 All API screens MUST use `useErrorHandler`, `ApiErrorBanner`, `EstadoError`, or equivalent. Route tree under `ErrorBoundary`. 5xx → backend `ISupportService` creates Jira ticket.
+- **Retry Pattern**: For 5xx errors in forms/actions, use `Alert` with `onRetry`. Limit to **3 attempts**. After the 3rd fail, hide the retry button and show a "try later" message (`errors.HTTP_500`). DO NOT show retry for 4xx client errors (e.g. 409 Conflict).
 
 ### i18n (mandatory)
 ALL text via `useTranslation()`. No hardcoded strings. Errors: `errors.{Contexto}.{Codigo}` with `{{param0}}`, `{{param1}}`. Always add `es.json` + `en.json` entries for new errors.
+
+### Form Validation
+Validation errors in forms MUST be shown on blur (`mode: 'onBlur'`) and MUST disappear when the user focuses the field (`onFocus`) or starts typing (`reValidateMode: 'onChange'`).
 
 ### Page States (mandatory)
 Loading (spinner/skeleton), Empty (`EstadoVacio`), Error (`EstadoError` with retry). Every page must handle all three.

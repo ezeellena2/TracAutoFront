@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
-import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2, Mail } from 'lucide-react';
-import { Button, Input, Alert } from '@/shared/ui';
+import { Car, Eye, EyeOff, HelpCircle, Loader2, Building2, Mail, X } from 'lucide-react';
+import { Button, Input, Alert, Modal } from '@/shared/ui';
+import { ResetPasswordModal } from '../components/ResetPasswordModal';
 import { useAuthStore } from '@/store';
 import { authService } from '@/services/auth.service';
 import { authApi } from '@/services/endpoints';
 import { CanalEnvio } from '@/shared/types/api';
+import { useErrorHandler } from '@/hooks';
+import { LinkErrorState, LinkErrorType } from '@/shared/ui';
 
 /**
  * Página de Login B2B Empresarial
@@ -33,14 +36,29 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [emailNoVerificado, setEmailNoVerificado] = useState(false);
   const [isCuentaBloqueada, setIsCuentaBloqueada] = useState(false);
   const [isAutofilled, setIsAutofilled] = useState(false);
-  const [emailVerificadoStatus, setEmailVerificadoStatus] = useState<boolean | undefined>(undefined);
-  const [telefonoVerificadoStatus, setTelefonoVerificadoStatus] = useState<boolean | undefined>(undefined);
-  const [usuarioIdStatus, setUsuarioIdStatus] = useState<string>('');
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetLoading, setIsResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const { parseError } = useErrorHandler();
 
-  const [isReenviandoCodigo, setIsReenviandoCodigo] = useState(false);
+  // Reset Password Token Validation
+  const [isValidatingToken, setIsValidatingToken] = useState(false);
+  const [tokenErrorType, setTokenErrorType] = useState<LinkErrorType | null>(null);
+
+
+  // Reset Password Finalization State
+  const [showFinalResetModal, setShowFinalResetModal] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [resetTargetEmail, setResetTargetEmail] = useState('');
+
+
+
 
   // Mostrar mensaje de éxito si viene de verificación
   useEffect(() => {
@@ -50,7 +68,41 @@ export function LoginPage() {
       // Limpiar el state para que no se muestre de nuevo
       window.history.replaceState({}, document.title);
     }
-  }, [location]);
+
+    // Detectar token de reseteo en la URL
+    const searchParams = new URLSearchParams(location.search);
+    const urlToken = searchParams.get('token');
+    const emailParam = searchParams.get('email');
+
+    if (urlToken) {
+      const validateToken = async () => {
+        setIsValidatingToken(true);
+        setTokenErrorType(null);
+        try {
+          // Valida el token contra el backend
+          const data = await authApi.validarResetToken(urlToken);
+          setResetToken(urlToken);
+          setResetTargetEmail(data.email || emailParam || '');
+          setShowFinalResetModal(true);
+        } catch (err: any) {
+          const parsed = parseError(err);
+          // Si el token expiró o es inválido, mostramos la pantalla de error
+          if (parsed.code.includes('Expirado') || parsed.code.includes('Expired')) {
+            setTokenErrorType('expired');
+          } else {
+            setTokenErrorType('invalid');
+          }
+        } finally {
+          setIsValidatingToken(false);
+          // Limpiar URL para evitar que aparezca el modal de nuevo al refrescar
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+      };
+
+      validateToken();
+    }
+  }, [location.search]);
 
   // Redirigir si ya está autenticado
   useEffect(() => {
@@ -64,15 +116,14 @@ export function LoginPage() {
   useEffect(() => {
     const checkAutofill = () => {
       try {
-        const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
-        const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
-        const emailFilled = emailInput?.matches(':-webkit-autofill') || emailInput?.matches(':autofill') || false;
-        const passwordFilled = passwordInput?.matches(':-webkit-autofill') || passwordInput?.matches(':autofill') || false;
+        const emailFilled = emailRef.current?.matches(':-webkit-autofill') || emailRef.current?.matches(':autofill') || false;
+        const passwordFilled = passwordRef.current?.matches(':-webkit-autofill') || passwordRef.current?.matches(':autofill') || false;
         if (emailFilled && passwordFilled) {
           setIsAutofilled(true);
         }
-      } catch {
-        // :autofill puede no ser soportado en todos los browsers
+      } catch (e) {
+        // :autofill/:webkit-autofill puede no ser soportado en todos los browsers
+        console.debug('Autofill detection not supported:', e);
       }
     };
     // Polling breve: Chrome aplica autofill con un ligero delay
@@ -84,6 +135,25 @@ export function LoginPage() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
+  /** Detecta si el error indica cuenta no verificada (código o texto) */
+  const detectCuentaNoVerificada = (errorCode: string, errorMessage: string): boolean =>
+    errorCode === 'Auth.EmailNoVerificado' ||
+    errorCode === 'Auth.CuentaNoVerificada' ||
+    errorCode.includes('EmailNoVerificado') ||
+    errorCode.includes('CuentaNoVerificada') ||
+    errorMessage.includes('emailnoverificado') ||
+    errorMessage.includes('cuentanoverificada') ||
+    errorMessage.includes('completamente verificada') ||
+    errorMessage === t('auth.errors.accountNotVerified').toLowerCase();
+
+  /** Detecta si el error indica cuenta bloqueada */
+  const detectCuentaBloqueada = (errorCode: string, errorMessage: string): boolean =>
+    errorCode === 'Auth.CuentaBloqueadaTemporal' ||
+    errorCode === 'Auth.CuentaBloqueadaPermanente' ||
+    errorCode === 'Auth.CuentaBloqueada' ||
+    errorMessage.includes('bloqueada') ||
+    errorMessage.includes('cuentabloqueada');
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -91,10 +161,8 @@ export function LoginPage() {
     let loginEmail = email;
     let loginPassword = password;
     if (isAutofilled && (!email || !password)) {
-      const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
-      const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
-      loginEmail = emailInput?.value || email;
-      loginPassword = passwordInput?.value || password;
+      loginEmail = emailRef.current?.value || email;
+      loginPassword = passwordRef.current?.value || password;
       if (loginEmail) setEmail(loginEmail);
       if (loginPassword) setPassword(loginPassword);
     }
@@ -114,7 +182,6 @@ export function LoginPage() {
 
     setIsLoading(true);
     setError('');
-    setEmailNoVerificado(false);
     setSuccessMessage('');
 
     const result = await authService.login(loginEmail, loginPassword, rememberMe);
@@ -128,41 +195,21 @@ export function LoginPage() {
       const errorCode = result.errorCode || '';
       const errorMessage = result.error?.toLowerCase() || '';
 
-      // Auth.EmailNoVerificado o Auth.CuentaNoVerificada: detectar por código (robusto) o por texto
-      const isCuentaNoVerificada =
-        errorCode === 'Auth.EmailNoVerificado' ||
-        errorCode === 'Auth.CuentaNoVerificada' ||
-        errorCode.includes('EmailNoVerificado') ||
-        errorCode.includes('CuentaNoVerificada') ||
-        errorMessage.includes('emailnoverificado') ||
-        errorMessage.includes('cuentanoverificada');
+      const isCuentaNoVerificada = detectCuentaNoVerificada(errorCode, errorMessage);
 
       if (isCuentaNoVerificada) {
-        setEmailNoVerificado(true);
-        if (result.extensions) {
-          if (typeof result.extensions.emailVerificado === 'boolean') {
-            setEmailVerificadoStatus(result.extensions.emailVerificado);
-          }
-          if (typeof result.extensions.telefonoVerificado === 'boolean') {
-            setTelefonoVerificadoStatus(result.extensions.telefonoVerificado);
-          }
-          if (typeof result.extensions.usuarioId === 'string') {
-            setUsuarioIdStatus(result.extensions.usuarioId);
-          }
-        }
-        setError(t('auth.errors.accountNotVerified'));
-      } else if (
-        errorCode === 'Auth.CuentaBloqueadaTemporal' ||
-        errorCode === 'Auth.CuentaBloqueadaPermanente' ||
-        errorCode === 'Auth.CuentaBloqueada' ||
-        errorMessage.includes('bloqueada') ||
-        errorMessage.includes('cuentabloqueada')
-      ) {
-        setEmailNoVerificado(false);
+        const targetEmail = result.email || loginEmail;
+        const eStatus = result.extensions?.emailVerificado as boolean | undefined;
+        const tStatus = result.extensions?.telefonoVerificado as boolean | undefined;
+        const uId = (result.extensions?.usuarioId as string) || '';
+
+        await executeResendAndRedirect(targetEmail, eStatus, tStatus, uId, false);
+        setIsLoading(false);
+        return;
+      } else if (detectCuentaBloqueada(errorCode, errorMessage)) {
         setIsCuentaBloqueada(true);
         setError(t('auth.errors.accountBlocked'));
       } else {
-        setEmailNoVerificado(false);
         const status = result.status;
 
         // Enmascarar errores 400 como credenciales inválidas para no dar pistas 
@@ -178,6 +225,32 @@ export function LoginPage() {
     }
 
     setIsLoading(false);
+  };
+
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      setResetError(t('auth.errors.invalidEmail'));
+      return;
+    }
+
+    setIsResetLoading(true);
+    setResetError('');
+
+    const result = await authService.solicitarResetPassword(resetEmail);
+
+    if (result.success) {
+      setResetSuccess(true);
+      // Cerrar modal automáticamente después de unos segundos
+      setTimeout(() => {
+        setShowResetModal(false);
+        setResetSuccess(false);
+        setResetEmail('');
+      }, 5000);
+    } else {
+      setResetError(result.error || t('auth.errors.resetPasswordError'));
+    }
+    setIsResetLoading(false);
   };
 
   const validateEmail = (value: string) => {
@@ -199,7 +272,9 @@ export function LoginPage() {
       return;
     }
 
+    setIsLoading(true);
     setError('');
+    setSuccessMessage('');
 
     const result = await authService.loginWithGoogle(credentialResponse.credential);
 
@@ -211,74 +286,108 @@ export function LoginPage() {
         state: { googleData: result.googleData },
       });
     } else {
+      const errorCode = result.errorCode || '';
       const errorMessage = (result.error || '').toLowerCase();
-      if (
-        result.errorCode === 'Auth.CuentaBloqueadaTemporal' ||
-        result.errorCode === 'Auth.CuentaBloqueadaPermanente' ||
-        result.errorCode === 'Auth.CuentaBloqueada' ||
-        errorMessage.includes('bloqueada') ||
-        errorMessage.includes('cuentabloqueada')
-      ) {
+
+      const isCuentaNoVerificada = detectCuentaNoVerificada(errorCode, errorMessage);
+
+      if (isCuentaNoVerificada) {
+        const targetEmail = result.email || email;
+        const eStatus = result.extensions?.emailVerificado as boolean | undefined;
+        const tStatus = result.extensions?.telefonoVerificado as boolean | undefined;
+        const uId = (result.extensions?.usuarioId as string) || '';
+
+        await executeResendAndRedirect(targetEmail, eStatus, tStatus, uId, true);
+        setIsLoading(false);
+        return;
+      } else if (detectCuentaBloqueada(errorCode, errorMessage)) {
         setIsCuentaBloqueada(true);
         setError(t('auth.errors.accountBlocked'));
       } else {
         setError(result.error || t('auth.errors.authError'));
       }
     }
+
+    setIsLoading(false);
   };
 
-  const handleReenviarCodigo = async () => {
-    if (!email) {
-      setError(t('auth.errors.completeFields'));
-      return;
-    }
-
-    setIsReenviandoCodigo(true);
+  /**
+   * Helper unificado para disparar el reenvío y mover al usuario a la pantalla de verificación.
+   */
+  const executeResendAndRedirect = async (
+    targetEmail: string,
+    emailVerif: boolean | undefined,
+    telVerif: boolean | undefined,
+    uId: string,
+    isGoogle: boolean = false
+  ) => {
     setError('');
     setSuccessMessage('');
 
     try {
-      // Determinar qué canales mandar basado en lo que falta verificar
-      let canalesAReenviar = CanalEnvio.Ambos; // Por defecto asumimos ambos por seguridad si el backend no mandó extensiones
-
-      if (emailVerificadoStatus === false && telefonoVerificadoStatus === false) {
+      // Determinar canales. Si es Google, el email se asume verificado (o el backend lo marca).
+      let canalesAReenviar = CanalEnvio.Ambos;
+      if (emailVerif === false && telVerif === false) {
         canalesAReenviar = CanalEnvio.Ambos;
-      } else if (emailVerificadoStatus === false) {
+      } else if (emailVerif === false) {
         canalesAReenviar = CanalEnvio.Email;
-      } else if (telefonoVerificadoStatus === false) {
+      } else if (telVerif === false) {
         canalesAReenviar = CanalEnvio.SMS;
       }
 
-      // Disparar el reenvío de código de forma silenciosa e independiente (fire-and-forget)
-      // Ni siquiera si falla por Cooldown trabará la UI.
-      authApi.reenviarCodigo({
-        email,
-        canal: canalesAReenviar,
-      }).catch(() => { /* fire-and-forget */ });
+      // Ajuste para Google: si falta el tel, mandamos solo SMS (email ya está validado por Google)
+      if (isGoogle && telVerif === false) {
+        canalesAReenviar = CanalEnvio.SMS;
+      }
 
-      // Navegar a la página de verificación INMEDIATAMENTE para que el usuario no espere
+      // Reenvío de código antes de redirigir
+      await authApi.reenviarCodigo({
+        email: targetEmail,
+        canal: canalesAReenviar,
+      });
+
+      // Redirección inmediata
       navigate('/registro', {
         state: {
           modoVerificacion: true,
-          email,
-          emailVerificado: emailVerificadoStatus,
-          telefonoVerificado: telefonoVerificadoStatus,
-          usuarioId: usuarioIdStatus,
-          organizacionId: '', // No es crítico para verificarCuenta
+          email: targetEmail,
+          emailVerificado: emailVerif ?? (isGoogle ? true : false),
+          telefonoVerificado: telVerif,
+          isGoogle: isGoogle,
+          usuarioId: uId,
+          organizacionId: '',
           nombreOrganizacion: '',
         },
       });
-
     } catch (error: unknown) {
-      // Error si falla el navigate
       const message = error instanceof Error ? error.message : t('auth.errors.resendCodeError');
       setError(message);
-      setIsReenviandoCodigo(false);
     }
   };
 
+
+  if (isValidatingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-text-muted">{t('invitations.validating')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (tokenErrorType) {
+    return (
+      <LinkErrorState
+        type={tokenErrorType}
+        onButtonClick={() => setTokenErrorType(null)}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4" onClick={() => { if (error) setError(''); if (successMessage) setSuccessMessage(''); }}>
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-5 mb-8">
@@ -309,12 +418,16 @@ export function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4" noValidate>
             <Input
+              ref={emailRef}
               label={t('auth.emailLabel')}
               type="email"
               name="email"
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value);
+                const val = e.target.value;
+                setEmail(val);
+                if (emailError) setEmailError('');
+                setError('');
               }}
               onFocus={() => {
                 setError('');
@@ -327,23 +440,22 @@ export function LoginPage() {
               }}
               error={emailTouched && emailError ? t(emailError) : ''}
               placeholder={t('auth.emailPlaceholder')}
-              autoComplete="username"
-              required
+              autoComplete="email"
               disabled={isLoading}
             />
 
             <div className="relative">
               <Input
+                ref={passwordRef}
                 label={t('auth.passwordLabel')}
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={password}
                 onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                onFocus={() => {
+                  const val = e.target.value;
+                  setPassword(val);
+                  if (passwordError) setPasswordError('');
                   setError('');
-                  setPasswordError('');
                   setIsCuentaBloqueada(false);
                 }}
                 onBlur={() => {
@@ -352,8 +464,7 @@ export function LoginPage() {
                 }}
                 error={passwordTouched && passwordError ? t(passwordError) : ''}
                 placeholder={t('auth.passwordPlaceholder')}
-                autoComplete="current-password"
-                required
+                autoComplete="new-password"
                 disabled={isLoading}
               />
               <button
@@ -361,22 +472,38 @@ export function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-9 text-text-muted hover:text-text"
                 disabled={isLoading}
+                aria-label={showPassword ? t('auth.hidePassword', 'Ocultar contraseña') : t('auth.showPassword', 'Mostrar contraseña')}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary"
+            <div className="flex items-center justify-between mb-6">
+              {/* Remember Me Checkbox */}
+              <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary accent-primary"
+                  disabled={isLoading}
+                />
+                {t('auth.rememberMe')}
+              </label>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setError('');
+                  setResetEmail(email); // Sugerir el email ya escrito si existe
+                  setShowResetModal(true);
+                }}
+                className="text-sm text-primary hover:underline font-medium"
                 disabled={isLoading}
-              />
-              {t('auth.rememberMe')}
-            </label>
+              >
+                {t('auth.forgotPassword')}
+              </button>
+            </div>
 
             {error && (
               <div className="flex flex-col gap-2 mt-4">
@@ -384,48 +511,24 @@ export function LoginPage() {
                   type="error"
                   message={error}
                 />
-                {emailNoVerificado && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleReenviarCodigo}
-                    disabled={isReenviandoCodigo || isLoading}
-                    className="w-full mt-2 relative"
-                  >
-                    {isReenviandoCodigo ? (
-                      <span className="flex items-center justify-center">
-                        <Loader2 size={16} className="animate-spin mr-2" />
-                        {t('auth.resendingCode')}
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center">
-                        <Mail size={16} className="mr-2" />
-                        {t('auth.resendVerificationCode')}
-                      </span>
-                    )}
-                  </Button>
-                )}
               </div>
             )}
 
-            {!emailNoVerificado && (
-              <Button
-                type="submit"
-                className="w-full mt-6"
-                size="lg"
-                disabled={isLoading || ((!email || !password) && !isAutofilled) || isCuentaBloqueada}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin mr-2" />
-                    {t('auth.signingIn')}
-                  </>
-                ) : (
-                  t('auth.signInButton')
-                )}
-              </Button>
-            )}
+            <Button
+              type="submit"
+              className="w-full !mt-8"
+              size="lg"
+              disabled={isLoading || isCuentaBloqueada}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin mr-2" />
+                  {t('auth.signingIn')}
+                </>
+              ) : (
+                t('auth.signInButton')
+              )}
+            </Button>
 
             {/* Divider */}
             <div className="relative my-6">
@@ -470,9 +573,8 @@ export function LoginPage() {
             </div>
           </form>
 
-          {/* Register link */}
-          <div className="mt-6 pt-6 border-t border-border text-center">
-            <p className="text-sm text-text-muted mb-3">
+          <div className="mt-8 space-y-4">
+            <p className="text-center text-sm text-text-muted mb-2">
               {t('auth.noAccount')}
             </p>
             <Link to="/registro">
@@ -485,7 +587,7 @@ export function LoginPage() {
 
           {/* Support link */}
           <div className="mt-4 text-center">
-            <button className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors">
+            <button className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors" aria-label={t('auth.contactSupport')}>
               <HelpCircle size={16} />
               {t('auth.contactSupport')}
             </button>
@@ -496,6 +598,103 @@ export function LoginPage() {
         <p className="mt-6 text-center text-xs text-text-muted">
           {t('auth.legalMessage')}
         </p>
+
+        {/* Modal de Reset Password */}
+        <Modal
+          isOpen={showResetModal}
+          onClose={() => {
+            if (!isResetLoading) {
+              setShowResetModal(false);
+              setResetError('');
+              setResetSuccess(false);
+            }
+          }}
+        >
+          <div className="relative">
+            {/* Custom Header (matches verification style) */}
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Mail size={20} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-text text-lg leading-tight">
+                    {t('auth.requestResetTitle')}
+                  </h2>
+                  <p className="text-sm text-text-muted mt-1">
+                    {t('auth.requestResetSubtitle')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (!isResetLoading) {
+                    setShowResetModal(false);
+                    setResetError('');
+                    setResetSuccess(false);
+                  }
+                }}
+                className="p-1 -mr-1 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {!resetSuccess ? (
+              <form onSubmit={handleRequestReset} className="space-y-4">
+                <Input
+                  label={t('auth.emailLabel')}
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder={t('auth.emailPlaceholder')}
+                  autoComplete="off"
+                  autoFocus
+                  error={resetError}
+                />
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowResetModal(false)}
+                    disabled={isResetLoading}
+                  >
+                    {t('common.cancel', 'Cancelar')}
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    isLoading={isResetLoading}
+                  >
+                    {t('auth.requestResetButton')}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <div className="py-2 space-y-4">
+                <Alert
+                  type="success"
+                  message={t('auth.success.resetPasswordEmailSent')}
+                />
+                <Button
+                  className="w-full"
+                  onClick={() => setShowResetModal(false)}
+                >
+                  {t('common.close', 'Cerrar')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </Modal>
+
+        {/* Modal de Finalización de Reset Password (cuando viene token en URL) */}
+        <ResetPasswordModal
+          isOpen={showFinalResetModal}
+          onClose={() => setShowFinalResetModal(false)}
+          email={resetTargetEmail}
+          token={resetToken}
+        />
       </div>
     </div>
   );

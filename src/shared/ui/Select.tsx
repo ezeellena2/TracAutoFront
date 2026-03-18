@@ -20,6 +20,8 @@ interface SelectProps {
     required?: boolean;
     /** Render dropdown in a portal so it escapes overflow-hidden containers */
     usePortal?: boolean;
+    onBlur?: React.FocusEventHandler<HTMLButtonElement>;
+    onFocus?: React.FocusEventHandler<HTMLButtonElement>;
 }
 
 export function Select({
@@ -34,6 +36,8 @@ export function Select({
     dropdownClassName = '',
     buttonClassName = '',
     usePortal = false,
+    onBlur,
+    onFocus,
 }: SelectProps & { dropdownClassName?: string; buttonClassName?: string }) {
     const [isOpen, setIsOpen] = useState(false);
     // FIX H-F6: Indice resaltado para navegacion por teclado (ArrowUp/Down, Enter, Escape)
@@ -181,6 +185,8 @@ export function Select({
                     id={inputId}
                     onClick={() => !disabled && setIsOpen(!isOpen)}
                     onKeyDown={handleKeyDown}
+                    onBlur={onBlur}
+                    onFocus={onFocus}
                     disabled={disabled}
                     className={`
             w-full px-4 py-2 rounded-lg text-left flex items-center justify-between
