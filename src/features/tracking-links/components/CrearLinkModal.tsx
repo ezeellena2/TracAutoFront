@@ -12,9 +12,11 @@ interface CrearLinkModalProps {
   isLoading: boolean;
   onClose: () => void;
   onSubmit: (request: CrearLinkTrackingRequest) => void;
+  /** Cuando se pasa, pre-selecciona el vehículo y deshabilita el selector */
+  vehiculoIdPreseleccionado?: string;
 }
 
-export function CrearLinkModal({ isOpen, isLoading, onClose, onSubmit }: CrearLinkModalProps) {
+export function CrearLinkModal({ isOpen, isLoading, onClose, onSubmit, vehiculoIdPreseleccionado }: CrearLinkModalProps) {
   const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
 
@@ -41,14 +43,18 @@ export function CrearLinkModal({ isOpen, isLoading, onClose, onSubmit }: CrearLi
 
   useEffect(() => {
     if (isOpen) {
-      void loadVehiculos();
-      setVehiculoId('');
+      if (vehiculoIdPreseleccionado) {
+        setVehiculoId(vehiculoIdPreseleccionado);
+      } else {
+        void loadVehiculos();
+        setVehiculoId('');
+      }
       setNombre('');
       setDuracionMinutos('');
       setTipoAcceso(TipoAccesoTracking.SoloUbicacion);
       setMaxAccesos('');
     }
-  }, [isOpen, loadVehiculos]);
+  }, [isOpen, loadVehiculos, vehiculoIdPreseleccionado]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,20 +77,29 @@ export function CrearLinkModal({ isOpen, isLoading, onClose, onSubmit }: CrearLi
         {/* Vehículo */}
         <div>
           <label className="block text-sm font-medium text-text mb-1">{t('trackingLinks.vehiculo')}</label>
-          <select
-            value={vehiculoId}
-            onChange={(e) => setVehiculoId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-            disabled={loadingVehiculos}
-          >
-            <option value="">{t('trackingLinks.vehiculoPlaceholder')}</option>
-            {vehiculos.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.patente} — {v.marca} {v.modelo}
-              </option>
-            ))}
-          </select>
+          {vehiculoIdPreseleccionado ? (
+            <input
+              type="text"
+              value={t('trackingLinks.vehiculoPreseleccionado')}
+              disabled
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background/50 text-text-muted cursor-not-allowed"
+            />
+          ) : (
+            <select
+              value={vehiculoId}
+              onChange={(e) => setVehiculoId(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+              disabled={loadingVehiculos}
+            >
+              <option value="">{t('trackingLinks.vehiculoPlaceholder')}</option>
+              {vehiculos.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.patente} — {v.marca} {v.modelo}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Nombre */}

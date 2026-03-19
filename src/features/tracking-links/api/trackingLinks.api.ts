@@ -13,6 +13,8 @@ const BASE = 'link-tracking';
 
 interface ListarLinksTrackingParams {
   soloActivos?: boolean;
+  vehiculoId?: string;
+  reservaAlquilerId?: string;
 }
 
 export const trackingLinksApi = {

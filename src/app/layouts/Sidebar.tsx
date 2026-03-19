@@ -32,12 +32,12 @@ import {
   Settings,
   Globe,
   Gauge,
-  MessageSquare,
   Sparkles,
   CreditCard,
   AlertTriangle,
   Activity,
   ShieldCheck,
+  Satellite,
 } from 'lucide-react';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -73,17 +73,23 @@ const navItems: NavItem[] = [
   },
   { path: '/vehiculos', labelKey: 'sidebar.vehicles', icon: Car },
   { path: '/dispositivos', labelKey: 'sidebar.devices', icon: Cpu },
-  { path: '/eventos', labelKey: 'sidebar.events', icon: Bell, requiredModule: ModuloSistema.Telematica },
   { path: '/conductores', labelKey: 'sidebar.drivers', icon: UserCircle, requiredPermission: 'conductores:ver' },
   { path: '/geozonas', labelKey: 'sidebar.geofences', icon: MapPin },
   { path: '/importaciones', labelKey: 'sidebar.imports', icon: FileSpreadsheet },
-  { path: '/tracking-links', labelKey: 'sidebar.trackingLinks', icon: Link2 },
-  { path: '/preferencias-notificacion', labelKey: 'sidebar.preferenciasNotificacion', icon: MessageSquare },
   { path: '/resumen-ia', labelKey: 'sidebar.resumenIA', icon: Sparkles },
-  { path: '/alertas/reglas', labelKey: 'sidebar.alertRules', icon: AlertTriangle, requiredModule: ModuloSistema.Telematica },
-  { path: '/diagnosticos-obd', labelKey: 'sidebar.obdDiagnostics', icon: Activity, requiredModule: ModuloSistema.Telematica },
   { path: '/suscripcion', labelKey: 'sidebar.billing', icon: CreditCard, requiredPermission: 'billing:ver' },
   { path: '/scoring', labelKey: 'sidebar.scoring', icon: Gauge, requiredModule: ModuloSistema.Scoring },
+  {
+    labelKey: 'sidebar.telematica',
+    icon: Satellite,
+    requiredModule: ModuloSistema.Telematica,
+    children: [
+      { path: '/eventos', labelKey: 'sidebar.events', icon: Bell },
+      { path: '/alertas/reglas', labelKey: 'sidebar.alertRules', icon: AlertTriangle },
+      { path: '/diagnosticos-obd', labelKey: 'sidebar.obdDiagnostics', icon: Activity },
+      { path: '/tracking-links', labelKey: 'sidebar.trackingLinks', icon: Link2 },
+    ]
+  },
   {
     labelKey: 'sidebar.alquileres',
     icon: KeyRound,
@@ -102,6 +108,7 @@ const navItems: NavItem[] = [
       { path: '/alquileres/contratos', labelKey: 'sidebar.alquileresContratos', icon: ScrollText },
       { path: '/alquileres/reportes', labelKey: 'sidebar.alquileresReportes', icon: BarChart3, requiredPermission: 'alquileres:reportes' },
       { path: '/alquileres/configuracion', labelKey: 'sidebar.alquileresConfiguracion', icon: Settings, requiredPermission: 'alquileres:configurar' },
+      { path: '/tracking-links', labelKey: 'sidebar.trackingLinks', icon: Link2 },
     ]
   },
   {

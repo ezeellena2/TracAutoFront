@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, EstadoError, SpinnerPantalla } from '@/shared/ui';
+import { TrackingLinksPanel } from '@/features/tracking-links';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { usePermissions } from '@/hooks';
 import { useReservaDetalle } from '../hooks/useReservaDetalle';
@@ -151,6 +152,15 @@ export function ReservaDetallePage() {
             vehiculoDescripcion={reserva.vehiculoDescripcion}
             categoriaAlquiler={reserva.categoriaAlquiler}
           />
+
+          {/* Tracking Links de esta reserva */}
+          <Card>
+            <CardHeader title={t('trackingLinks.titulo')} />
+            <TrackingLinksPanel
+              reservaAlquilerId={reserva.id}
+              compact
+            />
+          </Card>
 
           {mostrarCheckOut && (
             <CheckOutCard

@@ -35,9 +35,6 @@ const DevicePublicPage = lazy(() => import('@/features/devices/pages/DevicePubli
 const TrackingLinksPage = lazy(() => import('@/features/tracking-links/pages/TrackingLinksPage').then(m => ({ default: m.TrackingLinksPage })));
 const TrackingPublicoPage = lazy(() => import('@/features/tracking-publico/pages/TrackingPublicoPage').then(m => ({ default: m.TrackingPublicoPage })));
 
-// Preferencias Notificacion (WhatsApp)
-const PreferenciasNotificacionPage = lazy(() => import('@/features/preferencias-notificacion/pages/PreferenciasNotificacionPage').then(m => ({ default: m.PreferenciasNotificacionPage })));
-
 // Resumen IA
 const ResumenIAPage = lazy(() => import('@/features/resumen-ia/pages/ResumenIAPage').then(m => ({ default: m.ResumenIAPage })));
 
@@ -219,11 +216,7 @@ const router = createBrowserRouter([
         path: 'widgets',
         element: <SuspensePage Component={WidgetsPage} />,
       },
-      {
-        path: 'preferencias-notificacion',
-        element: <SuspensePage Component={PreferenciasNotificacionPage} />,
-      },
-      {
+{
         path: 'resumen-ia',
         element: <SuspensePage Component={ResumenIAPage} />,
       },

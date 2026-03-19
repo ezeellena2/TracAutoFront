@@ -1,4 +1,4 @@
-﻿{
+{
   "routes": {
     "accessDenied": "Access Denied",
     "accessDeniedDescription": "You do not have permission to access this section.",
@@ -186,9 +186,105 @@
     "preferenciasNotificacion": "Notifications",
     "resumenIA": "AI Digest",
     "billing": "Subscription",
+    "telematica": "Telematics",
     "alertRules": "Alert Rules",
     "obdDiagnostics": "OBD Diagnostics",
     "admin": "Admin Panel"
+  },
+  "obdDiagnostics": {
+    "title": "OBD2 Diagnostics",
+    "subtitle": "Monitor your fleet health in real-time with OBD2 data",
+    "errorLoading": "Error loading diagnostic data",
+    "kpi": {
+      "vehiclesWithTelemetry": "Vehicles with telemetry",
+      "obd2Readings": "OBD2 readings",
+      "totalDistanceKm": "Total distance",
+      "alertsGenerated": "Alerts generated"
+    },
+    "vehicleDetail": "Diagnostics — {{patente}}",
+    "liveReadings": "Real-time readings from the latest OBD2 snapshot",
+    "gauges": {
+      "rpm": "RPM",
+      "engineTemp": "Engine temp",
+      "battery": "Battery",
+      "fuel": "Fuel",
+      "engineHours": "Engine hours",
+      "ignition": "Ignition"
+    },
+    "ignitionOn": "On",
+    "ignitionOff": "Off",
+    "noData": "No OBD2 data available for this vehicle",
+    "vehicleList": "Vehicles with telemetry",
+    "vehicleListSubtitle": "Select a vehicle to view its detailed diagnostics",
+    "noVehicles": "No vehicles with telemetry",
+    "noVehiclesDesc": "No vehicles with telemetry data found in the selected period",
+    "viewDetail": "View detail",
+    "table": {
+      "patente": "License plate",
+      "distance": "Distance",
+      "avgSpeed": "Avg. speed",
+      "maxSpeed": "Max speed",
+      "obd2Readings": "OBD2 readings",
+      "alerts": "Alerts"
+    }
+  },
+  "alertRules": {
+    "title": "Alert Rules",
+    "subtitle": "Configure automatic rules to generate alerts about your fleet",
+    "create": "New rule",
+    "createTitle": "Create alert rule",
+    "editTitle": "Edit alert rule",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "errorLoading": "Error loading alert rules",
+    "empty": "No alert rules",
+    "emptyDesc": "Create your first rule to receive automatic alerts about your fleet",
+    "confirmDelete": "Delete rule",
+    "confirmDeleteDesc": "Rule \"{{name}}\" will be deleted. This action cannot be undone.",
+    "types": {
+      "speedMax": "Max speed",
+      "excessiveStop": "Excessive stop",
+      "geofenceEntry": "Geofence entry",
+      "geofenceExit": "Geofence exit",
+      "disconnection": "Disconnection",
+      "rpmOutOfRange": "RPM out of range",
+      "highEngineTemp": "High engine temperature",
+      "lowBattery": "Low battery"
+    },
+    "severity": {
+      "info": "Info",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "channels": {
+      "inApp": "In-app",
+      "email": "Email",
+      "push": "Push"
+    },
+    "filters": {
+      "all": "All",
+      "activeOnly": "Active only"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "E.g.: Max speed on highway",
+      "type": "Rule type",
+      "severity": "Severity",
+      "condition": "Condition",
+      "cooldown": "Cooldown (seconds)",
+      "cooldownHint": "Minimum time between repeated alerts (min. 60 sec)",
+      "channels": "Notification channels",
+      "maxSpeedKmh": "Max speed (km/h)",
+      "toleratedMinutes": "Tolerated minutes",
+      "toleratedSeconds": "Tolerated seconds",
+      "rpmMin": "Min RPM",
+      "rpmMax": "Max RPM",
+      "tempCelsius": "Max temperature (°C)",
+      "batteryMinPercent": "Min battery percentage (%)",
+      "geofenceNote": "Geofence will be automatically assigned based on vehicle or device configuration."
+    }
   },
   "admin": {
     "title": "Administration Panel",
@@ -4043,6 +4139,7 @@
     "crearTitulo": "New Tracking Link",
     "vehiculo": "Vehicle",
     "vehiculoPlaceholder": "Select a vehicle",
+    "vehiculoPreseleccionado": "Vehicle from current context",
     "nombre": "Name (optional)",
     "nombrePlaceholder": "E.g.: Client John, Delivery #123",
     "duracion": "Duration (minutes)",
@@ -4313,101 +4410,6 @@
       "dominiosPlaceholder": "mycompany.com\napp.mycompany.com\nlocalhost:3000",
       "dominiosHelp": "One domain per line. Only these domains will be able to load the widget.",
       "maxRequests": "Max requests per minute"
-    },
-    "obdDiagnostics": {
-      "title": "OBD2 Diagnostics",
-      "subtitle": "Monitor your fleet health in real-time with OBD2 data",
-      "errorLoading": "Error loading diagnostic data",
-      "kpi": {
-        "vehiclesWithTelemetry": "Vehicles with telemetry",
-        "obd2Readings": "OBD2 readings",
-        "totalDistanceKm": "Total distance",
-        "alertsGenerated": "Alerts generated"
-      },
-      "vehicleDetail": "Diagnostics â€” {{patente}}",
-      "liveReadings": "Real-time readings from the latest OBD2 snapshot",
-      "gauges": {
-        "rpm": "RPM",
-        "engineTemp": "Engine temp",
-        "battery": "Battery",
-        "fuel": "Fuel",
-        "engineHours": "Engine hours",
-        "ignition": "Ignition"
-      },
-      "ignitionOn": "On",
-      "ignitionOff": "Off",
-      "noData": "No OBD2 data available for this vehicle",
-      "vehicleList": "Vehicles with telemetry",
-      "vehicleListSubtitle": "Select a vehicle to view its detailed diagnostics",
-      "noVehicles": "No vehicles with telemetry",
-      "noVehiclesDesc": "No vehicles with telemetry data found in the selected period",
-      "viewDetail": "View detail",
-      "table": {
-        "patente": "License plate",
-        "distance": "Distance",
-        "avgSpeed": "Avg. speed",
-        "maxSpeed": "Max speed",
-        "obd2Readings": "OBD2 readings",
-        "alerts": "Alerts"
-      }
-    },
-    "alertRules": {
-      "title": "Alert Rules",
-      "subtitle": "Configure automatic rules to generate alerts about your fleet",
-      "create": "New rule",
-      "createTitle": "Create alert rule",
-      "editTitle": "Edit alert rule",
-      "active": "Active",
-      "inactive": "Inactive",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "errorLoading": "Error loading alert rules",
-      "empty": "No alert rules",
-      "emptyDesc": "Create your first rule to receive automatic alerts about your fleet",
-      "confirmDelete": "Delete rule",
-      "confirmDeleteDesc": "Rule \"{{name}}\" will be deleted. This action cannot be undone.",
-      "types": {
-        "speedMax": "Max speed",
-        "excessiveStop": "Excessive stop",
-        "geofenceEntry": "Geofence entry",
-        "geofenceExit": "Geofence exit",
-        "disconnection": "Disconnection",
-        "rpmOutOfRange": "RPM out of range",
-        "highEngineTemp": "High engine temperature",
-        "lowBattery": "Low battery"
-      },
-      "severity": {
-        "info": "Info",
-        "warning": "Warning",
-        "critical": "Critical"
-      },
-      "channels": {
-        "inApp": "In-app",
-        "email": "Email",
-        "push": "Push"
-      },
-      "filters": {
-        "all": "All",
-        "activeOnly": "Active only"
-      },
-      "form": {
-        "name": "Name",
-        "namePlaceholder": "E.g.: Max speed on highway",
-        "type": "Rule type",
-        "severity": "Severity",
-        "condition": "Condition",
-        "cooldown": "Cooldown (seconds)",
-        "cooldownHint": "Minimum time between repeated alerts (min. 60 sec)",
-        "channels": "Notification channels",
-        "maxSpeedKmh": "Max speed (km/h)",
-        "toleratedMinutes": "Tolerated minutes",
-        "toleratedSeconds": "Tolerated seconds",
-        "rpmMin": "Min RPM",
-        "rpmMax": "Max RPM",
-        "tempCelsius": "Max temperature (Â°C)",
-        "batteryMinPercent": "Min battery percentage (%)",
-        "geofenceNote": "Geofence will be automatically assigned based on vehicle or device configuration."
-      }
     },
     "billing": {
       "title": "Subscription & Billing",

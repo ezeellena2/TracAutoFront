@@ -26,6 +26,7 @@ export interface CrearLinkTrackingRequest {
   duracionMinutos?: number;
   tipoAcceso?: TipoAccesoTracking;
   maxAccesos?: number;
+  reservaAlquilerId?: string;
 }
 
 export interface CrearLinkTrackingResponse {

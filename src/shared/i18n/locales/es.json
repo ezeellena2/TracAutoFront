@@ -218,9 +218,105 @@
     "preferenciasNotificacion": "Preferencias de Notificacion",
     "resumenIA": "Resumen IA",
     "billing": "Suscripcion",
+    "telematica": "Telemática",
     "alertRules": "Reglas de Alerta",
     "obdDiagnostics": "Diagnostico OBD",
     "admin": "Administracion"
+  },
+  "obdDiagnostics": {
+    "title": "Diagnóstico OBD2",
+    "subtitle": "Monitorea la salud de tu flota en tiempo real con datos OBD2",
+    "errorLoading": "Error al cargar datos de diagnóstico",
+    "kpi": {
+      "vehiclesWithTelemetry": "Vehículos con telemetría",
+      "obd2Readings": "Lecturas OBD2",
+      "totalDistanceKm": "Distancia total",
+      "alertsGenerated": "Alertas generadas"
+    },
+    "vehicleDetail": "Diagnóstico — {{patente}}",
+    "liveReadings": "Lecturas en tiempo real del último snapshot OBD2",
+    "gauges": {
+      "rpm": "RPM",
+      "engineTemp": "Temp. motor",
+      "battery": "Batería",
+      "fuel": "Combustible",
+      "engineHours": "Horas motor",
+      "ignition": "Encendido"
+    },
+    "ignitionOn": "Encendido",
+    "ignitionOff": "Apagado",
+    "noData": "No hay datos OBD2 disponibles para este vehículo",
+    "vehicleList": "Vehículos con telemetría",
+    "vehicleListSubtitle": "Selecciona un vehículo para ver su diagnóstico detallado",
+    "noVehicles": "Sin vehículos con telemetría",
+    "noVehiclesDesc": "No se encontraron vehículos con datos de telemetría en el periodo seleccionado",
+    "viewDetail": "Ver detalle",
+    "table": {
+      "patente": "Patente",
+      "distance": "Distancia",
+      "avgSpeed": "Vel. promedio",
+      "maxSpeed": "Vel. máxima",
+      "obd2Readings": "Lecturas OBD2",
+      "alerts": "Alertas"
+    }
+  },
+  "alertRules": {
+    "title": "Reglas de alerta",
+    "subtitle": "Configura reglas automáticas para generar alertas sobre tu flota",
+    "create": "Nueva regla",
+    "createTitle": "Crear regla de alerta",
+    "editTitle": "Editar regla de alerta",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "errorLoading": "Error al cargar las reglas de alerta",
+    "empty": "Sin reglas de alerta",
+    "emptyDesc": "Crea tu primera regla para recibir alertas automáticas sobre tu flota",
+    "confirmDelete": "Eliminar regla",
+    "confirmDeleteDesc": "La regla \"{{name}}\" será eliminada. Esta acción no se puede deshacer.",
+    "types": {
+      "speedMax": "Velocidad máxima",
+      "excessiveStop": "Parada excesiva",
+      "geofenceEntry": "Entrada a geocerca",
+      "geofenceExit": "Salida de geocerca",
+      "disconnection": "Desconexión",
+      "rpmOutOfRange": "RPM fuera de rango",
+      "highEngineTemp": "Temperatura de motor alta",
+      "lowBattery": "Batería baja"
+    },
+    "severity": {
+      "info": "Info",
+      "warning": "Advertencia",
+      "critical": "Crítica"
+    },
+    "channels": {
+      "inApp": "En la app",
+      "email": "Email",
+      "push": "Push"
+    },
+    "filters": {
+      "all": "Todas",
+      "activeOnly": "Solo activas"
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Ej: Velocidad máxima en autopista",
+      "type": "Tipo de regla",
+      "severity": "Severidad",
+      "condition": "Condición",
+      "cooldown": "Cooldown (segundos)",
+      "cooldownHint": "Tiempo mínimo entre alertas repetidas (mín. 60 seg)",
+      "channels": "Canales de notificación",
+      "maxSpeedKmh": "Velocidad máxima (km/h)",
+      "toleratedMinutes": "Minutos tolerados",
+      "toleratedSeconds": "Segundos tolerados",
+      "rpmMin": "RPM mínimo",
+      "rpmMax": "RPM máximo",
+      "tempCelsius": "Temperatura máxima (°C)",
+      "batteryMinPercent": "Porcentaje mínimo de batería (%)",
+      "geofenceNote": "La geocerca se asignará automáticamente según la configuración del vehículo o dispositivo."
+    }
   },
   "solicitudesCambio": {
     "title": "Solicitudes de Cambio",
@@ -4136,6 +4232,7 @@
     "crearTitulo": "Nuevo link de tracking",
     "vehiculo": "Vehiculo",
     "vehiculoPlaceholder": "Selecciona un vehiculo",
+    "vehiculoPreseleccionado": "Vehiculo del contexto actual",
     "nombre": "Nombre (opcional)",
     "nombrePlaceholder": "Ej: Cliente Juan, Envio #123",
     "duracion": "Duracion (minutos)",
@@ -4406,101 +4503,6 @@
       "dominiosPlaceholder": "miempresa.com\napp.miempresa.com\nlocalhost:3000",
       "dominiosHelp": "Un dominio por linea. Solo estos dominios podran cargar el widget.",
       "maxRequests": "Max. solicitudes por minuto"
-    },
-    "obdDiagnostics": {
-      "title": "Diagnostico OBD2",
-      "subtitle": "Monitorea la salud de tu flota en tiempo real con datos OBD2",
-      "errorLoading": "Error al cargar datos de diagnostico",
-      "kpi": {
-        "vehiclesWithTelemetry": "Vehiculos con telemetria",
-        "obd2Readings": "Lecturas OBD2",
-        "totalDistanceKm": "Distancia total",
-        "alertsGenerated": "Alertas generadas"
-      },
-      "vehicleDetail": "Diagnostico — {{patente}}",
-      "liveReadings": "Lecturas en tiempo real del ultimo snapshot OBD2",
-      "gauges": {
-        "rpm": "RPM",
-        "engineTemp": "Temp. motor",
-        "battery": "Bateria",
-        "fuel": "Combustible",
-        "engineHours": "Horas motor",
-        "ignition": "Encendido"
-      },
-      "ignitionOn": "Encendido",
-      "ignitionOff": "Apagado",
-      "noData": "No hay datos OBD2 disponibles para este vehiculo",
-      "vehicleList": "Vehiculos con telemetria",
-      "vehicleListSubtitle": "Selecciona un vehiculo para ver su diagnostico detallado",
-      "noVehicles": "Sin vehiculos con telemetria",
-      "noVehiclesDesc": "No se encontraron vehiculos con datos de telemetria en el periodo seleccionado",
-      "viewDetail": "Ver detalle",
-      "table": {
-        "patente": "Patente",
-        "distance": "Distancia",
-        "avgSpeed": "Vel. promedio",
-        "maxSpeed": "Vel. maxima",
-        "obd2Readings": "Lecturas OBD2",
-        "alerts": "Alertas"
-      }
-    },
-    "alertRules": {
-      "title": "Reglas de alerta",
-      "subtitle": "Configura reglas automaticas para generar alertas sobre tu flota",
-      "create": "Nueva regla",
-      "createTitle": "Crear regla de alerta",
-      "editTitle": "Editar regla de alerta",
-      "active": "Activa",
-      "inactive": "Inactiva",
-      "activate": "Activar",
-      "deactivate": "Desactivar",
-      "errorLoading": "Error al cargar las reglas de alerta",
-      "empty": "Sin reglas de alerta",
-      "emptyDesc": "Crea tu primera regla para recibir alertas automaticas sobre tu flota",
-      "confirmDelete": "Eliminar regla",
-      "confirmDeleteDesc": "La regla \"{{name}}\" sera eliminada. Esta accion no se puede deshacer.",
-      "types": {
-        "speedMax": "Velocidad maxima",
-        "excessiveStop": "Parada excesiva",
-        "geofenceEntry": "Entrada a geocerca",
-        "geofenceExit": "Salida de geocerca",
-        "disconnection": "Desconexion",
-        "rpmOutOfRange": "RPM fuera de rango",
-        "highEngineTemp": "Temperatura de motor alta",
-        "lowBattery": "Bateria baja"
-      },
-      "severity": {
-        "info": "Info",
-        "warning": "Advertencia",
-        "critical": "Critica"
-      },
-      "channels": {
-        "inApp": "En la app",
-        "email": "Email",
-        "push": "Push"
-      },
-      "filters": {
-        "all": "Todas",
-        "activeOnly": "Solo activas"
-      },
-      "form": {
-        "name": "Nombre",
-        "namePlaceholder": "Ej: Velocidad maxima en autopista",
-        "type": "Tipo de regla",
-        "severity": "Severidad",
-        "condition": "Condicion",
-        "cooldown": "Cooldown (segundos)",
-        "cooldownHint": "Tiempo minimo entre alertas repetidas (min. 60 seg)",
-        "channels": "Canales de notificacion",
-        "maxSpeedKmh": "Velocidad maxima (km/h)",
-        "toleratedMinutes": "Minutos tolerados",
-        "toleratedSeconds": "Segundos tolerados",
-        "rpmMin": "RPM minimo",
-        "rpmMax": "RPM maximo",
-        "tempCelsius": "Temperatura maxima (°C)",
-        "batteryMinPercent": "Porcentaje minimo de bateria (%)",
-        "geofenceNote": "La geocerca se asignara automaticamente segun la configuracion del vehiculo o dispositivo."
-      }
     },
     "billing": {
       "title": "Suscripcion y Facturacion",
