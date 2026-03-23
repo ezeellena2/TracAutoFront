@@ -5,6 +5,5 @@ export { useToastStore, toast } from './toast.store';
 export { useSidebarStore } from './sidebar.store';
 export { useLocalizationStore } from './localization.store';
 export { useModoSolicitudStore } from './modoSolicitud.store';
-export { useNotificationsStore } from './notifications.store';
 export { useErrorReportStore } from './errorReport.store';
 export { useAuthClienteStore, selectIsAuthenticated as selectClienteIsAuthenticated } from './authCliente.store';

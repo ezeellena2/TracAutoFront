@@ -59,7 +59,7 @@ function getE164IfMobile(
     return { e164: p.number, ok: true, msg: "" };
   }
 
-  return { e164: "", ok: false, msg: t("auth.whatsappRequired") };
+  return { e164: "", ok: false, msg: t("auth.mobileRequired") };
 }
 
 const PhoneInput = React.forwardRef<HTMLInputElement, InputComponentProps>(

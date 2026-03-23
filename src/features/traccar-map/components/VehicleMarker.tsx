@@ -1,9 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Marker, Popup, Tooltip } from 'react-leaflet';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
-import { History } from 'lucide-react';
 import { VehiclePosition } from '../types';
 import { useTraccarMapStore } from '../store/traccarMap.store';
 import { useLocalization } from '@/hooks/useLocalization';
@@ -62,7 +60,6 @@ function createCustomIcon(estado: VehiclePosition['estado'], isSelected: boolean
 export const VehicleMarker = memo(function VehicleMarker({ vehicle }: VehicleMarkerProps) {
   const { t } = useTranslation();
   const { culture, timeZoneId } = useLocalization();
-  const navigate = useNavigate();
   const { selectedVehicleId, setSelectedVehicle, labelConfig } = useTraccarMapStore();
   const isSelected = selectedVehicleId === vehicle.id;
 
@@ -70,11 +67,6 @@ export const VehicleMarker = memo(function VehicleMarker({ vehicle }: VehicleMar
     () => createCustomIcon(vehicle.estado, isSelected),
     [vehicle.estado, isSelected],
   );
-
-  const handleReplayClick = () => {
-    // Navigate to replay page with device pre-selected
-    navigate(`/replay?dispositivoId=${vehicle.id}`);
-  };
 
   // Build label content based on configuration
   const buildLabelContent = () => {
@@ -222,15 +214,6 @@ export const VehicleMarker = memo(function VehicleMarker({ vehicle }: VehicleMar
               Lat: {vehicle.latitud.toFixed(6)} | Lng: {vehicle.longitud.toFixed(6)}
             </p>
           </div>
-
-          {/* Ver recorrido button */}
-          <button
-            onClick={handleReplayClick}
-            className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <History size={16} />
-            {t('map.viewRoute')}
-          </button>
         </div>
       </Popup>
     </Marker>

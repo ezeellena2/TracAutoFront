@@ -6,7 +6,6 @@ export type {
   PublicacionPublicaDto,
   PublicacionPublicaDetalleDto,
   FiltrosVehiculoPublico,
-  FavoritoMarketplaceDto,
 } from '@/shared/types/marketplace-publico';
 
 /** Re-export tipo paginado generico */

@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Save, Bell } from 'lucide-react';
+import { Globe, Save } from 'lucide-react';
 import { Button, Card } from '@/shared/ui';
 import { useAuthStore } from '@/store';
 import { useLocalizationStore } from '@/store/localization.store';
 import { toast } from '@/store/toast.store';
 import { organizacionesApi } from '@/services/endpoints/organizaciones.api';
 import { useErrorHandler } from '@/hooks';
-import { PreferenciasNotificacionPanel } from '@/features/preferencias-notificacion/components';
 
 const COUNTRY_ENUM: Record<string, number> = {
   AR: 1, US: 2, MX: 3, BR: 4, CL: 5, CO: 6, PE: 7, ES: 8, GB: 9, CA: 10,
@@ -262,18 +261,8 @@ export function PreferenciasOrganizacionPage() {
         </div>
       </Card>
 
-      {/* Preferencias de Notificación */}
-      <div>
-        <h2 className="text-xl font-bold text-text flex items-center gap-2">
-          <Bell size={20} className="text-primary" />
-          {t('preferenciasNotificacion.titulo')}
-        </h2>
-        <p className="text-sm text-text-muted mt-1">
-          {t('preferenciasNotificacion.subtitulo')}
-        </p>
-      </div>
-
-      <PreferenciasNotificacionPanel />
     </div>
   );
 }
+
+

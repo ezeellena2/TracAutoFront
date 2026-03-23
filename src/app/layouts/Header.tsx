@@ -1,11 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+﻿import { useNavigate } from 'react-router-dom';
 import { LogOut, User, ChevronDown, Building2, Shield, Moon, Sun, FileEdit } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore, useTenantStore, useThemeStore, useModoSolicitudStore } from '@/store';
 import { authService } from '@/services/auth.service';
 import { LanguageSwitcher } from '@/shared/ui/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import { NotificationBell, NotificationDrawer, useNotifications } from '@/features/notifications';
 import { IndicadoresHeader } from '@/shared/ui/IndicadoresHeader';
 import { FeriadosHeader } from '@/shared/ui/FeriadosHeader';
 
@@ -15,17 +14,8 @@ export function Header() {
   const { currentOrganization } = useTenantStore();
   const { isDarkMode, setDarkMode } = useThemeStore();
   const { activo, toggle } = useModoSolicitudStore();
-  const {
-    recent,
-    unreadCount,
-    connectionState,
-    markAsRead,
-    markAllAsRead,
-    archivar,
-  } = useNotifications();
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
@@ -84,7 +74,7 @@ export function Header() {
 
   return (
     <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-4 lg:px-6 relative z-[9999]">
-      {/* ─── Left: Organization ─── */}
+      {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Left: Organization ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
       <div className="flex items-center gap-2.5 flex-shrink-0 min-w-0">
         {currentOrganization && (
           <div className="flex items-center gap-2.5 cursor-default">
@@ -111,15 +101,7 @@ export function Header() {
         )}
       </div>
 
-      {/* ─── Right: Notifications + User ─── */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <NotificationBell
-          unreadCount={unreadCount}
-          connectionState={connectionState}
-          onClick={() => setIsNotificationsOpen(true)}
-        />
-
-        <span className="w-px h-6 bg-border/50 mx-0.5" aria-hidden="true" />
 
         {/* User menu trigger */}
         <div className="relative" ref={dropdownRef}>
@@ -140,7 +122,7 @@ export function Header() {
             <ChevronDown size={14} className={`text-text-muted transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* ─── Dropdown ─── */}
+          {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Dropdown ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
           {isDropdownOpen && (
             <div
               ref={dropdownMenuRef}
@@ -170,7 +152,7 @@ export function Header() {
                 </div>
               </div>
 
-              {/* ─── Indicators section ─── */}
+              {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Indicators section ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
               <div className="px-4 py-3 border-b border-border space-y-2">
                 <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">{t('header.indicadores', 'Indicadores')}</p>
                 <div className="flex flex-col gap-1.5">
@@ -179,7 +161,7 @@ export function Header() {
                 </div>
               </div>
 
-              {/* ─── Modo Solicitud toggle ─── */}
+              {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Modo Solicitud toggle ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
               <button
                 type="button"
                 onClick={toggle}
@@ -250,15 +232,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* ─── Notification Drawer ─── */}
-      <NotificationDrawer
-        isOpen={isNotificationsOpen}
-        onClose={() => setIsNotificationsOpen(false)}
-        notifications={recent}
-        onMarkAsRead={markAsRead}
-        onMarkAllAsRead={markAllAsRead}
-        onArchivar={archivar}
-      />
     </header>
   );
 }
+

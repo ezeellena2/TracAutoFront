@@ -7,7 +7,6 @@ export { conductoresApi } from './conductores.api';
 export { marketplaceApi } from './marketplace.api';
 export { reportesApi } from './reportes.api';
 export { solicitudesCambioApi } from './solicitudesCambio.api';
-export { notificacionesApi } from './notificaciones.api';
 export { reportarError } from './support.api';
 export type { ReportarErrorRequest, ReportarErrorResponse } from './support.api';
 export * from './system.api';
@@ -16,22 +15,4 @@ export type { DolarIndiceDto, RiesgoPaisIndiceDto, IndicesAgregadoDto } from './
 export { feriadosApi } from './feriados.api';
 export type { FeriadoDto, FeriadosResumenDto } from './feriados.api';
 export { marketplacePublicoApi } from './marketplace-publico.api';
-export { alquilerPublicoApi, authClienteApi } from './alquiler-publico.api';
-// Alquileres
-export {
-  sucursalesApi,
-  vehiculosAlquilerApi,
-  tarifasApi,
-  recargosApi,
-  coberturasApi,
-  promocionesApi,
-  clientesAlquilerApi,
-  reservasApi,
-  contratosApi,
-  pagosAlquilerApi,
-  cotizacionApi,
-  configuracionAlquilerApi,
-  reportesAlquilerApi,
-  getChecklistInspeccionPdf,
-} from './alquiler.api';
 

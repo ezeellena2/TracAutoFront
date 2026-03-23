@@ -25,18 +25,7 @@ export enum CanalEnvio {
 /** MÃƒÂ³dulos del sistema Ã¢â‚¬â€ valores alineados con backend ModuloSistema enum */
 export enum ModuloSistema {
   Flota = 1,
-  Telematica = 2,
   Marketplace = 3,
-  Alquiler = 4,
-  AlquilerPublico = 5,
-  Taller = 6,
-  Seguros = 7,
-  RideHailing = 8,
-  Delivery = 9,
-  FlotaLogistica = 10,
-  Reportes = 11,
-  Integraciones = 12,
-  Scoring = 13,
 }
 
 // --- Requests ---
@@ -58,13 +47,10 @@ export const PasswordSchema = z.string()
     }
   });
 
-/** Tipo de cuenta/organización — alineado con backend TipoCuenta enum */
-export enum TipoOrganizacion {
-  FlotaPrivada = 1,
-  Aseguradora = 2,
-  TallerMecanico = 3,
-  ConcesionarioAutos = 4,
-  EmpresaRenting = 5,
+/** Tipo de cuenta - alineado con backend TipoCuenta enum */
+export enum TipoCuenta {
+  Empresa = 1,
+  PersonaFisica = 2,
 }
 
 export const RegistrarEmpresaRequestSchema = z.object({
@@ -74,7 +60,7 @@ export const RegistrarEmpresaRequestSchema = z.object({
     .string()
     .min(11, "auth.errors.cuitLength")
     .max(11, "auth.errors.cuitLength"),
-  tipoOrganizacion: z.nativeEnum(TipoOrganizacion).optional(),
+  tipoCuenta: z.nativeEnum(TipoCuenta).optional(),
   email: z.string().email("auth.errors.invalidEmail"),
   password: PasswordSchema,
   nombreCompleto: z.string().min(2, "auth.errors.fullNameRequired"),
@@ -150,7 +136,6 @@ export interface AuthSessionSnapshotDto {
   email: string;
   nombreOrganizacion: string;
   rol: string;
-  tipoOrganizacion?: number;
   theme?: OrganizacionThemeDto | null;
   modulosActivos?: number[];
 }
@@ -860,6 +845,8 @@ export interface CambioComparticionRelacion {
 export interface ActualizarComparticionRequest {
   cambios: CambioComparticionRelacion[];
 }
+
+
 
 
 

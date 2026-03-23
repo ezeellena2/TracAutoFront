@@ -121,7 +121,7 @@ select {
   animation: fadeIn 0.2s ease-out, slideIn 0.2s ease-out;
 }
 
-/* Container utility para páginas públicas (marketplace, alquiler) */
+/* Container utility para páginas públicas */
 .container-app {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
@@ -290,3 +290,4 @@ input:-webkit-autofill::first-line {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-size: 1rem !important;
 }
+

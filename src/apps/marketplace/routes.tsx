@@ -11,9 +11,6 @@ const CatalogoPage = lazy(() =>
 const DetallePage = lazy(() =>
   import('@/features/catalogo-marketplace/pages/DetallePage').then(m => ({ default: m.DetallePage }))
 );
-const FavoritosPage = lazy(() =>
-  import('@/features/catalogo-marketplace/pages/FavoritosPage').then(m => ({ default: m.FavoritosPage }))
-);
 
 function SuspensePage({ Component }: { Component: LazyExoticComponent<ComponentType> }) {
   return (
@@ -35,10 +32,6 @@ const router = createBrowserRouter([
       {
         path: 'vehiculo/:id',
         element: <SuspensePage Component={DetallePage} />,
-      },
-      {
-        path: 'favoritos',
-        element: <SuspensePage Component={FavoritosPage} />,
       },
     ],
   },

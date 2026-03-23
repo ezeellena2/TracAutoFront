@@ -10,7 +10,6 @@ const mode = detectAppMode();
 const AppComponent = lazy(() => {
   switch (mode) {
     case 'marketplace': return import('./apps/marketplace/MarketplaceApp');
-    case 'alquiler':    return import('./apps/alquiler/AlquilerApp');
     default:            return import('./apps/b2b/B2BApp');
   }
 });

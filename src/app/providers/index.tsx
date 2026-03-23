@@ -68,7 +68,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   const prevOrgIdRef = useRef<string | null>(null);
   const prevIsDarkModeRef = useRef<boolean>(isDarkMode);
 
-  // Sincronizar theme con org solo en B2B (Marketplace/Alquiler usan branding propio)
+  // Sincronizar theme con org solo en B2B.
   useLayoutEffect(() => {
     if (appMode !== 'b2b') return;
 
@@ -99,3 +99,4 @@ export function AppProviders({ children }: AppProvidersProps) {
     </HelmetProvider>
   );
 }
+

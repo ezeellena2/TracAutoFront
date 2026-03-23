@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Gauge, Star, Heart } from 'lucide-react';
+import { Calendar, Gauge, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardImage, CardContent } from '@/shared/ui';
 import type { PublicacionPublicaDto } from '../types';
@@ -7,11 +7,9 @@ import { formatearPrecio, formatearKilometraje } from '../utils/formatters';
 
 interface TarjetaVehiculoProps {
   vehiculo: PublicacionPublicaDto;
-  isFavorite?: boolean;
-  onToggleFavorite?: (id: string) => void;
 }
 
-export function TarjetaVehiculo({ vehiculo, isFavorite, onToggleFavorite }: TarjetaVehiculoProps) {
+export function TarjetaVehiculo({ vehiculo }: TarjetaVehiculoProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -35,21 +33,6 @@ export function TarjetaVehiculo({ vehiculo, isFavorite, onToggleFavorite }: Tarj
             <Star className="w-3 h-3" />
             {t('catalogoMarketplace.destacado')}
           </span>
-        )}
-        {onToggleFavorite && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(vehiculo.id);
-            }}
-            className="absolute top-2 left-2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors"
-            aria-label={isFavorite ? t('catalogoMarketplace.favoritos.quitar') : t('catalogoMarketplace.favoritos.agregar')}
-          >
-            <Heart
-              size={18}
-              className={isFavorite ? 'fill-error text-error' : 'text-text-muted'}
-            />
-          </button>
         )}
       </div>
       <CardContent className="flex-1 flex flex-col">

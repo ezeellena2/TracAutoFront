@@ -56,7 +56,7 @@ export function RegistroPage() {
   const [formData, setFormData] = useState({
     nombreEmpresa: '',
     cuit: '',
-    tipoOrganizacion: 0,
+    tipoCuenta: 0,
     nombreCompleto: '',
     email: '',
     telefono: '',
@@ -198,20 +198,17 @@ export function RegistroPage() {
     return digitoCalculado === digitoReal;
   };
 
-  // Tipos de organización disponibles
+  // Tipos de cuenta disponibles
   const tiposOrganizacion = [
-    { value: 1, label: t('auth.orgTypes.flotaPrivada') },
-    { value: 2, label: t('auth.orgTypes.aseguradora') },
-    { value: 3, label: t('auth.orgTypes.tallerMecanico') },
-    { value: 4, label: t('auth.orgTypes.concesionario') },
-    { value: 5, label: t('auth.orgTypes.empresaRenting') },
+    { value: 1, label: t('auth.orgTypes.empresa') },
+    { value: 2, label: t('auth.orgTypes.personaFisica') },
   ];
 
   // Errores derivados del estado del formulario
   const errors = useMemo(() => {
     const errs: Record<string, string> = {};
     const {
-      nombreEmpresa, cuit, tipoOrganizacion, nombreCompleto,
+      nombreEmpresa, cuit, tipoCuenta, nombreCompleto,
       email, telefono, password, confirmPassword, aceptaTerminos
     } = formData;
 
@@ -223,7 +220,7 @@ export function RegistroPage() {
       errs.cuit = t('auth.errors.invalidCuit');
     }
 
-    if (!tipoOrganizacion) errs.tipoOrganizacion = t('auth.errors.fieldRequired');
+    if (!tipoCuenta) errs.tipoCuenta = t('auth.errors.fieldRequired');
     if (!nombreCompleto.trim()) errs.nombreCompleto = t('auth.errors.fieldRequired');
 
     if (!email.trim()) {
@@ -271,6 +268,7 @@ export function RegistroPage() {
       const response = await authApi.registrarEmpresa({
         nombreEmpresa: formData.nombreEmpresa,
         cuit: formData.cuit.replace(/[^\d]/g, ''), // Enviar normalizado
+        tipoCuenta: formData.tipoCuenta,
         email: formData.email,
         password: formData.password,
         nombreCompleto: formData.nombreCompleto,
@@ -507,16 +505,16 @@ export function RegistroPage() {
                         {t('auth.orgTypeLabel')} <span className="text-error">*</span>
                       </span>
                     }
-                    value={formData.tipoOrganizacion || ''}
+                    value={formData.tipoCuenta || ''}
                     onChange={(val) => {
-                      updateField('tipoOrganizacion', Number(val));
+                      updateField('tipoCuenta', Number(val));
                     }}
                     options={tiposOrganizacion}
                     placeholder={t('auth.selectOrgType')}
                     disabled={isLoading}
-                    onFocus={() => handleFocus('tipoOrganizacion')}
-                    onBlur={() => handleBlur('tipoOrganizacion')}
-                    error={(touched.tipoOrganizacion || showAllErrors) ? errors.tipoOrganizacion : ''}
+                    onFocus={() => handleFocus('tipoCuenta')}
+                    onBlur={() => handleBlur('tipoCuenta')}
+                    error={(touched.tipoCuenta || showAllErrors) ? errors.tipoCuenta : ''}
                   />
                 </div>
 
@@ -787,5 +785,6 @@ export function RegistroPage() {
     </div>
   );
 }
+
 
 

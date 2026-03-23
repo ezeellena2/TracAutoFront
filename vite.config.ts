@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // OptimizaciÃ³n de dependencias para desarrollo mÃ¡s rÃ¡pido
+  // OptimizaciÃƒÂ³n de dependencias para desarrollo mÃƒÂ¡s rÃƒÂ¡pido
   // Ref: https://vercel.com/blog/how-we-optimized-package-imports-in-next-js
   optimizeDeps: {
     include: [
@@ -20,9 +20,9 @@ export default defineConfig({
       'react-i18next',
     ],
   },
-  // ConfiguraciÃ³n de build para mejor code-splitting
-  // Cada app (b2b, marketplace, alquiler) se carga via lazy import en main.tsx,
-  // generando chunks separados automÃ¡ticamente. Manual chunks solo para vendor.
+  // ConfiguraciÃƒÂ³n de build para mejor code-splitting
+  // Cada app vigente se carga via lazy import en main.tsx,
+  // generando chunks separados automÃƒÂ¡ticamente. Manual chunks solo para vendor.
   build: {
     rollupOptions: {
       onwarn(warning, defaultHandler) {
@@ -42,7 +42,6 @@ export default defineConfig({
           'vendor-i18n': ['i18next', 'react-i18next'],
           'vendor-http': ['axios'],
           'vendor-signalr': ['@microsoft/signalr'],
-          'vendor-stripe': ['@stripe/stripe-js'],
         },
       },
     },
@@ -55,7 +54,7 @@ export default defineConfig({
       manifest: {
         name: 'TracAuto',
         short_name: 'TracAuto',
-        description: 'Plataforma de gestiÃ³n vehicular, alquiler y telemetrÃ­a',
+        description: 'Plataforma de gestiÃƒÂ³n vehicular y telemetrÃƒÂ­a',
         theme_color: '#2563eb',
         background_color: '#0f172a',
         display: 'standalone',
@@ -120,3 +119,4 @@ export default defineConfig({
     },
   },
 })
+

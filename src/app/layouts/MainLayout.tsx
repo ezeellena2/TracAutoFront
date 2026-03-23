@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+﻿import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +11,6 @@ import { useModoSolicitudStore } from '@/store/modoSolicitud.store';
 import { useSidebarStore } from '@/store/sidebar.store';
 import { useModoSolicitudDetection } from '@/hooks';
 import { SolicitudCambioModal } from '@/features/solicitudes-cambio';
-import { NotificationProvider } from '@/features/notifications';
-import { CopilotoWidget } from '@/features/copiloto';
 
 export function MainLayout() {
   const location = useLocation();
@@ -32,7 +30,6 @@ export function MainLayout() {
   }, [isAuthenticated, preferences, isLoading, loadPreferences]);
 
   return (
-    <NotificationProvider>
       <div className="min-h-screen bg-background">
         <Sidebar />
         {/* Content wrapper - no margin on mobile, sidebar margin on desktop */}
@@ -58,7 +55,7 @@ export function MainLayout() {
             </ErrorBoundary>
           </main>
         </div>
-        {/* Notificaciones Toast globales */}
+        {/* Toasts globales */}
         <ToastContainer />
         {/* Modal global de reporte de errores */}
         <ErrorReportModal />
@@ -70,10 +67,7 @@ export function MainLayout() {
           onEnviadoAJira={clearSelection}
           contexto={selectedContext}
         />
-
-        {/* Copiloto IA flotante */}
-        <CopilotoWidget />
       </div>
-    </NotificationProvider>
   );
 }
+

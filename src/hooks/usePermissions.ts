@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hook centralizado para verificar permisos del usuario actual
  */
 
@@ -9,7 +9,7 @@ import { Permission, PERMISSIONS_BY_ROLE, ROUTE_ACCESS } from '@/config/permissi
 import { UserRole } from '@/shared/types';
 
 interface UsePermissionsReturn {
-  /** Verifica si el usuario tiene un permiso específico */
+  /** Verifica si el usuario tiene un permiso especÃ­fico */
   can: (permission: Permission) => boolean;
   /** Verifica si el usuario puede acceder a una ruta */
   canAccessRoute: (route: string) => boolean;
@@ -40,7 +40,7 @@ export function usePermissions(): UsePermissionsReturn {
   );
 
   // FIX H-F4: Usar matchPath de react-router-dom para soportar rutas dinamicas
-  // (ej. /alquileres/reservas/:id, /scoring/conductores/:id).
+  // (ej. /conductores/:id o /vehiculos/:id).
   // Antes se usaba startsWith que no matcheaba parametros de ruta correctamente.
   const canAccessRoute = useCallback(
     (route: string): boolean => {
@@ -71,3 +71,4 @@ export function usePermissions(): UsePermissionsReturn {
     isAnalista: role === 'Analista',
   };
 }
+

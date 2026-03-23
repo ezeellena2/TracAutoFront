@@ -4,7 +4,6 @@ import type {
   PublicacionPublicaDetalleDto,
   ConcesionariaPublicaDto,
   FiltrosVehiculoPublico,
-  FavoritoMarketplaceDto,
 } from '@/shared/types/marketplace-publico';
 import type { ListaPaginada } from '@/shared/types/api';
 
@@ -52,24 +51,6 @@ export const marketplacePublicoApi = {
       `${BASE_URL}/concesionarias?tamanoPagina=50`
     );
     return response.data.items;
-  },
-
-  toggleFavorito: async (publicacionId: string): Promise<boolean> => {
-    const response = await publicApiClient.post<boolean>(
-      `${BASE_URL}/vehiculos/${publicacionId}/favorito`
-    );
-    return response.data;
-  },
-
-  getMisFavoritos: async (
-    numeroPagina = 1,
-    tamanoPagina = 20
-  ): Promise<ListaPaginada<FavoritoMarketplaceDto>> => {
-    const response = await publicApiClient.get<ListaPaginada<FavoritoMarketplaceDto>>(
-      `${BASE_URL}/mis-favoritos`,
-      { params: { numeroPagina, tamanoPagina } }
-    );
-    return response.data;
   },
 };
 

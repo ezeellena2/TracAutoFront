@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Gauge, Phone, Mail, Building2, Star, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Gauge, Phone, Mail, Building2, Star } from 'lucide-react';
 import { SpinnerPantalla, EstadoError, Card, CardContent } from '@/shared/ui';
 import { useVehiculoDetalle } from '../hooks/useVehiculos';
 import { formatearPrecio, formatearKilometraje } from '../utils/formatters';
@@ -33,14 +33,6 @@ export function DetallePage() {
   const tieneContacto = vehiculo.contacto && (
     vehiculo.contacto.telefono || vehiculo.contacto.email
   );
-  const telefonoWhatsApp = vehiculo.contacto?.telefono?.replace(/[^\d]/g, '');
-  const mensajeWhatsApp = encodeURIComponent(
-    t('catalogoMarketplace.mensajeWhatsApp', {
-      title: titulo,
-      url: typeof window !== 'undefined' ? window.location.href : '',
-    })
-  );
-  const whatsappUrl = telefonoWhatsApp ? `https://wa.me/${telefonoWhatsApp}?text=${mensajeWhatsApp}` : null;
 
   return (
     <div className="container-app py-6 sm:py-8">
@@ -160,17 +152,6 @@ export function DetallePage() {
                   >
                     <Phone className="w-5 h-5 text-primary" />
                     <span className="text-text">{vehiculo.contacto.telefono}</span>
-                  </a>
-                )}
-                {whatsappUrl && (
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-3 p-3 bg-background rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5 text-primary" />
-                    <span className="text-text">{t('catalogoMarketplace.whatsapp')}</span>
                   </a>
                 )}
                 {vehiculo.contacto?.email && (
