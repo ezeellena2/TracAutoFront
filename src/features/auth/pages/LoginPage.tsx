@@ -13,10 +13,10 @@ import { useErrorHandler } from '@/hooks';
 import { LinkErrorState, LinkErrorType } from '@/shared/ui';
 
 /**
- * Página de Login B2B Empresarial
+ * Página principal de autenticación web
  * Soporta:
  * - Login con email/password para usuarios verificados
- * - Registro de nueva empresa
+ * - Activación / verificación según estado de la identidad
  * - Login con Google
  */
 export function LoginPage() {
@@ -212,9 +212,11 @@ export function LoginPage() {
       } else {
         const status = result.status;
 
-        // Enmascarar errores 400 como credenciales inválidas para no dar pistas 
-        // y errores >=500 como problemas de red / servidor.
-        if (status && status >= 400 && status < 500) {
+        if (errorCode === 'Usuario.SinOrganizacion') {
+          setError(t('errors.Usuario.SinOrganizacion'));
+        } else if (status && status >= 400 && status < 500) {
+          // Enmascarar otros 4xx como credenciales inválidas para no dar pistas;
+          // excepciones explícitas arriba (p. ej. SinOrganizacion).
           setError(t('errors.Auth.CredencialesInvalidas'));
         } else if (status && status >= 500) {
           setError(t('errors.network'));
@@ -284,6 +286,14 @@ export function LoginPage() {
     } else if (result.requiereRegistro && result.googleData) {
       navigate('/registro', {
         state: { googleData: result.googleData },
+      });
+    } else if (result.requiereActivacion && result.activationData) {
+      const tokenQuery = result.activationData.tokenActivacion
+        ? `?token=${encodeURIComponent(result.activationData.tokenActivacion)}`
+        : '';
+
+      navigate(`/activar-cuenta${tokenQuery}`, {
+        state: { activationData: result.activationData },
       });
     } else {
       const errorCode = result.errorCode || '';

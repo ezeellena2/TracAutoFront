@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 
 // ─── Sub-component interfaces ────────────────────────────────────────────────
 
@@ -30,6 +32,8 @@ interface ModalFooterProps {
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function ModalHeader({ icon, title, subtitle, badge, onClose }: ModalHeaderProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-start justify-between px-5 py-4 border-b border-border">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -54,7 +58,7 @@ function ModalHeader({ icon, title, subtitle, badge, onClose }: ModalHeaderProps
         <button
           onClick={onClose}
           className="flex-shrink-0 p-1 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors ml-3"
-          aria-label="Cerrar"
+          aria-label={t('common.close')}
         >
           <X size={18} />
         </button>
@@ -96,7 +100,9 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md', className = '', dataTracautoSolicitudModal, ariaLabelledBy }: ModalProps) {
+  const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
 
   // Focus trap: mantener el foco dentro del modal para accesibilidad (WCAG 2.1)
   const handleFocusTrap = useCallback((e: KeyboardEvent) => {
@@ -132,10 +138,15 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      // Mover foco al modal al abrirse
-      requestAnimationFrame(() => {
-        modalRef.current?.focus();
-      });
+      // Solo enfocar el modal al abrirse por primera vez (no en cada re-render)
+      if (!wasOpenRef.current) {
+        wasOpenRef.current = true;
+        requestAnimationFrame(() => {
+          modalRef.current?.focus();
+        });
+      }
+    } else {
+      wasOpenRef.current = false;
     }
 
     return () => {
@@ -143,6 +154,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
       document.body.style.overflow = 'visible';
     };
   }, [isOpen, onClose, handleFocusTrap]);
+
 
   if (!isOpen) return null;
 
@@ -195,6 +207,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', className
             <button
               onClick={onClose}
               className="p-1 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors"
+              aria-label={t('common.close')}
             >
               <X size={20} />
             </button>

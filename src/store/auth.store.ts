@@ -6,11 +6,11 @@ interface AuthState {
   isAuthenticated: boolean;
   user: AuthUser | null;
   token: string | null;
+  personaId: string | null;
   /**
-   * Duplica user.organizationId intencionalmente.
-   * 5+ archivos (organizaciones.api, invitaciones.api, SolicitudesCambioPage, etc.)
-   * acceden a state.organizationId directamente. Refactorizar a user?.organizationId
-   * requiere verificar disponibilidad de user tras F5 (rehidratación). Mantener como está.
+   * Alias del contexto organizacional activo.
+   * Se mantiene por compatibilidad mientras terminamos de migrar consumers legacy
+   * a `user?.organizationId` o `user?.contextoActivo`.
    */
   organizationId: string | null;
 
@@ -22,7 +22,7 @@ interface AuthState {
    * Se usa para el refresh automático del interceptor.
    */
   setToken: (token: string | null) => void;
-  setOrganizationId: (orgId: string) => void;
+  setOrganizationId: (orgId: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -31,19 +31,22 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       user: null,
       token: null,
+      personaId: null,
       organizationId: null,
 
       login: (user, token) => set({
         isAuthenticated: true,
         user,
         token,
-        organizationId: user.organizationId,
+        personaId: user.personaId ?? null,
+        organizationId: user.organizationId ?? null,
       }),
 
       logout: () => set({
         isAuthenticated: false,
         user: null,
         token: null,
+        personaId: null,
         organizationId: null,
       }),
 
@@ -56,12 +59,13 @@ export const useAuthStore = create<AuthState>()(
       // OWASP Token Storage Best Practices:
       // El access token (JWT) NO se persiste en localStorage para prevenir robo via XSS.
       // Tras F5, el interceptor llama automáticamente a /auth/refresh usando la cookie HttpOnly.
-      // Solo se persisten: isAuthenticated (para mostrar UI correcta), user (datos de perfil),
-      // y organizationId (para routing). El token vive exclusivamente en memoria.
+      // Solo se persisten: estado autenticado, user y contexto organizacional activo.
+      // El token vive exclusivamente en memoria.
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         user: state.user,
         // token: EXCLUIDO — no persistir en localStorage (XSS risk)
+        personaId: state.personaId,
         organizationId: state.organizationId,
       }),
     }

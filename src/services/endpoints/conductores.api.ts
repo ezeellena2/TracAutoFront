@@ -1,4 +1,5 @@
 import { apiClient } from '../http/apiClient';
+import { useAuthStore } from '@/store';
 import type {
   ConductorDto,
   ConductorVehiculoAsignacionDto,
@@ -16,6 +17,14 @@ import type {
 } from '@/shared/types/api';
 
 const BASE = 'conductores';
+
+function getConductoresBase() {
+  const user = useAuthStore.getState().user;
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  return isPersonalContext ? 'personal/conductores' : BASE;
+}
 
 /**
  * Parámetros para obtener conductores
@@ -49,7 +58,7 @@ export const conductoresApi = {
     if (soloPropios !== undefined) {
       queryParams.soloPropios = soloPropios;
     }
-    const response = await apiClient.get<ListaPaginada<ConductorDto>>(BASE, { params: queryParams });
+    const response = await apiClient.get<ListaPaginada<ConductorDto>>(getConductoresBase(), { params: queryParams });
     return response.data;
   },
 
@@ -57,7 +66,7 @@ export const conductoresApi = {
    * Obtiene un conductor por ID
    */
   obtenerPorId: async (id: string): Promise<ConductorDto> => {
-    const response = await apiClient.get<ConductorDto>(`${BASE}/${id}`);
+    const response = await apiClient.get<ConductorDto>(`${getConductoresBase()}/${id}`);
     return response.data;
   },
 
@@ -65,7 +74,7 @@ export const conductoresApi = {
    * Crea un nuevo conductor
    */
   crear: async (command: CreateConductorCommand): Promise<ConductorDto> => {
-    const response = await apiClient.post<ConductorDto>(BASE, command);
+    const response = await apiClient.post<ConductorDto>(getConductoresBase(), command);
     return response.data;
   },
 
@@ -73,7 +82,7 @@ export const conductoresApi = {
    * Actualiza un conductor existente
    */
   actualizar: async (id: string, command: Omit<UpdateConductorCommand, 'id'>): Promise<ConductorDto> => {
-    const response = await apiClient.put<ConductorDto>(`${BASE}/${id}`, { ...command, id });
+    const response = await apiClient.put<ConductorDto>(`${getConductoresBase()}/${id}`, { ...command, id });
     return response.data;
   },
 
@@ -81,14 +90,14 @@ export const conductoresApi = {
    * Elimina un conductor (soft delete)
    */
   eliminar: async (id: string): Promise<void> => {
-    await apiClient.delete(`${BASE}/${id}`);
+    await apiClient.delete(`${getConductoresBase()}/${id}`);
   },
 
   /**
    * Reactiva un conductor previamente eliminado (soft delete)
    */
   reactivar: async (id: string): Promise<ConductorDto> => {
-    const response = await apiClient.post<ConductorDto>(`${BASE}/${id}/reactivar`);
+    const response = await apiClient.post<ConductorDto>(`${getConductoresBase()}/${id}/reactivar`);
     return response.data;
   },
 
@@ -100,7 +109,7 @@ export const conductoresApi = {
     request: AsignarVehiculoRequest
   ): Promise<ConductorVehiculoAsignacionDto> => {
     const response = await apiClient.post<ConductorVehiculoAsignacionDto>(
-      `${BASE}/${conductorId}/asignaciones/vehiculos`,
+      `${getConductoresBase()}/${conductorId}/asignaciones/vehiculos`,
       request
     );
     return response.data;
@@ -111,7 +120,7 @@ export const conductoresApi = {
    */
   desasignarVehiculo: async (conductorId: string, vehiculoId: string, motivoCambio?: string): Promise<void> => {
     const params = motivoCambio ? { motivoCambio } : undefined;
-    await apiClient.delete(`${BASE}/${conductorId}/asignaciones/vehiculos/${vehiculoId}`, { params });
+    await apiClient.delete(`${getConductoresBase()}/${conductorId}/asignaciones/vehiculos/${vehiculoId}`, { params });
   },
 
   /**
@@ -122,7 +131,7 @@ export const conductoresApi = {
     request: AsignarDispositivoRequest
   ): Promise<ConductorDispositivoAsignacionDto> => {
     const response = await apiClient.post<ConductorDispositivoAsignacionDto>(
-      `${BASE}/${conductorId}/asignaciones/dispositivos`,
+      `${getConductoresBase()}/${conductorId}/asignaciones/dispositivos`,
       request
     );
     return response.data;
@@ -137,7 +146,7 @@ export const conductoresApi = {
     motivoCambio?: string
   ): Promise<void> => {
     const params = motivoCambio ? { motivoCambio } : undefined;
-    await apiClient.delete(`${BASE}/${conductorId}/asignaciones/dispositivos/${dispositivoId}`, { params });
+    await apiClient.delete(`${getConductoresBase()}/${conductorId}/asignaciones/dispositivos/${dispositivoId}`, { params });
   },
 
   /**
@@ -147,10 +156,17 @@ export const conductoresApi = {
     conductorId: string,
     soloActivos?: boolean
   ): Promise<ConductorVehiculoAsignacionDto[]> => {
+    const user = useAuthStore.getState().user;
+    const isPersonalContext =
+      user?.contextoActivo?.tipo === 'Personal' ||
+      (!!user && !user.organizationId);
+    if (isPersonalContext) {
+      return [];
+    }
     // P2.3 FIX: Mantener boolean, el apiClient lo serializa correctamente
     const params = soloActivos !== undefined ? { soloActivos } : undefined;
     const response = await apiClient.get<ConductorVehiculoAsignacionDto[]>(
-      `${BASE}/${conductorId}/asignaciones/vehiculos`,
+      `${getConductoresBase()}/${conductorId}/asignaciones/vehiculos`,
       { params }
     );
     return response.data;
@@ -163,9 +179,16 @@ export const conductoresApi = {
     conductorId: string,
     soloActivos?: boolean
   ): Promise<ConductorDispositivoAsignacionDto[]> => {
+    const user = useAuthStore.getState().user;
+    const isPersonalContext =
+      user?.contextoActivo?.tipo === 'Personal' ||
+      (!!user && !user.organizationId);
+    if (isPersonalContext) {
+      return [];
+    }
     const params = soloActivos !== undefined ? { soloActivos } : undefined;
     const response = await apiClient.get<ConductorDispositivoAsignacionDto[]>(
-      `${BASE}/${conductorId}/asignaciones/dispositivos`,
+      `${getConductoresBase()}/${conductorId}/asignaciones/dispositivos`,
       { params }
     );
     return response.data;

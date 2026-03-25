@@ -5,6 +5,7 @@ import { ProblemDetails, RefreshTokenResponse } from '@/shared/types/api';
 import { toast } from '@/store/toast.store';
 import { sanitizePayload } from './payloadSanitizer';
 import { hydrateAuthenticatedSession } from '@/services/auth/sessionHydration';
+import { snapshotFromRefreshResponse } from '@/services/auth/authSessionSnapshot';
 
 /**
  * Formato de error del backend (ProblemDetails RFC 7807)
@@ -202,12 +203,20 @@ export function setupInterceptors(client: AxiosInstance): void {
 
     isRefreshing = true;
     refreshPromise = (async () => {
-      const resp = await axios.post<RefreshTokenResponse>(buildApiUrl('auth/refresh'), null, { withCredentials: env.apiWithCredentials });
+      const user = useAuthStore.getState().user;
+      const resp = await axios.post<RefreshTokenResponse>(
+        buildApiUrl('auth/refresh'),
+        user ? {
+          tipoContextoActivo: user.contextoActivo.tipo,
+          contextoActivoId: user.contextoActivo.id ?? null,
+        } : null,
+        { withCredentials: env.apiWithCredentials }
+      );
       const data = resp.data;
       if (!data?.accessToken) {
         throw new Error('Respuesta inválida de refresh');
       }
-      hydrateAuthenticatedSession(data, data.accessToken);
+      hydrateAuthenticatedSession(snapshotFromRefreshResponse(data), data.accessToken);
       return data.accessToken;
     })().finally(() => {
       isRefreshing = false;

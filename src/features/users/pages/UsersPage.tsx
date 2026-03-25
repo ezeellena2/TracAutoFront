@@ -111,18 +111,15 @@ export function UsersPage() {
       if (isFailed) {
         toast.error(
           polledJob.mensajeError ??
-            t('imports.processing.failed', { defaultValue: 'La importación falló' })
+            t('imports.processing.failed')
         );
       } else if ((polledJob.filasConErrores ?? 0) === 0) {
         toast.success(
-          t('imports.results.allSuccess', {
-            defaultValue: 'Todas las filas se importaron exitosamente',
-          })
+          t('imports.results.allSuccess')
         );
       } else {
         toast.success(
           t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
             count: polledJob.filasExitosas ?? 0,
           })
         );
@@ -136,9 +133,7 @@ export function UsersPage() {
       const blob = await invitacionesApi.exportInvitacionesExcel();
       downloadBlob(blob, 'invitaciones_pendientes.xlsx');
       toast.success(
-        t('users.success.exportInvitations', {
-          defaultValue: 'Invitaciones exportadas correctamente',
-        })
+        t('users.success.exportInvitations')
       );
     } catch (err) {
       handleApiError(err);
@@ -163,14 +158,11 @@ export function UsersPage() {
 
       if (results.filasConErrores === 0) {
         toast.success(
-          t('imports.results.allSuccess', {
-            defaultValue: 'Todas las filas se importaron exitosamente',
-          })
+          t('imports.results.allSuccess')
         );
       } else {
         toast.success(
           t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
             count: results.filasExitosas,
           })
         );

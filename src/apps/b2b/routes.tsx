@@ -10,6 +10,7 @@ import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegistroPage = lazy(() => import('@/features/auth/pages/RegistroPage').then(m => ({ default: m.RegistroPage })));
+const ActivacionCuentaPage = lazy(() => import('@/features/auth/pages/ActivacionCuentaPage').then(m => ({ default: m.ActivacionCuentaPage })));
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const VehiclesPage = lazy(() => import('@/features/vehicles/pages/VehiclesPage').then(m => ({ default: m.VehiclesPage })));
 const DevicesPage = lazy(() => import('@/features/devices/pages/DevicesPage').then(m => ({ default: m.DevicesPage })));
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
   {
     path: '/registro',
     element: <SuspensePage Component={RegistroPage} />,
+  },
+  {
+    path: '/activar-cuenta',
+    element: <SuspensePage Component={ActivacionCuentaPage} />,
   },
   {
     path: '/invitacion/:token',

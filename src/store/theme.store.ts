@@ -18,12 +18,12 @@ interface ThemeState {
 type UiMode = 'light' | 'dark';
 
 /**
- * Persistencia de UI mode (preferencia por usuario + organización):
- * - Clave: theme:uiMode:{userId}:{organizationId}
+ * Persistencia de UI mode (preferencia por usuario + contexto activo):
+ * - Clave: theme:uiMode:{userId}:{contextScope}
  * - Valor: 'light' | 'dark'
  */
-export function getUiModeStorageKey(userId: string, organizationId: string): string {
-  return `theme:uiMode:${userId}:${organizationId}`;
+export function getUiModeStorageKey(userId: string, contextScope: string): string {
+  return `theme:uiMode:${userId}:${contextScope}`;
 }
 
 /**
@@ -34,59 +34,80 @@ function detectSystemPreference(): boolean {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-function parseAuthContextFromLocalStorage(): { userId: string | null; organizationId: string | null } {
-  if (typeof window === 'undefined') return { userId: null, organizationId: null };
+function parseAuthContextFromLocalStorage(): { userId: string | null; contextScope: string | null; legacyOrganizationId: string | null } {
+  if (typeof window === 'undefined') return { userId: null, contextScope: null, legacyOrganizationId: null };
 
   const raw = localStorage.getItem('tracauto-auth');
-  if (!raw) return { userId: null, organizationId: null };
+  if (!raw) return { userId: null, contextScope: null, legacyOrganizationId: null };
 
   try {
     const parsed = JSON.parse(raw);
-    const state = parsed?.state as { user?: { id?: string } | null; organizationId?: string | null } | undefined;
+    const state = parsed?.state as {
+      user?: {
+        id?: string;
+        contextoActivo?: { tipo?: 'Personal' | 'Organizacion'; id?: string | null };
+      } | null;
+      organizationId?: string | null;
+    } | undefined;
     const userId = state?.user?.id ?? null;
-    const organizationId = state?.organizationId ?? null;
-    return { userId, organizationId };
+    const legacyOrganizationId = state?.organizationId ?? null;
+    const contextoActivo = state?.user?.contextoActivo;
+    const contextScope = contextoActivo?.tipo === 'Organizacion'
+      ? (contextoActivo.id ? `org:${contextoActivo.id}` : null)
+      : contextoActivo?.tipo === 'Personal'
+        ? (contextoActivo.id ? `personal:${contextoActivo.id}` : 'personal')
+        : legacyOrganizationId
+          ? `org:${legacyOrganizationId}`
+          : null;
+
+    return { userId, contextScope, legacyOrganizationId };
   } catch {
-    return { userId: null, organizationId: null };
+    return { userId: null, contextScope: null, legacyOrganizationId: null };
   }
 }
 
-function readStoredUiMode(userId: string, organizationId: string): UiMode | null {
+function readStoredUiMode(userId: string, contextScope: string, legacyOrganizationId?: string | null): UiMode | null {
   if (typeof window === 'undefined') return null;
 
-  const raw = localStorage.getItem(getUiModeStorageKey(userId, organizationId));
-  if (!raw) return null;
+  const keys = [getUiModeStorageKey(userId, contextScope)];
 
-  if (raw === 'dark' || raw === 'light') return raw;
-  // Compatibilidad por si algún entorno guardó booleanos
-  if (raw === 'true') return 'dark';
-  if (raw === 'false') return 'light';
+  if (legacyOrganizationId) {
+    keys.push(getUiModeStorageKey(userId, legacyOrganizationId));
+  }
+
+  for (const key of keys) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    if (raw === 'dark' || raw === 'light') return raw;
+    if (raw === 'true') return 'dark';
+    if (raw === 'false') return 'light';
+  }
 
   return null;
 }
 
-function writeStoredUiMode(userId: string, organizationId: string, isDark: boolean): void {
+function writeStoredUiMode(userId: string, contextScope: string, isDark: boolean): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(getUiModeStorageKey(userId, organizationId), (isDark ? 'dark' : 'light') satisfies UiMode);
+  localStorage.setItem(getUiModeStorageKey(userId, contextScope), (isDark ? 'dark' : 'light') satisfies UiMode);
 }
 
 /**
  * Obtiene el valor inicial de isDarkMode:
- * - Si hay sesión (userId+organizationId): lee theme:uiMode:{userId}:{organizationId}
+ * - Si hay sesión (userId+contextScope): lee theme:uiMode:{userId}:{contextScope}
  * - Si no existe esa key, migra desde el storage viejo ('theme-store') si está disponible
  * - Si no hay sesión: usa preferencia del sistema (login estándar)
  */
 function getInitialDarkMode(): boolean {
   if (typeof window === 'undefined') return true;
 
-  const { userId, organizationId } = parseAuthContextFromLocalStorage();
+  const { userId, contextScope, legacyOrganizationId } = parseAuthContextFromLocalStorage();
 
-  // Si no hay usuario/sesión, NO usar valores anteriores: login estándar = preferencia del sistema
-  if (!userId || !organizationId) {
+  if (!userId || !contextScope) {
     return detectSystemPreference();
   }
 
-  const storedMode = readStoredUiMode(userId, organizationId);
+  const storedMode = readStoredUiMode(userId, contextScope, legacyOrganizationId);
   if (storedMode) return storedMode === 'dark';
 
   // Migración suave: si existía el storage viejo, lo tomamos una vez y lo escribimos en la key nueva.
@@ -96,7 +117,7 @@ function getInitialDarkMode(): boolean {
       const parsed = JSON.parse(legacy);
       const legacyIsDark = parsed?.state?.isDarkMode;
       if (typeof legacyIsDark === 'boolean') {
-        writeStoredUiMode(userId, organizationId, legacyIsDark);
+        writeStoredUiMode(userId, contextScope, legacyIsDark);
         return legacyIsDark;
       }
     } catch {
@@ -174,10 +195,10 @@ export const useThemeStore = create<ThemeState>()((set, get) => {
 
     /**
      * Cambia entre dark/light mode y aplica el tema.
-     * Persistencia: se guarda por usuario+organización (theme:uiMode:{userId}:{organizationId}).
+     * Persistencia: se guarda por usuario+contexto activo (theme:uiMode:{userId}:{contextScope}).
      *
-     * Evita que el login quede “teñido” por el último usuario:
-     * - si no hay usuario/organización en sesión, NO se escribe nada.
+     * Evita que el login quede “teñido” por el último usuario/contexto:
+     * - si no hay usuario/contexto activo en sesión, NO se escribe nada.
      */
     setDarkMode: (isDark, organizationOverride) => {
       const baseTheme = isDark ? darkTheme : lightTheme;
@@ -188,9 +209,16 @@ export const useThemeStore = create<ThemeState>()((set, get) => {
 
       const auth = useAuthStore.getState();
       const userId = auth.user?.id;
-      const orgId = auth.organizationId;
-      if (userId && orgId) {
-        writeStoredUiMode(userId, orgId, isDark);
+      const contextScope = auth.user?.contextoActivo?.tipo === 'Organizacion'
+        ? (auth.user.contextoActivo.id ? `org:${auth.user.contextoActivo.id}` : null)
+        : auth.user?.contextoActivo?.tipo === 'Personal'
+          ? (auth.user.contextoActivo.id ? `personal:${auth.user.contextoActivo.id}` : 'personal')
+          : auth.organizationId
+            ? `org:${auth.organizationId}`
+            : null;
+
+      if (userId && contextScope) {
+        writeStoredUiMode(userId, contextScope, isDark);
       }
     },
 

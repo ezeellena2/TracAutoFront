@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import { User, Plus, AlertCircle, UserCheck, UserX, Upload, Download } from 'lucide-react';
 import { Card, Button, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
 import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, useTableFilters, useErrorHandler, useImportJobPolling } from '@/hooks';
+import { useAuthStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import { downloadBlob } from '@/shared/utils/fileUtils';
 import { useDriversPage } from '../hooks/useDriversPage';
@@ -20,17 +22,28 @@ import { TipoRecurso } from '@/shared/types/api'; // P2.1 FIX: Usar enum directa
 import type { ConductorDto } from '../types';
 
 const getDriverFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
-  { key: 'buscar', label: t('drivers.searchPlaceholder', { defaultValue: 'Buscar' }), type: 'text', placeholder: t('common.searchPlaceholder.driver', { defaultValue: 'Nombre, DNI...' }) },
-  { key: 'soloActivos', label: t('drivers.onlyActive', { defaultValue: 'Solo Activos' }), type: 'boolean' },
+  { key: 'buscar', label: t('drivers.searchPlaceholder'), type: 'text', placeholder: t('common.searchPlaceholder.driver') },
+  { key: 'soloActivos', label: t('drivers.onlyActive'), type: 'boolean' },
 ];
 
 export function DriversPage() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const { handleApiError } = useErrorHandler();
   const { can } = usePermissions();
   const canEdit = can('conductores:editar');
   const canCreate = can('conductores:crear');
   const canDelete = can('conductores:eliminar');
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  const pageTitle = isPersonalContext ? 'Mis conductores' : t('drivers.title');
+  const pageSubtitle = isPersonalContext
+    ? t('drivers.personal.subtitle', { defaultValue: 'Gestiona conductores propios y asocialos a vehiculos o dispositivos del mismo contexto personal.' })
+    : t('drivers.subtitle');
+  const emptyDescription = isPersonalContext
+    ? t('drivers.personal.emptyDescription', { defaultValue: 'Todavia no cargaste conductores personales. Puedes usarlos para registrar quien usa tus vehiculos o dispositivos propios.' })
+    : t('drivers.emptyDescription');
 
   // Filters hook
   const {
@@ -145,13 +158,12 @@ export function DriversPage() {
       setIsImportResultsModalOpen(true);
       void loadData();
       if (isFailed) {
-        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed'));
       } else if ((polledJob.filasConErrores ?? 0) === 0) {
-        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        toast.success(t('imports.results.allSuccess'));
       } else {
         toast.success(
           t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
             count: polledJob.filasExitosas ?? 0,
           })
         );
@@ -172,11 +184,10 @@ export function DriversPage() {
         setIsImportResultsModalOpen(true);
         await loadData();
         if (results.filasConErrores === 0) {
-          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+          toast.success(t('imports.results.allSuccess'));
         } else {
           toast.success(
             t('imports.results.importedCount', {
-              defaultValue: 'Se importaron {{count}} filas',
               count: results.filasExitosas,
             })
           );
@@ -192,11 +203,11 @@ export function DriversPage() {
   const handleExportDrivers = async () => {
     setIsExporting(true);
     try {
-      // Exportar según los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
+      // Exportar segÃºn los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
       const soloActivos = filters.soloActivos === 'true';
       const blob = await reportesApi.exportConductoresExcel(soloActivos);
       downloadBlob(blob, 'conductores.xlsx');
-      toast.success(t('imports.exportSuccess', { defaultValue: 'Conductores exportados exitosamente' }));
+      toast.success(t('imports.exportSuccess'));
     } catch (e) {
       handleApiError(e);
     } finally {
@@ -212,8 +223,8 @@ export function DriversPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('drivers.title')}</h1>
-            <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -234,8 +245,8 @@ export function DriversPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('drivers.title')}</h1>
-            <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -258,19 +269,23 @@ export function DriversPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">{t('drivers.title')}</h1>
-          <p className="text-text-muted mt-1">{t('drivers.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+          <p className="text-text-muted mt-1">{pageSubtitle}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportDrivers} isLoading={isExporting} disabled={isExporting}>
-              <Download size={16} className="mr-2" />
-              {t('imports.export', { defaultValue: 'Exportar' })}
-            </Button>
-            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className="mr-2" />
-              {t('imports.import', { defaultValue: 'Importar' })}
-            </Button>
+            {!isPersonalContext && (
+              <>
+                <Button variant="outline" onClick={handleExportDrivers} isLoading={isExporting} disabled={isExporting}>
+                  <Download size={16} className="mr-2" />
+                  {t('imports.export')}
+                </Button>
+                <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                  <Upload size={16} className="mr-2" />
+                  {t('imports.import')}
+                </Button>
+              </>
+            )}
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('drivers.addDriver')}
@@ -285,14 +300,20 @@ export function DriversPage() {
             <User size={48} className="text-text-muted mb-4" />
             <h3 className="text-lg font-semibold text-text mb-2">{t('drivers.empty')}</h3>
             <p className="text-text-muted text-center max-w-md mb-4">
-              {t('drivers.emptyDescription')}
+              {emptyDescription}
             </p>
-            {canCreate && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                {t('drivers.addDriver')}
-              </Button>
-            )}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {canCreate && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus size={16} className="mr-2" />
+                  {t('drivers.addDriver')}
+                </Button>
+              )}
+              <RouterLink
+                to="/vehiculos"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary hover:text-white"
+              >{t('drivers.viewVehicles', { defaultValue: 'Ver vehiculos' })}</RouterLink>
+            </div>
           </div>
         </Card>
       ) : (
@@ -305,7 +326,7 @@ export function DriversPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-text">{conductoresData?.totalRegistros ?? conductores.length}</p>
-                  <p className="text-sm text-text-muted">{t('drivers.totalDrivers', { defaultValue: 'Total Conductores' })}</p>
+                  <p className="text-sm text-text-muted">{t('drivers.totalDrivers', { count: conductoresData?.totalRegistros ?? conductores.length })}</p>
                 </div>
               </div>
             </Card>
@@ -315,11 +336,11 @@ export function DriversPage() {
                   <UserCheck size={24} className="text-success" />
                 </div>
                 <div>
-                  {/* P1.1 FIX: Usar estadísticas del backend, no conteo de página */}
+                  {/* P1.1 FIX: Usar estadÃ­sticas del backend, no conteo de pÃ¡gina */}
                   <p className="text-2xl font-bold text-text">
                     {conductoresData?.estadisticas?.activos ?? conductoresData?.items.filter((c) => c.activo).length ?? 0}
                   </p>
-                  <p className="text-sm text-text-muted">{t('drivers.activeDrivers', { defaultValue: 'Activos' })}</p>
+                  <p className="text-sm text-text-muted">{t('drivers.activeDrivers', { count: conductoresData?.estadisticas?.activos ?? conductoresData?.items.filter((c) => c.activo).length ?? 0 })}</p>
                 </div>
               </div>
             </Card>
@@ -329,11 +350,11 @@ export function DriversPage() {
                   <UserX size={24} className="text-error" />
                 </div>
                 <div>
-                  {/* P1.1 FIX: Usar estadísticas del backend, no conteo de página */}
+                  {/* P1.1 FIX: Usar estadÃ­sticas del backend, no conteo de pÃ¡gina */}
                   <p className="text-2xl font-bold text-text">
                     {conductoresData?.estadisticas?.inactivos ?? conductoresData?.items.filter((c) => !c.activo).length ?? 0}
                   </p>
-                  <p className="text-sm text-text-muted">{t('drivers.inactiveDrivers', { defaultValue: 'Inactivos' })}</p>
+                  <p className="text-sm text-text-muted">{t('drivers.inactiveDrivers', { count: conductoresData?.estadisticas?.inactivos ?? conductoresData?.items.filter((c) => !c.activo).length ?? 0 })}</p>
                 </div>
               </div>
             </Card>
@@ -352,6 +373,7 @@ export function DriversPage() {
                 conductores={conductores}
                 canEdit={canEdit}
                 canDelete={canDelete}
+                showViewAssignments={!isPersonalContext}
                 actionMenuOpen={actionMenuOpen}
                 onActionMenuToggle={setActionMenuOpen}
                 onEdit={handleOpenEdit}
@@ -360,7 +382,7 @@ export function DriversPage() {
                 onAssignDevice={handleOpenAssignDevice}
                 onDelete={handleOpenDelete}
                 onReactivate={handleOpenReactivate}
-                onShare={setConductorToShare}
+                onShare={isPersonalContext ? undefined : setConductorToShare}
                 formatDate={formatDate}
               />
               {conductoresData && conductoresData.totalRegistros > 0 && (
@@ -492,8 +514,8 @@ export function DriversPage() {
         isLoading={isUnassigningDevice}
       />
 
-      {/* Modal de Gestión de Compartición */}
-      {conductorToShare && (
+      {/* Modal de GestiÃ³n de ComparticiÃ³n */}
+      {!isPersonalContext && conductorToShare && (
         <GestionarComparticionModal
           isOpen={!!conductorToShare}
           onClose={() => setConductorToShare(null)}
@@ -505,36 +527,39 @@ export function DriversPage() {
       )}
 
       {/* Import Processing Modal */}
-      <ImportProcessingModal
-        isOpen={isImportProcessingModalOpen}
-        tipoImportacion={t('imports.importDrivers', { defaultValue: 'Conductores' })}
-      />
+      {!isPersonalContext && (
+        <>
+          <ImportProcessingModal
+            isOpen={isImportProcessingModalOpen}
+            tipoImportacion={t('imports.importDrivers')}
+          />
 
-      {/* Import Modal */}
-      <ImportExcelModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImportDrivers}
-        title={t('imports.importDrivers', { defaultValue: 'Importar Conductores' })}
-        onDownloadTemplate={async () => {
-          const blob = await reportesApi.downloadTemplateConductoresExcel();
-          downloadBlob(blob, 'template_conductores.xlsx');
-        }}
-        templateLabel={t('imports.downloadDriverTemplate', { defaultValue: 'Template de Conductores' })}
-      />
+          <ImportExcelModal
+            isOpen={isImportModalOpen}
+            onClose={() => setIsImportModalOpen(false)}
+            onImport={handleImportDrivers}
+            title={t('imports.importDrivers')}
+            onDownloadTemplate={async () => {
+              const blob = await reportesApi.downloadTemplateConductoresExcel();
+              downloadBlob(blob, 'template_conductores.xlsx');
+            }}
+            templateLabel={t('imports.downloadDriverTemplate')}
+          />
 
-      {/* Import Results Modal */}
-      {importResults && (
-        <ImportResultsModal
-          isOpen={isImportResultsModalOpen}
-          onClose={() => {
-            setIsImportResultsModalOpen(false);
-            setImportResults(null);
-          }}
-          results={importResults}
-          tipoImportacion={t('imports.importDrivers', { defaultValue: 'Conductores' })}
-        />
+          {importResults && (
+            <ImportResultsModal
+              isOpen={isImportResultsModalOpen}
+              onClose={() => {
+                setIsImportResultsModalOpen(false);
+                setImportResults(null);
+              }}
+              results={importResults}
+              tipoImportacion={t('imports.importDrivers')}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
+

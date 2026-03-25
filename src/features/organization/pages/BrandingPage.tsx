@@ -667,9 +667,20 @@ export function BrandingPage() {
                     {t('organization.analista')}
                   </span>
                 </div>
-                <div className="mt-4 flex gap-2">
-                  <Button size="sm">{t('organization.primaryAction')}</Button>
-                  <Button size="sm" variant="outline">{t('organization.secondaryAction')}</Button>
+                <div className="mt-4 flex w-full flex-col gap-2">
+                  <Button
+                    size="sm"
+                    className="h-auto min-h-9 w-full justify-center whitespace-normal px-2 py-2 text-center leading-snug"
+                  >
+                    {t('organization.primaryAction')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-auto min-h-9 w-full justify-center whitespace-normal px-2 py-2 text-center leading-snug"
+                  >
+                    {t('organization.secondaryAction')}
+                  </Button>
                 </div>
               </div>
             </div>

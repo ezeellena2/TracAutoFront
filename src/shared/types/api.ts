@@ -105,6 +105,13 @@ export const LoginConGoogleRequestSchema = z.object({
 });
 export type LoginConGoogleRequest = z.infer<typeof LoginConGoogleRequestSchema>;
 
+export const ActivarCuentaRequestSchema = z.object({
+  tokenInvitacion: z.string().min(1, "common.required"),
+  password: PasswordSchema,
+  confirmPassword: z.string().min(1, "common.required"),
+});
+export type ActivarCuentaRequest = z.infer<typeof ActivarCuentaRequestSchema>;
+
 export const SolicitarResetPasswordRequestSchema = z.object({
   email: z.string().email("auth.errors.invalidEmail"),
 });
@@ -124,42 +131,103 @@ export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
 export interface RegistroEmpresaResponse {
   organizacionId: string;
   usuarioId: string;
+  personaId?: string | null;
   mensaje: string;
   requiereVerificacionTelefono: boolean;
   emailVerificado: boolean;
 }
 
-export interface AuthSessionSnapshotDto {
-  usuarioId: string;
-  organizacionId: string;
-  nombreUsuario: string;
-  email: string;
-  nombreOrganizacion: string;
-  rol: string;
+export interface ContextoActivoDto {
+  tipo: 'Personal' | 'Organizacion';
+  id?: string | null;
+  nombre: string;
+  modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
+}
+
+export interface ContextoDisponibleDto {
+  tipo: 'Personal' | 'Organizacion';
+  id?: string | null;
+  nombre: string;
+  organizacionId?: string | null;
+  rol?: string | null;
   theme?: OrganizacionThemeDto | null;
   modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
 }
+
+export interface AuthSessionSnapshotDto {
+  usuarioId: string;
+  personaId?: string | null;
+  organizacionId?: string | null;
+  nombreUsuario: string;
+  email: string;
+  nombreOrganizacion?: string | null;
+  rol?: string | null;
+  theme?: OrganizacionThemeDto | null;
+  modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
+  contextoActivo: ContextoActivoDto;
+  contextosDisponibles: ContextoDisponibleDto[];
+}
+
+export type AuthClientPlatform = 'web' | 'mobile';
 
 export interface LoginResponse extends AuthSessionSnapshotDto {
   token: string;
+  refreshToken?: string | null;
 }
 
 export interface RefreshTokenResponse extends AuthSessionSnapshotDto {
   accessToken: string;
+  refreshToken?: string | null;
   expiresAt: string;
+}
+
+export interface CambiarContextoResponse extends AuthSessionSnapshotDto {
+  accessToken: string;
 }
 
 export interface VerificacionCuentaResponse extends AuthSessionSnapshotDto {
   token: string;
+  refreshToken?: string | null;
   mensaje: string;
   emailVerificado?: boolean;
   telefonoVerificado?: boolean;
 }
 
+export interface ActivarCuentaResponse {
+  token?: string | null;
+  refreshToken?: string | null;
+  usuarioId?: string | null;
+  personaId?: string | null;
+  requiereLogin: boolean;
+  mensaje: string;
+  organizacionId?: string | null;
+  nombreUsuario?: string | null;
+  email?: string | null;
+  nombreOrganizacion?: string | null;
+  rol?: string | null;
+  theme?: OrganizacionThemeDto | null;
+  modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
+  contextoActivo?: ContextoActivoDto | null;
+  contextosDisponibles?: ContextoDisponibleDto[];
+}
+
+export interface ValidarActivacionCuentaResponse {
+  personaId?: string | null;
+  email?: string | null;
+  nombre: string;
+  expirada: boolean;
+  cuentaYaActivada: boolean;
+  mensaje: string;
+}
+
 export interface ReenviarCodigoResponse {
   usuarioId: string;
-  organizacionId: string;
-  nombreOrganizacion: string;
+  organizacionId?: string | null;
+  nombreOrganizacion?: string | null;
   mensaje: string;
   enviadoPorEmail: boolean;
   enviadoPorSms: boolean;
@@ -167,17 +235,55 @@ export interface ReenviarCodigoResponse {
 
 export interface GoogleAuthResponse {
   token: string | null;
+  refreshToken?: string | null;
+  tokenActivacion?: string | null;
   usuarioId: string | null;
-  organizacionId: string | null;
+  personaId?: string | null;
+  organizacionId?: string | null;
+  email: string;
+  nombre: string;
+  nombreUsuario?: string | null;
+  rol?: string | null;
+  requiereActivacion?: boolean;
+  requiereRegistro: boolean;
+  fotoUrl: string | null;
+  nombreOrganizacion?: string | null;
+  theme: OrganizacionThemeDto | null;
+  modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
+  contextoActivo?: ContextoActivoDto | null;
+  contextosDisponibles?: ContextoDisponibleDto[];
+}
+
+export interface LoginConAppleRequest {
+  identityToken: string;
+  fullName?: string | null;
+}
+
+export interface AppleAuthResponse {
+  token: string | null;
+  refreshToken?: string | null;
+  usuarioId: string | null;
+  personaId?: string | null;
+  organizacionId?: string | null;
   email: string;
   nombre: string;
   nombreUsuario?: string | null;
   rol?: string | null;
   requiereRegistro: boolean;
-  fotoUrl: string | null;
-  nombreOrganizacion: string | null;
-  theme: OrganizacionThemeDto | null;
+  fotoUrl?: string | null;
+  nombreOrganizacion?: string | null;
+  theme?: OrganizacionThemeDto | null;
   modulosActivos?: number[];
+  capacidadesEfectivas?: string[];
+  contextoActivo?: ContextoActivoDto | null;
+  contextosDisponibles?: ContextoDisponibleDto[];
+}
+
+export interface RefreshSessionRequest {
+  refreshToken?: string | null;
+  tipoContextoActivo?: 'Personal' | 'Organizacion' | null;
+  contextoActivoId?: string | null;
 }
 // ==================== Organizaciones DTOs ====================
 

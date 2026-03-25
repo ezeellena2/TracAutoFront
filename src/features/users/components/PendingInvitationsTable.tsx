@@ -95,25 +95,25 @@ export function PendingInvitationsTable() {
     },
     {
       key: 'estado',
-      header: t('users.status', { defaultValue: 'Estado' }),
+      header: t('users.status'),
       render: (i: InvitacionDto) => {
         const estado = (i.estado ?? '').toLowerCase();
         if (estado === 'cancelada') return (
           <div className="flex items-center gap-1 text-error">
             <Ban size={14} />
-            <span className="text-sm font-medium">{t('users.statuses.cancelled', { defaultValue: 'Cancelada' })}</span>
+            <span className="text-sm font-medium">{t('users.statuses.cancelled')}</span>
           </div>
         );
         if (estado === 'aceptada') return (
           <div className="flex items-center gap-1 text-success">
             <CheckCircle size={14} />
-            <span className="text-sm font-medium">{t('users.statuses.accepted', { defaultValue: 'Aceptada' })}</span>
+            <span className="text-sm font-medium">{t('users.statuses.accepted')}</span>
           </div>
         );
         return (
           <div className="flex items-center gap-1 text-warning">
             <Hourglass size={14} />
-            <span className="text-sm font-medium">{t('users.statuses.pending', { defaultValue: 'Pendiente' })}</span>
+            <span className="text-sm font-medium">{t('users.statuses.pending')}</span>
           </div>
         );
       }
@@ -135,7 +135,7 @@ export function PendingInvitationsTable() {
     },
     {
       key: 'fechaExpiracion',
-      header: t('users.expires', { defaultValue: 'Expira' }),
+      header: t('users.expires'),
       render: (i: InvitacionDto) => (
         <div className="flex items-center gap-1 text-text-muted">
           <AlertCircle size={14} />
@@ -197,7 +197,7 @@ export function PendingInvitationsTable() {
           <div className="p-8 text-center">
             <p className="text-error mb-3">{loadError}</p>
             <Button variant="outline" size="sm" onClick={loadInvitaciones}>
-              {t('common.retry', 'Reintentar')}
+              {t('common.retry')}
             </Button>
           </div>
         ) : (

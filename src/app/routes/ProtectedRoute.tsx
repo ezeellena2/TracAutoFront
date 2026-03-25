@@ -11,10 +11,8 @@ interface ProtectedRouteProps {
 }
 
 /**
- * Componente que protege rutas que requieren autenticación y/o roles específicos
- * - Redirige a /login si el usuario no está autenticado
- * - Tras F5 el token no está en memoria; el interceptor hará refresh con cookie y rellenará el token
- * - Muestra "Acceso Denegado" si no tiene el rol requerido
+ * Protege rutas autenticadas.
+ * Debe tolerar tanto contexto organizacional como contexto personal.
  */
 export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuthStore();
@@ -22,12 +20,10 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
   const location = useLocation();
   const { t } = useTranslation();
 
-  // 1. Verificar autenticación (no exigir token: tras F5 se obtiene vía refresh en la primera request)
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Verificar roles específicos si se proporcionan
   if (requiredRoles && requiredRoles.length > 0 && role) {
     const hasRequiredRole = requiredRoles.includes(role);
     if (!hasRequiredRole) {
@@ -47,13 +43,10 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
     }
   }
 
-  // 3. Verificar acceso a ruta según matriz ROUTE_ACCESS
   if (!canAccessRoute(location.pathname)) {
-    // Evitar bucle infinito: no redirigir a la misma ruta (ej. "/" -> "/")
     const target = location.pathname === '/' ? '/login' : '/';
     return <Navigate to={target} replace state={{ from: location, unauthorized: true }} />;
   }
 
   return <>{children}</>;
 }
-

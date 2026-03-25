@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+﻿import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { MapShell } from '../components/MapShell';
 import { VehiclesSidebar } from '../components/VehiclesSidebar';
 import { MapView } from '../components/MapView';
 import { useTraccarMapStore } from '../store/traccarMap.store';
 import { getVehiclePositions } from '@/services/traccar/traccarMap.api';
 import { useMapRealTime } from '../hooks/useMapRealTime';
+import { useAuthStore } from '@/store';
 import { Loader2, AlertCircle, MapPin } from 'lucide-react';
 
 // Loading skeleton for sidebar
@@ -38,7 +40,7 @@ function MapLoadingSkeleton() {
   );
 }
 
-// Error boundary component
+// Error state component
 function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
   const { t } = useTranslation();
   return (
@@ -63,7 +65,7 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
 }
 
 // Empty state when no vehicles exist
-function EmptyState() {
+function EmptyState({ isPersonalContext }: { isPersonalContext: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
@@ -74,8 +76,22 @@ function EmptyState() {
           </div>
           <h2 className="text-xl font-semibold text-text">{t('map.empty')}</h2>
           <p className="text-text-muted">
-            {t('map.emptyDescription')}
+            {isPersonalContext
+              ? t('map.personal.emptyDescription', { defaultValue: 'Todavia no hay posiciones personales para mostrar. Necesitas al menos un vehiculo propio con un dispositivo propio asignado.' })
+              : t('map.emptyDescription')}
           </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/vehiculos"
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-dark"
+            >{t('map.viewVehicles', { defaultValue: 'Ver vehiculos' })}</Link>
+            <Link
+              to="/dispositivos"
+              className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary hover:text-white"
+            >
+              Ver dispositivos
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -84,13 +100,20 @@ function EmptyState() {
 
 export function TraccarMapPage() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
   const { isLoading, error, vehicles, setVehicles, setLoading, setError, resetState } =
     useTraccarMapStore();
+  const contextKey = user
+    ? `${user.id}:${user.contextoActivo.tipo}:${user.contextoActivo.id ?? 'personal'}`
+    : 'anon';
 
-  // Real-time updates via SignalR (con fallback a polling)
+  // Real-time updates via SignalR with polling fallback
   useMapRealTime();
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -101,16 +124,15 @@ export function TraccarMapPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading, setError, setVehicles, t]);
 
   useEffect(() => {
-    loadData();
+    void loadData();
 
-    // Cleanup on unmount
     return () => {
       resetState();
     };
-  }, []);
+  }, [contextKey, loadData, resetState]);
 
   // Error state
   if (error) {
@@ -130,7 +152,7 @@ export function TraccarMapPage() {
 
   // Empty state
   if (vehicles.length === 0) {
-    return <EmptyState />;
+    return <EmptyState isPersonalContext={isPersonalContext} />;
   }
 
   // Normal render
@@ -142,3 +164,4 @@ export function TraccarMapPage() {
     />
   );
 }
+

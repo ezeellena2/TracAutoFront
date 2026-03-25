@@ -93,6 +93,7 @@
     "limpiar": "Clear",
     "close": "Close",
     "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "zonesSelected": "zones selected",
     "zonesAvailable": "zones available",
     "ofZonesSelected": "of {{total}} zones selected",
@@ -240,6 +241,9 @@
   },
   "errors": {
     "network": "A network error occurred. Please try again.",
+    "Usuario": {
+      "SinOrganizacion": "Your account has no organization assigned. Contact your administrator or support."
+    },
     "Auth": {
       "CredencialesInvalidas": "Invalid email or password."
     },
@@ -292,10 +296,39 @@
   "subscription": {
     "title": "Subscription",
     "subtitle": "Manage your organization's active modules",
-    "empty": "Select the modules you want to keep active."
+    "empty": "Select the modules you want to keep active.",
+    "info": "Subscription now only manages the organization's active modules.",
+    "missingPrerequisites": "Missing prerequisites",
+    "activeModulesTitle": "Active modules",
+    "activeModulesSubtitle": "Summary of the organization's current state.",
+    "noActiveModules": "There are no active modules beyond the core base.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "badges": {
+      "base": "Base",
+      "included": "Included",
+      "operational": "Operational"
+    },
+    "availability": {
+      "enabled": "Available for use",
+      "disabled": "Disabled for this organization"
+    },
+    "actions": {
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "confirm": {
+      "activateTitle": "Activate module",
+      "deactivateTitle": "Deactivate module",
+      "activateDescription": "{{modulo}} will be activated for this organization.",
+      "deactivateDescription": "{{modulo}} will be deactivated for this organization."
+    }
   },
   "sidebar": {
     "dashboard": "Dashboard",
+    "trackingHub": "Tracking",
     "map": "Map",
     "vehicles": "Vehicles",
     "devices": "Devices",
@@ -304,6 +337,7 @@
     "imports": "Imports",
     "subscription": "Subscription",
     "organization": "Organization",
+    "organizationLabel": "Organization",
     "users": "Users",
     "organizationAppearance": "Appearance",
     "organizationPreferences": "Preferences",
@@ -312,7 +346,61 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "General overview of your fleet"
+    "subtitle": "Overview of your operations and quick access",
+    "moduleLabels": {
+      "flota": "Vehicle tracking",
+      "marketplace": "Marketplace"
+    }
+  },
+  "navigation": {
+    "dashboard": {
+      "description": "High-level indicators and shortcuts to main areas."
+    },
+    "trackingHub": {
+      "description": "Map, vehicles, devices, and day-to-day tracking (included with your device)."
+    },
+    "map": {
+      "description": "Live locations and trip history for your vehicles."
+    },
+    "vehicles": {
+      "description": "Create, edit, and monitor vehicles linked to your account."
+    },
+    "devices": {
+      "description": "GPS units and hardware connected to your account."
+    },
+    "drivers": {
+      "description": "People authorized to drive your vehicles."
+    },
+    "geofences": {
+      "description": "Safe zones, alerts, and geographic boundaries."
+    },
+    "imports": {
+      "description": "Bulk upload and export of operational data."
+    },
+    "marketplace": {
+      "description": "List and sell vehicles on the marketplace."
+    },
+    "subscription": {
+      "description": "Active modules and capabilities for your account or organization."
+    },
+    "organization": {
+      "description": "Users, branding, and company-wide settings."
+    },
+    "users": {
+      "description": "Invitations, roles, and team access."
+    },
+    "organizationAppearance": {
+      "description": "Brand, colors, and how TracAuto looks for your company."
+    },
+    "organizationPreferences": {
+      "description": "Country, language, time zone, and regional formats."
+    },
+    "organizationRelations": {
+      "description": "Operational links with other organizations."
+    },
+    "organizationChangeRequests": {
+      "description": "Requests to update company master data."
+    }
   },
   "organization": {
     "preferences": {
@@ -1037,6 +1125,7 @@
     "downloadTemplate": "Download template",
     "uploading": "Uploading...",
     "import": "Import",
+    "invalidType": "Invalid import type",
     "uploadError": "Error uploading file",
     "downloadExcel": "Download Excel",
     "downloadExcelSuccess": "Excel downloaded successfully",
@@ -1044,10 +1133,10 @@
     "downloadErrors": "Download errors",
     "loadingDetails": "Loading details...",
     "processing": {
-      "title": "Processing {{entity}} import",
-      "message": "Processing {{count}} records...",
-      "subtitle": "This may take a few seconds.",
-      "subtitleWithType": "Importing {{type}}. This may take a few seconds.",
+      "title": "Processing import",
+      "message": "The file is being processed in the background.",
+      "subtitle": "This may take a few seconds. Do not close this window.",
+      "subtitleWithType": "Processing {{type}}. This may take a few seconds.",
       "failed": "Import failed"
     },
     "results": {
@@ -1070,43 +1159,43 @@
       "errorRows": "Rows with errors",
       "detailByRow": "Detail by record"
     },
-    "downloadDeviceTemplate": "Plantilla dispositivos",
-    "downloadDriverTemplate": "Plantilla conductores",
-    "downloadVehicleTemplate": "Plantilla vehiculos",
-    "export": "Exportar",
-    "exportSuccess": "Exportacion exitosa",
-    "importDevices": "Importar dispositivos",
-    "importDevicesDesc": "Importa dispositivos desde un Excel",
-    "importDrivers": "Importar conductores",
-    "importDriversDesc": "Importa conductores desde un Excel",
-    "importVehicles": "Importar vehiculos",
-    "importVehiclesDesc": "Importa vehiculos desde un Excel",
-    "subtitle": "Importa y exporta datos de tu flota",
-    "title": "Importaciones",
+    "downloadDeviceTemplate": "Download device template",
+    "downloadDriverTemplate": "Download driver template",
+    "downloadVehicleTemplate": "Download vehicle template",
+    "export": "Export",
+    "exportSuccess": "Export completed successfully",
+    "importDevices": "Import devices",
+    "importDevicesDesc": "Import devices from an Excel file",
+    "importDrivers": "Import drivers",
+    "importDriversDesc": "Import drivers from an Excel file",
+    "importVehicles": "Import vehicles",
+    "importVehiclesDesc": "Import vehicles from an Excel file",
+    "subtitle": "Import and export fleet data",
+    "title": "Imports",
     "history": {
-      "actions": "Acciones",
-      "date": "Fecha",
-      "empty": "Sin importaciones",
-      "emptyDescription": "Aun no realizaste ninguna importacion.",
-      "errors": "Errores",
-      "fileName": "Archivo",
-      "loadError": "Error al cargar historial",
-      "loading": "Cargando...",
+      "actions": "Actions",
+      "date": "Date",
+      "empty": "No imports yet",
+      "emptyDescription": "You have not run any imports yet.",
+      "errors": "Errors",
+      "fileName": "File",
+      "loadError": "Could not load import history",
+      "loading": "Loading history...",
       "status": {
         "completed": "Completed",
         "failed": "Failed",
         "pending": "Pending",
         "processing": "Processing"
       },
-      "successful": "Exitosos",
-      "totalRows": "Total filas",
-      "type": "Tipo",
-      "viewDetails": "Ver detalles",
+      "successful": "Successful",
+      "totalRows": "Total rows",
+      "type": "Type",
+      "viewDetails": "View details",
       "statusLabel": "Status"
     },
     "tab": {
-      "history": "Historial",
-      "import": "Importar"
+      "history": "History",
+      "import": "Import"
     }
   },
   "catalogoMarketplace": {
@@ -1174,7 +1263,9 @@
     "logout": "Sign out",
     "modoSolicitud": "Modo solicitud",
     "proximoFeriado": "Proximo feriado",
-    "riesgoPais": "Riesgo pais"
+    "riesgoPais": "Riesgo pais",
+    "switchToEnglish": "Switch to English",
+    "switchToSpanish": "Switch to Spanish"
   },
   "offline": {
     "message": "You are offline. Some features may not be available."
@@ -1191,6 +1282,7 @@
   },
   "rateLimit": {
     "message": "Too many requests. Please wait a moment.",
+    "messageDetailed": "Please wait {{seconds}} seconds before trying again.",
     "retryIn": "Retry in {{seconds}}s",
     "title": "Rate limit"
   },

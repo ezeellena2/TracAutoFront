@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { Card, Table, Badge, Button, PaginationControls } from '@/shared/ui';
+import { AlertCircle, CheckCircle, Clock, Eye, XCircle } from 'lucide-react';
+import { Badge, Button, Card, PaginationControls, Table } from '@/shared/ui';
+import { useErrorHandler, useLocalization, usePaginationParams } from '@/hooks';
 import { reportesApi } from '@/services/endpoints';
-import { type ImportacionJobDto, EstadoImportacionJob } from '@/services/endpoints/reportes.api';
+import { EstadoImportacionJob, type ImportacionJobDto } from '@/services/endpoints/reportes.api';
 import type { ListaPaginada } from '@/shared/types/api';
-import { usePaginationParams, useErrorHandler, useLocalization } from '@/hooks';
 import { formatDateTime } from '@/shared/utils';
 import { ImportResultsModal } from '@/shared/ui';
 
@@ -17,19 +17,15 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
   const { t } = useTranslation();
   const { handleApiError } = useErrorHandler();
   const { culture, timeZoneId } = useLocalization();
-
   const [historyData, setHistoryData] = useState<ListaPaginada<ImportacionJobDto> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<ImportacionJobDto | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-
-  const {
-    setNumeroPagina,
-    setTamanoPagina,
-    params: paginationParams,
-  } = usePaginationParams({ initialPageSize: 10 });
+  const { setNumeroPagina, setTamanoPagina, params: paginationParams } = usePaginationParams({
+    initialPageSize: 10,
+  });
 
   const loadHistory = useCallback(async () => {
     setIsLoading(true);
@@ -42,13 +38,13 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
         tipoImportacion: tipoImportacion || undefined,
       });
       setHistoryData(result);
-    } catch (e) {
-      const parsed = handleApiError(e, { showToast: false });
+    } catch (requestError) {
+      const parsed = handleApiError(requestError, { showToast: false });
       setError(parsed.message);
     } finally {
       setIsLoading(false);
     }
-  }, [paginationParams, tipoImportacion, handleApiError]);
+  }, [handleApiError, paginationParams, tipoImportacion]);
 
   useEffect(() => {
     void loadHistory();
@@ -60,28 +56,28 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
         return (
           <Badge variant="info">
             <Clock size={14} className="mr-1" />
-            {t('imports.history.status.pending', { defaultValue: 'Pendiente' })}
+            {t('imports.history.status.pending')}
           </Badge>
         );
       case EstadoImportacionJob.Procesando:
         return (
           <Badge variant="warning">
             <Clock size={14} className="mr-1 animate-spin" />
-            {t('imports.history.status.processing', { defaultValue: 'Procesando' })}
+            {t('imports.history.status.processing')}
           </Badge>
         );
       case EstadoImportacionJob.Completado:
         return (
           <Badge variant="success">
             <CheckCircle size={14} className="mr-1" />
-            {t('imports.history.status.completed', { defaultValue: 'Completado' })}
+            {t('imports.history.status.completed')}
           </Badge>
         );
       case EstadoImportacionJob.Fallido:
         return (
           <Badge variant="error">
             <XCircle size={14} className="mr-1" />
-            {t('imports.history.status.failed', { defaultValue: 'Fallido' })}
+            {t('imports.history.status.failed')}
           </Badge>
         );
       default:
@@ -92,11 +88,11 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
   const getTipoImportacionLabel = (tipo: string): string => {
     switch (tipo.toLowerCase()) {
       case 'vehiculos':
-        return t('imports.importVehicles', { defaultValue: 'Vehículos' });
+        return t('imports.importVehicles');
       case 'conductores':
-        return t('imports.importDrivers', { defaultValue: 'Conductores' });
+        return t('imports.importDrivers');
       case 'dispositivos':
-        return t('imports.importDevices', { defaultValue: 'Dispositivos' });
+        return t('imports.importDevices');
       default:
         return tipo;
     }
@@ -106,11 +102,12 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
     setIsDetailsModalOpen(true);
     setIsLoadingDetails(true);
     setSelectedJob(null);
+
     try {
       const fullJob = await reportesApi.obtenerImportacionJob(job.id);
       setSelectedJob(fullJob);
-    } catch (e) {
-      handleApiError(e);
+    } catch (requestError) {
+      handleApiError(requestError);
       setIsDetailsModalOpen(false);
     } finally {
       setIsLoadingDetails(false);
@@ -120,36 +117,32 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
   const columns = [
     {
       key: 'fechaCreacion',
-      header: t('imports.history.date', { defaultValue: 'Fecha' }),
+      header: t('imports.history.date'),
       render: (job: ImportacionJobDto) => formatDateTime(job.fechaCreacion, culture, timeZoneId),
     },
     {
       key: 'tipoImportacion',
-      header: t('imports.history.type', { defaultValue: 'Tipo' }),
+      header: t('imports.history.type'),
       render: (job: ImportacionJobDto) => getTipoImportacionLabel(job.tipoImportacion),
     },
     {
       key: 'nombreArchivo',
-      header: t('imports.history.fileName', { defaultValue: 'Archivo' }),
-      render: (job: ImportacionJobDto) => (
-        <span className="font-mono text-sm">{job.nombreArchivo}</span>
-      ),
+      header: t('imports.history.fileName'),
+      render: (job: ImportacionJobDto) => <span className="font-mono text-sm">{job.nombreArchivo}</span>,
     },
     {
       key: 'totalFilas',
-      header: t('imports.history.totalRows', { defaultValue: 'Total Filas' }),
+      header: t('imports.history.totalRows'),
       render: (job: ImportacionJobDto) => job.totalFilas ?? '-',
     },
     {
       key: 'filasExitosas',
-      header: t('imports.history.successful', { defaultValue: 'Exitosas' }),
-      render: (job: ImportacionJobDto) => (
-        <span className="text-success">{job.filasExitosas ?? '-'}</span>
-      ),
+      header: t('imports.history.successful'),
+      render: (job: ImportacionJobDto) => <span className="text-success">{job.filasExitosas ?? '-'}</span>,
     },
     {
       key: 'filasConErrores',
-      header: t('imports.history.errors', { defaultValue: 'Errores' }),
+      header: t('imports.history.errors'),
       render: (job: ImportacionJobDto) => (
         <span className={job.filasConErrores && job.filasConErrores > 0 ? 'text-error' : ''}>
           {job.filasConErrores ?? '-'}
@@ -158,18 +151,18 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
     },
     {
       key: 'estado',
-      header: t('imports.history.status', { defaultValue: 'Estado' }),
+      header: t('imports.history.statusLabel'),
       render: (job: ImportacionJobDto) => getEstadoBadge(job.estado),
     },
     {
       key: 'actions',
-      header: t('imports.history.actions', { defaultValue: 'Acciones' }),
+      header: t('imports.history.actions'),
       render: (job: ImportacionJobDto) => (
         <Button
           variant="ghost"
           size="sm"
           onClick={() => handleViewDetails(job)}
-          title={t('imports.history.viewDetails', { defaultValue: 'Ver detalles' })}
+          title={t('imports.history.viewDetails')}
         >
           <Eye size={16} />
         </Button>
@@ -182,8 +175,8 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
       <Card>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
-            <p className="text-text-muted mt-4">{t('imports.history.loading', { defaultValue: 'Cargando historial...' })}</p>
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
+            <p className="mt-4 text-text-muted">{t('imports.history.loading')}</p>
           </div>
         </div>
       </Card>
@@ -194,12 +187,10 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
     return (
       <Card>
         <div className="flex flex-col items-center justify-center py-12">
-          <AlertCircle size={48} className="text-error mb-4" />
-          <h3 className="text-lg font-semibold text-text mb-2">
-            {t('imports.history.loadError', { defaultValue: 'Error al cargar historial' })}
-          </h3>
-          <p className="text-text-muted mb-6 text-center max-w-md">{error}</p>
-          <Button onClick={loadHistory}>{t('common.retry', { defaultValue: 'Reintentar' })}</Button>
+          <AlertCircle size={48} className="mb-4 text-error" />
+          <h3 className="mb-2 text-lg font-semibold text-text">{t('imports.history.loadError')}</h3>
+          <p className="mb-6 max-w-md text-center text-text-muted">{error}</p>
+          <Button onClick={loadHistory}>{t('common.retry')}</Button>
         </div>
       </Card>
     );
@@ -211,13 +202,9 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
     return (
       <Card>
         <div className="flex flex-col items-center justify-center py-12">
-          <AlertCircle size={48} className="text-text-muted mb-4" />
-          <h3 className="text-lg font-semibold text-text mb-2">
-            {t('imports.history.empty', { defaultValue: 'No hay importaciones' })}
-          </h3>
-          <p className="text-text-muted text-center max-w-md">
-            {t('imports.history.emptyDescription', { defaultValue: 'Aún no se han realizado importaciones' })}
-          </p>
+          <AlertCircle size={48} className="mb-4 text-text-muted" />
+          <h3 className="mb-2 text-lg font-semibold text-text">{t('imports.history.empty')}</h3>
+          <p className="max-w-md text-center text-text-muted">{t('imports.history.emptyDescription')}</p>
         </div>
       </Card>
     );
@@ -226,12 +213,7 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
   return (
     <>
       <Card padding="none">
-        <Table
-          columns={columns}
-          data={jobs}
-          keyExtractor={(job) => job.id}
-          enableFilters={false}
-        />
+        <Table columns={columns} data={jobs} keyExtractor={(job) => job.id} enableFilters={false} />
         {historyData && historyData.totalRegistros > 0 && (
           <PaginationControls
             paginaActual={historyData.paginaActual}
@@ -245,7 +227,6 @@ export function ImportHistoryTable({ tipoImportacion }: ImportHistoryTableProps)
         )}
       </Card>
 
-      {/* Details Modal */}
       <ImportResultsModal
         isOpen={isDetailsModalOpen}
         onClose={() => {

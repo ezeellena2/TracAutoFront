@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e12]: TracAuto
+    - navigation [ref=e13]:
+      - link "Dashboard" [ref=e14] [cursor=pointer]:
+        - /url: /
+        - img [ref=e15]
+        - generic [ref=e20]: Dashboard
+      - generic [ref=e21]:
+        - button "Seguimiento" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - generic [ref=e25]: Seguimiento
+          - img [ref=e26]
+        - generic [ref=e28]:
+          - link "Mapa" [ref=e29] [cursor=pointer]:
+            - /url: /mapa
+            - img [ref=e30]
+            - generic [ref=e32]: Mapa
+          - link "Vehiculos" [ref=e33] [cursor=pointer]:
+            - /url: /vehiculos
+            - img [ref=e34]
+            - generic [ref=e38]: Vehiculos
+          - link "Dispositivos" [active] [ref=e39] [cursor=pointer]:
+            - /url: /dispositivos
+            - img [ref=e40]
+            - generic [ref=e43]: Dispositivos
+          - link "Conductores" [ref=e44] [cursor=pointer]:
+            - /url: /conductores
+            - img [ref=e45]
+            - generic [ref=e49]: Conductores
+          - link "Geozonas" [ref=e50] [cursor=pointer]:
+            - /url: /geozonas
+            - img [ref=e51]
+            - generic [ref=e54]: Geozonas
+      - link "Suscripcion" [ref=e55] [cursor=pointer]:
+        - /url: /suscripcion
+        - img [ref=e56]
+        - generic [ref=e58]: Suscripcion
+    - button "Contraer" [ref=e59] [cursor=pointer]:
+      - img [ref=e60]
+    - generic [ref=e62]:
+      - paragraph [ref=e63]: Contexto
+      - paragraph [ref=e64]: Micaela Multi
+  - generic [ref=e65]:
+    - banner [ref=e67]:
+      - generic [ref=e69]:
+        - generic [ref=e70]: M
+        - generic [ref=e71]: Micaela Multi
+      - button "Micaela Multi Personal" [ref=e74] [cursor=pointer]:
+        - generic [ref=e75]:
+          - paragraph [ref=e76]: Micaela Multi
+          - text: Personal
+        - img [ref=e78]
+        - img [ref=e81]
+    - main [ref=e83]:
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - heading "Mis dispositivos" [level=1] [ref=e87]
+            - paragraph [ref=e88]: Registra y sigue dispositivos propios. Las superficies empresariales como stock masivo o importaciones quedan fuera del contexto personal.
+          - button "Agregar dispositivo" [ref=e90] [cursor=pointer]:
+            - img [ref=e91]
+            - text: Agregar dispositivo
+        - generic [ref=e93]:
+          - img [ref=e94]
+          - heading "No hay dispositivos" [level=3] [ref=e97]
+          - paragraph [ref=e98]: Todavia no vinculaste dispositivos propios. Suma el primero para habilitar seguimiento, asignaciones y mapa dentro de tu cuenta.
+          - generic [ref=e99]:
+            - button "Agregar dispositivo" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - text: Agregar dispositivo
+            - link "Ver vehiculos" [ref=e102] [cursor=pointer]:
+              - /url: /vehiculos
+```

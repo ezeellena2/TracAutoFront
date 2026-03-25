@@ -1,10 +1,5 @@
-/**
- * Componente Toast Container
- * Renderiza todas las notificaciones toast activas
- * Debe montarse una vez en el layout principal
- */
-
-import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info, X, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useToastStore, Toast } from '@/store/toast.store';
 
 const icons = {
@@ -29,6 +24,7 @@ const iconColors = {
 };
 
 function ToastItem({ toast }: { toast: Toast }) {
+  const { t } = useTranslation();
   const removeToast = useToastStore((state) => state.removeToast);
   const Icon = icons[toast.type];
 
@@ -37,7 +33,7 @@ function ToastItem({ toast }: { toast: Toast }) {
       role="alert"
       aria-live={toast.type === 'error' || toast.type === 'warning' ? 'assertive' : 'polite'}
       className={`
-        flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg
+        flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg
         animate-slide-in-right
         ${colors[toast.type]}
       `}
@@ -46,8 +42,8 @@ function ToastItem({ toast }: { toast: Toast }) {
       <span className="flex-1 text-sm font-medium">{toast.message}</span>
       <button
         onClick={() => removeToast(toast.id)}
-        className="p-1 hover:opacity-70 transition-opacity"
-        aria-label="Cerrar"
+        className="p-1 transition-opacity hover:opacity-70"
+        aria-label={t('common.close')}
       >
         <X size={16} aria-hidden="true" />
       </button>
@@ -61,7 +57,7 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm" aria-live="polite" role="status">
+    <div className="fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2" aria-live="polite" role="status">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}

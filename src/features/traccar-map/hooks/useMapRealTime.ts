@@ -13,12 +13,15 @@ import type { VehiclePosition } from '../types';
 
 interface PosicionVehiculoRealTime {
   vehiculoId: string;
+  dispositivoId?: string;
+  nombre?: string;
   patente: string | null;
   latitud: number;
   longitud: number;
   velocidad: number;
   rumbo: number;
   timestamp: string;
+  estado?: VehiclePosition['estado'];
 }
 
 function getHubBaseUrl(): string {
@@ -28,8 +31,11 @@ function getHubBaseUrl(): string {
 const POLLING_INTERVAL_MS = 15_000;
 
 export function useMapRealTime() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { setVehicles, vehicles } = useTraccarMapStore();
+  const contextKey = user
+    ? `${user.id}:${user.contextoActivo.tipo}:${user.contextoActivo.id ?? 'personal'}`
+    : 'anon';
 
   const connectionRef = useRef<HubConnection | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -39,15 +45,18 @@ export function useMapRealTime() {
 
   const updateVehiclePosition = useCallback((data: PosicionVehiculoRealTime) => {
     const current = vehiclesRef.current;
+    const resourceId = data.dispositivoId ?? data.vehiculoId;
     const updated = current.map((v: VehiclePosition) => {
-      if (v.id === data.vehiculoId) {
+      if (v.id === resourceId) {
         return {
           ...v,
+          nombre: data.nombre ?? v.nombre,
+          patente: data.patente ?? v.patente,
           latitud: data.latitud,
           longitud: data.longitud,
           velocidad: data.velocidad,
           lastUpdate: new Date(data.timestamp),
-          estado: 'online' as const,
+          estado: data.estado ?? 'online',
         };
       }
       return v;
@@ -82,16 +91,12 @@ export function useMapRealTime() {
   }, []);
 
   useEffect(() => {
-    // FIX H-F5: Verificar token desde store; no usar `token` como dependencia
-    // para evitar reconexiones innecesarias tras refresh silencioso
     if (!isAuthenticated || !useAuthStore.getState().token) return;
     disposedRef.current = false;
+    void fetchAll();
 
     const init = async () => {
       try {
-        // FIX H-F5: Leer token fresco del store en cada reconexion.
-        // Capturar `token` por closure causaba que tras un refresh silencioso
-        // el accessTokenFactory enviara el token viejo (expirado).
         const connection = new HubConnectionBuilder()
           .withUrl(`${getHubBaseUrl()}/hubs/vehiculos-posicion`, {
             accessTokenFactory: () => useAuthStore.getState().token ?? '',
@@ -141,8 +146,5 @@ export function useMapRealTime() {
       }
       connectionRef.current = null;
     };
-  // NOTA: `token` eliminado del array de dependencias intencionalmente.
-  // El accessTokenFactory lee el token fresco del store, asi que no es
-  // necesario reconectar cuando cambia (ej. tras un refresh silencioso).
-  }, [isAuthenticated, updateVehiclePosition, fetchAll, startPolling, stopPolling]);
+  }, [contextKey, isAuthenticated, updateVehiclePosition, fetchAll, startPolling, stopPolling]);
 }

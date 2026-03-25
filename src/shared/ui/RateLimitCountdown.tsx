@@ -1,15 +1,15 @@
 /**
  * Componente que muestra un countdown cuando el usuario
  * recibe un error 429 (Too Many Requests).
- * 
+ *
  * Uso:
- * <RateLimitCountdown 
- *   seconds={30} 
- *   onComplete={() => setCanRetry(true)} 
+ * <RateLimitCountdown
+ *   seconds={30}
+ *   onComplete={() => setCanRetry(true)}
  * />
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,11 +24,11 @@ interface RateLimitCountdownProps {
   message?: string;
 }
 
-export function RateLimitCountdown({ 
-  seconds: initialSeconds, 
+export function RateLimitCountdown({
+  seconds: initialSeconds,
   onComplete,
   onDismiss,
-  message 
+  message,
 }: RateLimitCountdownProps) {
   const { t } = useTranslation();
   const [seconds, setSeconds] = useState(initialSeconds);
@@ -47,6 +47,7 @@ export function RateLimitCountdown({
           onComplete?.();
           return 0;
         }
+
         return prev - 1;
       });
     }, 1000);
@@ -63,7 +64,6 @@ export function RateLimitCountdown({
     return null;
   }
 
-  // Calcular progreso para la barra
   const progress = ((initialSeconds - seconds) / initialSeconds) * 100;
 
   return (
@@ -72,33 +72,26 @@ export function RateLimitCountdown({
         <div className="flex items-start gap-3">
           <Clock className="w-5 h-5 mt-0.5 flex-shrink-0 text-warning" />
           <div className="flex-1">
-            <p className="font-semibold text-warning">
-              {t('rateLimit.title', 'Demasiadas solicitudes')}
-            </p>
+            <p className="font-semibold text-warning">{t('rateLimit.title')}</p>
             <p className="text-sm text-text-muted mt-1">
-              {message || t('rateLimit.message', { 
-                seconds, 
-                defaultValue: `Por favor esperá ${seconds} segundos antes de intentar nuevamente.` 
-              })}
+              {message || t('rateLimit.messageDetailed', { seconds })}
             </p>
-            
-            {/* Barra de progreso */}
+
             <div className="mt-3 h-2 bg-warning/20 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-warning transition-all duration-1000 ease-linear"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            
-            {/* Tiempo restante */}
+
             <p className="text-xs text-text-muted mt-2 text-right">
-              {t('rateLimit.retryIn', { seconds, defaultValue: `Reintentar en ${seconds}s` })}
+              {t('rateLimit.retryIn', { seconds })}
             </p>
           </div>
           <button
             onClick={handleDismiss}
             className="p-1 hover:bg-warning/20 rounded transition-colors"
-            aria-label="Cerrar"
+            aria-label={t('common.close')}
           >
             <X className="w-4 h-4 text-warning" />
           </button>

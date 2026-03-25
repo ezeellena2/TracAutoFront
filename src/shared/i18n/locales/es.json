@@ -106,6 +106,7 @@
     "pageOf": "Pagina {{current}} de {{total}}",
     "refresh": "Actualizar",
     "openMenu": "Abrir menu",
+    "closeMenu": "Cerrar menu",
     "noPermission": "No tenes permisos",
     "estadoError": {
       "titulo": "Error",
@@ -241,6 +242,9 @@
   },
   "errors": {
     "network": "Ocurrio un problema de red. Intenta nuevamente.",
+    "Usuario": {
+      "SinOrganizacion": "Tu cuenta no tiene una organizacion asignada. Contacta al administrador o a soporte."
+    },
     "Auth": {
       "CredencialesInvalidas": "Email o contrasena invalidos."
     },
@@ -293,10 +297,39 @@
   "subscription": {
     "title": "Suscripcion",
     "subtitle": "Administra los modulos activos de tu organizacion",
-    "empty": "Selecciona los modulos que queres mantener activos."
+    "empty": "Selecciona los modulos que queres mantener activos.",
+    "info": "Suscripcion ahora solo administra los modulos activos de la organizacion.",
+    "missingPrerequisites": "Prerequisitos faltantes",
+    "activeModulesTitle": "Modulos activos",
+    "activeModulesSubtitle": "Resumen del estado actual de la organizacion.",
+    "noActiveModules": "No hay modulos activos fuera del core base.",
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "badges": {
+      "base": "Base",
+      "included": "Incluido",
+      "operational": "Operativo"
+    },
+    "availability": {
+      "enabled": "Disponible para uso",
+      "disabled": "Desactivado para esta organizacion"
+    },
+    "actions": {
+      "activate": "Activar",
+      "deactivate": "Desactivar"
+    },
+    "confirm": {
+      "activateTitle": "Activar modulo",
+      "deactivateTitle": "Desactivar modulo",
+      "activateDescription": "Se activara {{modulo}} para esta organizacion.",
+      "deactivateDescription": "Se desactivara {{modulo}} para esta organizacion."
+    }
   },
   "sidebar": {
     "dashboard": "Dashboard",
+    "trackingHub": "Seguimiento",
     "map": "Mapa",
     "vehicles": "Vehiculos",
     "devices": "Dispositivos",
@@ -305,6 +338,7 @@
     "imports": "Importaciones",
     "subscription": "Suscripcion",
     "organization": "Organizacion",
+    "organizationLabel": "Organizacion",
     "users": "Usuarios",
     "organizationAppearance": "Apariencia",
     "organizationPreferences": "Preferencias",
@@ -313,7 +347,61 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Resumen general de tu flota"
+    "subtitle": "Resumen de tu operacion y accesos rapidos",
+    "moduleLabels": {
+      "flota": "Seguimiento de vehiculos",
+      "marketplace": "Marketplace"
+    }
+  },
+  "navigation": {
+    "dashboard": {
+      "description": "Indicadores generales y atajos a las areas principales."
+    },
+    "trackingHub": {
+      "description": "Mapa, vehiculos, dispositivos y el dia a dia del rastreo (incluido con tu equipo)."
+    },
+    "map": {
+      "description": "Ubicacion en tiempo real y recorridos de tus vehiculos."
+    },
+    "vehicles": {
+      "description": "Alta, edicion y estado de los vehiculos vinculados."
+    },
+    "devices": {
+      "description": "GPS y equipos conectados a tu cuenta."
+    },
+    "drivers": {
+      "description": "Personas autorizadas a conducir tus unidades."
+    },
+    "geofences": {
+      "description": "Zona segura, alertas y limites geograficos."
+    },
+    "imports": {
+      "description": "Carga masiva y exportacion de datos operativos."
+    },
+    "marketplace": {
+      "description": "Publicacion y venta de vehiculos en el marketplace."
+    },
+    "subscription": {
+      "description": "Modulos activos y capacidades de tu organizacion o cuenta."
+    },
+    "organization": {
+      "description": "Usuarios, apariencia y preferencias de la empresa."
+    },
+    "users": {
+      "description": "Invitaciones, roles y accesos del equipo."
+    },
+    "organizationAppearance": {
+      "description": "Marca, colores y como se ve TracAuto para tu empresa."
+    },
+    "organizationPreferences": {
+      "description": "Pais, idioma, zona horaria y formatos regionales."
+    },
+    "organizationRelations": {
+      "description": "Vinculos operativos con otras organizaciones."
+    },
+    "organizationChangeRequests": {
+      "description": "Solicitudes de actualizacion de datos de la empresa."
+    }
   },
   "organization": {
     "preferences": {
@@ -1038,6 +1126,7 @@
     "downloadTemplate": "Descargar plantilla",
     "uploading": "Subiendo...",
     "import": "Importar",
+    "invalidType": "Tipo de importacion no valido",
     "uploadError": "Error al subir el archivo",
     "downloadExcel": "Descargar Excel",
     "downloadExcelSuccess": "Excel descargado correctamente",
@@ -1045,10 +1134,10 @@
     "downloadErrors": "Descargar errores",
     "loadingDetails": "Cargando detalles...",
     "processing": {
-      "title": "Procesando importacion de {{entity}}",
-      "message": "Procesando {{count}} registros...",
-      "subtitle": "Esto puede tardar unos segundos.",
-      "subtitleWithType": "Importando {{type}}. Esto puede tardar unos segundos.",
+      "title": "Procesando importacion",
+      "message": "El archivo se esta procesando en segundo plano.",
+      "subtitle": "Puede tardar unos segundos. No cierres esta ventana.",
+      "subtitleWithType": "Procesando {{type}}. Puede tardar unos segundos.",
       "failed": "La importacion fallo"
     },
     "results": {
@@ -1071,9 +1160,9 @@
       "errorRows": "Filas con errores",
       "detailByRow": "Detalle por registro"
     },
-    "downloadDeviceTemplate": "Plantilla dispositivos",
-    "downloadDriverTemplate": "Plantilla conductores",
-    "downloadVehicleTemplate": "Plantilla vehiculos",
+    "downloadDeviceTemplate": "Descargar plantilla de dispositivos",
+    "downloadDriverTemplate": "Descargar plantilla de conductores",
+    "downloadVehicleTemplate": "Descargar plantilla de vehiculos",
     "export": "Exportar",
     "exportSuccess": "Exportacion exitosa",
     "importDevices": "Importar dispositivos",
@@ -1092,7 +1181,7 @@
       "errors": "Errores",
       "fileName": "Archivo",
       "loadError": "Error al cargar historial",
-      "loading": "Cargando...",
+      "loading": "Cargando historial...",
       "status": {
         "completed": "Completado",
         "failed": "Fallido",
@@ -1175,7 +1264,9 @@
     "logout": "Cerrar sesion",
     "modoSolicitud": "Modo solicitud",
     "proximoFeriado": "Proximo feriado",
-    "riesgoPais": "Riesgo pais"
+    "riesgoPais": "Riesgo pais",
+    "switchToEnglish": "Cambiar a ingles",
+    "switchToSpanish": "Cambiar a espanol"
   },
   "offline": {
     "message": "Estas sin conexion. Algunas funciones no estaran disponibles."
@@ -1192,6 +1283,7 @@
   },
   "rateLimit": {
     "message": "Demasiadas solicitudes. Espera un momento.",
+    "messageDetailed": "Por favor espera {{seconds}} segundos antes de intentar nuevamente.",
     "retryIn": "Reintentar en {{seconds}}s",
     "title": "Limite de solicitudes"
   },

@@ -3,6 +3,7 @@
  */
 
 import { apiClient } from '@/services/http/apiClient';
+import { useAuthStore } from '@/store';
 import type {
   GeofenceDto,
   CreateGeofenceCommand,
@@ -13,6 +14,14 @@ import type {
 } from '../types';
 
 const BASE = 'geofences';
+
+function getGeofencesBase() {
+  const user = useAuthStore.getState().user;
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  return isPersonalContext ? 'personal/geofences' : BASE;
+}
 
 export const geofencesApi = {
   /**
@@ -34,7 +43,7 @@ export const geofencesApi = {
       queryParams.tamanoPagina = params.tamanoPagina;
     }
 
-    const response = await apiClient.get<ListaPaginada<GeofenceDto>>(BASE, { params: queryParams });
+    const response = await apiClient.get<ListaPaginada<GeofenceDto>>(getGeofencesBase(), { params: queryParams });
     return response.data;
   },
 
@@ -42,7 +51,7 @@ export const geofencesApi = {
    * Obtiene una geofence por ID
    */
   obtenerPorId: async (id: string): Promise<GeofenceDto> => {
-    const response = await apiClient.get<GeofenceDto>(`${BASE}/${id}`);
+    const response = await apiClient.get<GeofenceDto>(`${getGeofencesBase()}/${id}`);
     return response.data;
   },
 
@@ -50,7 +59,7 @@ export const geofencesApi = {
    * Crea una nueva geofence
    */
   crear: async (command: CreateGeofenceCommand): Promise<GeofenceDto> => {
-    const response = await apiClient.post<GeofenceDto>(BASE, command);
+    const response = await apiClient.post<GeofenceDto>(getGeofencesBase(), command);
     return response.data;
   },
 
@@ -58,7 +67,7 @@ export const geofencesApi = {
    * Actualiza una geofence existente
    */
   actualizar: async (id: string, command: Omit<UpdateGeofenceCommand, 'id'>): Promise<GeofenceDto> => {
-    const response = await apiClient.put<GeofenceDto>(`${BASE}/${id}`, { ...command, id });
+    const response = await apiClient.put<GeofenceDto>(`${getGeofencesBase()}/${id}`, { ...command, id });
     return response.data;
   },
 
@@ -66,14 +75,14 @@ export const geofencesApi = {
    * Elimina una geofence (soft delete)
    */
   eliminar: async (id: string): Promise<void> => {
-    await apiClient.delete(`${BASE}/${id}`);
+    await apiClient.delete(`${getGeofencesBase()}/${id}`);
   },
 
   /**
    * Lista los vehículos actualmente asignados a una geofence
    */
   listarVehiculosAsignados: async (geofenceId: string): Promise<VehiculoAsignadoDto[]> => {
-    const response = await apiClient.get<VehiculoAsignadoDto[]>(`${BASE}/${geofenceId}/vehiculos`);
+    const response = await apiClient.get<VehiculoAsignadoDto[]>(`${getGeofencesBase()}/${geofenceId}/vehiculos`);
     return response.data;
   },
 
@@ -82,7 +91,7 @@ export const geofencesApi = {
    */
   asignarVehiculo: async (geofenceId: string, vehiculoId: string): Promise<boolean> => {
     const response = await apiClient.post<boolean>(
-      `${BASE}/${geofenceId}/vehiculos/${vehiculoId}`
+      `${getGeofencesBase()}/${geofenceId}/vehiculos/${vehiculoId}`
     );
     return response.data;
   },
@@ -92,7 +101,7 @@ export const geofencesApi = {
    */
   desasignarVehiculo: async (geofenceId: string, vehiculoId: string): Promise<boolean> => {
     const response = await apiClient.delete<boolean>(
-      `${BASE}/${geofenceId}/vehiculos/${vehiculoId}`
+      `${getGeofencesBase()}/${geofenceId}/vehiculos/${vehiculoId}`
     );
     return response.data;
   },

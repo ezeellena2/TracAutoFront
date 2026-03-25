@@ -6,9 +6,9 @@ import { buildThemeOverride } from '@/shared/utils/buildThemeOverride';
 
 interface TenantState {
   /**
-   * TracAuto (frontend) asume SINGLE-ORG por sesión:
-   * - La organización activa viene del login (user.organizationId) y se carga desde backend.
-   * - No existe selector ni cambio de organización en runtime.
+   * Representa solo la organización activa del contexto actual.
+   * En contexto personal debe ser null.
+   * No modela todos los contextos disponibles: eso vive en auth.store.
    */
   currentOrganization: OrganizationTheme | null;
 
@@ -53,7 +53,7 @@ export const useTenantStore = create<TenantState>()(
       },
 
       /**
-       * Crea OrganizationTheme desde datos del login response (sin segunda API call)
+       * Crea OrganizationTheme desde el snapshot del contexto organizacional activo
        */
       setOrganizationFromLogin: (info) => {
         const orgTheme: OrganizationTheme = {
@@ -69,7 +69,7 @@ export const useTenantStore = create<TenantState>()(
       clearOrganization: () => set({ currentOrganization: null }),
 
       /**
-       * Verifica si la organización actual tiene un módulo activo
+       * Verifica si la organización activa tiene un módulo habilitado
        */
       tieneModulo: (modulo: ModuloSistema) => {
         const org = get().currentOrganization;

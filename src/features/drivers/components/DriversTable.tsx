@@ -10,6 +10,7 @@ interface DriversTableProps {
   conductores: ConductorDto[];
   canEdit: boolean;
   canDelete: boolean;
+  showViewAssignments?: boolean;
   actionMenuOpen: string | null;
   onActionMenuToggle: (id: string | null) => void;
   onEdit: (conductor: ConductorDto) => void;
@@ -26,6 +27,7 @@ export function DriversTable({
   conductores,
   canEdit,
   canDelete,
+  showViewAssignments = true,
   actionMenuOpen,
   onActionMenuToggle,
   onEdit,
@@ -199,16 +201,18 @@ export function DriversTable({
                       {t('drivers.edit')}
                     </button>
                   )}
-                  <button
-                    onClick={() => {
-                      onActionMenuToggle(null);
-                      onViewAssignments(c);
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
-                  >
-                    <List size={14} />
-                    {t('drivers.viewAssignments')}
-                  </button>
+                  {showViewAssignments && (
+                    <button
+                      onClick={() => {
+                        onActionMenuToggle(null);
+                        onViewAssignments(c);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 text-text"
+                    >
+                      <List size={14} />
+                      {t('drivers.viewAssignments')}
+                    </button>
+                  )}
                   {!c.esRecursoAsociado && onShare && (
                     <button
                       onClick={() => {
@@ -286,10 +290,13 @@ export function DriversTable({
       },
     },
   ];
+  const visibleColumns = onShare
+    ? columns
+    : columns.filter((column) => column.key !== 'compartidoCon');
 
   return (
     <Table
-      columns={columns}
+      columns={visibleColumns}
       data={conductores}
       keyExtractor={(c) => c.id}
       containerClassName="overflow-visible"

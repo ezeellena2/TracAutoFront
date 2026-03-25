@@ -1,12 +1,21 @@
 /**
- * API client for fleet map positions
- * Connects to MapController backend endpoint
+ * API client for map positions in the currently active context.
+ * Routes to the personal or organizational backend surface as needed.
  */
 
 import { apiClient } from '../http/apiClient';
+import { useAuthStore } from '@/store';
 import { VehiclePosition } from '@/features/traccar-map/types';
 
 const MAP_BASE = 'map';
+
+function getMapBase() {
+  const user = useAuthStore.getState().user;
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  return isPersonalContext ? 'personal/map' : MAP_BASE;
+}
 
 /**
  * API response DTO from backend
@@ -41,15 +50,12 @@ function mapToVehiclePosition(dto: VehiclePositionApiDto): VehiclePosition {
 }
 
 /**
- * Fetches vehicle positions for the current organization's fleet.
- * The backend automatically filters by organization from the JWT token.
- *
- * @param soloActivos Filter only active devices (default: true)
- * @returns Array of vehicle positions
+ * Fetches vehicle positions for the active context.
+ * The backend applies ownership filtering from the JWT context.
  */
 export async function getVehiclePositions(soloActivos = true): Promise<VehiclePosition[]> {
   const response = await apiClient.get<VehiclePositionApiDto[]>(
-    `${MAP_BASE}/positions`,
+    `${getMapBase()}/positions`,
     { params: { soloActivos } }
   );
   return response.data.map(mapToVehiclePosition);

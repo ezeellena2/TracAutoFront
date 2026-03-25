@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+﻿import { useCallback, useEffect, useState } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Wifi, WifiOff, Settings, AlertCircle, Plus, Edit, Trash2, Share2, Upload, Download, QrCode, Package, History } from 'lucide-react';
 import { Card, Table, Badge, Button, Modal, Input, PaginationControls, AdvancedFilterBar, FilterConfig, ImportExcelModal, ImportResultsModal, ImportProcessingModal } from '@/shared/ui';
@@ -7,6 +7,7 @@ import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { dispositivosApi, reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters, useImportJobPolling } from '@/hooks';
+import { useAuthStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import type { DispositivoDto, ListaPaginada, TipoRecurso } from '@/shared/types/api';
 import { NivelPermisoCompartido } from '@/shared/types/api';
@@ -18,11 +19,12 @@ import { DeviceStockChangeModal } from '@/features/devices/components/DeviceStoc
 import { DeviceStockHistoryModal } from '@/features/devices/components/DeviceStockHistoryModal';
 
 const getDeviceFiltersConfig = (t: (key: string, options?: Record<string, unknown>) => string): FilterConfig[] => [
-  { key: 'soloActivos', label: t('devices.onlyActive', { defaultValue: 'Solo Activos' }), type: 'boolean' },
+  { key: 'soloActivos', label: t('devices.onlyActive'), type: 'boolean' },
 ];
 
 export function DevicesPage() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const { culture, timeZoneId } = useLocalization();
   const { handleApiError } = useErrorHandler();
   // Datos paginados
@@ -30,7 +32,7 @@ export function DevicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Hook de paginación reutilizable
+  // Hook de paginaciÃ³n reutilizable
   const {
     setNumeroPagina,
     setTamanoPagina,
@@ -108,8 +110,8 @@ export function DevicesPage() {
       const backendParams: Record<string, string | number | boolean> = {
         ...paginationParams,
       };
-      // Si hay filtroId (navegación directa desde conductores), no aplicar soloActivos
-      // para evitar excluir dispositivos inactivos que el usuario busca explícitamente
+      // Si hay filtroId (navegaciÃ³n directa desde conductores), no aplicar soloActivos
+      // para evitar excluir dispositivos inactivos que el usuario busca explÃ­citamente
       if (filters.soloActivos !== undefined && !urlFiltroId) {
         backendParams.soloActivos = filters.soloActivos === 'true';
       }
@@ -136,7 +138,7 @@ export function DevicesPage() {
   }, [loadDevices]);
 
 
-  // Ajustar automáticamente si la página actual excede el total de páginas
+  // Ajustar automÃ¡ticamente si la pÃ¡gina actual excede el total de pÃ¡ginas
   useEffect(() => {
     if (
       devicesData &&
@@ -150,6 +152,16 @@ export function DevicesPage() {
   // Permisos
   const canConfigure = can('dispositivos:configurar');
   const canCreate = can('dispositivos:configurar'); // Usar mismo permiso que configurar
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  const pageTitle = isPersonalContext ? 'Mis dispositivos' : t('devices.title');
+  const pageSubtitle = isPersonalContext
+    ? t('devices.personal.subtitle', { defaultValue: 'Registra y sigue dispositivos propios. Las superficies empresariales como stock masivo o importaciones quedan fuera del contexto personal.' })
+    : t('devices.subtitle');
+  const emptyDescription = isPersonalContext
+    ? t('devices.personal.emptyDescription', { defaultValue: 'Todavia no vinculaste dispositivos propios. Suma el primero para habilitar seguimiento, asignaciones y mapa dentro de tu cuenta.' })
+    : t('devices.emptyDescription');
 
   const handleCreateDevice = async () => {
     // Validar formulario
@@ -270,13 +282,12 @@ export function DevicesPage() {
       setIsImportResultsModalOpen(true);
       void loadDevices();
       if (isFailed) {
-        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed'));
       } else if ((polledJob.filasConErrores ?? 0) === 0) {
-        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        toast.success(t('imports.results.allSuccess'));
       } else {
         toast.success(
           t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
             count: polledJob.filasExitosas ?? 0,
           })
         );
@@ -297,11 +308,10 @@ export function DevicesPage() {
         setIsImportResultsModalOpen(true);
         await loadDevices();
         if (results.filasConErrores === 0) {
-          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+          toast.success(t('imports.results.allSuccess'));
         } else {
           toast.success(
             t('imports.results.importedCount', {
-              defaultValue: 'Se importaron {{count}} filas',
               count: results.filasExitosas,
             })
           );
@@ -317,11 +327,11 @@ export function DevicesPage() {
   const handleExportDevices = async () => {
     setIsExporting(true);
     try {
-      // Exportar según los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
+      // Exportar segÃºn los filtros aplicados (si hay filtro de soloActivos, usarlo; si no, exportar todos)
       const soloActivos = filters.soloActivos === 'true';
       const blob = await reportesApi.exportDispositivosExcel(soloActivos);
       downloadBlob(blob, 'dispositivos.xlsx');
-      toast.success(t('imports.exportSuccess', { defaultValue: 'Dispositivos exportados exitosamente' }));
+      toast.success(t('imports.exportSuccess'));
     } catch (e) {
       handleApiError(e);
     } finally {
@@ -371,7 +381,7 @@ export function DevicesPage() {
             </div>
           );
         }
-        // Si está compartido con otras organizaciones
+        // Si estÃ¡ compartido con otras organizaciones
         if (d.compartidoCon?.estaCompartido) {
           const { cantidadOrganizaciones, organizaciones } = d.compartidoCon;
           const nombresOrgs = organizaciones.map(o => o.nombre).join(', ');
@@ -398,7 +408,7 @@ export function DevicesPage() {
             className="text-text-muted hover:text-primary transition-colors cursor-pointer"
             title={t('devices.table.manageSharing')}
           >
-            —
+            â€”
           </button>
         );
       },
@@ -429,7 +439,7 @@ export function DevicesPage() {
         return (
           <div className="flex items-center gap-2">
             {/* QR Code */}
-            {!d.esRecursoAsociado && (
+            {!isPersonalContext && !d.esRecursoAsociado && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -440,7 +450,7 @@ export function DevicesPage() {
               </Button>
             )}
             {/* Stock Change */}
-            {!d.esRecursoAsociado && (
+            {!isPersonalContext && !d.esRecursoAsociado && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -451,7 +461,7 @@ export function DevicesPage() {
               </Button>
             )}
             {/* Stock History */}
-            {!d.esRecursoAsociado && (
+            {!isPersonalContext && !d.esRecursoAsociado && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -462,7 +472,7 @@ export function DevicesPage() {
               </Button>
             )}
             {/* Sharing */}
-            {!d.esRecursoAsociado && (
+            {!isPersonalContext && !d.esRecursoAsociado && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -499,11 +509,14 @@ export function DevicesPage() {
       }
     },
   ];
+  const visibleColumns = isPersonalContext
+    ? columns.filter((column) => column.key !== 'compartidoCon' && column.key !== 'estadoStock')
+    : columns;
 
-  // Modales que deben estar siempre disponibles independientemente del estado de la página
+  // Modales que deben estar siempre disponibles independientemente del estado de la pÃ¡gina
   const modals = (
     <>
-      {/* Modal de creación */}
+      {/* Modal de creaciÃ³n */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => {
@@ -560,35 +573,37 @@ export function DevicesPage() {
       </Modal>
 
       {/* Import Modal */}
-      <ImportExcelModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImportDevices}
-        title={t('imports.importDevices', { defaultValue: 'Importar Dispositivos' })}
-        onDownloadTemplate={async () => {
-          const blob = await reportesApi.downloadTemplateDispositivosExcel();
-          downloadBlob(blob, 'template_dispositivos.xlsx');
-        }}
-        templateLabel={t('imports.downloadDeviceTemplate', { defaultValue: 'Template de Dispositivos' })}
-      />
+      {!isPersonalContext && (
+        <>
+          <ImportExcelModal
+            isOpen={isImportModalOpen}
+            onClose={() => setIsImportModalOpen(false)}
+            onImport={handleImportDevices}
+            title={t('imports.importDevices')}
+            onDownloadTemplate={async () => {
+              const blob = await reportesApi.downloadTemplateDispositivosExcel();
+              downloadBlob(blob, 'template_dispositivos.xlsx');
+            }}
+            templateLabel={t('imports.downloadDeviceTemplate')}
+          />
 
-      {/* Import Processing Modal */}
-      <ImportProcessingModal
-        isOpen={isImportProcessingModalOpen}
-        tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
-      />
+          <ImportProcessingModal
+            isOpen={isImportProcessingModalOpen}
+            tipoImportacion={t('imports.importDevices')}
+          />
 
-      {/* Import Results Modal */}
-      {importResults && (
-        <ImportResultsModal
-          isOpen={isImportResultsModalOpen}
-          onClose={() => {
-            setIsImportResultsModalOpen(false);
-            setImportResults(null);
-          }}
-          results={importResults}
-          tipoImportacion={t('imports.importDevices', { defaultValue: 'Dispositivos' })}
-        />
+          {importResults && (
+            <ImportResultsModal
+              isOpen={isImportResultsModalOpen}
+              onClose={() => {
+                setIsImportResultsModalOpen(false);
+                setImportResults(null);
+              }}
+              results={importResults}
+              tipoImportacion={t('imports.importDevices')}
+            />
+          )}
+        </>
       )}
     </>
   );
@@ -599,8 +614,8 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
-            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -622,19 +637,23 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
-            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
-                <Download size={16} className="mr-2" />
-                {t('imports.export', { defaultValue: 'Exportar' })}
-              </Button>
-              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-                <Upload size={16} className="mr-2" />
-                {t('imports.import', { defaultValue: 'Importar' })}
-              </Button>
+              {!isPersonalContext && (
+                <>
+                  <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
+                    <Download size={16} className="mr-2" />
+                    {t('imports.export')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                    <Upload size={16} className="mr-2" />
+                    {t('imports.import')}
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -657,19 +676,23 @@ export function DevicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
-            <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
-                <Download size={16} className="mr-2" />
-                {t('imports.export', { defaultValue: 'Exportar' })}
-              </Button>
-              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-                <Upload size={16} className="mr-2" />
-                {t('imports.import', { defaultValue: 'Importar' })}
-              </Button>
+              {!isPersonalContext && (
+                <>
+                  <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
+                    <Download size={16} className="mr-2" />
+                    {t('imports.export')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                    <Upload size={16} className="mr-2" />
+                    {t('imports.import')}
+                  </Button>
+                </>
+              )}
               <Button onClick={() => setIsCreateModalOpen(true)}>
                 <Plus size={16} className="mr-2" />
                 {t('devices.createDevice')}
@@ -682,14 +705,20 @@ export function DevicesPage() {
             <Settings size={48} className="text-text-muted mb-4" />
             <h3 className="text-lg font-semibold text-text mb-2">{t('devices.emptyTitle')}</h3>
             <p className="text-text-muted text-center max-w-md mb-4">
-              {t('devices.emptyDescription')}
+              {emptyDescription}
             </p>
-            {canCreate && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                {t('devices.createDevice')}
-              </Button>
-            )}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {canCreate && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus size={16} className="mr-2" />
+                  {t('devices.createDevice')}
+                </Button>
+              )}
+              <RouterLink
+                to="/vehiculos"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary hover:text-white"
+              >{t('devices.viewVehicles', { defaultValue: 'Ver vehiculos' })}</RouterLink>
+            </div>
           </div>
         </Card>
         {modals}
@@ -702,19 +731,23 @@ export function DevicesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">{t('devices.title')}</h1>
-          <p className="text-text-muted mt-1">{t('devices.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+          <p className="text-text-muted mt-1">{pageSubtitle}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
-              <Download size={16} className="mr-2" />
-              {t('imports.export', { defaultValue: 'Exportar' })}
-            </Button>
-            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className="mr-2" />
-              {t('imports.import', { defaultValue: 'Importar' })}
-            </Button>
+            {!isPersonalContext && (
+              <>
+                <Button variant="outline" onClick={handleExportDevices} isLoading={isExporting} disabled={isExporting}>
+                  <Download size={16} className="mr-2" />
+                  {t('imports.export')}
+                </Button>
+                <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                  <Upload size={16} className="mr-2" />
+                  {t('imports.import')}
+                </Button>
+              </>
+            )}
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('devices.createDevice')}
@@ -749,7 +782,7 @@ export function DevicesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">{devicesData?.totalRegistros ?? devices.length}</p>
-              <p className="text-sm text-text-muted">{t('devices.totalDevices')}</p>
+              <p className="text-sm text-text-muted">{t('devices.totalDevices', { count: devicesData?.totalRegistros ?? devices.length })}</p>
             </div>
           </div>
         </Card>
@@ -762,7 +795,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estadoConexion === 'online').length}
               </p>
-              <p className="text-sm text-text-muted">{t('devices.devicesOnline')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })} {t('common.active', { defaultValue: 'actual' }).toLowerCase()})</span></p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOnline', { count: devices.filter(d => d.estadoConexion === 'online').length })} <span className="text-xs opacity-60">({t('common.currentPage')})</span></p>
             </div>
           </div>
         </Card>
@@ -775,7 +808,7 @@ export function DevicesPage() {
               <p className="text-2xl font-bold text-text">
                 {devices.filter(d => d.estadoConexion === 'offline').length}
               </p>
-              <p className="text-sm text-text-muted">{t('devices.devicesOffline')} <span className="text-xs opacity-60">({t('common.page', { defaultValue: 'pág.' })} {t('common.active', { defaultValue: 'actual' }).toLowerCase()})</span></p>
+              <p className="text-sm text-text-muted">{t('devices.devicesOffline', { count: devices.filter(d => d.estadoConexion === 'offline').length })} <span className="text-xs opacity-60">({t('common.currentPage')})</span></p>
             </div>
           </div>
         </Card>
@@ -798,11 +831,11 @@ export function DevicesPage() {
       <div>
         <Card padding="none">
           <Table
-            columns={columns}
+            columns={visibleColumns}
             data={devices}
             keyExtractor={(d) => d.id}
           />
-          {/* Controles de paginación */}
+          {/* Controles de paginaciÃ³n */}
           {devicesData && devicesData.totalRegistros > 0 && (
             <PaginationControls
               paginaActual={devicesData.paginaActual}
@@ -817,7 +850,7 @@ export function DevicesPage() {
         </Card>
       </div>
 
-      {/* Modal de edición */}
+      {/* Modal de ediciÃ³n */}
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => {
@@ -883,7 +916,7 @@ export function DevicesPage() {
         </div>
       </Modal>
 
-      {/* Modal de confirmación de eliminación */}
+      {/* Modal de confirmaciÃ³n de eliminaciÃ³n */}
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
@@ -899,8 +932,8 @@ export function DevicesPage() {
         isLoading={isDeleting}
       />
 
-      {/* Modal de Gestión de Compartición */}
-      {deviceToShare && (
+      {/* Modal de GestiÃ³n de ComparticiÃ³n */}
+      {!isPersonalContext && deviceToShare && (
         <GestionarComparticionModal
           isOpen={!!deviceToShare}
           onClose={() => setDeviceToShare(null)}
@@ -912,28 +945,31 @@ export function DevicesPage() {
       )}
 
       {/* QR Modal */}
-      <DeviceQrModal
-        device={deviceForQr}
-        isOpen={!!deviceForQr}
-        onClose={() => setDeviceForQr(null)}
-      />
+      {!isPersonalContext && (
+        <>
+          <DeviceQrModal
+            device={deviceForQr}
+            isOpen={!!deviceForQr}
+            onClose={() => setDeviceForQr(null)}
+          />
 
-      {/* Stock Change Modal */}
-      <DeviceStockChangeModal
-        device={deviceForStockChange}
-        isOpen={!!deviceForStockChange}
-        onClose={() => setDeviceForStockChange(null)}
-        onSuccess={loadDevices}
-      />
+          <DeviceStockChangeModal
+            device={deviceForStockChange}
+            isOpen={!!deviceForStockChange}
+            onClose={() => setDeviceForStockChange(null)}
+            onSuccess={loadDevices}
+          />
 
-      {/* Stock History Modal */}
-      <DeviceStockHistoryModal
-        device={deviceForStockHistory}
-        isOpen={!!deviceForStockHistory}
-        onClose={() => setDeviceForStockHistory(null)}
-      />
+          <DeviceStockHistoryModal
+            device={deviceForStockHistory}
+            isOpen={!!deviceForStockHistory}
+            onClose={() => setDeviceForStockHistory(null)}
+          />
+        </>
+      )}
 
       {modals}
     </div>
   );
 }
+

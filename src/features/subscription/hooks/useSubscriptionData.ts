@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { suscripcionesApi } from '../api/subscription.api';
+import { useAuthStore } from '@/store';
 
 const KEYS = {
   modulosActivos: ['suscripciones', 'modulos-activos'] as const,
@@ -8,15 +9,19 @@ const KEYS = {
 
 export function useSuscripcionesData() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const contextKey = user
+    ? `${user.id}:${user.contextoActivo.tipo}:${user.contextoActivo.id ?? 'personal'}`
+    : 'anon';
 
   const modulosActivosQuery = useQuery({
-    queryKey: KEYS.modulosActivos,
+    queryKey: [...KEYS.modulosActivos, contextKey],
     queryFn: suscripcionesApi.getModulosActivos,
     staleTime: 5 * 60 * 1000,
   });
 
   const modulosDisponiblesQuery = useQuery({
-    queryKey: KEYS.modulosDisponibles,
+    queryKey: [...KEYS.modulosDisponibles, contextKey],
     queryFn: suscripcionesApi.getModulosDisponibles,
     staleTime: 5 * 60 * 1000,
   });

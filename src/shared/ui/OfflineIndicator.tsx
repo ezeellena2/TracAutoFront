@@ -86,7 +86,7 @@ export function OfflineIndicator() {
           <button
             onClick={() => setDismissed(true)}
             className="p-1 hover:bg-error/20 rounded transition-colors"
-            aria-label="Cerrar"
+            aria-label={t('common.close')}
           >
             <X className="w-4 h-4" />
           </button>

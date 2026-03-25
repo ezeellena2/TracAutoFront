@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { env } from '@/config/env';
-import { setupPublicApiInterceptors } from './publicApiInterceptors';
 
 /**
- * Cliente HTTP para endpoints publicos (sin autenticacion).
- * Base URL: /api/public/v1
- * Usado por: marketplace publico, soporte, etc.
+ * Cliente HTTP para endpoints publicados bajo /api/public/v1.
+ * Para endpoints anónimos que viven en /api/v1 o /api/<controller>,
+ * reutilizar el publicApiClient exportado desde apiClient.ts.
  */
 export const publicApiClient = axios.create({
   baseURL: `${env.apiBaseUrl}/public/${env.apiVersion}`,
@@ -16,11 +15,8 @@ export const publicApiClient = axios.create({
   },
 });
 
-// Interceptores B2C (token auth cliente)
-setupPublicApiInterceptors(publicApiClient);
-
 /**
- * Construye la URL completa del API publica para un path dado
+ * Construye la URL completa del API público para un path dado
  */
 export function buildPublicApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams, Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
@@ -7,6 +7,7 @@ import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 import { vehiculosApi, dispositivosApi, reportesApi } from '@/services/endpoints';
 import type { ImportarExcelResponse } from '@/services/endpoints/reportes.api';
 import { usePermissions, usePaginationParams, useLocalization, useErrorHandler, useTableFilters, useImportJobPolling } from '@/hooks';
+import { useAuthStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import type {
   VehiculoDto,
@@ -21,17 +22,18 @@ import type { ConductorVehiculoAsignacionDto } from '@/features/drivers/types';
 import { CreateVehicleModal } from '../components/CreateVehicleModal';
 import { VehicleConductorsModal } from '../components/VehicleConductorsModal';
 
-// FIX-6: Usar función factory con t() para i18n en labels de filtros
+// FIX-6: Usar funciÃ³n factory con t() para i18n en labels de filtros
 const getVehicleFiltersConfig = (t: (key: string, options?: Record<string, string>) => string): FilterConfig[] => [
-  { key: 'patente', label: t('vehicles.filters.licensePlate', { defaultValue: 'Patente' }), type: 'text', placeholder: 'AA000AA' },
-  { key: 'marca', label: t('vehicles.filters.brand', { defaultValue: 'Marca' }), type: 'text' },
-  { key: 'modelo', label: t('vehicles.filters.model', { defaultValue: 'Modelo' }), type: 'text' },
-  { key: 'anio', label: t('vehicles.filters.year', { defaultValue: 'Año' }), type: 'number' },
-  { key: 'activo', label: t('vehicles.filters.status', { defaultValue: 'Estado' }), type: 'boolean' },
+  { key: 'patente', label: t('vehicles.filters.licensePlate'), type: 'text', placeholder: 'AA000AA' },
+  { key: 'marca', label: t('vehicles.filters.brand'), type: 'text' },
+  { key: 'modelo', label: t('vehicles.filters.model'), type: 'text' },
+  { key: 'anio', label: t('vehicles.filters.year'), type: 'number' },
+  { key: 'activo', label: t('vehicles.filters.status'), type: 'boolean' },
 ];
 
 export function VehiclesPage() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const localization = useLocalization();
   const culture = localization.culture;
   const timeZoneId = localization.timeZoneId;
@@ -87,7 +89,7 @@ export function VehiclesPage() {
   // Sharing modal
   const [vehicleToShare, setVehicleToShare] = useState<VehiculoDto | null>(null);
 
-  // Conductors modal (ver conductores asignados al vehículo)
+  // Conductors modal (ver conductores asignados al vehÃ­culo)
   const [vehicleForConductorsModal, setVehicleForConductorsModal] = useState<VehiculoDto | null>(null);
   const [vehicleConductorsCache, setVehicleConductorsCache] = useState<Record<string, ConductorVehiculoAsignacionDto[]>>({});
 
@@ -109,6 +111,16 @@ export function VehiclesPage() {
   const canEdit = can('vehiculos:editar');
   const canCreate = can('vehiculos:crear');
   const canDelete = can('vehiculos:eliminar');
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
+  const pageTitle = isPersonalContext ? t('vehicles.personal.title', { defaultValue: 'Mis vehiculos' }) : t('vehicles.title');
+  const pageSubtitle = isPersonalContext
+    ? t('vehicles.personal.subtitle', { defaultValue: 'Gestiona vehiculos propios sin depender de una organizacion. Despues puedes vincularles dispositivos, conductores y geozonas del mismo contexto.' })
+    : t('vehicles.subtitle');
+  const emptyDescription = isPersonalContext
+    ? t('vehicles.personal.emptyDescription', { defaultValue: 'Todavia no cargaste vehiculos propios. Empieza por tu primer activo personal para habilitar mapa, asignaciones y seguimiento dentro de tu cuenta.' })
+    : t('vehicles.emptyDescription');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const urlFiltroId = searchParams.get('filtroId') ?? undefined;
@@ -142,10 +154,13 @@ export function VehiclesPage() {
     void loadData();
   }, [loadData]);
 
-  // Precargar conductores por vehículo en una sola petición batch (evita N+1)
+  // Precargar conductores por vehÃ­culo en una sola peticiÃ³n batch (evita N+1)
   useEffect(() => {
     const items = vehiclesData?.items ?? [];
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      setVehicleConductorsCache({});
+      return;
+    }
     const ids = items.map((v) => v.id);
     let cancelled = false;
     vehiculosApi
@@ -298,13 +313,12 @@ export function VehiclesPage() {
       setIsImportResultsModalOpen(true);
       void loadData();
       if (isFailed) {
-        toast.error(polledJob.mensajeError ?? t('imports.processing.failed', { defaultValue: 'La importación falló' }));
+        toast.error(polledJob.mensajeError ?? t('imports.processing.failed'));
       } else if ((polledJob.filasConErrores ?? 0) === 0) {
-        toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+        toast.success(t('imports.results.allSuccess'));
       } else {
         toast.success(
           t('imports.results.importedCount', {
-            defaultValue: 'Se importaron {{count}} filas',
             count: polledJob.filasExitosas ?? 0,
           })
         );
@@ -325,11 +339,10 @@ export function VehiclesPage() {
         setIsImportResultsModalOpen(true);
         await loadData();
         if (results.filasConErrores === 0) {
-          toast.success(t('imports.results.allSuccess', { defaultValue: 'Todas las filas se importaron exitosamente' }));
+          toast.success(t('imports.results.allSuccess'));
         } else {
           toast.success(
             t('imports.results.importedCount', {
-              defaultValue: 'Se importaron {{count}} filas',
               count: results.filasExitosas,
             })
           );
@@ -345,10 +358,10 @@ export function VehiclesPage() {
   const handleExportVehicles = async () => {
     setIsExporting(true);
     try {
-      // Exportar todos los vehículos (el backend puede filtrar después si es necesario)
+      // Exportar todos los vehÃ­culos (el backend puede filtrar despuÃ©s si es necesario)
       const blob = await reportesApi.exportVehiculosExcel(false);
       downloadBlob(blob, 'vehiculos.xlsx');
-      toast.success(t('imports.exportSuccess', { defaultValue: 'Vehículos exportados exitosamente' }));
+      toast.success(t('imports.exportSuccess'));
     } catch (e) {
       handleApiError(e);
     } finally {
@@ -391,7 +404,7 @@ export function VehiclesPage() {
           <RouterLink
             to={`/dispositivos?filtroId=${v.dispositivoActivoId}`}
             className="hover:opacity-80 transition-opacity"
-            title={t('vehicles.table.viewDevice', { defaultValue: 'Ver dispositivo' })}
+            title={t('vehicles.table.viewDevice')}
           >
             <Badge variant="info">{identifier}</Badge>
           </RouterLink>
@@ -408,7 +421,7 @@ export function VehiclesPage() {
         const handleClick = () => setVehicleForConductorsModal(v);
         if (list !== undefined) {
           if (list.length === 0) {
-            return <span className="text-text-muted">—</span>;
+            return <span className="text-text-muted">â€”</span>;
           }
           return (
             <button
@@ -422,7 +435,7 @@ export function VehiclesPage() {
           );
         }
         return (
-          <span className="text-text-muted text-sm">—</span>
+          <span className="text-text-muted text-sm">â€”</span>
         );
       },
     },
@@ -454,7 +467,7 @@ export function VehiclesPage() {
             </div>
           );
         }
-        // Si está compartido con otras organizaciones
+        // Si estÃ¡ compartido con otras organizaciones
         if (v.compartidoCon?.estaCompartido) {
           const { cantidadOrganizaciones, organizaciones } = v.compartidoCon;
           const nombresOrgs = organizaciones.map(o => o.nombre).join(', ');
@@ -481,7 +494,7 @@ export function VehiclesPage() {
             className="text-text-muted hover:text-primary transition-colors cursor-pointer"
             title={t('vehicles.table.manageSharing')}
           >
-            —
+            â€”
           </button>
         );
       },
@@ -496,13 +509,14 @@ export function VehiclesPage() {
       header: t('vehicles.actions'),
       render: (v: VehiculoDto) => (
         <div className="flex items-center gap-1">
-          {/* Botón de compartición - solo para recursos propios */}
+          {/* BotÃ³n de comparticiÃ³n - solo para recursos propios */}
           {canEdit && !v.esRecursoAsociado && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setVehicleToShare(v)}
               title={t('vehicles.table.manageSharing')}
+              style={isPersonalContext ? { display: 'none' } : undefined}
             >
               <Share2 size={16} className="text-primary" />
             </Button>
@@ -546,14 +560,17 @@ export function VehiclesPage() {
       ),
     },
   ];
+  const visibleColumns = isPersonalContext
+    ? columns.filter((column) => column.key !== 'compartidoCon')
+    : columns;
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
-            <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -573,8 +590,8 @@ export function VehiclesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
-            <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -602,19 +619,23 @@ export function VehiclesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
-            <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
+            <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+            <p className="text-text-muted mt-1">{pageSubtitle}</p>
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting}>
-                <Download size={16} className="mr-2" />
-                {t('imports.export', { defaultValue: 'Exportar' })}
-              </Button>
-              <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-                <Upload size={16} className="mr-2" />
-                {t('imports.import', { defaultValue: 'Importar' })}
-              </Button>
+              {!isPersonalContext && (
+                <>
+                  <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting}>
+                    <Download size={16} className="mr-2" />
+                    {t('imports.export')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                    <Upload size={16} className="mr-2" />
+                    {t('imports.import')}
+                  </Button>
+                </>
+              )}
               <Button onClick={() => setIsCreateModalOpen(true)}>
                 <Plus size={16} className="mr-2" />
                 {t('vehicles.createVehicle')}
@@ -627,14 +648,20 @@ export function VehiclesPage() {
             <Car size={48} className="text-text-muted mb-4" />
             <h3 className="text-lg font-semibold text-text mb-2">{t('vehicles.emptyTitle')}</h3>
             <p className="text-text-muted text-center max-w-md mb-4">
-              {t('vehicles.emptyDescription')}
+              {emptyDescription}
             </p>
-            {canCreate && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                {t('vehicles.createVehicle')}
-              </Button>
-            )}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {canCreate && (
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <Plus size={16} className="mr-2" />
+                  {t('vehicles.createVehicle')}
+                </Button>
+              )}
+              <RouterLink
+                to="/suscripcion"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary hover:text-white"
+              >{t('vehicles.reviewModules', { defaultValue: 'Revisar modulos' })}</RouterLink>
+            </div>
           </div>
         </Card>
 
@@ -653,19 +680,23 @@ export function VehiclesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">{t('vehicles.title')}</h1>
-          <p className="text-text-muted mt-1">{t('vehicles.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
+          <p className="text-text-muted mt-1">{pageSubtitle}</p>
         </div>
         {canCreate && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting} disabled={isExporting}>
-              <Download size={16} className="mr-2" />
-              {t('imports.export', { defaultValue: 'Exportar' })}
-            </Button>
-            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className="mr-2" />
-              {t('imports.import', { defaultValue: 'Importar' })}
-            </Button>
+            {!isPersonalContext && (
+              <>
+                <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting} disabled={isExporting}>
+                  <Download size={16} className="mr-2" />
+                  {t('imports.export')}
+                </Button>
+                <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                  <Upload size={16} className="mr-2" />
+                  {t('imports.import')}
+                </Button>
+              </>
+            )}
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus size={16} className="mr-2" />
               {t('vehicles.createVehicle')}
@@ -682,7 +713,7 @@ export function VehiclesPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-text">{vehiclesData?.totalRegistros ?? vehicles.length}</p>
-              <p className="text-sm text-text-muted">{t('vehicles.totalVehicles')}</p>
+              <p className="text-sm text-text-muted">{t('vehicles.totalVehicles', { count: vehiclesData?.totalRegistros ?? vehicles.length })}</p>
             </div>
           </div>
         </Card>
@@ -695,7 +726,7 @@ export function VehiclesPage() {
               <p className="text-2xl font-bold text-text">
                 {vehiclesData?.items.filter((v) => v.dispositivoActivoId).length ?? 0}
               </p>
-              <p className="text-sm text-text-muted">{t('vehicles.withDevice')} <span className="text-xs opacity-60">({t('common.currentPage', { defaultValue: 'pág. actual' })})</span></p>
+              <p className="text-sm text-text-muted">{t('vehicles.withDevice')} <span className="text-xs opacity-60">({t('common.currentPage')})</span></p>
             </div>
           </div>
         </Card>
@@ -708,7 +739,7 @@ export function VehiclesPage() {
               <p className="text-2xl font-bold text-text">
                 {vehiclesData?.items.filter((v) => !v.dispositivoActivoId).length ?? 0}
               </p>
-              <p className="text-sm text-text-muted">{t('vehicles.withoutDevice')} <span className="text-xs opacity-60">({t('common.currentPage', { defaultValue: 'pág. actual' })})</span></p>
+              <p className="text-sm text-text-muted">{t('vehicles.withoutDevice')} <span className="text-xs opacity-60">({t('common.currentPage')})</span></p>
             </div>
           </div>
         </Card>
@@ -737,7 +768,7 @@ export function VehiclesPage() {
       <div>
         <Card padding="none">
           <Table
-            columns={columns}
+            columns={visibleColumns}
             data={vehicles}
             keyExtractor={(v) => v.id}
             enableFilters={false}
@@ -869,8 +900,8 @@ export function VehiclesPage() {
         </div>
       </Modal>
 
-      {/* Modal de Gestión de Compartición */}
-      {vehicleToShare && (
+      {/* Modal de GestiÃ³n de ComparticiÃ³n */}
+      {!isPersonalContext && vehicleToShare && (
         <GestionarComparticionModal
           isOpen={!!vehicleToShare}
           onClose={() => setVehicleToShare(null)}
@@ -881,7 +912,7 @@ export function VehiclesPage() {
         />
       )}
 
-      {/* Modal Conductores asignados al vehículo (muestra activos + finalizados; no escribe en caché para no alterar el número de la columna) */}
+      {/* Modal Conductores asignados al vehÃ­culo (muestra activos + finalizados; no escribe en cachÃ© para no alterar el nÃºmero de la columna) */}
       <VehicleConductorsModal
         isOpen={!!vehicleForConductorsModal}
         vehicle={vehicleForConductorsModal}
@@ -890,36 +921,39 @@ export function VehiclesPage() {
       />
 
       {/* Import Processing Modal - shown while job runs in background */}
-      <ImportProcessingModal
-        isOpen={isImportProcessingModalOpen}
-        tipoImportacion={t('imports.importVehicles', { defaultValue: 'Vehículos' })}
-      />
+      {!isPersonalContext && (
+        <>
+          <ImportProcessingModal
+            isOpen={isImportProcessingModalOpen}
+            tipoImportacion={t('imports.importVehicles')}
+          />
 
-      {/* Import Modal */}
-      <ImportExcelModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImportVehicles}
-        title={t('imports.importVehicles', { defaultValue: 'Importar Vehículos' })}
-        onDownloadTemplate={async () => {
-          const blob = await reportesApi.downloadTemplateVehiculosExcel();
-          downloadBlob(blob, 'template_vehiculos.xlsx');
-        }}
-        templateLabel={t('imports.downloadVehicleTemplate', { defaultValue: 'Template de Vehículos' })}
-      />
+          <ImportExcelModal
+            isOpen={isImportModalOpen}
+            onClose={() => setIsImportModalOpen(false)}
+            onImport={handleImportVehicles}
+            title={t('imports.importVehicles')}
+            onDownloadTemplate={async () => {
+              const blob = await reportesApi.downloadTemplateVehiculosExcel();
+              downloadBlob(blob, 'template_vehiculos.xlsx');
+            }}
+            templateLabel={t('imports.downloadVehicleTemplate')}
+          />
 
-      {/* Import Results Modal */}
-      {importResults && (
-        <ImportResultsModal
-          isOpen={isImportResultsModalOpen}
-          onClose={() => {
-            setIsImportResultsModalOpen(false);
-            setImportResults(null);
-          }}
-          results={importResults}
-          tipoImportacion={t('imports.importVehicles', { defaultValue: 'Vehículos' })}
-        />
+          {importResults && (
+            <ImportResultsModal
+              isOpen={isImportResultsModalOpen}
+              onClose={() => {
+                setIsImportResultsModalOpen(false);
+                setImportResults(null);
+              }}
+              results={importResults}
+              tipoImportacion={t('imports.importVehicles')}
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
+

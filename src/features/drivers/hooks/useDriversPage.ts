@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { conductoresApi, vehiculosApi, dispositivosApi } from '@/services/endpoints';
 import { usePaginationParams, useErrorHandler } from '@/hooks';
+import { useAuthStore } from '@/store';
 import { toast } from '@/store/toast.store';
 import type {
   ConductorDto,
@@ -21,8 +22,12 @@ export interface UseDriversPageProps {
 
 export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   // Error handling
   const { handleApiError } = useErrorHandler();
+  const isPersonalContext =
+    user?.contextoActivo?.tipo === 'Personal' ||
+    (!!user && !user.organizationId);
 
   // Data state
   const [conductoresData, setConductoresData] = useState<ListaPaginada<ConductorDto> | null>(null);
@@ -340,6 +345,9 @@ export function useDriversPage({ filters = {} }: UseDriversPageProps = {}) {
   }, [handleApiError]);
 
   const handleOpenViewAssignments = async (conductor: ConductorDto) => {
+    if (isPersonalContext) {
+      return;
+    }
     setConductorForAssignment(conductor);
     setIsViewAssignmentsModalOpen(true);
     setActionMenuOpen(null);

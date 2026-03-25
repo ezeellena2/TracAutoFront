@@ -4,9 +4,11 @@ export interface ModuloActivoDto {
   codigo: ModuloSistema;
   nombre: string;
   icono?: string;
-  fechaActivacion: string;
+  fechaActivacion?: string | null;
   activadoPorUsuarioId?: string;
   notas?: string;
+  soporteContexto: 'Personal' | 'Organizacion' | 'Ambos' | string;
+  capacidadesEfectivas: string[];
 }
 
 export interface ModuloDisponibleDto {
@@ -21,4 +23,9 @@ export interface ModuloDisponibleDto {
   fechaActivacion?: string;
   cumplePrerequisitos: boolean;
   prerequisitosFaltantes: string[];
+  soporteContexto: 'Personal' | 'Organizacion' | 'Ambos' | string;
+  esOperativo: boolean;
+  puedeGestionarse: boolean;
+  puedeActivarse: boolean;
+  capacidadesEfectivas: string[];
 }

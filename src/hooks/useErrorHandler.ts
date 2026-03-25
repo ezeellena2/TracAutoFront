@@ -63,10 +63,9 @@ export function useErrorHandler() {
     (code: string, args?: Record<string, unknown>): string => {
       // Try errors.{code} first (e.g., errors.Replay.RangoExcedido)
       const key = `errors.${code}`;
-      // Use code as fallback if translation is missing (e.g. for raw validation messages)
-      const translated = t(key, { defaultValue: code, ...args }) as string;
+      const translated = t(key, args) as string;
 
-      return translated;
+      return translated === key ? code : translated;
     },
     [t]
   );
@@ -79,7 +78,7 @@ export function useErrorHandler() {
     (error: unknown): ParsedError => {
       // Default error
       const defaultError: ParsedError = {
-        message: t('errors.unexpected', { defaultValue: 'An unexpected error occurred' }),
+        message: t('errors.unexpected'),
         code: 'errors.unexpected',
         status: 500,
       };
