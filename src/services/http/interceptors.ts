@@ -6,6 +6,7 @@ import { toast } from '@/store/toast.store';
 import { sanitizePayload } from './payloadSanitizer';
 import { hydrateAuthenticatedSession } from '@/services/auth/sessionHydration';
 import { snapshotFromRefreshResponse } from '@/services/auth/authSessionSnapshot';
+import { buildRefreshContextBody } from './refreshContextBody';
 
 /**
  * Formato de error del backend (ProblemDetails RFC 7807)
@@ -203,13 +204,11 @@ export function setupInterceptors(client: AxiosInstance): void {
 
     isRefreshing = true;
     refreshPromise = (async () => {
-      const user = useAuthStore.getState().user;
+      const { isAuthenticated } = useAuthStore.getState();
+      const body = isAuthenticated ? buildRefreshContextBody() : null;
       const resp = await axios.post<RefreshTokenResponse>(
         buildApiUrl('auth/refresh'),
-        user ? {
-          tipoContextoActivo: user.contextoActivo.tipo,
-          contextoActivoId: user.contextoActivo.id ?? null,
-        } : null,
+        body,
         { withCredentials: env.apiWithCredentials }
       );
       const data = resp.data;
