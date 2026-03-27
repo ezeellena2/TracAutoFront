@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams, Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Edit, Trash2, AlertCircle, Link, Unlink, Share2, Upload, Download } from 'lucide-react';
@@ -116,7 +116,7 @@ export function VehiclesPage() {
     (!!user && !user.organizationId);
   const pageTitle = isPersonalContext ? t('vehicles.personal.title', { defaultValue: 'Mis vehiculos' }) : t('vehicles.title');
   const pageSubtitle = isPersonalContext
-    ? t('vehicles.personal.subtitle', { defaultValue: 'Gestiona vehiculos propios sin depender de una organizacion. Despues puedes vincularles dispositivos, conductores y geozonas del mismo contexto.' })
+    ? t('vehicles.personal.subtitle', { defaultValue: 'Gestiona tus vehiculos propios, dispositivos y conductores.' })
     : t('vehicles.subtitle');
   const emptyDescription = isPersonalContext
     ? t('vehicles.personal.emptyDescription', { defaultValue: 'Todavia no cargaste vehiculos propios. Empieza por tu primer activo personal para habilitar mapa, asignaciones y seguimiento dentro de tu cuenta.' })
@@ -567,10 +567,10 @@ export function VehiclesPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
-            <p className="text-text-muted mt-1">{pageSubtitle}</p>
+            <p className="text-text-muted mt-1 text-sm">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -588,10 +588,10 @@ export function VehiclesPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
-            <p className="text-text-muted mt-1">{pageSubtitle}</p>
+            <p className="text-text-muted mt-1 text-sm">{pageSubtitle}</p>
           </div>
         </div>
         <Card>
@@ -617,10 +617,10 @@ export function VehiclesPage() {
   if (vehicles.length === 0 && !hasActiveFilters) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
-            <p className="text-text-muted mt-1">{pageSubtitle}</p>
+            <p className="text-text-muted mt-1 text-sm">{pageSubtitle}</p>
           </div>
           {canCreate && (
             <div className="flex items-center gap-2">
@@ -678,13 +678,13 @@ export function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-text">{pageTitle}</h1>
-          <p className="text-text-muted mt-1">{pageSubtitle}</p>
+          <p className="text-text-muted mt-1 text-sm">{pageSubtitle}</p>
         </div>
         {canCreate && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {!isPersonalContext && (
               <>
                 <Button variant="outline" onClick={handleExportVehicles} isLoading={isExporting} disabled={isExporting}>
