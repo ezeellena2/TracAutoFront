@@ -13,7 +13,7 @@ RUN npm ci
 COPY . .
 
 # Build arguments (se pasan en build time)
-ARG VITE_API_BASE_URL=http://localhost:5200/api
+ARG VITE_API_BASE_URL=http://localhost:7200/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # No se setea VITE_APP_MODE en build â€” la detecciÃ³n es por hostname en runtime.

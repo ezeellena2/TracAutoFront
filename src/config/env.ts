@@ -5,7 +5,7 @@
 
 export const env = {
   /** URL base del API */
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5200/api',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:7200/api',
 
   /** Versión del API */
   apiVersion: import.meta.env.VITE_API_VERSION || 'v1',
