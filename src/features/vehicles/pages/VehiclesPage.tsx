@@ -421,7 +421,7 @@ export function VehiclesPage() {
         const handleClick = () => setVehicleForConductorsModal(v);
         if (list !== undefined) {
           if (list.length === 0) {
-            return <span className="text-text-muted">â€”</span>;
+            return <span className="text-text-muted">-</span>;
           }
           return (
             <button
@@ -435,7 +435,7 @@ export function VehiclesPage() {
           );
         }
         return (
-          <span className="text-text-muted text-sm">â€”</span>
+          <span className="text-text-muted text-sm">-</span>
         );
       },
     },
@@ -494,7 +494,7 @@ export function VehiclesPage() {
             className="text-text-muted hover:text-primary transition-colors cursor-pointer"
             title={t('vehicles.table.manageSharing')}
           >
-            â€”
+            -
           </button>
         );
       },
