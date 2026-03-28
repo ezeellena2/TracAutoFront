@@ -10,7 +10,6 @@ import { ModuloSistema } from '@/shared/types/api';
 
 const moduloBadgeKeys: Partial<Record<ModuloSistema, string>> = {
   [ModuloSistema.Flota]: 'dashboard.moduleLabels.flota',
-  [ModuloSistema.Marketplace]: 'dashboard.moduleLabels.marketplace',
 };
 
 export function DashboardPage() {

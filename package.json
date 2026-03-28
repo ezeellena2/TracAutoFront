@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:marketplace": "vite --mode marketplace --port 5174",
     "build": "tsc -b && vite build",
     "lint": "eslint . --max-warnings 999",
     "preview": "vite preview",

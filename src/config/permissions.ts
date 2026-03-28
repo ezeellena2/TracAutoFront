@@ -112,7 +112,6 @@ export const ROUTE_ACCESS: Record<string, UserRole[]> = {
   '/geozonas/crear': ['SuperAdmin', 'Admin', 'Operador'],
   '/geozonas/:id/editar': ['SuperAdmin', 'Admin', 'Operador'],
   '/geozonas/mapa': ['SuperAdmin', 'Admin', 'Operador', 'Analista'],
-  '/marketplace': ['SuperAdmin', 'Admin', 'Operador', 'Analista'],
   '/importaciones': ['SuperAdmin', 'Admin', 'Operador'],
   '/notificaciones': ['SuperAdmin', 'Admin', 'Operador', 'Analista'],
   '/usuarios': ['SuperAdmin', 'Admin'],

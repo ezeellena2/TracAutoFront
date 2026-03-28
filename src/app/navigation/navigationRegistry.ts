@@ -13,7 +13,6 @@ import {
   MapPin,
   Navigation2,
   Palette,
-  ShoppingCart,
   UserCircle,
   Users,
 } from 'lucide-react';
@@ -122,16 +121,6 @@ export const navigationRegistry: NavigationRegistryItem[] = [
         showInDashboard: false,
       },
     ],
-  },
-  {
-    key: 'marketplace',
-    path: '/marketplace',
-    labelKey: 'marketplace.title',
-    descriptionKey: 'navigation.marketplace.description',
-    icon: ShoppingCart,
-    contexts: ['Organizacion'],
-    requiredModule: ModuloSistema.Marketplace,
-    showInDashboard: true,
   },
   {
     key: 'suscripcion',

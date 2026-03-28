@@ -4,7 +4,6 @@ export { invitacionesApi } from './invitaciones.api';
 export { dispositivosApi } from './dispositivos.api';
 export { vehiculosApi } from './vehiculos.api';
 export { conductoresApi } from './conductores.api';
-export { marketplaceApi } from './marketplace.api';
 export { reportesApi } from './reportes.api';
 export { solicitudesCambioApi } from './solicitudesCambio.api';
 export { reportarError } from './support.api';
@@ -14,5 +13,4 @@ export { indicesApi } from './indices.api';
 export type { DolarIndiceDto, RiesgoPaisIndiceDto, IndicesAgregadoDto } from './indices.api';
 export { feriadosApi } from './feriados.api';
 export type { FeriadoDto, FeriadosResumenDto } from './feriados.api';
-export { marketplacePublicoApi } from './marketplace-publico.api';
 

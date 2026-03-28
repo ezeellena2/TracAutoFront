@@ -6,10 +6,7 @@ import { useTenantStore, useThemeStore } from '@/store';
 import { I18nProvider } from './I18nProvider';
 import { OfflineIndicator } from '@/shared/ui';
 import { env } from '@/config/env';
-import { detectAppMode } from '@/config/appMode';
 import '@/shared/i18n/config'; // Inicializar i18n
-
-const appMode = detectAppMode();
 
 /**
  * Función de retry inteligente para React Query.
@@ -68,10 +65,8 @@ export function AppProviders({ children }: AppProvidersProps) {
   const prevOrgIdRef = useRef<string | null>(null);
   const prevIsDarkModeRef = useRef<boolean>(isDarkMode);
 
-  // Sincronizar theme con org solo en B2B.
+  // Sincronizar theme con org.
   useLayoutEffect(() => {
-    if (appMode !== 'b2b') return;
-
     const orgId = currentOrganization?.id ?? null;
     const orgChanged = prevOrgIdRef.current !== orgId;
     const modeChanged = prevIsDarkModeRef.current !== isDarkMode;

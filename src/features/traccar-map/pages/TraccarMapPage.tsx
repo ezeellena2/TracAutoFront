@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { MapShell } from '../components/MapShell';
@@ -44,7 +44,7 @@ function MapLoadingSkeleton() {
 function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] -m-4 md:-m-6 bg-background">
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="flex flex-col items-center gap-4 text-center max-w-md">
           <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center">
@@ -68,7 +68,7 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
 function EmptyState({ isPersonalContext }: { isPersonalContext: boolean }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] -m-4 md:-m-6 bg-background">
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="flex flex-col items-center gap-4 text-center max-w-md">
           <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center">
@@ -89,7 +89,7 @@ function EmptyState({ isPersonalContext }: { isPersonalContext: boolean }) {
               to="/dispositivos"
               className="inline-flex items-center justify-center rounded-lg border-2 border-primary px-4 py-2 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary hover:text-white"
             >
-              Ver dispositivos
+              {t('map.viewDevices', { defaultValue: 'Ver dispositivos' })}
             </Link>
           </div>
         </div>

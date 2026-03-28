@@ -3,8 +3,6 @@ import type { ComponentType, LazyExoticComponent } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainLayout } from '@/apps/b2b/layouts';
 import { ProtectedRoute } from '@/app/routes/ProtectedRoute';
-import { ModuleGuard } from '@/shared/components/ModuleGuard';
-import { ModuloSistema } from '@/shared/types/api';
 import { PageLoader } from '@/shared/ui';
 import { NotFoundPage, ServerErrorPage } from '@/shared/pages';
 
@@ -22,7 +20,6 @@ const PreferenciasOrganizacionPage = lazy(() => import('@/features/organization/
 const RelacionesOrganizacionPage = lazy(() => import('@/features/organization/pages/RelacionesOrganizacionPage').then(m => ({ default: m.RelacionesOrganizacionPage })));
 const SolicitudesCambioPage = lazy(() => import('@/features/organization/pages/SolicitudesCambioPage').then(m => ({ default: m.SolicitudesCambioPage })));
 const TraccarMapPage = lazy(() => import('@/features/traccar-map/pages/TraccarMapPage').then(m => ({ default: m.TraccarMapPage })));
-const MarketplacePage = lazy(() => import('@/features/marketplace/pages/MarketplacePage').then(m => ({ default: m.MarketplacePage })));
 const GeofencesPage = lazy(() => import('@/features/geofences/pages/GeofencesPage').then(m => ({ default: m.GeofencesPage })));
 const GeofenceEditorPage = lazy(() => import('@/features/geofences/pages/GeofenceEditorPage').then(m => ({ default: m.GeofenceEditorPage })));
 const GeofenceMapViewPage = lazy(() => import('@/features/geofences/pages/GeofenceMapViewPage').then(m => ({ default: m.GeofenceMapViewPage })));
@@ -35,14 +32,6 @@ function SuspensePage({ Component }: { Component: LazyExoticComponent<ComponentT
     <Suspense fallback={<PageLoader />}>
       <Component />
     </Suspense>
-  );
-}
-
-function GuardedPage({ Component, modules }: { Component: LazyExoticComponent<ComponentType>; modules: ModuloSistema[] }) {
-  return (
-    <ModuleGuard allowedModules={modules} showAccessDenied>
-      <SuspensePage Component={Component} />
-    </ModuleGuard>
   );
 }
 
@@ -80,7 +69,6 @@ const router = createBrowserRouter([
       { path: 'dispositivos', element: <SuspensePage Component={DevicesPage} /> },
       { path: 'usuarios', element: <SuspensePage Component={UsersPage} /> },
       { path: 'conductores', element: <SuspensePage Component={DriversPage} /> },
-      { path: 'marketplace', element: <GuardedPage Component={MarketplacePage} modules={[ModuloSistema.Marketplace]} /> },
       { path: 'mapa', element: <SuspensePage Component={TraccarMapPage} /> },
       { path: 'configuracion/empresa/apariencia', element: <SuspensePage Component={BrandingPage} /> },
       { path: 'configuracion/empresa/preferencias', element: <SuspensePage Component={PreferenciasOrganizacionPage} /> },

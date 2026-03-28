@@ -25,7 +25,6 @@ export enum CanalEnvio {
 /** MÃƒÂ³dulos del sistema Ã¢â‚¬â€ valores alineados con backend ModuloSistema enum */
 export enum ModuloSistema {
   Flota = 1,
-  Marketplace = 3,
 }
 
 // --- Requests ---
@@ -708,94 +707,6 @@ export interface HistorialStockDispositivoDto {
 export interface CambiarEstadoStockRequest {
   nuevoEstado: EstadoStockDispositivo;
   nota?: string | null;
-}
-
-// ==================== Marketplace DTOs ====================
-
-/**
- * Estados posibles de una publicaciÃƒÂ³n en el marketplace
- */
-export enum EstadoPublicacion {
-  Borrador = 1,
-  Publicado = 2,
-  Pausado = 3,
-  Vendido = 4,
-}
-
-/**
- * DTO de vehÃƒÂ­culo con informaciÃƒÂ³n de marketplace
- */
-export interface VehiculoMarketplaceDto {
-  // Datos del vehÃƒÂ­culo
-  vehiculoId: string;
-  patente: string;
-  marca: string | null;
-  modelo: string | null;
-  anio: number | null;
-  activo: boolean;
-
-  // Datos de la publicaciÃƒÂ³n (null si no publicado)
-  publicacionId: string | null;
-  estadoPublicacion: EstadoPublicacion | null;
-  precio: number | null;
-  moneda: string | null;
-  kilometraje: number;
-  descripcion: string | null;
-  destacado: boolean;
-  fechaPublicacion: string | null; // ISO 8601
-
-  /**
-   * Indica si la publicaciÃƒÂ³n tiene un vehÃƒÂ­culo operativo asociado.
-   * Si es false, es una publicaciÃƒÂ³n independiente (solo para venta).
-   */
-  tieneVehiculoAsociado: boolean;
-}
-
-/**
- * Request para publicar un vehÃƒÂ­culo en el marketplace
- */
-export interface PublicarVehiculoRequest {
-  precio: number | null;
-  moneda: string;
-  kilometraje: number;
-  descripcion: string | null;
-}
-
-/**
- * Request para editar una publicaciÃƒÂ³n existente
- */
-export interface EditarPublicacionRequest {
-  precio: number | null;
-  moneda: string | null;
-  kilometraje: number;
-  descripcion: string | null;
-  estado: EstadoPublicacion;
-}
-
-/**
- * Request para crear un vehÃƒÂ­culo directamente en el marketplace
- */
-export interface CreateVehiculoMarketplaceRequest {
-  patente: string;
-  marca?: string | null;
-  modelo?: string | null;
-  anio?: number | null;
-  precio?: number | null;
-  moneda?: string;
-  kilometraje?: number;
-  descripcion?: string | null;
-  estado?: EstadoPublicacion;
-  vehiculoId?: string | null;
-}
-
-/**
- * Request para vincular un vehÃƒÂ­culo del marketplace a un vehÃƒÂ­culo/dispositivo/conductor
- */
-export interface VincularVehiculoMarketplaceRequest {
-  vehiculoId?: string | null;
-  dispositivoId?: string | null;
-  conductorId?: string | null;
-  motivoCambio?: string | null;
 }
 
 // ==================== Recursos Compartibles DTOs ====================

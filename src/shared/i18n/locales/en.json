@@ -348,8 +348,7 @@
     "title": "Dashboard",
     "subtitle": "Overview of your operations and quick access",
     "moduleLabels": {
-      "flota": "Vehicle tracking",
-      "marketplace": "Marketplace"
+      "flota": "Vehicle tracking"
     }
   },
   "navigation": {
@@ -376,9 +375,6 @@
     },
     "imports": {
       "description": "Bulk upload and export of operational data."
-    },
-    "marketplace": {
-      "description": "List and sell vehicles on the marketplace."
     },
     "subscription": {
       "description": "Active modules and capabilities for your account or organization."
@@ -878,41 +874,50 @@
   "map": {
     "empty": "No vehicles to display",
     "emptyDescription": "Add vehicles with GPS devices to see them on the map.",
-    "centerFleet": "Centrar flota",
-    "centerSelected": "Centrar seleccionado",
-    "geofences": "Geozonas",
-    "hideGeofences": "Ocultar geozonas",
-    "hideLabels": "Ocultar etiquetas",
-    "hoursAgo": "hace {{count}}h",
-    "labels": "Etiquetas",
-    "lastUpdate": "Ultima actualizacion",
-    "loadError": "Error al cargar el mapa",
-    "loading": "Cargando mapa...",
-    "mapType": "Tipo de mapa",
-    "minutesAgo": "hace {{count}}min",
-    "noVehiclesAvailable": "Sin vehiculos disponibles",
-    "noVehiclesFound": "Sin vehiculos encontrados",
-    "now": "Ahora",
-    "retry": "Reintentar",
-    "searchPlaceholder": "Buscar vehiculo...",
-    "showGeofences": "Ver geozonas",
-    "showLabels": "Ver etiquetas",
-    "speed": "Velocidad",
-    "vehicle": "Vehiculo",
-    "vehicles": "{{count}} vehiculo",
-    "vehicles_plural": "{{count}} vehiculos",
+    "centerFleet": "Center fleet",
+    "centerSelected": "Center selected",
+    "dark": "Dark",
+    "light": "Light",
+    "satellite": "Satellite",
+    "streets": "Streets",
+    "geofences": "Geofences",
+    "hideGeofences": "Hide geofences",
+    "hideLabels": "Hide labels",
+    "hoursAgo": "{{count}}h ago",
+    "labels": "Labels",
+    "lastUpdate": "Last update",
+    "loadError": "Error loading map",
+    "loading": "Loading map...",
+    "mapType": "Map type",
+    "minutesAgo": "{{count}}min ago",
+    "noVehiclesAvailable": "No vehicles available",
+    "noVehiclesFound": "No vehicles found",
+    "now": "Now",
+    "retry": "Retry",
+    "searchPlaceholder": "Search vehicle...",
+    "showGeofences": "Show geofences",
+    "showLabels": "Show labels",
+    "speed": "Speed",
+    "vehicle": "Vehicle",
+    "vehicles": "{{count}} vehicle",
+    "vehicles_plural": "{{count}} vehicles",
+    "viewVehicles": "View vehicles",
+    "viewDevices": "View devices",
     "filter": {
-      "all": "Todos",
-      "own": "Propios",
-      "selectOrganization": "Seleccionar organizacion",
-      "title": "Filtrar"
+      "all": "All",
+      "own": "Own",
+      "selectOrganization": "Select organization",
+      "title": "Filter"
     },
     "labelConfig": {
-      "enableLabels": "Mostrar etiquetas",
-      "showEstado": "Estado",
+      "enableLabels": "Show labels",
+      "showEstado": "Status",
       "showImei": "IMEI",
-      "showPatente": "Patente",
-      "title": "Configurar etiquetas"
+      "showPatente": "License plate",
+      "title": "Label settings"
+    },
+    "personal": {
+      "emptyDescription": "No personal positions to display yet. You need at least one own vehicle with an own device assigned."
     }
   },
   "geofences": {
@@ -1005,118 +1010,6 @@
       }
     }
   },
-  "marketplace": {
-    "title": "Marketplace",
-    "form": {
-      "patenteRequerida": "License plate is required.",
-      "anioInvalido": "Enter a valid year.",
-      "precioInvalido": "Enter a valid price.",
-      "kilometrajeInvalido": "Enter a valid mileage.",
-      "descripcionMuyLarga": "Description is too long.",
-      "brand": "Marca",
-      "brandPlaceholder": "Ej: Toyota",
-      "createNewVehicle": "Crear nuevo vehiculo",
-      "description": "Descripcion",
-      "descriptionPlaceholder": "Describe el vehiculo...",
-      "device": "Dispositivo GPS",
-      "estadoLocked": "No se puede cambiar el estado",
-      "existingVehicle": "Vehiculo existente",
-      "licensePlate": "Patente",
-      "licensePlatePlaceholder": "Ej: ABC123",
-      "linkExistingVehicle": "Vincular vehiculo existente",
-      "linkExistingVehicleHelp": "Vincula un vehiculo ya registrado en tu flota",
-      "mileage": "Kilometraje",
-      "mileagePlaceholder": "Ej: 50000",
-      "model": "Modelo",
-      "modelPlaceholder": "Ej: Corolla",
-      "noDevice": "Sin dispositivo",
-      "noVehicle": "Sin vehiculo",
-      "price": "Precio",
-      "priceHelper": "Precio en la moneda de tu organizacion",
-      "pricePlaceholder": "Ej: 15000",
-      "publicationStatus": "Estado",
-      "reason": "Motivo",
-      "reasonPlaceholder": "Motivo del cambio de estado",
-      "selectDeviceToCreateVehicle": "Selecciona un dispositivo",
-      "selectExistingVehicle": "Seleccionar vehiculo",
-      "selectVehicleOrDevice": "Seleccionar vehiculo o dispositivo",
-      "vehicleToLink": "Vehiculo a vincular",
-      "year": "Ano",
-      "yearPlaceholder": "Ej: 2022"
-    },
-    "actions": {
-      "creating": "Creando...",
-      "markAsSold": "Marcar como vendido",
-      "pause": "Pausar",
-      "preview": "Vista previa",
-      "publish": "Publicar"
-    },
-    "actionsColumn": "Acciones",
-    "addVehicle": "Agregar vehiculo",
-    "creating": "Creando publicacion...",
-    "editPublication": "Editar publicacion",
-    "emptyDescription": "Publica tu primer vehiculo.",
-    "emptyTitle": "Sin publicaciones",
-    "licensePlate": "Patente",
-    "linkVehicle": "Vincular vehiculo",
-    "linking": "Vinculando...",
-    "loadError": "Error al cargar publicaciones",
-    "loading": "Cargando...",
-    "mileage": "Kilometraje",
-    "noPublications": "Sin publicaciones",
-    "price": "Precio",
-    "publicationDate": "Fecha de publicacion",
-    "publishVehicle": "Publicar vehiculo",
-    "retry": "Reintentar",
-    "statusColumn": "Estado",
-    "subtitle": "Gestion de publicaciones",
-    "confirmations": {
-      "markAsSoldMessage": "Esta accion no se puede deshacer.",
-      "markAsSoldTitle": "Marcar como vendido?",
-      "pauseMessage": "La publicacion dejara de ser visible.",
-      "pauseTitle": "Pausar publicacion?"
-    },
-    "errors": {
-      "createFailed": "Error al crear publicacion",
-      "noPublication": "Publicacion no encontrada",
-      "updateFailed": "Error al actualizar"
-    },
-    "preview": {
-      "detail": "Detalle",
-      "listing": "Publicacion",
-      "noDescription": "Sin descripcion",
-      "photoPlaceholder": "Sin foto",
-      "seller": "Vendedor",
-      "sellerFallback": "Organizacion",
-      "status": "Estado",
-      "title": "Vista previa",
-      "vehicleFallback": "Vehiculo",
-      "year": "Ano"
-    },
-    "stats": {
-      "drafts": "Borradores",
-      "paused": "Pausados",
-      "published": "Publicados",
-      "sold": "Vendidos"
-    },
-    "status": {
-      "draft": "Borrador",
-      "paused": "Pausado",
-      "published": "Publicado",
-      "sold": "Vendido"
-    },
-    "success": {
-      "created": "Publicacion creada",
-      "linked": "Vehiculo vinculado",
-      "published": "Publicacion publicada",
-      "updated": "Publicacion actualizada"
-    },
-    "table": {
-      "consultPrice": "Consultar precio",
-      "notPublished": "No publicado"
-    },
-    "vehicle": "Vehicle"
-  },
   "imports": {
     "selectFile": "Select Excel file",
     "removeFile": "Remove file",
@@ -1197,32 +1090,6 @@
       "history": "History",
       "import": "Import"
     }
-  },
-  "catalogoMarketplace": {
-    "anio": "Year",
-    "buscarPlaceholder": "Search vehicles...",
-    "caracteristicas": "Features",
-    "catalogo": "Catalog",
-    "consultarPrecio": "Inquire price",
-    "contactoNoDisponible": "Contact not available",
-    "derechosReservados": "All rights reserved",
-    "descripcion": "Descripcion",
-    "destacado": "Destacado",
-    "disponibles": "{{count}} disponibles",
-    "errorCarga": "Error al cargar el catalogo",
-    "kilometraje": "Kilometraje",
-    "paginaIndicador": "Pagina {{current}} de {{total}}",
-    "publicadoEl": "Publicado el {{date}}",
-    "sinDescripcion": "Sin descripcion",
-    "sinImagen": "Sin imagen",
-    "sinVehiculos": "No vehicles available",
-    "sinVehiculosHint": "Check back soon for new listings.",
-    "subtitulo": "Browse available vehicles",
-    "titulo": "Marketplace",
-    "todasConcesionarias": "Todas las concesionarias",
-    "vehiculoDefault": "Vehiculo",
-    "vehiculoNoEncontrado": "Vehicle not found",
-    "volverCatalogo": "Back to catalog"
   },
   "errorPages": {
     "notFound": {

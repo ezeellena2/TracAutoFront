@@ -1,4 +1,4 @@
-﻿import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -30,12 +30,12 @@ export function MainLayout() {
   }, [isAuthenticated, preferences, isLoading, loadPreferences]);
 
   return (
-      <div className="min-h-screen bg-background">
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
         <Sidebar />
         {/* Content wrapper - no margin on mobile, sidebar margin on desktop */}
-        <div className={`transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
+        <div className={`flex-1 flex flex-col min-h-0 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
           {/* Mobile header with hamburger */}
-          <div className="md:hidden flex items-center gap-3 p-4 border-b border-border bg-surface">
+          <div className="md:hidden flex items-center gap-3 p-4 border-b border-border bg-surface flex-shrink-0">
             <button
               onClick={openMobile}
               className="p-2 rounded-lg text-text-muted hover:text-text hover:bg-background transition-colors"
@@ -46,10 +46,10 @@ export function MainLayout() {
             <span className="font-bold text-lg text-text">{t('auth.title')}</span>
           </div>
           {/* Desktop header */}
-          <div className="hidden md:block">
+          <div className="hidden md:block flex-shrink-0">
             <Header />
           </div>
-          <main className="p-4 md:p-6">
+          <main className="flex-1 overflow-auto p-4 md:p-6">
             <ErrorBoundary key={location.pathname}>
               <Outlet />
             </ErrorBoundary>

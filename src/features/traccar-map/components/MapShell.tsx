@@ -28,7 +28,7 @@ export function MapShell({
 
   return (
     <MapShellContext.Provider value={{ isCollapsed }}>
-      <div className="flex flex-col md:flex-row h-[calc(100vh-88px)] -m-6 bg-background overflow-hidden">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] -m-4 md:-m-6 bg-background overflow-hidden">
         {/* Sidebar - collapsible on desktop */}
         <div 
           className={`
