@@ -4,18 +4,9 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { useAuthStore } from '@/store';
 import { VehiclePosition } from '@/features/traccar-map/types';
 
 const MAP_BASE = 'map';
-
-function getMapBase() {
-  const user = useAuthStore.getState().user;
-  const isPersonalContext =
-    user?.contextoActivo?.tipo === 'Personal' ||
-    (!!user && !user.organizationId);
-  return isPersonalContext ? 'personal/map' : MAP_BASE;
-}
 
 /**
  * API response DTO from backend
@@ -55,7 +46,7 @@ function mapToVehiclePosition(dto: VehiclePositionApiDto): VehiclePosition {
  */
 export async function getVehiclePositions(soloActivos = true): Promise<VehiclePosition[]> {
   const response = await apiClient.get<VehiclePositionApiDto[]>(
-    `${getMapBase()}/positions`,
+    `${MAP_BASE}/positions`,
     { params: { soloActivos } }
   );
   return response.data.map(mapToVehiclePosition);

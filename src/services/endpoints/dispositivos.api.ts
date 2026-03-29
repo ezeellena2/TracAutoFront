@@ -1,5 +1,4 @@
 import { apiClient, publicApiClient } from '../http/apiClient';
-import { useAuthStore } from '@/store';
 import {
   DispositivoDto,
   ListaPaginada,
@@ -12,14 +11,6 @@ import {
 } from '@/shared/types/api';
 
 const DISPOSITIVOS_BASE = 'dispositivos';
-
-function getDispositivosBase() {
-  const user = useAuthStore.getState().user;
-  const isPersonalContext =
-    user?.contextoActivo?.tipo === 'Personal' ||
-    (!!user && !user.organizationId);
-  return isPersonalContext ? 'personal/dispositivos' : DISPOSITIVOS_BASE;
-}
 
 /**
  * Parámetros para obtener dispositivos
@@ -57,7 +48,7 @@ export async function getDispositivos(
     queryParams.filtroId = filtroId;
   }
 
-  const response = await apiClient.get<ListaPaginada<DispositivoDto>>(getDispositivosBase(), {
+  const response = await apiClient.get<ListaPaginada<DispositivoDto>>(DISPOSITIVOS_BASE, {
     params: queryParams
   });
   return response.data;
@@ -81,7 +72,7 @@ export async function createDispositivo(
     alias: alias ?? null,
     numeroTelefono: numeroTelefono ?? null,
   };
-  const response = await apiClient.post<DispositivoDto>(getDispositivosBase(), body);
+  const response = await apiClient.post<DispositivoDto>(DISPOSITIVOS_BASE, body);
   return response.data;
 }
 
@@ -101,7 +92,7 @@ export async function updateDispositivo(
   numeroTelefono?: string | null
 ): Promise<DispositivoDto> {
   const response = await apiClient.put<DispositivoDto>(
-    `${getDispositivosBase()}/${id}`,
+    `${DISPOSITIVOS_BASE}/${id}`,
     { alias, activo, numeroTelefono: numeroTelefono ?? undefined }
   );
   return response.data;
@@ -113,7 +104,7 @@ export async function updateDispositivo(
  * @param id ID del dispositivo en TracAuto
  */
 export async function deleteDispositivo(id: string): Promise<void> {
-  await apiClient.delete(`${getDispositivosBase()}/${id}`);
+  await apiClient.delete(`${DISPOSITIVOS_BASE}/${id}`);
 }
 
 // ========================================

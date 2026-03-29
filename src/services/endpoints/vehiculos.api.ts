@@ -4,7 +4,6 @@
  */
 
 import { apiClient } from '../http/apiClient';
-import { useAuthStore } from '@/store';
 import type {
   VehiculoDto,
   CreateVehiculoRequest,
@@ -20,14 +19,6 @@ import type {
 } from '@/shared/types/api';
 
 const VEHICULOS_BASE = 'vehiculos';
-
-function getVehiculosBase() {
-  const user = useAuthStore.getState().user;
-  const isPersonalContext =
-    user?.contextoActivo?.tipo === 'Personal' ||
-    (!!user && !user.organizationId);
-  return isPersonalContext ? 'personal/vehiculos' : VEHICULOS_BASE;
-}
 
 /**
  * Parámetros para obtener vehículos
@@ -79,7 +70,7 @@ export async function getVehiculos(
     });
   }
 
-  const response = await apiClient.get<ListaPaginada<VehiculoDto>>(getVehiculosBase(), {
+  const response = await apiClient.get<ListaPaginada<VehiculoDto>>(VEHICULOS_BASE, {
     params: queryParams
   });
   return response.data;
@@ -89,7 +80,7 @@ export async function getVehiculos(
  * Fetches a vehicle by ID
  */
 export async function getVehiculoById(id: string): Promise<VehiculoDto> {
-  const response = await apiClient.get<VehiculoDto>(`${getVehiculosBase()}/${id}`);
+  const response = await apiClient.get<VehiculoDto>(`${VEHICULOS_BASE}/${id}`);
   return response.data;
 }
 
@@ -99,7 +90,7 @@ export async function getVehiculoById(id: string): Promise<VehiculoDto> {
 export async function createVehiculo(
   data: CreateVehiculoRequest
 ): Promise<VehiculoDto> {
-  const response = await apiClient.post<VehiculoDto>(getVehiculosBase(), data);
+  const response = await apiClient.post<VehiculoDto>(VEHICULOS_BASE, data);
   return response.data;
 }
 
@@ -111,7 +102,7 @@ export async function updateVehiculo(
   data: UpdateVehiculoRequest
 ): Promise<VehiculoDto> {
   const response = await apiClient.put<VehiculoDto>(
-    `${getVehiculosBase()}/${id}`,
+    `${VEHICULOS_BASE}/${id}`,
     data
   );
   return response.data;
@@ -121,7 +112,7 @@ export async function updateVehiculo(
  * Deletes a vehicle (soft delete)
  */
 export async function deleteVehiculo(id: string): Promise<void> {
-  await apiClient.delete(`${getVehiculosBase()}/${id}`);
+  await apiClient.delete(`${VEHICULOS_BASE}/${id}`);
 }
 
 /**
@@ -131,7 +122,7 @@ export async function assignDispositivo(
   vehiculoId: string,
   data: AssignDispositivoRequest
 ): Promise<void> {
-  await apiClient.post(`${getVehiculosBase()}/${vehiculoId}/asignaciones`, data);
+  await apiClient.post(`${VEHICULOS_BASE}/${vehiculoId}/asignaciones`, data);
 }
 
 /**
@@ -142,7 +133,7 @@ export async function unassignDispositivo(
   dispositivoId: string
 ): Promise<void> {
   await apiClient.post(
-    `${getVehiculosBase()}/${vehiculoId}/asignaciones/${dispositivoId}/finalizar`
+    `${VEHICULOS_BASE}/${vehiculoId}/asignaciones/${dispositivoId}/finalizar`
   );
 }
 
@@ -165,20 +156,6 @@ export async function getConductoresAsignadosBatch(
   soloActivos?: boolean
 ): Promise<VehiculoConductoresBatchItemDto[]> {
   if (vehiculoIds.length === 0) return [];
-  const user = useAuthStore.getState().user;
-  const isPersonalContext =
-    user?.contextoActivo?.tipo === 'Personal' ||
-    (!!user && !user.organizationId);
-
-  if (isPersonalContext) {
-    const results = await Promise.all(
-      vehiculoIds.map(async (vehiculoId) => ({
-        vehiculoId,
-        conductores: await getConductoresAsignados(vehiculoId, soloActivos),
-      }))
-    );
-    return results;
-  }
 
   const params: Record<string, string | boolean> = {
     vehiculoIds: vehiculoIds.join(','),
@@ -203,7 +180,7 @@ export async function getConductoresAsignados(
   const params: Record<string, boolean> = {};
   if (soloActivos !== undefined) params.soloActivos = soloActivos;
   const response = await apiClient.get<ConductorVehiculoAsignacionDto[]>(
-    `${getVehiculosBase()}/${vehiculoId}/conductores`,
+    `${VEHICULOS_BASE}/${vehiculoId}/conductores`,
     { params: Object.keys(params).length ? params : undefined }
   );
   return response.data;
